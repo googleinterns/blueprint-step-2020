@@ -5,7 +5,6 @@ const CLIENT_ID =
 // Function called when script https://apis.google.com/js/platform.js loads
 function init() {
   gapi.load('auth2', function() {
-    console.log("Hey");
     gapi.auth2.init({
       'client_id': CLIENT_ID
     }).then(renderButton);
@@ -18,7 +17,7 @@ function init() {
  *     Email is null if the email scope is not present.
  */
 function onSignIn(googleUser) {
-  var profile = googleUser.getBasicProfile();
+  let profile = googleUser.getBasicProfile();
   console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
   console.log('Name: ' + profile.getName());
   console.log('Image URL: ' + profile.getImageUrl());
@@ -31,7 +30,7 @@ function onSignIn(googleUser) {
  * testing purposes
  */
 function signOut() {
-  var auth2 = gapi.auth2.getAuthInstance();
+  let auth2 = gapi.auth2.getAuthInstance();
   auth2.signOut().then(function () {
     console.log('User signed out.');
   });
