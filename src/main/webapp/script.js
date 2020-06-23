@@ -14,7 +14,8 @@ function init() {
 
 /**
  * Called when user signs in using rendered sign in button
- * @param googleUser object that contains information about authenticated user
+ * @param googleUser object that contains information about authenticated user.
+ *     Email is null if the email scope is not present.
  */
 function onSignIn(googleUser) {
   var profile = googleUser.getBasicProfile();
