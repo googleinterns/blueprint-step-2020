@@ -1,19 +1,15 @@
 import com.google.sps.utility.AuthenticationUtility;
-
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
 import org.mockito.Mockito;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
 /**
- * Class to Test the Authentication Utility functions
- * TODO: Find a way to mock the Google verification service to create unit tests for
- *     AuthenticationUtility.verifyUserToken()
+ * Class to Test the Authentication Utility functions TODO: Find a way to mock the Google
+ * verification service to create unit tests for AuthenticationUtility.verifyUserToken()
  */
 @RunWith(JUnit4.class)
 public final class AuthenticationUtilityTest {
@@ -21,25 +17,25 @@ public final class AuthenticationUtilityTest {
   // Will mock an HttpServletRequest to be passed to utilities
   private final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
-  private final Cookie[] correctCookies = new Cookie[] {
-      new Cookie("Junk", "Junk_Value"),
-      new Cookie("idToken", "sample_id_token"),
-      new Cookie("accessToken", "sample_access_token")
-  };
+  private final Cookie[] correctCookies =
+      new Cookie[] {
+        new Cookie("Junk", "Junk_Value"),
+        new Cookie("idToken", "sample_id_token"),
+        new Cookie("accessToken", "sample_access_token")
+      };
 
   private final Cookie[] emptyCookies = new Cookie[] {};
 
-  private final Cookie[] missingAuthCookies = new Cookie[] {
-      new Cookie("Junk", "Junk_Value")
-  };
+  private final Cookie[] missingAuthCookies = new Cookie[] {new Cookie("Junk", "Junk_Value")};
 
-  private final Cookie[] duplicateCookies = new Cookie[] {
-      new Cookie("Junk", "Junk_Value"),
-      new Cookie("idToken", "sample_id_token"),
-      new Cookie("idToken", "sample_id_token"),
-      new Cookie("accessToken", "sample_access_token"),
-      new Cookie("accessToken", "sample_access_token")
-  };
+  private final Cookie[] duplicateCookies =
+      new Cookie[] {
+        new Cookie("Junk", "Junk_Value"),
+        new Cookie("idToken", "sample_id_token"),
+        new Cookie("idToken", "sample_id_token"),
+        new Cookie("accessToken", "sample_access_token"),
+        new Cookie("accessToken", "sample_access_token")
+      };
 
   @Test
   public void getCookie() {
@@ -119,4 +115,3 @@ public final class AuthenticationUtilityTest {
     Assert.assertNull(header);
   }
 }
-

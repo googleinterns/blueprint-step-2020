@@ -5,25 +5,23 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
-/**
- * Utility class to help handle OAuth 2.0 verification.
- */
+/** Utility class to help handle OAuth 2.0 verification. */
 public final class AuthenticationUtility {
   // Make constructor private so no instances of this class can be made
   private AuthenticationUtility() {}
 
   /**
    * Helper function to verify if a request contains a valid user token
+   *
    * @param request contains a cookie with a valid user token
    * @return true if a valid user token is present, false if user needs to reauthenticate
    * @throws GeneralSecurityException If something goes wrong with the verifier
@@ -49,10 +47,11 @@ public final class AuthenticationUtility {
 
     // Build a verifier used to ensure the passed user ID is legitimate
     JacksonFactory jacksonFactory = new JacksonFactory();
-    HttpTransport transport =  new NetHttpTransport();
-    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
-        .setAudience(Collections.singletonList(clientId))
-        .build();
+    HttpTransport transport = new NetHttpTransport();
+    GoogleIdTokenVerifier verifier =
+        new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
+            .setAudience(Collections.singletonList(clientId))
+            .build();
 
     // If the idToken is not null, the identity is verified and vice versa
     GoogleIdToken idToken;
@@ -62,12 +61,13 @@ public final class AuthenticationUtility {
   }
 
   /**
-   * Helper function to create an authorization header for an outgoing HTTP request
-   * Does NOT check if the access token provides correct permissions for the request
-   * Does NOT check if the userToken was valid. Use verifyUserToken to verify userId validity
+   * Helper function to create an authorization header for an outgoing HTTP request Does NOT check
+   * if the access token provides correct permissions for the request Does NOT check if the
+   * userToken was valid. Use verifyUserToken to verify userId validity
+   *
    * @param request contains cookies for a userToken and accessToken
-   * @return Value of the "Authorization" header. Null if authentication is invald or
-   *     accessToken was not found
+   * @return Value of the "Authorization" header. Null if authentication is invald or accessToken
+   *     was not found
    */
   public static String generateAuthorizationHeader(HttpServletRequest request) {
     // If accessToken cannot be found, return null
@@ -82,14 +82,17 @@ public final class AuthenticationUtility {
 
   /**
    * Helper method to get a cookie from an HttpServletRequest
+   *
    * @param request HttpServletRequest that contains desired cookie
    * @param cookieName name of desired cookie. Case sensitive
    * @return Cookie if found, null if not found or if duplicates present
    */
   public static Cookie getCookie(HttpServletRequest request, String cookieName) {
     List<Cookie> cookies = Arrays.asList(request.getCookies());
-    cookies = cookies.stream().filter((Cookie c) -> c.getName().equals(cookieName))
-        .collect(Collectors.toList());
+    cookies =
+        cookies.stream()
+            .filter((Cookie c) -> c.getName().equals(cookieName))
+            .collect(Collectors.toList());
 
     if (cookies.size() == 0) {
       System.out.println("Cookie not found");
@@ -106,6 +109,4 @@ public final class AuthenticationUtility {
 
     return cookies.get(0);
   }
-
 }
-
