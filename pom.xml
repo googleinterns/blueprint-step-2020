@@ -58,7 +58,7 @@
                 <configuration>
                   <java>
                     <googleJavaFormat>
-                        <version>${google-java-format.version}</version>
+                        <version>1.8</version>
                     </googleJavaFormat>
                   </java>
                 </configuration>
