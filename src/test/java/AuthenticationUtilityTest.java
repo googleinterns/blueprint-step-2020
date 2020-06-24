@@ -19,18 +19,18 @@ public final class AuthenticationUtilityTest {
 
   private final Cookie[] correctCookies =
       new Cookie[] {
-        new Cookie("Junk", "Junk_Value"),
+        new Cookie("junk", "junk_Value"),
         new Cookie("idToken", "sample_id_token"),
         new Cookie("accessToken", "sample_access_token")
       };
 
   private final Cookie[] emptyCookies = new Cookie[] {};
 
-  private final Cookie[] missingAuthCookies = new Cookie[] {new Cookie("Junk", "Junk_Value")};
+  private final Cookie[] missingAuthCookies = new Cookie[] {new Cookie("junk", "junk_Value")};
 
   private final Cookie[] duplicateCookies =
       new Cookie[] {
-        new Cookie("Junk", "Junk_Value"),
+        new Cookie("junk", "junk_value"),
         new Cookie("idToken", "sample_id_token"),
         new Cookie("idToken", "sample_id_token"),
         new Cookie("accessToken", "sample_access_token"),
