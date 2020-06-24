@@ -12,36 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// This file contains functionality relating to Google Sign in and storing cookies
+// TODO: Manage User Sign In State
+
 // OAUTH 2.0 Client ID
 const CLIENT_ID =
     '196395003919-thc20nqbuukhnmsm1v12o7snh2od7jco.apps.googleusercontent.com';
 
 // Function called when script https://apis.google.com/js/platform.js loads
+// Renders the sign in button and stores clientID as cookie.
 function init() {
-  gapi.load('auth2', function() {
+  gapi.load('auth2', () => {
     gapi.auth2.init({
       'client_id': CLIENT_ID
-    }).then(renderButton);
+    }).then(() => {
+      document.cookie = 'clientId=' + CLIENT_ID;
+      renderButton();
+    });
   });
 }
 
 /**
  * Called when user signs in using rendered sign in button
- * @param googleUser object that contains information about authenticated user.
- *     Email is null if the email scope is not present.
+ * @param {Object} googleUser object that contains information about
+ *     authenticated user.
  */
 function onSignIn(googleUser) {
-  let profile = googleUser.getBasicProfile();
-  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-  console.log('Name: ' + profile.getName());
-  console.log('Image URL: ' + profile.getImageUrl());
-  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+  // Get the authentication object. Always include accessID, even if null
+  const userAuth = googleUser.getAuthResponse(true);
+
+  const idToken = userAuth.id_token;
+  const accessToken = userAuth.access_token;
+  const expiry = userAuth.expires_at;
+  const expiryUtcTime = new Date(expiry).toUTCString();
+
+  // Set cookie that contains idToken to authenticate the user
+  // Will automatically delete when the access token expires
+  // or when the browser is closed
+  document.cookie = 'idToken=' + idToken + '; expires=' + expiryUtcTime;
+
+  // Set cookie that contains idToken to authenticate the user
+  // Will automatically delete when the access token expires
+  // or when the browser is closed
+  document.cookie = 'accessToken=' + accessToken + '; expires=' + expiryUtcTime;
 }
 
 /**
- * Called when user signs out
- * Copied from https://developers.google.com/identity/sign-in/web/sign-in for
- * testing purposes
+ * Signs out of Google Account
  */
 function signOut() {
   let auth2 = gapi.auth2.getAuthInstance();
@@ -54,11 +71,14 @@ function signOut() {
  * Function to render a UI element included in the Google Sign-In for websites
  * package. See documentation:
  * https://developers.google.com/identity/sign-in/web/reference#gapisignin2renderid_options
+ * Request readonly access to Gmail, Tasks, and Calendar
  */
 function renderButton() {
   gapi.signin2.render('google-sign-in-btn',
   {
-    'scope': 'profile',
+    'scope': 'https://www.googleapis.com/auth/gmail.readonly ' +
+        'https://www.googleapis.com/auth/calendar.readonly ' +
+        'https://www.googleapis.com/auth/tasks.readonly',
     'width': 240,
     'height': 40,
     'longtitle': true,
