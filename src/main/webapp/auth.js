@@ -50,12 +50,12 @@ function onSignIn(googleUser) {
   // Set cookie that contains idToken to authenticate the user
   // Will automatically delete when the access token expires
   // or when the browser is closed
-  document.cookie = 'idToken=' + idToken + '; expires=' + expiryUtcTime;
+  document.cookie = `idToken=${idToken}; expires=${expiryUtcTime}`;
 
   // Set cookie that contains idToken to authenticate the user
   // Will automatically delete when the access token expires
   // or when the browser is closed
-  document.cookie = 'accessToken=' + accessToken + '; expires=' + expiryUtcTime;
+  document.cookie = `accessToken=${accessToken}; expires=${expiryUtcTime}`;
 }
 
 /**
