@@ -16,8 +16,9 @@
 // TODO: Manage User Sign In State
 
 // OAUTH 2.0 Client ID
+// TODO: Add Client ID once GCP project is made
 const CLIENT_ID =
-    '196395003919-thc20nqbuukhnmsm1v12o7snh2od7jco.apps.googleusercontent.com';
+    'INPUT_CLIENT_ID_HERE';
 
 // Function called when script https://apis.google.com/js/platform.js loads
 // Renders the sign in button and stores clientID as cookie.
