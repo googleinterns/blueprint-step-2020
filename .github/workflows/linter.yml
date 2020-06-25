@@ -34,7 +34,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install eslint-config-google
+    - run: npm install --save-dev eslint eslint-config-google
 
     - name: Lint Code Base
       uses: docker://github/super-linter:v2.2.0
