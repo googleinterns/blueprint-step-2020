@@ -40,7 +40,7 @@ jobs:
         VALIDATE_MD: true
         VALIDATE_JSON: true
 
-  Java-Lint:
+  Test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -48,7 +48,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Compile
+    - name: Compile project
       run: mvn compile
     - name: Run tests
       run: mvn test
