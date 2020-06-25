@@ -1,0 +1,21 @@
+name: Lint check
+
+on:
+  pull_request:
+    branches: master
+
+jobs:
+  js:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install ESLint with Google Config
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install --save-dev eslint@^7.3.1 eslint-config-google@^0.14.0"
+
+    - name: Check JS
+      run: npx eslint src
