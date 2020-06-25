@@ -1,1 +1,1 @@
-extends: ["eslint:recommended", "eslint-config-google"]
+extends: ["eslint:recommended", "google"]
