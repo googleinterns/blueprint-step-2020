@@ -1,0 +1,23 @@
+.flex-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.flex-item {
+  border: 1px solid black;
+  height: 500px;
+  margin-bottom: 2%;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 2%;
+  width: 500px;
+}
+
+/* Alter flex-container to fit on smaller screens (e.g. mobile devices) */
+@media screen and (max-width: 500px) {
+  .flex-container {
+    display: block;
+  }
+}
