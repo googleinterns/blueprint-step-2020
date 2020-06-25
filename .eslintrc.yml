@@ -1,1 +1,1 @@
-extends: ["eslint:recommended", "googsle"]
+extends: ["eslint:recommended", "google"]
