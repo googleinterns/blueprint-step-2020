@@ -37,7 +37,7 @@ jobs:
     - run: npm install --save-dev eslint eslint-config-google
 
     - name: Run eslint
-      run: npx eslint target
+      run: npx eslint src
 
     # - name: Lint Code Base
     #   uses: docker://github/super-linter:v2.2.0
