@@ -12,20 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file contains functionality relating to Google Sign in and storing cookies
+// This file contains functionality relating to Google Sign in
+// and storing cookies
 // TODO: Manage User Sign In State
+
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 
 // OAUTH 2.0 Client ID
 // TODO: Add Client ID once GCP project is made
-const CLIENT_ID =
-    'INPUT_CLIENT_ID_HERE';
+const CLIENT_ID = 'INPUT_CLIENT_ID_HERE';
 
-// Function called when script https://apis.google.com/js/platform.js loads
-// Renders the sign in button and stores clientID as cookie.
+/**
+ * Function called when script https://apis.google.com/js/platform.js loads
+ * Renders the sign in button and stores clientID as cookie.
+ */
 function init() {
   gapi.load('auth2', () => {
     gapi.auth2.init({
-      'client_id': CLIENT_ID
+      'client_id': CLIENT_ID,
     }).then(() => {
       document.cookie = 'clientId=' + CLIENT_ID;
       renderButton();
@@ -62,8 +67,8 @@ function onSignIn(googleUser) {
  * Signs out of Google Account
  */
 function signOut() {
-  let auth2 = gapi.auth2.getAuthInstance();
-  auth2.signOut().then(function () {
+  const auth2 = gapi.auth2.getAuthInstance();
+  auth2.signOut().then(() => {
     console.log('User signed out.');
   });
 }
@@ -75,8 +80,7 @@ function signOut() {
  * Request readonly access to Gmail, Tasks, and Calendar
  */
 function renderButton() {
-  gapi.signin2.render('google-sign-in-btn',
-  {
+  gapi.signin2.render('google-sign-in-btn', {
     'scope': 'https://www.googleapis.com/auth/gmail.readonly ' +
         'https://www.googleapis.com/auth/calendar.readonly ' +
         'https://www.googleapis.com/auth/tasks.readonly',
@@ -85,7 +89,7 @@ function renderButton() {
     'longtitle': true,
     'theme': 'dark',
     'onsuccess': onSignIn,
-    'onfailure': () => {}
+    'onfailure': () => {},
   });
 }
 
