@@ -6,13 +6,13 @@
 }
 
 .flex-item {
-  border: 1px solid black;
-  height: 500px;
-  margin-bottom: 2%;
-  margin-left: 2%;
-  margin-right: 2%;
-  margin-top: 2%;
-  width: 500px;
+  border: var(--flex-item-border) solid black;
+  height: var(--flex-item-height);
+  margin-bottom: var(--flex-item-margin);
+  margin-left: var(--flex-item-margin);
+  margin-right: var(--flex-item-margin);
+  margin-top: var(--flex-item-margin);
+  width: var(--flex-item-width);
 }
 
 /* Alter flex-container to fit on smaller screens (e.g. mobile devices) */
