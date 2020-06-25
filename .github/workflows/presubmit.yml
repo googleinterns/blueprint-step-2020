@@ -1,9 +1,9 @@
-name: Presubmit
+name: presubmit
 
 on: pull_request
 
 jobs:
-  JS-Lint:
+  js-lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -15,7 +15,7 @@ jobs:
     - name: Check
       run: npx eslint src
 
-  Java-Lint:
+  java-lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -26,7 +26,7 @@ jobs:
     - name: Check
       run: mvn spotless:check
 
-  Misc-Lint:
+  misc-lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
         VALIDATE_MD: true
         VALIDATE_JSON: true
 
-  Test:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
