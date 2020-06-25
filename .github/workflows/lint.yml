@@ -5,17 +5,18 @@ on:
     branches: master
 
 jobs:
-  js:
+  JS:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install ESLint with Google Config
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install eslint@^7.3.1 eslint-config-google@^0.14.0
 
-    - name: Check JS
+    - name: Install ESLint with Google Config
+      run: npm install eslint@^7.3.1 eslint-config-google@^0.14.0
+
+    - name: Check
       run: npx eslint src
