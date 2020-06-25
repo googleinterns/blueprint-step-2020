@@ -3,4 +3,10 @@ steps:
       args: ['info']
     - name: maven:3-jdk-8
       entrypoint: mvn
-      args: ['clean', 'package', 'appengine:deploy', '-Dapp.deploy.version=cloud',  '-Dapp.deploy.promote=False', '-Dapp.deploy.projectId=github-app-triggers-test']
+      args:
+        'clean'
+        'package'
+        'appengine:deploy'
+        '-Dapp.deploy.promote=False'
+        '-Dapp.deploy.version=$_PR_NUMBER'
+        '-Dapp.deploy.projectId=$PROJECT_ID'
