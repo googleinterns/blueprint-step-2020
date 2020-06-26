@@ -105,24 +105,23 @@ public final class AuthenticationUtility {
    * @return Cookie if found, null if not found or if duplicates present
    */
   public static Cookie getCookie(HttpServletRequest request, String cookieName) {
-    List<Cookie> cookies = Arrays.asList(request.getCookies());
-    Stream<Cookie> cookieStream =
-        cookies.stream()
-            .filter((Cookie c) -> c.getName().equals(cookieName));
+    List<Cookie> cookies = Arrays.stream(request.getCookies())
+        .filter((Cookie c) -> c.getName().equals(cookieName))
+        .collect(Collectors.toList());
 
-    long cookieSize = cookieStream.count();
+    if (cookies.size() == 0) {
+      System.out.println("Cookie not found");
+      return null;
+    }
 
     // If more than one cookies are found, it is ambiguous as to which one to return.
     // This is unexpected - duplicate cookies are usually blocked by the browser (especially
     // when they are user set).
-    if (cookieSize == 0) {
-      System.out.println("Cookie not found");
-      return null;
-    } else if (cookieSize > 1) {
+    if (cookies.size() > 1) {
       System.out.println("Duplicate cookie");
       return null;
     }
 
-    return cookieStream.collect(Collectors.toList()).get(0);
+    return cookies.get(0);
   }
 }
