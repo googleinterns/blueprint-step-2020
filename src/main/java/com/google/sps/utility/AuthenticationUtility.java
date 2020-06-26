@@ -1,3 +1,17 @@
+// Copyright 2020 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.sps.utility;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -5,12 +19,15 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -89,24 +106,23 @@ public final class AuthenticationUtility {
    */
   public static Cookie getCookie(HttpServletRequest request, String cookieName) {
     List<Cookie> cookies = Arrays.asList(request.getCookies());
-    cookies =
+    Stream<Cookie> cookieStream =
         cookies.stream()
-            .filter((Cookie c) -> c.getName().equals(cookieName))
-            .collect(Collectors.toList());
+            .filter((Cookie c) -> c.getName().equals(cookieName));
 
-    if (cookies.isEmpty()) {
-      System.out.println("Cookie not found");
-      return null;
-    }
+    long cookieSize = cookieStream.count();
 
     // If more than one cookies are found, it is ambiguous as to which one to return.
     // This is unexpected - duplicate cookies are usually blocked by the browser (especially
     // when they are user set).
-    if (cookies.size() > 1) {
+    if (cookieSize == 0) {
+      System.out.println("Cookie not found");
+      return null;
+    } else if (cookieSize > 1) {
       System.out.println("Duplicate cookie");
       return null;
     }
 
-    return cookies.get(0);
+    return cookieStream.collect(Collectors.toList()).get(0);
   }
 }

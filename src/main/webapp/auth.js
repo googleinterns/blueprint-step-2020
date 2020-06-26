@@ -14,13 +14,13 @@
 
 // This file contains functionality relating to Google Sign in
 // and storing cookies
-// TODO: Manage User Sign In State
+// TODO: Manage User Sign In State (Issue #13)
 
-/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+/* global gapi */
 
 // OAUTH 2.0 Client ID
-// TODO: Add Client ID once GCP project is made
+// TODO: Add Client ID once GCP project is made (Issue #14)
 const CLIENT_ID = 'INPUT_CLIENT_ID_HERE';
 
 /**
