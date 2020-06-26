@@ -13,20 +13,17 @@
 // limitations under the License.
 
 import com.google.sps.utility.AuthenticationUtility;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
 import org.mockito.Mockito;
 
 /**
- * Class to Test the Authentication Utility functions
- * TODO: Find a way to mock the Google verification service (Issue #5)
+ * Class to Test the Authentication Utility functions TODO: Find a way to mock the Google
+ * verification service (Issue #5)
  */
 @RunWith(JUnit4.class)
 public final class AuthenticationUtilityTest {

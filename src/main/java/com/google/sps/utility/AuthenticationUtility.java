@@ -19,15 +19,12 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -105,9 +102,10 @@ public final class AuthenticationUtility {
    * @return Cookie if found, null if not found or if duplicates present
    */
   public static Cookie getCookie(HttpServletRequest request, String cookieName) {
-    List<Cookie> cookies = Arrays.stream(request.getCookies())
-        .filter((Cookie c) -> c.getName().equals(cookieName))
-        .collect(Collectors.toList());
+    List<Cookie> cookies =
+        Arrays.stream(request.getCookies())
+            .filter((Cookie c) -> c.getName().equals(cookieName))
+            .collect(Collectors.toList());
 
     if (cookies.size() == 0) {
       System.out.println("Cookie not found");
