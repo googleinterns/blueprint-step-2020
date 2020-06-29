@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 /** Utility class to help handle OAuth 2.0 verification. */
 public final class AuthenticationUtility {
   // OAuth 2.0 Client ID
-  // TODO: Add Client_ID when GCP Project is made (Issue #14)
-  public static final String CLIENT_ID = "CLIENT_ID_HERE";
+  public static final String CLIENT_ID =
+      "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
 
   // Make constructor private so no instances of this class can be made
   private AuthenticationUtility() {}
