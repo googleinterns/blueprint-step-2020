@@ -35,10 +35,30 @@ function init() {
           gapi.auth2.init({
             'client_id': clientId,
           }).then(() => {
+            handleAuthenticationState();
             renderButton();
           });
         });
   });
+}
+
+/**
+ * Will initialize the page based on the current authentication state
+ */
+function handleAuthenticationState() {
+  const featureContainer = document.querySelector('.feature-container');
+  const logInButton = document.querySelector('#google-sign-in-btn');
+  if (isCookiePresent('idToken')) {
+    // User is logged in.
+    // Hide log-in button, show features
+    logInButton.setAttribute('hidden', '');
+    featureContainer.removeAttribute('hidden');
+  } else {
+    // User is not logged in.
+    // Show login button, hide features
+    logInButton.removeAttribute('hidden');
+    featureContainer.setAttribute('hidden', '');
+  }
 }
 
 /**
@@ -64,6 +84,8 @@ function onSignIn(googleUser) {
   // Will automatically delete when the access token expires
   // or when the browser is closed
   addCookie('accessToken', accessToken, expiryUtcTime);
+
+  handleAuthenticationState();
 }
 
 /**
@@ -72,7 +94,11 @@ function onSignIn(googleUser) {
 function signOut() {
   const auth2 = gapi.auth2.getAuthInstance();
   auth2.signOut().then(() => {
-    console.log('User signed out.');
+    // Remove Authentication Cookies
+    deleteCookie('idToken');
+    deleteCookie('accessToken');
+
+    handleAuthenticationState();
   });
 }
 
