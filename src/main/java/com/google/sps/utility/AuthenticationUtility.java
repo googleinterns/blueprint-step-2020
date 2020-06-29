@@ -30,6 +30,10 @@ import javax.servlet.http.HttpServletRequest;
 
 /** Utility class to help handle OAuth 2.0 verification. */
 public final class AuthenticationUtility {
+  // OAuth 2.0 Client ID
+  // TODO: Add Client_ID when GCP Project is made (Issue #14)
+  public static final String CLIENT_ID = "CLIENT_ID_HERE";
+
   // Make constructor private so no instances of this class can be made
   private AuthenticationUtility() {}
 
@@ -40,16 +44,9 @@ public final class AuthenticationUtility {
    * @return true if a valid user token is present, false if user needs to reauthenticate
    * @throws GeneralSecurityException If something goes wrong with the verifier
    * @throws IOException If something goes wrong with the verifier
-   * @throws IllegalArgumentException if clientID not present
    */
   public static boolean verifyUserToken(HttpServletRequest request)
       throws GeneralSecurityException, IOException, IllegalArgumentException {
-
-    Cookie clientIdCookie = getCookie(request, "clientId");
-    if (clientIdCookie == null) {
-      throw new IllegalArgumentException("Client ID not found!");
-    }
-    String clientId = clientIdCookie.getValue();
 
     // If idToken not present, user needs to reauthenticate.
     Cookie idTokenCookie = getCookie(request, "idToken");
@@ -64,7 +61,7 @@ public final class AuthenticationUtility {
     HttpTransport transport = new NetHttpTransport();
     GoogleIdTokenVerifier verifier =
         new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
-            .setAudience(Collections.singletonList(clientId))
+            .setAudience(Collections.singletonList(CLIENT_ID))
             .build();
 
     // If the idToken is not null, the identity is verified and vice versa

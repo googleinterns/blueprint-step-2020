@@ -22,8 +22,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 /**
- * Class to Test the Authentication Utility functions TODO: Find a way to mock the Google
- * verification service (Issue #5)
+ * Test Authentication Utility functions
+ * TODO: Mock the Google verification service (Issue #5)
  */
 @RunWith(JUnit4.class)
 public final class AuthenticationUtilityTest {

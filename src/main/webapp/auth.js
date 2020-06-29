@@ -19,22 +19,25 @@
 /* eslint-disable no-unused-vars */
 /* global gapi */
 
-// OAUTH 2.0 Client ID
-// TODO: Add Client ID once GCP project is made (Issue #14)
-const CLIENT_ID = 'INPUT_CLIENT_ID_HERE';
-
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
- * Renders the sign in button and stores clientID as cookie.
+ * Initializes the Google Sign-In with a client ID hosted on the server
+ * and renders the button on the page
  */
 function init() {
   gapi.load('auth2', () => {
-    gapi.auth2.init({
-      'client_id': CLIENT_ID,
-    }).then(() => {
-      document.cookie = 'clientId=' + CLIENT_ID;
-      renderButton();
-    });
+    fetch('/client-id')
+        .then((response) => response.json())
+        .then((clientIdObject) => {
+          const clientId = clientIdObject['client-id'];
+
+          // Initialize Google Sign-in with the clientID
+          gapi.auth2.init({
+            'client_id': clientId,
+          }).then(() => {
+            renderButton();
+          });
+        });
   });
 }
 
