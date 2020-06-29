@@ -16,21 +16,19 @@ package com.google.sps.servlets;
 
 import com.google.appengine.repackaged.com.google.gson.JsonObject;
 import com.google.sps.utility.AuthenticationUtility;
-
+import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
-/**
- * Serves the OAuth 2.0 Client ID
- */
+/** Serves the OAuth 2.0 Client ID */
 @WebServlet("/client-id")
 public class ClientIDServlet extends HttpServlet {
 
   /**
    * Return the OAuth 2.0 Client ID to the client
+   *
    * @param request Http request from client
    * @param response Http Response - should contain clientId
    * @throws IOException if an issue arises with response.getWriter
