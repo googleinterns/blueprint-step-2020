@@ -14,29 +14,31 @@
 
 // A series of utility functions that will be helpful throughout the front-end
 
+/* eslint-disable no-unused-vars */
+
 /**
  * Get cookie's value from document
  * @param {string} cookieName the name of the cookie that needs to be found
- * @returns {string|null} either the cookie's value or null if the cookie was not found
+ * @return {string|null} either cookie's value or null if the cookie not found
  */
 function getCookie(cookieName) {
   // Cookie strings are in the format of
   // cookieName1=cookieValue1; cookieName2=cookieValue2; ...
-  const allCookies = document.cookie.split("; ");
+  const allCookies = document.cookie.split('; ');
 
   // Get the value of all matching cookies
-  let matchingCookies = allCookies.filter((cookie) => {
-    let retrievedCookieName = cookie.split("=")[0];
+  const matchingCookies = allCookies.filter((cookie) => {
+    const retrievedCookieName = cookie.split('=')[0];
     return retrievedCookieName === cookieName;
   }).map((cookieString) => {
-    return cookieString.split("=")[1];
-  })
+    return cookieString.split('=')[1];
+  });
 
   // If cookie is not found, or the name is duplicated, return null
   if (matchingCookies.length !== 1) {
     if (matchingCookies > 1) {
       // This is unexpected behaviour
-      console.log("Duplicate cookie!");
+      console.log('Duplicate cookie!');
     }
     return null;
   }
@@ -47,7 +49,7 @@ function getCookie(cookieName) {
 /**
  * Checks if a cookie is present without returning its value
  * @param {string} cookieName the name of the cookie that needs to be found
- * @returns {boolean} true if present, false otherwise
+ * @return {boolean} true if present, false otherwise
  */
 function isCookiePresent(cookieName) {
   return getCookie(cookieName) !== null;
@@ -67,6 +69,6 @@ function addCookie(cookieName, cookieValue, expiryUtcTime) {
  * Deletes cookie from document
  * @param {string} cookieName name of cookie to be deleted
  */
-function deleteCookie(cookieName){
-  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';`
+function deleteCookie(cookieName) {
+  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';`;
 }
