@@ -14,11 +14,19 @@
 
 package com.google.sps.utility;
 
+import com.google.api.client.auth.oauth2.BearerToken;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.cloud.sql.jdbc.internal.Url;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -27,12 +35,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /** Utility class to help handle OAuth 2.0 verification. */
 public final class AuthenticationUtility {
   // OAuth 2.0 Client ID
   public static final String CLIENT_ID =
       "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
+
+  // Application Name
+  public static final String APPLICATION_NAME = "PUT NAME HERE";
 
   private AuthenticationUtility() {}
 
@@ -56,10 +68,10 @@ public final class AuthenticationUtility {
     String idTokenString = idTokenCookie.getValue();
 
     // Build a verifier used to ensure the passed user ID is legitimate
-    JacksonFactory jacksonFactory = new JacksonFactory();
-    HttpTransport transport = new NetHttpTransport();
+    JsonFactory jsonFactory = getJsonFactory();
+    HttpTransport transport = getAppEngineTransport();
     GoogleIdTokenVerifier verifier =
-        new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
+        new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
             .setAudience(Collections.singletonList(CLIENT_ID))
             .build();
 
@@ -71,7 +83,7 @@ public final class AuthenticationUtility {
   }
 
   /**
-   * Helper function to create an authorization header for an outgoing HTTP request Does NOT check
+   * Helper function to create an authorization header for an outgoing HTTP request. Does NOT check
    * if the access token provides correct permissions for the request Does NOT check if the
    * userToken was valid. Use verifyUserToken to verify userId validity
    *
@@ -88,6 +100,55 @@ public final class AuthenticationUtility {
 
     // Otherwise, return the accessToken as a Bearer token for the Authorization Header
     return "Bearer " + authCookie.getValue();
+  }
+
+  /**
+   * Creates a Credential object to work with the Google API Java Client.
+   * Will handle verifying userId prior to creating credential
+   * @param request http request from client. Must contain idToken and accessToken
+   * @return a Google credential object that can be used to create an API service instance
+   */
+  public static Credential getGoogleCredential(HttpServletRequest request) {
+    // Return null if userID cannot be verified
+    try {
+      if (!verifyUserToken(request)) {
+        System.out.println("Could not verify user ID");
+        return null;
+      }
+    } catch (GeneralSecurityException | IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+
+    // Return null if accessToken cannot be found
+    Cookie accessTokenCookie = getCookie(request, "accessToken");
+    String accessToken = "";
+    if (accessTokenCookie != null) {
+      accessToken = accessTokenCookie.getValue();
+    } else {
+      return null;
+    }
+
+    // Build credential object with accessToken
+    Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
+    Credential.Builder credentialBuilder = new Credential.Builder(accessMethod);
+    Credential credential = credentialBuilder.build();
+    credential.setAccessToken(accessToken);
+
+    return credential;
+  }
+
+  /**
+   * Get HTTPTransport appropriate for App Engine environment
+   * https://googleapis.dev/java/google-http-client/latest/com/google/api/client/extensions/appengine/http/UrlFetchTransport.html
+   * @return UrlFetchTransport instance
+   */
+  public static HttpTransport getAppEngineTransport() {
+    return new UrlFetchTransport();
+  }
+
+  public static JsonFactory getJsonFactory() {
+    return new JacksonFactory();
   }
 
   /**
