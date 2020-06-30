@@ -5,8 +5,8 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
+import com.google.sps.model.MessageFormat;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,8 +20,9 @@ public class GmailUtility {
 
   /**
    * Creates a query string for Gmail. Used in search to return emails that fit certain restrictions
-   * @param emailAgeinDays emails from the last emailAgeInDays days will be returned.
-   *     0 for not-specified
+   *
+   * @param emailAgeinDays emails from the last emailAgeInDays days will be returned. 0 for
+   *     not-specified
    * @param unreadOnly true if only returning unread emails, false otherwise
    * @param from should be the email address of the recipient. "" if not specified
    * @return string to use in gmail (either client or API) to find emails that match criteria
@@ -53,11 +54,19 @@ public class GmailUtility {
     return new Gmail.Builder(transport, jsonFactory, credential).build();
   }
 
-  public static List<Message> listUserMessages(Gmail gmailService, String query) throws IOException {
-    List<Message> messages = gmailService.users().messages().list("me").setQ(query).execute().getMessages();
+  public static List<Message> listUserMessages(Gmail gmailService, String query)
+      throws IOException {
+    List<Message> messages =
+        gmailService.users().messages().list("me").setQ(query).execute().getMessages();
 
     return messages;
   }
 
+  public static Message getMessage(Gmail gmailService, String messageId, MessageFormat format)
+      throws IOException {
+    Message message =
+        gmailService.users().messages().get("me", messageId).setFormat(format.formatValue).execute();
 
+    return message;
+  }
 }
