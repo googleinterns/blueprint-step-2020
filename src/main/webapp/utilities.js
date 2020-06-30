@@ -14,7 +14,7 @@
 
 // A series of utility functions that will be helpful throughout the front-end
 
-/* eslint-disable no-unused-vars */
+/* eslint-env commonjs */
 
 /**
  * Get cookie's value from document
