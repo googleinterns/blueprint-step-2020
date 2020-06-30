@@ -17,7 +17,7 @@
 // TODO: Manage User Sign In State (Issue #13)
 
 /* eslint-disable no-unused-vars */
-/* global gapi */
+/* global gapi, addCookie */
 
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
