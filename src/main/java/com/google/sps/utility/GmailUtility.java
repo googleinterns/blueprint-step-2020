@@ -6,7 +6,6 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import com.google.sps.model.MessageFormat;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -65,7 +64,12 @@ public class GmailUtility {
   public static Message getMessage(Gmail gmailService, String messageId, MessageFormat format)
       throws IOException {
     Message message =
-        gmailService.users().messages().get("me", messageId).setFormat(format.formatValue).execute();
+        gmailService
+            .users()
+            .messages()
+            .get("me", messageId)
+            .setFormat(format.formatValue)
+            .execute();
 
     return message;
   }
