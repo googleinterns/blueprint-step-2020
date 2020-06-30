@@ -14,10 +14,9 @@
 
 // This file contains functionality relating to Google Sign in
 // and storing cookies
-// TODO: Manage User Sign In State (Issue #13)
 
 /* eslint-disable no-unused-vars */
-/* global gapi, addCookie */
+/* global gapi, addCookie, isCookiePresent, deleteCookie */
 
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
