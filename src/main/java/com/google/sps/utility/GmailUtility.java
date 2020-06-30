@@ -1,5 +1,15 @@
 package com.google.sps.utility;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.model.Message;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Contains logic that handles GET & POST requests to the Gmail API and transforms those responses
  * into easily usable Java types
@@ -16,7 +26,7 @@ public class GmailUtility {
    * @param from should be the email address of the recipient. "" if not specified
    * @return string to use in gmail (either client or API) to find emails that match criteria
    */
-  public String emailQueryString(int emailAgeinDays, boolean unreadOnly, String from) {
+  public static String emailQueryString(int emailAgeinDays, boolean unreadOnly, String from) {
     String queryString = "";
 
     // newer_than:#d where # is an integer will specify to only return emails from last # days
@@ -34,4 +44,20 @@ public class GmailUtility {
 
     return queryString;
   }
+
+  // Get a gmail service instance given a credential
+  public static Gmail getGmailService(Credential credential) {
+    JsonFactory jsonFactory = AuthenticationUtility.getJsonFactory();
+    HttpTransport transport = AuthenticationUtility.getAppEngineTransport();
+
+    return new Gmail.Builder(transport, jsonFactory, credential).build();
+  }
+
+  public static List<Message> listUserMessages(Gmail gmailService, String query) throws IOException {
+    List<Message> messages = gmailService.users().messages().list("me").setQ(query).execute().getMessages();
+
+    return messages;
+  }
+
+
 }
