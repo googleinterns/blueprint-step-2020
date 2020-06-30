@@ -13,19 +13,15 @@
 // limitations under the License.
 
 import java.io.IOException;
-import java.util.List;
-
-import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
-import org.json.JSONObject;
 
 public final class DistanceMatrixUtility {
 
-  // private final String API_KEY = "AIzaSyBwtyuDDyUts62GMDNBMZOEBLyaS9F80V4";
+  // private final String API_KEY = "";
 
   public static String getDistanceMatrix() throws IOException {
 
-    String content = Request.Get("https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=University+of+Waterloo&destinations=Wilfrid+Laurier+University&key=AIzaSyBwtyuDDyUts62GMDNBMZOEBLyaS9F80V4")
+    String content = Request.Get("https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=University+of+Waterloo&destinations=Wilfrid+Laurier+University&key=[YOUR_API_KEY]")
     .execute().returnContent().toString();
 
     System.out.println(content);
