@@ -20,18 +20,21 @@ public class GmailUtility {
   /**
    * Creates a query string for Gmail. Used in search to return emails that fit certain restrictions
    *
-   * @param emailAgeinDays emails from the last emailAgeInDays days will be returned. 0 for
-   *     not-specified
+   * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. 0 if not
+   *     specified
+   * @param emailAgeUnits "d" for days, "h" for hours, all other entries invalid and will result in
+   *     emailAge not being considered
    * @param unreadOnly true if only returning unread emails, false otherwise
    * @param from should be the email address of the recipient. "" if not specified
    * @return string to use in gmail (either client or API) to find emails that match criteria
    */
-  public static String emailQueryString(int emailAgeinDays, boolean unreadOnly, String from) {
+  public static String emailQueryString(
+      int emailAge, String emailAgeUnits, boolean unreadOnly, String from) {
     String queryString = "";
 
     // newer_than:#d where # is an integer will specify to only return emails from last # days
-    if (emailAgeinDays > 0) {
-      queryString += String.format("newer_than: %dd ", emailAgeinDays);
+    if (emailAge > 0 && (emailAgeUnits.equals("h") || emailAgeUnits.equals("d"))) {
+      queryString += String.format("newer_than: %d%s ", emailAge, emailAgeUnits);
     }
 
     if (unreadOnly) {
