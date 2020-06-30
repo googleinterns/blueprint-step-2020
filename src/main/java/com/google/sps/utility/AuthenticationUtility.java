@@ -100,16 +100,15 @@ public final class AuthenticationUtility {
 
   /**
    * Creates a Credential object to work with the Google API Java Client. Will handle verifying
-   * userId prior to creating credential
+   * userId prior to creating credential. Be sure to do this before creating the credential
    *
    * @param request http request from client. Must contain idToken and accessToken
    * @return a Google credential object that can be used to create an API service instance
    */
   public static Credential getGoogleCredential(HttpServletRequest request) {
-    // Return null if userID cannot be verified
+    // Return null if userId cannot be verified
     try {
       if (!verifyUserToken(request)) {
-        System.out.println("Could not verify user ID");
         return null;
       }
     } catch (GeneralSecurityException | IOException e) {
@@ -126,6 +125,18 @@ public final class AuthenticationUtility {
       return null;
     }
 
+    return getGoogleCredential(accessToken);
+  }
+
+  /**
+   * Creates a Credential object to work with the Google API Java Client. Will NOT handle verifying
+   * userId prior to creating credential. Be sure to do this before creating the credential.
+   * Consider using the overloaded method if you need to do a second verification
+   *
+   * @param accessToken String representation of the accessToken to authenticate user
+   * @return a Google credential object that can be used to create an API service instance
+   */
+  public static Credential getGoogleCredential(String accessToken) {
     // Build credential object with accessToken
     Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
     Credential.Builder credentialBuilder = new Credential.Builder(accessMethod);
