@@ -28,22 +28,25 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 @RunWith(JUnit4.class)
 public class DistanceMatrixUtilityTest {
 
-  String ORIGIN = "University of Waterloo";
-  List<String> DESTINATIONS = Arrays.asList("Wilfrid Laurier University", "Conestoga College");
+  private final String ORIGIN = "University of Waterloo";
+  private final List<String> DESTINATIONS =
+      Arrays.asList("Wilfrid Laurier University", "Conestoga College");
+  private final String API_KEY = System.getenv("API_KEY");
 
   @Test
   public void buildUri() throws IOException, URISyntaxException {
     // Checks that the correct URI is built.
-    String actual = DistanceMatrixUtility.getDistanceMatrixUri(DESTINATIONS, ORIGIN);
+    String actual = DistanceMatrixUtility.getDistanceMatrixUri(DESTINATIONS, ORIGIN, API_KEY);
     String expected =
-        "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=Wilfrid+Laurier+University&destinations=Conestoga+College&origins=University+of+Waterloo&units=imperial&key=AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y";
+        "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=Wilfrid+Laurier+University&destinations=Conestoga+College&origins=University+of+Waterloo&units=imperial&key="
+            + API_KEY;
     Assert.assertEquals(expected, actual);
   }
 
   @Test
   public void apiCall() throws JSONException, IOException, URISyntaxException {
     // Ensures that Distance Matrix API call is successful.
-    JSONObject actual = DistanceMatrixUtility.getDistanceMatrix(DESTINATIONS, ORIGIN);
+    JSONObject actual = DistanceMatrixUtility.getDistanceMatrix(DESTINATIONS, ORIGIN, API_KEY);
     Assert.assertEquals("OK", actual.get("status"));
   }
 
@@ -52,7 +55,7 @@ public class DistanceMatrixUtilityTest {
     // Confirms that the JSON obtained from the API is correct after building URI and calling API.
     String expected =
         "{\"destination_addresses\":[\"75 University Ave W, Waterloo, ON N2L 3C5, Canada\"],\"origin_addresses\":[\"200 University Ave W, Waterloo, ON N2L 3G1, Canada\"],\"rows\":[{\"elements\":[{\"duration\":{\"text\":\"5 mins\",\"value\":315},\"distance\":{\"text\":\"0.9 mi\",\"value\":1464},\"status\":\"OK\"}]}],\"status\":\"OK\"}";
-    JSONObject actual = DistanceMatrixUtility.getDistanceMatrix(DESTINATIONS, ORIGIN);
+    JSONObject actual = DistanceMatrixUtility.getDistanceMatrix(DESTINATIONS, ORIGIN, API_KEY);
     JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
   }
 }

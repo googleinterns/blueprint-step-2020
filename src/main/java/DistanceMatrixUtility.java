@@ -54,7 +54,7 @@ public final class DistanceMatrixUtility {
    * @return A string representing the URI.
    * @throws URISyntaxException Indicates that the built string could not be parsed as a URI.
    */
-  public static String getDistanceMatrixUri(List<String> destinations, String origin)
+  public static String getDistanceMatrixUri(List<String> destinations, String origin, String apiKey)
       throws URISyntaxException {
     URI uri =
         new URIBuilder()
@@ -64,7 +64,7 @@ public final class DistanceMatrixUtility {
             .setParameters(buildParameters("destinations", destinations))
             .setParameter("origins", origin)
             .setParameter("units", "imperial")
-            .setParameter("key", "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y")
+            .setParameter("key", apiKey)
             .build();
     return uri.toString();
   }
@@ -79,11 +79,11 @@ public final class DistanceMatrixUtility {
    * @throws JSONException Indicates a problem with the JSON API.
    * @throws URISyntaxException Indicates that the built string could not be parsed as a URI.
    */
-  public static JSONObject getDistanceMatrix(List<String> destinations, String origin)
+  public static JSONObject getDistanceMatrix(
+      List<String> destinations, String origin, String apiKey)
       throws IOException, JSONException, URISyntaxException {
-    String uri = getDistanceMatrixUri(destinations, origin);
+    String uri = getDistanceMatrixUri(destinations, origin, apiKey);
     String jsonString = Request.Get(uri).execute().returnContent().toString();
-    System.out.println(jsonString);
     return new JSONObject(jsonString);
   }
 }
