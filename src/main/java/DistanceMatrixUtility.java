@@ -24,23 +24,21 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Utility class for the Distance Matrix API.
- */
+/** Utility class for the Distance Matrix API. */
 public final class DistanceMatrixUtility {
 
-  /**
-   * Prevents instances of this class.
-   */
+  /** Prevents instances of this class. */
   private DistanceMatrixUtility() {}
 
   /**
    * Sets multiple values to a single parameter.
+   *
    * @param parameterName A string containing the name of parameter to set multiple values to.
    * @param parameterValues A list of string containing the multiple values to be set.
    * @return A list of NameValuePair to set as parameters on a URIBuilder.
    */
-  private static List<NameValuePair> buildParameters(String parameterName, List<String> parameterValues) {
+  private static List<NameValuePair> buildParameters(
+      String parameterName, List<String> parameterValues) {
     List<NameValuePair> parameters = new ArrayList<>();
     for (String parameterValue : parameterValues) {
       parameters.add(new BasicNameValuePair(parameterName, parameterValue));
@@ -50,26 +48,30 @@ public final class DistanceMatrixUtility {
 
   /**
    * Builds custom URI to send a HTTP GET Request to the Distance Matrix API.
+   *
    * @param destinations A list of string containing the destinations to build a distance matrix to.
    * @param origin A string representing the origin to build a distance matrix from.
    * @return A string representing the URI.
    * @throws URISyntaxException Indicates that the built string could not be parsed as a URI.
    */
-  public static String getDistanceMatrixUri(List<String> destinations, String origin) throws URISyntaxException {
-    URI uri = new URIBuilder()
-        .setScheme("https")
-        .setHost("maps.googleapis.com")
-        .setPath("/maps/api/distancematrix/json")
-        .setParameters(buildParameters("destinations", destinations))
-        .setParameter("origins", origin)
-        .setParameter("units", "imperial")
-        .setParameter("key", "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y")
-        .build();
+  public static String getDistanceMatrixUri(List<String> destinations, String origin)
+      throws URISyntaxException {
+    URI uri =
+        new URIBuilder()
+            .setScheme("https")
+            .setHost("maps.googleapis.com")
+            .setPath("/maps/api/distancematrix/json")
+            .setParameters(buildParameters("destinations", destinations))
+            .setParameter("origins", origin)
+            .setParameter("units", "imperial")
+            .setParameter("key", "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y")
+            .build();
     return uri.toString();
   }
 
   /**
    * Gets the result of a call to the Distance Matrix API.
+   *
    * @param destinations A list of string containing the destinations to build a distance matrix to.
    * @param origin A string representing the origin to build a distance matrix from.
    * @return A JSONObject representing the result from a call to the Distance Matrix API.
@@ -83,5 +85,4 @@ public final class DistanceMatrixUtility {
     String jsonString = Request.Get(uri).execute().returnContent().toString();
     return new JSONObject(jsonString);
   }
-
 }

@@ -35,7 +35,8 @@ public class DistanceMatrixUtilityTest {
   public void buildUri() throws IOException, URISyntaxException {
     // Checks that the correct URI is built.
     String actual = DistanceMatrixUtility.getDistanceMatrixUri(DESTINATIONS, ORIGIN);
-    String expected = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=Wilfrid+Laurier+University&destinations=Conestoga+College&origins=University+of+Waterloo&units=imperial&key=AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y";
+    String expected =
+        "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=Wilfrid+Laurier+University&destinations=Conestoga+College&origins=University+of+Waterloo&units=imperial&key=AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y";
     Assert.assertEquals(expected, actual);
   }
 
@@ -49,9 +50,9 @@ public class DistanceMatrixUtilityTest {
   @Test
   public void compareJson() throws IOException, JSONException, URISyntaxException {
     // Confirms that the JSON obtained from the API is correct after building URI and calling API.
-    String expected = "{\"destination_addresses\":[\"75 University Ave W, Waterloo, ON N2L 3C5, Canada\"],\"origin_addresses\":[\"200 University Ave W, Waterloo, ON N2L 3G1, Canada\"],\"rows\":[{\"elements\":[{\"duration\":{\"text\":\"5 mins\",\"value\":315},\"distance\":{\"text\":\"0.9 mi\",\"value\":1464},\"status\":\"OK\"}]}],\"status\":\"OK\"}";
+    String expected =
+        "{\"destination_addresses\":[\"75 University Ave W, Waterloo, ON N2L 3C5, Canada\"],\"origin_addresses\":[\"200 University Ave W, Waterloo, ON N2L 3G1, Canada\"],\"rows\":[{\"elements\":[{\"duration\":{\"text\":\"5 mins\",\"value\":315},\"distance\":{\"text\":\"0.9 mi\",\"value\":1464},\"status\":\"OK\"}]}],\"status\":\"OK\"}";
     JSONObject actual = DistanceMatrixUtility.getDistanceMatrix(DESTINATIONS, ORIGIN);
     JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
   }
-  
 }
