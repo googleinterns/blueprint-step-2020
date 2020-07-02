@@ -83,6 +83,7 @@ public final class DistanceMatrixUtility {
       throws IOException, JSONException, URISyntaxException {
     String uri = getDistanceMatrixUri(destinations, origin);
     String jsonString = Request.Get(uri).execute().returnContent().toString();
+    System.out.println(jsonString);
     return new JSONObject(jsonString);
   }
 }

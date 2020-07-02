@@ -45,7 +45,6 @@ public class DistanceMatrixUtilityTest {
     // Ensures that Distance Matrix API call is successful.
     JSONObject actual = DistanceMatrixUtility.getDistanceMatrix(DESTINATIONS, ORIGIN);
     Assert.assertEquals("OK", actual.get("status"));
-    System.out.println(actual);
   }
 
   @Test
