@@ -35,7 +35,8 @@ function populateGmail() {
         return response.json();
       })
       .then((emailList) => {
-        // Convert JSON to list of messageIds and display them on screen
+        // Convert JSON to string containing all messageIds
+        // and display it on client
         const emails =
             emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
         gmailContainer.innerText = emails;
