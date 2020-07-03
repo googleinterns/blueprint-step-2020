@@ -18,7 +18,7 @@
 /* global signOut */
 
 /**
- * Function to populate Gmail container with API response
+ * Populate Gmail container with user information
  */
 function populateGmail() {
   // Get container for Gmail content
