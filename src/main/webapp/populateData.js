@@ -68,12 +68,12 @@ function populateTasks() {
         // Convert JSON to string containing all task titles
         // and display it on client
         const tasks =
-            tasksList.map((a) => a.title).reduce((a,b) => a + '\n' + b);
+            tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
         tasksContainer.innerText = tasks;
       })
       .catch(() => {
         // Sign out user if not authenticated
         signOut();
-      })
+      });
 }
 
