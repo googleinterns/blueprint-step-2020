@@ -46,6 +46,6 @@ public class DirectionsUtilityTest {
   public void apiCall() throws JSONException, IOException, URISyntaxException {
     // Ensures that Distance Matrix API call is successful.
     JSONObject actual = DirectionsUtility.getDirections(DESTINATION, ORIGIN, WAYPOINTS, API_KEY);
-    Assert.assertEquals("OK", actual.get("status"));
+    Assert.assertEquals("OK", actual);
   }
 }
