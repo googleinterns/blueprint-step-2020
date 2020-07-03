@@ -42,21 +42,22 @@ public class TasksServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // get Google credential object. Ensure it is valid - otherwise return an error to client
     Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
-
     if (googleCredential == null) {
       response.sendError(403, AuthenticationUtility.ERROR_403);
       return;
     }
 
+    // Get tasks from Google Tasks
     Tasks tasksService = TasksUtility.getTasksService(googleCredential);
     List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
     List<Task> tasks = new ArrayList<>();
-
     for (TaskList taskList : taskLists) {
       tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
     }
 
+    // Convert tasks to JSON and print to response
     Gson gson = new Gson();
     String tasksJson = gson.toJson(tasks);
 
