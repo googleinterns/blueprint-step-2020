@@ -21,23 +21,21 @@ import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.utility.AuthenticationUtility;
 import com.google.sps.utility.TasksUtility;
-
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Serves selected information from the User's Tasks Account.
- */
+/** Serves selected information from the User's Tasks Account. */
 @WebServlet("/tasks")
 public class TasksServlet extends HttpServlet {
 
   /**
    * Returns taskNames from the user's Tasks account
+   *
    * @param request Http request from client. Should contain idToken and accessToken
    * @param response 403 if user is not authenticated, list of taskNames otherwise
    * @throws IOException if an issue arises while processing the request
@@ -55,7 +53,7 @@ public class TasksServlet extends HttpServlet {
     List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
     List<Task> tasks = new ArrayList<>();
 
-    for (TaskList taskList: taskLists) {
+    for (TaskList taskList : taskLists) {
       tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
     }
 
