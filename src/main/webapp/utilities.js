@@ -28,9 +28,11 @@ function getCookie(cookieName) {
 
   // Get the value of all matching cookies
   const matchingCookies = allCookies.filter((cookie) => {
+    // Gets the name of the first cookie
     const retrievedCookieName = cookie.split('=')[0];
     return retrievedCookieName === cookieName;
   }).map((cookieString) => {
+    // Extracts the value of each cookie
     return cookieString.split('=')[1];
   });
 
@@ -43,6 +45,7 @@ function getCookie(cookieName) {
     return null;
   }
 
+  // Return the only cookie in the list (as expected)
   return matchingCookies[0];
 }
 
@@ -70,5 +73,6 @@ function addCookie(cookieName, cookieValue, expiryUtcTime) {
  * @param {string} cookieName name of cookie to be deleted
  */
 function deleteCookie(cookieName) {
-  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';`;
+  // Set time to EPOCH time. Will prompt cookie to immediately expire
+  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
 }

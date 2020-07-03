@@ -46,16 +46,16 @@ function init() {
  */
 function handleAuthenticationState() {
   const featureContainer = document.querySelector('.feature-container');
-  const logInButton = document.querySelector('#google-sign-in-btn');
+  const signInButton = document.querySelector('#google-sign-in-btn');
   if (isCookiePresent('idToken')) {
     // User is logged in.
-    // Hide log-in button, show features
-    logInButton.setAttribute('hidden', '');
+    // Hide sign in button, show features
+    signInButton.setAttribute('hidden', '');
     featureContainer.removeAttribute('hidden');
   } else {
     // User is not logged in.
-    // Show login button, hide features
-    logInButton.removeAttribute('hidden');
+    // Show sign in button, hide features
+    signInButton.removeAttribute('hidden');
     featureContainer.setAttribute('hidden', '');
   }
 }
