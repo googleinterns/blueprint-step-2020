@@ -55,6 +55,7 @@ function handleAuthenticationState() {
 
     // Populate information panels at top of dashboard
     populateGmail();
+    populateTasks();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
