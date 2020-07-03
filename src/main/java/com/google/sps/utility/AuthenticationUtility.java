@@ -104,7 +104,7 @@ public final class AuthenticationUtility {
             .filter((Cookie c) -> c.getName().equals(cookieName))
             .collect(Collectors.toList());
 
-    if (cookies.size() == 0) {
+    if (cookies.isEmpty()) {
       System.out.println("Cookie not found");
       return null;
     }
