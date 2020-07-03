@@ -27,21 +27,34 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Serves the OAuth 2.0 Client ID */
+/**
+ * Serves selected information from the User's Gmail Account Currently just returns list of
+ * messageIds
+ */
 @WebServlet("/gmail")
 public class GmailServlet extends HttpServlet {
 
+  /**
+   * Returns information from the user's Gmail account
+   *
+   * @param request Http request from the client. Should contain idToken and accessToken
+   * @param response 403 if user is not authenticated, list of messageIds otherwise
+   * @throws IOException if an issue arises while processing the request
+   */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // get Google credential object. Ensure it is valid - otherwise return an error to client
     Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
     if (googleCredential == null) {
       response.sendError(403, "Authentication tokens not present / invalid");
       return;
     }
 
+    // Get messageIds from Gmail
     Gmail gmailService = GmailUtility.getGmailService(googleCredential);
     List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
 
+    // convert messageIds to JSON object and print to response
     Gson gson = new Gson();
     String messageJson = gson.toJson(messages);
 

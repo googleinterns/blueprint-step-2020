@@ -15,19 +15,35 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
+/* global signOut */
 
 /**
  * Function to populate Gmail container with API response
  */
 function populateGmail() {
+  // Get container for Gmail content
   const gmailContainer = document.querySelector('#gmail');
+
+  // Get list of messageIds from user's Gmail account
+  // and display them on the screen
   fetch('/gmail')
-      .then((response) => response.json())
+      .then((response) => {
+        // If response is a 403, user is not authenticated
+        if (response.status === 403) {
+          throw new Error();
+        }
+        return response.json();
+      })
       .then((emailList) => {
         console.log(emailList);
+        // Convert JSON to list of messageIds and display them on screen
         const emails =
             emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
         gmailContainer.innerText = emails;
+      })
+      .catch(() => {
+        // Sign out user if not authenticated
+        signOut();
       });
 }
 
