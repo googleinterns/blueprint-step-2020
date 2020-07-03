@@ -16,7 +16,7 @@
 // and storing cookies
 
 /* eslint-disable no-unused-vars */
-/* global gapi, addCookie, isCookiePresent, deleteCookie */
+/* global gapi, addCookie, isCookiePresent, deleteCookie, populateGmail */
 
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
@@ -52,6 +52,8 @@ function handleAuthenticationState() {
     // Hide sign in button, show features
     signInButton.setAttribute('hidden', '');
     featureContainer.removeAttribute('hidden');
+
+    populateGmail();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
