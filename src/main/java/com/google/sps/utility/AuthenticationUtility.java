@@ -118,14 +118,11 @@ public final class AuthenticationUtility {
 
     // Return null if accessToken cannot be found
     Cookie accessTokenCookie = getCookie(request, "accessToken");
-    String accessToken = "";
-    if (accessTokenCookie != null) {
-      accessToken = accessTokenCookie.getValue();
-    } else {
+    if (accessTokenCookie == null) {
       return null;
     }
 
-    return getGoogleCredential(accessToken);
+    return getGoogleCredential(accessTokenCookie.getValue());
   }
 
   /**
@@ -138,7 +135,7 @@ public final class AuthenticationUtility {
    *     accessToken is empty string
    */
   public static Credential getGoogleCredential(String accessToken) {
-    if (accessToken.equals("")) {
+    if (accessToken.isEmpty()) {
       return null;
     }
 
