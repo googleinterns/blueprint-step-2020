@@ -47,3 +47,33 @@ function populateGmail() {
       });
 }
 
+/**
+ * Populate Tasks container with user information
+ */
+function populateTasks() {
+  // Get Container for Tasks content
+  const tasksContainer = document.querySelector('#tasks');
+
+  // Get list of tasks from user's Tasks account
+  // and display the task titles from all task lists on the screen
+  fetch('/tasks')
+      .then((response) => {
+        // If response is a 403, user is not authenticated
+        if (response.status === 403) {
+          throw new Error();
+        }
+        return response.json();
+      })
+      .then((tasksList) => {
+        // Convert JSON to string containing all task titles
+        // and display it on client
+        const tasks =
+            tasksList.map((a) => a.title).reduce((a,b) => a + '\n' + b);
+        tasksContainer.innerText = tasks;
+      })
+      .catch(() => {
+        // Sign out user if not authenticated
+        signOut();
+      })
+}
+
