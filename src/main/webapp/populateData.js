@@ -35,7 +35,6 @@ function populateGmail() {
         return response.json();
       })
       .then((emailList) => {
-        console.log(emailList);
         // Convert JSON to list of messageIds and display them on screen
         const emails =
             emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
