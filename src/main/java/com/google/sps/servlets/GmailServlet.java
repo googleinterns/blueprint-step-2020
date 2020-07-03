@@ -27,9 +27,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Serves selected information from the User's Gmail Account
- */
+/** Serves selected information from the User's Gmail Account */
 @WebServlet("/gmail")
 public class GmailServlet extends HttpServlet {
 
@@ -45,7 +43,7 @@ public class GmailServlet extends HttpServlet {
     // get Google credential object. Ensure it is valid - otherwise return an error to client
     Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
     if (googleCredential == null) {
-      response.sendError(403, "Authentication tokens not present / invalid");
+      response.sendError(403, AuthenticationUtility.ERROR_403);
       return;
     }
 
