@@ -105,6 +105,7 @@ public final class AuthenticationUtility {
    *
    * @param request http request from client. Must contain idToken and accessToken
    * @return a Google credential object that can be used to create an API service instance
+   *     null if userId cannot be verified or accessToken cannot be found
    */
   public static Credential getGoogleCredential(HttpServletRequest request) {
     // Return null if userId cannot be verified
