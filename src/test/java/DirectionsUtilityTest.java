@@ -30,7 +30,7 @@ public class DirectionsUtilityTest {
   private final String ORIGIN = "University of Waterloo";
   private final String DESTINATION = "Wilfrid Laurier University";
   private final List<String> WAYPOINTS = Arrays.asList("University of Waterloo Place");
-  private final String API_KEY = "AIzaSyCBeGgjMWNe-d5qN34j_TitIllGMSvqWpY";
+  private final String API_KEY = "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y";
 
   @Test
   public void buildUri() throws IOException, URISyntaxException {
@@ -44,8 +44,8 @@ public class DirectionsUtilityTest {
 
   @Test
   public void apiCall() throws JSONException, IOException, URISyntaxException {
-    // Ensures that Distance Matrix API call is successful.
+    // Ensures that Directions API call is successful.
     JSONObject actual = DirectionsUtility.getDirections(DESTINATION, ORIGIN, WAYPOINTS, API_KEY);
-    Assert.assertEquals("OK", actual);
+    Assert.assertEquals("OK", actual.get("status"));
   }
 }

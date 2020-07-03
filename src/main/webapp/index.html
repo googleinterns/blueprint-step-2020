@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="styles.css">
 <script src="utilities.js"></script>
 <script src="auth.js"></script>
+<script src="go.js" onload="populateGo()"></script>
 <script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
 <!-- Google-Styled button that handles authentication -->
 <div id="google-sign-in-btn"></div>
@@ -20,7 +21,16 @@
   <div class="flex-container">
     <div class="flex-item">Assign</div>
     <div class="flex-item">Plan</div>
-    <div class="flex-item">Go</div>
+    <div class="flex-item">
+      Go
+      <form action="/directions" method="POST">
+        <p>Origin: <input type="text" name="origin">
+        <p>Destination: <input type="text" name="destination">
+        <p>Waypoints (; separated): <input type="text" name="waypoints">
+        <p>API Key: <input type="text" name="api-key">
+        <input type="submit"/>
+      </form>
+      <div id="directions-container"></div>
+    </div>
   </div>
 </div>
-

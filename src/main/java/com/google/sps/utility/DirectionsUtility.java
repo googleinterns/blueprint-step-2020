@@ -38,6 +38,9 @@ public final class DirectionsUtility {
   private static String buildWaypoints(List<String> waypoints) {
     StringBuilder waypointsBuilder = new StringBuilder();
     boolean firstIteration = true;
+    if (waypoints == null) {
+      return "";
+    }
     for (String waypoint : waypoints) {
       if (firstIteration) {
         waypointsBuilder.append("via:" + waypoint);
