@@ -18,34 +18,71 @@ public class GmailUtility {
   private GmailUtility() {}
 
   /**
-   * Creates a query string for Gmail. Used in search to return emails that fit certain restrictions
+   * Creates a query string for Gmail. Use in search to return emails that fit certain restrictions
    *
-   * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. 0 if not
-   *     specified
-   * @param emailAgeUnits "d" for days, "h" for hours, all other entries invalid and will result in
-   *     emailAge not being considered
+   * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. Set to 0 to
+   *     ignore filter
+   * @param emailAgeUnits "d" for days, "h" for hours, "" for ignore email
    * @param unreadOnly true if only returning unread emails, false otherwise
-   * @param from should be the email address of the recipient. "" if not specified
+   * @param from email address of the sender. "" if not specified
    * @return string to use in gmail (either client or API) to find emails that match criteria
    */
   public static String emailQueryString(
       int emailAge, String emailAgeUnits, boolean unreadOnly, String from) {
     String queryString = "";
 
+    // Add query components
+    queryString += emailAgeQuery(emailAge, emailAgeUnits);
+    queryString += unreadEmailQuery(unreadOnly);
+    queryString += fromEmailQuery(from);
+
+    // Return multi-part query
+    return queryString;
+  }
+
+  /**
+   * Creates Gmail query for age of emails
+   *
+   * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. Set to 0 to
+   *     ignore filter
+   * @param emailAgeUnits "d" for days, "h" for hours, "" for ignore email
+   * @return string to use in Gmail (either client or API) to find emails that match these criteria
+   *     or null if either one of the arguments are invalid Trailing space added to properties so
+   *     multiple queries can be concatenated
+   */
+  public static String emailAgeQuery(int emailAge, String emailAgeUnits) {
     // newer_than:#d where # is an integer will specify to only return emails from last # days
     if (emailAge > 0 && (emailAgeUnits.equals("h") || emailAgeUnits.equals("d"))) {
-      queryString += String.format("newer_than: %d%s ", emailAge, emailAgeUnits);
+      return String.format("newer_than: %d%s ", emailAge, emailAgeUnits);
+    } else if (emailAge == 0 && emailAgeUnits.isEmpty()) {
+      return "";
+    } else {
+      return null;
     }
+  }
 
-    if (unreadOnly) {
-      queryString += "is:unread ";
-    }
+  /**
+   * Creates Gmail query for unread emails
+   *
+   * @param unreadOnly true if only unread emails, false otherwise
+   * @return string to use in gmail (either client or API) to find emails that match these criteria
+   *     Trailing space added to properties so multiple queries can be concatenated
+   */
+  public static String unreadEmailQuery(boolean unreadOnly) {
+    // is:unread will return only unread emails
+    return unreadOnly ? "is:unread " : "";
+  }
 
-    if (!from.equals("")) {
-      queryString += String.format("from: %s", from);
-    }
-
-    return queryString;
+  /**
+   * Creates Gmail query to find emails from specific sender
+   *
+   * @param from email address of the sender. "" if not specified
+   * @return string to use in Gmail (either client or API) to find emails that match these criteria
+   *     Trailing space added to properties so multiple queries can be concatenated
+   */
+  public static String fromEmailQuery(String from) {
+    // from: <emailAddress> will return only emails from that sender
+    return !from.equals("") ? String.format("from: %s ", from) : "";
   }
 
   // Get a gmail service instance given a credential
