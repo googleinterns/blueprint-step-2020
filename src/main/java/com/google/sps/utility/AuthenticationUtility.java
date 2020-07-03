@@ -135,9 +135,13 @@ public final class AuthenticationUtility {
    * Consider using the overloaded method if you need to do a second verification
    *
    * @param accessToken String representation of the accessToken to authenticate user
-   * @return a Google credential object that can be used to create an API service instance
+   * @return a Google credential object that can be used to create an API service instance. null if accessToken is empty string
    */
   public static Credential getGoogleCredential(String accessToken) {
+    if (accessToken.equals("")) {
+      return null;
+    }
+
     // Build credential object with accessToken
     Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
     Credential.Builder credentialBuilder = new Credential.Builder(accessMethod);
