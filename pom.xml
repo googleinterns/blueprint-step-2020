@@ -60,6 +60,16 @@
             <artifactId>google-api-services-gmail</artifactId>
             <version>v1-rev20200601-1.30.9</version>
         </dependency>
+        <dependency>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
+          <version>20200518</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>fluent-hc</artifactId>
+          <version>4.5.12</version>
+        </dependency>
     </dependencies>
 
     <build>
