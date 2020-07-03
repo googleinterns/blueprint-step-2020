@@ -28,14 +28,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Serves selected information from the User's Gmail Account Currently just returns list of
- * messageIds
+ * Serves selected information from the User's Gmail Account
  */
 @WebServlet("/gmail")
 public class GmailServlet extends HttpServlet {
 
   /**
-   * Returns information from the user's Gmail account
+   * Returns messageIds from the user's Gmail account
    *
    * @param request Http request from the client. Should contain idToken and accessToken
    * @param response 403 if user is not authenticated, list of messageIds otherwise
