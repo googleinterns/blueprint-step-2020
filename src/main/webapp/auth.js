@@ -53,6 +53,7 @@ function handleAuthenticationState() {
     signInButton.setAttribute('hidden', '');
     featureContainer.removeAttribute('hidden');
 
+    // Populate information panels at top of dashboard
     populateGmail();
   } else {
     // User is not logged in.
