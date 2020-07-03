@@ -115,6 +115,4 @@ public final class GmailUtilityTest {
     Assert.assertTrue(multipleFilterQuery.contains(unreadEmailsQuery));
     Assert.assertTrue(multipleFilterQuery.contains(fromEmailQuery));
   }
-
-
 }
