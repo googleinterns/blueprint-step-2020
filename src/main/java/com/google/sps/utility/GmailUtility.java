@@ -99,7 +99,12 @@ public class GmailUtility {
     return !from.equals("") ? String.format("from: %s ", from) : "";
   }
 
-  // Get a gmail service instance given a credential
+  /**
+   * Get a gmail service instance given a credential. Required to access any Gmail API services
+   *
+   * @param credential Google Credential object with user's accessToken inside
+   * @return Gmail service instance
+   */
   public static Gmail getGmailService(Credential credential) {
     JsonFactory jsonFactory = AuthenticationUtility.getJsonFactory();
     HttpTransport transport = AuthenticationUtility.getAppEngineTransport();
@@ -107,6 +112,15 @@ public class GmailUtility {
     return new Gmail.Builder(transport, jsonFactory, credential).build();
   }
 
+  /**
+   * Lists all emails (that match the criteria, if provided) in the user's Gmail account
+   *
+   * @param gmailService instance of Gmail Service with valid credential
+   * @param query conditions applied to the search to limit which emails are returned. "" for no
+   *     restrictions.
+   * @return List of Message objects that contain a message and thread ID
+   * @throws IOException if an issue occurs with the Gmail service
+   */
   public static List<Message> listUserMessages(Gmail gmailService, String query)
       throws IOException {
     List<Message> messages =
@@ -115,6 +129,16 @@ public class GmailUtility {
     return messages;
   }
 
+  /**
+   * Gets a specific message from a user's Gmail account, given the messageId
+   *
+   * @param gmailService instance of Gmail Service with valid credential
+   * @param messageId a specific message Id that corresponds to a message in the user's account.
+   *     Generally retrieved from the listUserMessages method
+   * @param format controls how much information from each message is returned
+   * @return a Message object that contains the information requested
+   * @throws IOException
+   */
   public static Message getMessage(Gmail gmailService, String messageId, MessageFormat format)
       throws IOException {
     Message message =
