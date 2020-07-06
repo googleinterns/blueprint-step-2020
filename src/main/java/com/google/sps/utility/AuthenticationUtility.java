@@ -43,7 +43,6 @@ public final class AuthenticationUtility {
   // Error message if user is not authenticated
   public static final String ERROR_403 = "Authentication tokens not present / invalid";
 
-  // Make constructor private so no instances of this class can be made
   private AuthenticationUtility() {}
 
   /**
