@@ -13,8 +13,6 @@
 // limitations under the License.
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.sps.utility.AuthenticationUtility;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -60,7 +58,6 @@ public final class AuthenticationUtilityTest {
     Mockito.when(request.getCookies()).thenReturn(correctCookies);
 
     Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
-    Assert.assertNotNull(retrievedCookie);
     Assert.assertEquals(retrievedCookie.getName(), "idToken");
     Assert.assertEquals(retrievedCookie.getValue(), "sample_id_token");
   }
@@ -133,22 +130,9 @@ public final class AuthenticationUtilityTest {
   }
 
   @Test
-  public void getJsonFactory() {
-    // Should return an object that implements the JsonFactory interface
-    Assert.assertTrue(AuthenticationUtility.getJsonFactory() instanceof JsonFactory);
-  }
-
-  @Test
-  public void getAppEngineTransport() {
-    // Should return an object that implements the HttpTransport interface
-    Assert.assertTrue(AuthenticationUtility.getAppEngineTransport() instanceof HttpTransport);
-  }
-
-  @Test
   public void getValidCredential() {
     // Should create a valid Google credential object with accessToken stored
     Credential googleCredential = AuthenticationUtility.getGoogleCredential(stubbedAccessToken);
-    Assert.assertNotNull(googleCredential);
     Assert.assertEquals(googleCredential.getAccessToken(), stubbedAccessToken);
   }
 
