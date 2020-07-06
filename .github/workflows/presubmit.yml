@@ -49,7 +49,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Import API Key
-      run: gcloud secrets versions access latest SECRET=API_KEY
+      run: gcloud secrets versions access latest --secret=API_KEY
     - name: Compile project
       run: mvn compile
     - name: Run tests
