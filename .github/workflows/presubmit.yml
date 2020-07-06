@@ -3,6 +3,11 @@ name: presubmit
 on: pull_request
 
 jobs:
+  import-secrets:
+    runs-on: gcr.io/cloud-builders/gcloud
+    steps:
+      - name: Import API Key
+        run: gcloud secrets versions access latest SECRET=API_KEY
   lint-js:
     runs-on: ubuntu-latest
     steps:
