@@ -14,14 +14,14 @@
   limitations under the License.
 */
 
-.flex-container {
+.panel-row {
   align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: center;
 }
 
-.flex-item {
+.panel {
   border: var(--flex-item-border) solid black;
   height: var(--flex-item-height);
   margin-bottom: var(--flex-item-margin);

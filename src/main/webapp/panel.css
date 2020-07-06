@@ -1,0 +1,7 @@
+.panel .header {
+
+}
+.panel .header .element {
+  display: flex;
+  flex-direction: row;
+}
