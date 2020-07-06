@@ -48,4 +48,11 @@ public class DirectionsUtilityTest {
     JSONObject actual = DirectionsUtility.getDirections(DESTINATION, ORIGIN, WAYPOINTS, API_KEY);
     Assert.assertEquals("OK", actual.get("status"));
   }
+
+  @Test
+  public void testSecret() {
+    String secret = System.getProperty("secret");
+    System.out.println(secret);
+    Assert.assertNotNull(secret);
+  }
 }
