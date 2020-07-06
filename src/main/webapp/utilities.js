@@ -73,6 +73,7 @@ function addCookie(cookieName, cookieValue, expiryUtcTime) {
  * @param {string} cookieName name of cookie to be deleted
  */
 function deleteCookie(cookieName) {
-  // Set time to EPOCH time. Will prompt cookie to immediately expire
+  // Set time to 1 second past EPOCH time.
+  // Will prompt cookie to immediately expire
   document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
 }

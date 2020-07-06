@@ -40,7 +40,6 @@ public final class AuthenticationUtility {
   // Application Name
   public static final String APPLICATION_NAME = "PUT NAME HERE";
 
-  // Make constructor private so no instances of this class can be made
   private AuthenticationUtility() {}
 
   /**
