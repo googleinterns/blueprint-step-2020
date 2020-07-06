@@ -1,7 +1,16 @@
 steps:
     - name: gcr.io/cloud-builders/gcloud
+      entrypoint: gcloud
       args:
-        - 'version'
+        - 'secrets'
+        - 'versions'
+        - 'access'
+        - 'latest'
+        - '--secret="API_KEY"'
+    - name: bash
+      args:
+        - 'echo'
+        - '--secret'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
