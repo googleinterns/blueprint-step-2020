@@ -6,7 +6,9 @@ steps:
         - 'versions'
         - 'access'
         - 'latest'
-        - '--secret=API_KEY'
+        - 'SECRET=API_KEY'
+      env:
+        - 'API_KEY=$SECRET'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:

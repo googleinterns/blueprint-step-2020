@@ -51,8 +51,8 @@ public class DirectionsUtilityTest {
 
   @Test
   public void testSecret() {
-    String secret = System.getProperty("--secret");
+    String secret = System.getenv("API_KEY");
     System.out.println(secret);
-    Assert.assertNotNull(secret);
+    Assert.assertEquals("HELLO", secret);
   }
 }
