@@ -14,19 +14,13 @@
   limitations under the License.
 */
 
-.panel-row {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
+/* Alter flex-container to fit on smaller screens (e.g. mobile devices) */
+@media screen and (max-width: 500px) {
+  .panel-row {
+    flex-direction: column;
+  }
 
-.panel {
-  border: var(--panel-border) solid black;
-  border-radius: var(--panel-border-radius);
-  height: var(--panel-height);
-  margin: var(--panel-margin);
-  padding: var(--panel-border-radius);
-  width: var(--panel-width);
+  .panel {
+    width: calc(100% - 2*var(--panel-margin));
+  }
 }
-

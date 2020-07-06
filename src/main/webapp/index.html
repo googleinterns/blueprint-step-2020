@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
+<!-- Needed for proper mobile rendering on Chrome Developer Tools -->
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <title>Google Dashboard</title>
 <link rel="stylesheet" href="style/abstracts/_variables.css">
 <link rel="stylesheet" href="style/layout/_layout.css">
@@ -12,11 +14,13 @@
   <div class="panel">
     <div class="panel__header">
       <div class="panel__content-entry">
-        <img class="panel__logo">
-        <p class="panel__heading">
+        <a href="https://www.gmail.com">
+          <img class="panel__logo" src="/assets/gmail.png">
+        </a>
+        <p class="section-heading">Gmail
       </div>
       <div class="panel__content-entry">
-        <p class="panel__subheading">
+        <p class="section-subheading">From the last 7 days:
       </div>
       <div class="panel__content">
         <div class="panel__content-entry">

@@ -14,9 +14,41 @@
   limitations under the License.
 */
 
+/*
+  Panel Variables
+ */
 :root {
-  --flex-item-border: 1px;
-  --flex-item-height: 500px;
-  --flex-item-margin: 2%;
-  --flex-item-width: 500px;
+  --panel-border: .2rem;
+  --panel-border-radius: 2.5rem;
+  --panel-flex-margin: 2.5rem;
+  --panel-height: 50rem;
+  --panel-logo-width: 5rem;
+  --panel-margin: 2%;
+  --panel-width: 50rem;
+}
+
+/*
+  Typography Variables
+ */
+:root {
+  --font-weight-bold: 700;
+  --font-weight-light: 300;
+  --font-weight-medium: 600;
+  --font-weight-regular: 400;
+  --font-size-heading: 5rem;
+  --font-size-subheading: 3rem;
+}
+
+/*
+  Colour Variables
+ */
+:root {
+  --color-black: black;
+  --color-gmail: #d44638;
+  --color-tasks: #f7c01a;
+  --color-calendar: #508ff8;
+  --color-dark-red: #B31412;
+  --color-dark-yellow: #EA8600;
+  --color-dark-green: #137333;
+  --color-dark-blue: #185ABC;
 }
