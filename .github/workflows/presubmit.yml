@@ -49,7 +49,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Authenticate Service Account
-      run: gcloud config set account step7-2020@appspot.gserviceaccount.com
+      run: gcloud config set account 12440562259@cloudbuild.gserviceaccount.com
     - name: Import API Key
       run: gcloud secrets versions access latest --project=step7-2020 --secret=API_KEY
     - name: Compile project
