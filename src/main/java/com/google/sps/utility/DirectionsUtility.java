@@ -35,12 +35,22 @@ public final class DirectionsUtility {
    * @param waypoints A list of string containing the multiple waypoints to set as parameter values.
    * @return A string of waypoints to set to the waypoints parameter.
    */
+  
+  
+  private static String buildWaypoints(List<String> waypoints) {
+    StringBuilder waypointsBuilder = new StringBuilder("optimize:true");
+    if (waypoints == null) {
+      return waypointsBuilder.toString();
+    }
+    for (String waypoint : waypoints) {
+      waypointsBuilder.append("|" + waypoint);
+    }
+    return waypointsBuilder.toString();
+  }
+  /*
   private static String buildWaypoints(List<String> waypoints) {
     StringBuilder waypointsBuilder = new StringBuilder();
     boolean firstIteration = true;
-    if (waypoints == null) {
-      return "";
-    }
     for (String waypoint : waypoints) {
       if (firstIteration) {
         waypointsBuilder.append("via:" + waypoint);
@@ -51,7 +61,7 @@ public final class DirectionsUtility {
     }
     return waypointsBuilder.toString();
   }
-
+  */
   /**
    * Builds custom URI to send a HTTP GET Request to the Google Directions API.
    *

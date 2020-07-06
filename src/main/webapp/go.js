@@ -16,6 +16,7 @@ function populateGo() {
   fetch('/directions')
     .then((response) => (response.json()))
     .then((json) => {
+      console.log(json);
       var html = "";
       json.map.routes.myArrayList.forEach(route => { 
         route.map.legs.myArrayList.forEach(leg => {
@@ -23,7 +24,10 @@ function populateGo() {
           var distance = leg.map.distance.map.text;
           var startAddress = leg.map.start_address;
           var endAddress = leg.map.end_address;
-          legHtml = `<p>Duration: ${duration}<p>Distance: ${distance}<p>Start: ${startAddress}<p>End: ${endAddress}`;
+          var waypointOrder = route.map.waypoint_order.myArrayList.forEach(order => {
+            waypointOrder += order + ", ";
+          });
+          legHtml = `<p>Duration: ${duration}<p>Distance: ${distance}<p>Start: ${startAddress}<p>End: ${endAddress}<p>Waypoint Order: ${waypointOrder}`;
           html += legHtml;
         })
       })
