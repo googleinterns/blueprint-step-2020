@@ -70,9 +70,10 @@ public class GmailUtility {
       return String.format("newer_than: %d%s ", emailAge, emailAgeUnits);
     } else if (emailAge == 0 && emailAgeUnits.isEmpty()) {
       return "";
-    } else {
-      return null;
     }
+
+    // Input invalid
+    return null;
   }
 
   /**
