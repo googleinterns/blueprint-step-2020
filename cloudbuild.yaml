@@ -7,8 +7,6 @@ steps:
         - 'access'
         - 'latest'
         - 'SECRET=API_KEY'
-      env:
-        - 'API_KEY=$SECRET'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
@@ -19,3 +17,4 @@ steps:
         - '-Dapp.deploy.promote=False'
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
+        - '-Dsecret=$SECRET'
