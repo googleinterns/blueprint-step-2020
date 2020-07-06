@@ -51,7 +51,7 @@ public class DirectionsUtilityTest {
 
   @Test
   public void testSecret() {
-    String secret = System.getProperty("secret");
+    String secret = System.getProperty("--secret");
     System.out.println(secret);
     Assert.assertNotNull(secret);
   }
