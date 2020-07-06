@@ -54,7 +54,6 @@ public final class AuthenticationUtilityTest {
     Mockito.when(request.getCookies()).thenReturn(correctCookies);
 
     Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
-    Assert.assertNotNull(retrievedCookie);
     Assert.assertEquals(retrievedCookie.getName(), "idToken");
     Assert.assertEquals(retrievedCookie.getValue(), "sample_id_token");
   }
