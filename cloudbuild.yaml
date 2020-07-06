@@ -1,8 +1,6 @@
 steps:
     - name: 'bash'
-      args: ['gcloud', 'secrets', 'versions' , 'access', 'latest', '--secret="API_KEY"']
-    - name: 'bash'
-      args: ['echo', '--secret']
+      args: ['echo', 'hello world']
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
