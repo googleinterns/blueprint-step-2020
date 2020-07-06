@@ -10,7 +10,7 @@ steps:
     - name: bash
       args:
         - 'echo'
-        - '${--secret}'
+        - '"${--secret}"'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
