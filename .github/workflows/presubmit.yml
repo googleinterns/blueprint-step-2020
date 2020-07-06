@@ -48,6 +48,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Authenticate GCloud
+      run: gcloud auth login
     - name: Import API Key
       run: gcloud secrets versions access latest --project=step7-2020 --secret=API_KEY
     - name: Compile project
