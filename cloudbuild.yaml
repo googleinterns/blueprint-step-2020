@@ -1,6 +1,8 @@
 steps:
-    - name: 'bash'
-      args: ['echo', 'hello world']
+    - name: bash
+      args:
+        - 'gcloud', 
+        - 'version'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
