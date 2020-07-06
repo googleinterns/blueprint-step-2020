@@ -40,12 +40,6 @@ jobs:
         VALIDATE_MD: true
         VALIDATE_JSON: true
 
-  import-secrets:
-    runs-on: gcr.io/cloud-builders/gcloud
-    steps:
-    - name: Import API Key
-      run: gcloud secrets versions access latest --project=step7-2020 --secret=API_KEY
-
   run-tests:
     runs-on: ubuntu-latest
     steps:
@@ -54,6 +48,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Auth List
+      run: gcloud auth list
+    - name: Authenticate Service Account
+      run: gcloud config set account step7-2020@appspot.gserviceaccount.com
+    - name: Activate Service Account
+      run: gcloud auth activate-service-account step7-2020@appspot.gserviceaccount.com
     - name: Compile project
       run: mvn compile
     - name: Run tests
