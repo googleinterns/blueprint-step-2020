@@ -2,7 +2,7 @@ steps:
     - name: gcr.io/cloud-builders/gcloud	
       entrypoint: bash
       args:
-        - 'gcloud secrets versions access latest --secret=API_KEY > api-key.txt'
+        - 'gcloud secrets versions access latest --secret=API_KEY >| api-key.txt'
     - name: echo
       entrypoint: bash
       args:
