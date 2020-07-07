@@ -9,6 +9,7 @@
 <script src="auth.js"></script>
 <!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
 <script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
+<body onload="getApiKey()"></body>
 <!-- Google-Styled button that handles authentication -->
 <div id="google-sign-in-btn"></div>
 <!-- Link to sign out of account -->
@@ -23,7 +24,7 @@
     <div class="flex-item">Assign</div>
     <div class="flex-item">Plan</div>
     <div class="flex-item">Go
-      <p>API Key: ${API_KEY}
+      <div class="api-key"></div>
     </div>
   </div>
 </div>
