@@ -27,8 +27,7 @@ import java.util.List;
  * Contains logic that handles GET & POST requests to the Gmail API and transforms those responses
  * into easily usable Java types
  */
-public class GmailUtility {
-  // Make constructor private so no instances of this class can be made
+public final class GmailUtility {
   private GmailUtility() {}
 
   /**
@@ -108,10 +107,13 @@ public class GmailUtility {
    * @return Gmail service instance
    */
   public static Gmail getGmailService(Credential credential) {
-    JsonFactory jsonFactory = AuthenticationUtility.getJsonFactory();
-    HttpTransport transport = AuthenticationUtility.getAppEngineTransport();
+    JsonFactory jsonFactory = AuthenticationUtility.JSON_FACTORY;
+    HttpTransport transport = AuthenticationUtility.HTTP_TRANSPORT;
+    String applicationName = AuthenticationUtility.APPLICATION_NAME;
 
-    return new Gmail.Builder(transport, jsonFactory, credential).build();
+    return new Gmail.Builder(transport, jsonFactory, credential)
+        .setApplicationName(applicationName)
+        .build();
   }
 
   /**
