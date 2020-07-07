@@ -34,6 +34,12 @@ public final class AuthenticationUtility {
   public static final String CLIENT_ID =
       "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
 
+  // Application Name
+  public static final String APPLICATION_NAME = "PUT NAME HERE";
+
+  // Error message if user is not authenticated
+  public static final String ERROR_403 = "Authentication tokens not present / invalid";
+
   private AuthenticationUtility() {}
 
   /**
@@ -76,7 +82,7 @@ public final class AuthenticationUtility {
    * userToken was valid. Use verifyUserToken to verify userId validity
    *
    * @param request contains cookies for a userToken and accessToken
-   * @return Value of the "Authorization" header. Null if authentication is invald or accessToken
+   * @return Value of the "Authorization" header. Null if authentication is invalid or accessToken
    *     was not found
    */
   public static String generateAuthorizationHeader(HttpServletRequest request) {
@@ -88,6 +94,76 @@ public final class AuthenticationUtility {
 
     // Otherwise, return the accessToken as a Bearer token for the Authorization Header
     return "Bearer " + authCookie.getValue();
+  }
+
+  /**
+   * Creates a Credential object to work with the Google API Java Client. Will handle verifying
+   * userId prior to creating credential. Be sure to do this before creating the credential
+   *
+   * @param request http request from client. Must contain idToken and accessToken
+   * @return a Google credential object that can be used to create an API service instance null if
+   *     userId cannot be verified or accessToken cannot be found
+   */
+  public static Credential getGoogleCredential(HttpServletRequest request) {
+    // Return null if userId cannot be verified
+    try {
+      if (!verifyUserToken(request)) {
+        return null;
+      }
+    } catch (GeneralSecurityException | IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+
+    // Return null if accessToken cannot be found
+    Cookie accessTokenCookie = getCookie(request, "accessToken");
+    if (accessTokenCookie == null) {
+      return null;
+    }
+
+    return getGoogleCredential(accessTokenCookie.getValue());
+  }
+
+  /**
+   * Creates a Credential object to work with the Google API Java Client. Will NOT handle verifying
+   * userId prior to creating credential. Be sure to do this before creating the credential.
+   * Consider using the overloaded method if you need to do a second verification
+   *
+   * @param accessToken String representation of the accessToken to authenticate user
+   * @return a Google credential object that can be used to create an API service instance. null if
+   *     accessToken is empty string
+   */
+  public static Credential getGoogleCredential(String accessToken) {
+    if (accessToken.isEmpty()) {
+      return null;
+    }
+
+    // Build credential object with accessToken
+    Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
+    Credential.Builder credentialBuilder = new Credential.Builder(accessMethod);
+    Credential credential = credentialBuilder.build();
+    credential.setAccessToken(accessToken);
+
+    return credential;
+  }
+
+  /**
+   * Get HTTPTransport appropriate for App Engine environment
+   * https://googleapis.dev/java/google-http-client/latest/com/google/api/client/extensions/appengine/http/UrlFetchTransport.html
+   *
+   * @return UrlFetchTransport instance
+   */
+  public static HttpTransport getAppEngineTransport() {
+    return new UrlFetchTransport();
+  }
+
+  /**
+   * Get JsonFactory instance. Use this method to get JsonFactory instances for consistency purposes
+   *
+   * @return JacksonFactory instance
+   */
+  public static JsonFactory getJsonFactory() {
+    return new JacksonFactory();
   }
 
   /**
