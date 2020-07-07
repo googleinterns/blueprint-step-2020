@@ -15,9 +15,9 @@
 // This file contains functionality relating to Google Sign in
 // and storing cookies
 // TODO: Manage User Sign In State (Issue #13)
-
+// TODO: Handle CommonJS (Issue #31)
 /* eslint-disable no-unused-vars */
-/* global gapi */
+/* global gapi, addCookie */
 
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
@@ -58,12 +58,12 @@ function onSignIn(googleUser) {
   // Set cookie that contains idToken to authenticate the user
   // Will automatically delete when the access token expires
   // or when the browser is closed
-  document.cookie = `idToken=${idToken}; expires=${expiryUtcTime}`;
+  addCookie('idToken', idToken, expiryUtcTime);
 
   // Set cookie that contains idToken to authenticate the user
   // Will automatically delete when the access token expires
   // or when the browser is closed
-  document.cookie = `accessToken=${accessToken}; expires=${expiryUtcTime}`;
+  addCookie('accessToken', accessToken, expiryUtcTime);
 }
 
 /**
