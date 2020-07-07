@@ -13,7 +13,7 @@ public class SecretManagerServlet extends HttpServlet {
 
   @Override	
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {	
-    String apiKey = System.getenv("MY_API_KEY");
+    String apiKey = System.getProperty("API_KEY");
     sendJson(response, apiKey);
   }
 
