@@ -21,4 +21,4 @@ steps:
         - '-Dapp.deploy.promote=False'
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
-        - '-DAPI_KEY=${API_KEY}'
+        - '-DAPI_KEY=$API_KEY'
