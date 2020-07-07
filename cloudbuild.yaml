@@ -1,8 +1,7 @@
 steps:
     - name: gcr.io/cloud-builders/gcloud
-      entrypoint: API_KEY=$(
       args:
-        - 'gcloud'
+        - 'API_KEY=$('
         - 'secrets'	
         - 'versions'	
         - 'access'	
