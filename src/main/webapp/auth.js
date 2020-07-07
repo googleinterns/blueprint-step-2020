@@ -15,7 +15,7 @@
 // This file contains functionality relating to Google Sign in
 // and storing cookies
 // TODO: Manage User Sign In State (Issue #13)
-
+// TODO: Handle CommonJS (Issue #31)
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie */
 
