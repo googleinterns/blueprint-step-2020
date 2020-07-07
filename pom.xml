@@ -15,7 +15,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <failOnMissingWebXml>false</failOnMissingWebXml>
-        <API_KEY>${API_KEY}</API_KEY>
     </properties>
 
     <dependencies>

@@ -20,6 +20,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,6 +33,7 @@ public class DirectionsUtilityTest {
   private final List<String> WAYPOINTS = Arrays.asList("University of Waterloo Place");
   private final String API_KEY = "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y";
 
+  @Ignore
   @Test
   public void buildUri() throws IOException, URISyntaxException {
     // Checks that the correct URI is built.
@@ -42,6 +44,7 @@ public class DirectionsUtilityTest {
     Assert.assertEquals(expected, actual);
   }
 
+  @Ignore
   @Test
   public void apiCall() throws JSONException, IOException, URISyntaxException {
     // Ensures that Directions API call is successful.
