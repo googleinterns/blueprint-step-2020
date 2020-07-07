@@ -16,7 +16,7 @@
 
 /* eslint-disable no-unused-vars */
 /* global signOut */
-
+// TODO: Refactor so populate functions are done in parallel (Issue #26)
 /**
  * Populate Gmail container with user information
  */
