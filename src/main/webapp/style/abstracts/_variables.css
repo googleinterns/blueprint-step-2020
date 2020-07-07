@@ -22,6 +22,7 @@
   --panel-border-radius: 2.5rem;
   --panel-flex-margin: 2.5rem;
   --panel-height: 50rem;
+  --panel-icon-width: 3.5rem;
   --panel-logo-width: 5rem;
   --panel-margin: 2%;
   --panel-width: 50rem;
@@ -36,6 +37,7 @@
   --font-weight-medium: 600;
   --font-weight-regular: 400;
   --font-size-heading: 5rem;
+  --font-size-large: 2.5rem;
   --font-size-subheading: 3rem;
 }
 

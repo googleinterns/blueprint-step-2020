@@ -33,3 +33,9 @@ body {
   font-size: var(--font-size-subheading);
   font-weight: var(--font-weight-medium);
 }
+
+.panel__text-large {
+  color: var(--color-black);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-regular);
+}

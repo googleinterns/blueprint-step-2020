@@ -28,6 +28,19 @@
 
 }
 
+.panel__rounded-letter {
+
+}
+
+.panel__rounded-number {
+
+}
+
+.panel__content-icon {
+  margin-right: var(--panel-flex-margin);
+  width: var(--panel-icon-width);
+}
+
 .panel__content-entry {
   display: flex;
   flex-direction: row;
