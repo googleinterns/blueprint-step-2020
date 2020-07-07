@@ -15,30 +15,30 @@
 */
 
 /*
-  Set default font to 16px
+  Utility to make font color white.
  */
-body {
-  color: var(--color-black);
-  font-family: 'Quicksand', sans-serif;
-  font-size: 1.6rem;
+.u-text-white {
+  color: var(--color-white);
 }
 
-.panel__section-heading {
-  font-size: var(--font-size-heading);
-  font-weight: var(--font-weight-bold);
+/*
+  Utility to vertically contents of a container
+ */
+.u-vertical-center {
+  align-items: center;
+  display: flex;
 }
 
-.panel__section-subheading {
-  font-size: var(--font-size-subheading);
-  font-weight: var(--font-weight-medium);
+/*
+  Indents items without an existing left-margin
+ */
+.u-indent {
+  margin-left: var(--indent);
 }
 
-.panel__text-data-point {
-  font-size: var(--font-size-data-point);
-  font-weight: var(--font-weight-medium);
-}
-
-.panel__text-large {
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-regular);
+/*
+  Adds border to panel in color of Gmail logo
+ */
+.u-border-gmail {
+  border-color: var(--color-gmail);
 }
