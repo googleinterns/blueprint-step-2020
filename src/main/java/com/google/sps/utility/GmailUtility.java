@@ -67,7 +67,7 @@ public class GmailUtility {
   public static String emailAgeQuery(int emailAge, String emailAgeUnits) {
     // newer_than:#d where # is an integer will specify to only return emails from last # days
     if (emailAge > 0 && (emailAgeUnits.equals("h") || emailAgeUnits.equals("d"))) {
-      return String.format("newer_than: %d%s ", emailAge, emailAgeUnits);
+      return String.format("newer_than:%d%s ", emailAge, emailAgeUnits);
     } else if (emailAge == 0 && emailAgeUnits.isEmpty()) {
       return "";
     }
@@ -97,7 +97,7 @@ public class GmailUtility {
    */
   public static String fromEmailQuery(String from) {
     // from: <emailAddress> will return only emails from that sender
-    return !from.equals("") ? String.format("from: %s ", from) : "";
+    return !from.equals("") ? String.format("from:%s ", from) : "";
   }
 
   /**
