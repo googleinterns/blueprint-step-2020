@@ -42,11 +42,11 @@ public final class GmailUtilityTest {
   // Expected email query strings
   private static final String EMPTY_QUERY = "";
   private static final String ONE_DAY_QUERY =
-      String.format("newer_than: %d%s ", ONE_UNIT_OF_TIME, DAYS_UNIT);
+      String.format("newer_than:%d%s ", ONE_UNIT_OF_TIME, DAYS_UNIT);
   private static final String ONE_HOUR_QUERY =
-      String.format("newer_than: %d%s ", ONE_UNIT_OF_TIME, HOURS_UNIT);
+      String.format("newer_than:%d%s ", ONE_UNIT_OF_TIME, HOURS_UNIT);
   private static final String UNREAD_EMAILS_QUERY = "is:unread ";
-  private static final String FROM_EMAIL_QUERY = String.format("from: %s ", SAMPLE_EMAIL);
+  private static final String FROM_EMAIL_QUERY = String.format("from:%s ", SAMPLE_EMAIL);
 
   @Test
   public void getQueryStringDays() {
