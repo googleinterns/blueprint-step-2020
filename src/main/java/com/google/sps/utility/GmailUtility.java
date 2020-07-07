@@ -15,8 +15,10 @@
 package com.google.sps.utility;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import com.google.sps.model.MessageFormat;
@@ -107,8 +109,8 @@ public final class GmailUtility {
    * @return Gmail service instance
    */
   public static Gmail getGmailService(Credential credential) {
-    JsonFactory jsonFactory = AuthenticationUtility.JSON_FACTORY;
-    HttpTransport transport = AuthenticationUtility.HTTP_TRANSPORT;
+    JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+    HttpTransport transport = UrlFetchTransport.getDefaultInstance();
     String applicationName = AuthenticationUtility.APPLICATION_NAME;
 
     return new Gmail.Builder(transport, jsonFactory, credential)
