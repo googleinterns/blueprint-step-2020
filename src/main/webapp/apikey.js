@@ -1,5 +1,8 @@
-import { API_KEY } from './config.js';
-
 function getApiKey() {
-  console.log(API_KEY);
+  fetch('/secret-manager')
+    .then((response) => (response.json()))
+    .then((apikey) => {
+      console.log(apikey);
+      document.getElementById('api-key').innerHTML = apikey;
+    });
 }
