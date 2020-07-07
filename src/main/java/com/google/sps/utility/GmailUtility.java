@@ -55,7 +55,8 @@ public class GmailUtility {
   }
 
   /**
-   * Creates Gmail query for age of emails
+   * Creates Gmail query for age of emails. Use of months and years not supported as they are out of
+   * scope for the application's current purpose (there is no need for it yet)
    *
    * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. Set to 0 to
    *     ignore filter
