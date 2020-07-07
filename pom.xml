@@ -17,6 +17,18 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
 
+    <dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>com.google.cloud</groupId>
+          <artifactId>libraries-bom</artifactId>
+          <version>8.0.0</version>
+          <type>pom</type>
+          <scope>import</scope>
+        </dependency>
+      </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -69,6 +81,10 @@
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>fluent-hc</artifactId>
           <version>4.5.12</version>
+        </dependency>
+        <dependency>
+          <groupId>com.google.cloud</groupId>
+          <artifactId>google-cloud-secretmanager</artifactId>
         </dependency>
     </dependencies>
 
