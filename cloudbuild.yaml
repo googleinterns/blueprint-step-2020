@@ -2,9 +2,9 @@ steps:
     - name: gcr.io/cloud-builders/gcloud
       entrypoint: bash
       args:
-        - echo ${API_KEY}
+        - echo ${_API_KEY}
       env:
-        - 'API_KEY=$(gcloud secrets versions access latest --secret=API_KEY)'
+        - '_API_KEY=$(gcloud secrets versions access latest --secret=API_KEY)'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
