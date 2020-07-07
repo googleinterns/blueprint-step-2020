@@ -43,6 +43,13 @@ public final class AuthenticationUtility {
   // Error message if user is not authenticated
   public static final String ERROR_403 = "Authentication tokens not present / invalid";
 
+  // Get JsonFactory used for building Google API Service Instances
+  public static final JsonFactory JSON_FACTORY = new JacksonFactory();
+
+  // Get HTTPTransport appropriate for App Engine environment
+  // https://googleapis.dev/java/google-http-client/latest/com/google/api/client/extensions/appengine/http/UrlFetchTransport.html
+  public static final HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
+
   private AuthenticationUtility() {}
 
   /**
@@ -65,10 +72,8 @@ public final class AuthenticationUtility {
     String idTokenString = idTokenCookie.getValue();
 
     // Build a verifier used to ensure the passed user ID is legitimate
-    JsonFactory jsonFactory = getJsonFactory();
-    HttpTransport transport = getAppEngineTransport();
     GoogleIdTokenVerifier verifier =
-        new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+        new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY)
             .setAudience(Collections.singletonList(CLIENT_ID))
             .build();
 
@@ -148,25 +153,6 @@ public final class AuthenticationUtility {
     credential.setAccessToken(accessToken);
 
     return credential;
-  }
-
-  /**
-   * Get HTTPTransport appropriate for App Engine environment
-   * https://googleapis.dev/java/google-http-client/latest/com/google/api/client/extensions/appengine/http/UrlFetchTransport.html
-   *
-   * @return UrlFetchTransport instance
-   */
-  public static HttpTransport getAppEngineTransport() {
-    return new UrlFetchTransport();
-  }
-
-  /**
-   * Get JsonFactory instance. Use this method to get JsonFactory instances for consistency purposes
-   *
-   * @return JacksonFactory instance
-   */
-  public static JsonFactory getJsonFactory() {
-    return new JacksonFactory();
   }
 
   /**
