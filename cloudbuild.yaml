@@ -7,10 +7,6 @@ steps:
       args: ["run", "create-env"]
       env:
         - 'API_KEY=${_API_KEY}'
-    - name: echo
-      entrypoint: bash
-      args:
-        - 'echo $API_KEY'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
