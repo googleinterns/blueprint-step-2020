@@ -10,4 +10,4 @@ steps:
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
       env:
-        - 'MY_API_KEY=${_API_KEY}'
+        - 'MY_API_KEY="randomword"'
