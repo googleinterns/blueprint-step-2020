@@ -15,8 +15,10 @@
 package com.google.sps.utility;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
@@ -33,8 +35,8 @@ public final class TasksUtility {
    * @return Google Tasks service instance
    */
   public static Tasks getTasksService(Credential credential) {
-    HttpTransport transport = AuthenticationUtility.HTTP_TRANSPORT;
-    JsonFactory jsonFactory = AuthenticationUtility.JSON_FACTORY;
+    HttpTransport transport = UrlFetchTransport.getDefaultInstance();
+    JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
     String applicationName = AuthenticationUtility.APPLICATION_NAME;
 
     return new Tasks.Builder(transport, jsonFactory, credential)
