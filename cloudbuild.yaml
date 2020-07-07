@@ -1,12 +1,8 @@
 steps:
-    - name: node:10.15.1
-      entrypoint: npm
-      args: ["install"]
-    - name: node:10.15.1
-      entrypoint: npm
-      args: ["run", "create-env"]
+    - name: gcr.io/cloud-builders/gcloud
+      entrypoint: bash
       env:
-        - 'API_KEY=${_API_KEY}'
+        - 'API_KEY=$(gcloud secrets versions access latest --secret=API_KEY)'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
