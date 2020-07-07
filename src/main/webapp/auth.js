@@ -17,6 +17,7 @@
 
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie, isCookiePresent, deleteCookie, populateGmail */
+// TODO: Handle CommonJS (Issue #31)
 
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
