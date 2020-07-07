@@ -50,7 +50,6 @@ public final class GmailUtilityTest {
 
   @Test
   public void getQueryStringDays() {
-    // Inputting a query for 1 day should result in a oneDayQuery
     String daysQuery = GmailUtility.emailAgeQuery(ONE_UNIT_OF_TIME, DAYS_UNIT);
 
     Assert.assertEquals(daysQuery, ONE_DAY_QUERY);
@@ -58,7 +57,6 @@ public final class GmailUtilityTest {
 
   @Test
   public void getQueryStringHours() {
-    // Inputting a query for 1 hour should result in a oneHourQuery
     String hoursQuery = GmailUtility.emailAgeQuery(ONE_UNIT_OF_TIME, HOURS_UNIT);
 
     Assert.assertEquals(hoursQuery, ONE_HOUR_QUERY);
