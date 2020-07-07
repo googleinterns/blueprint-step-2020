@@ -10,7 +10,7 @@ steps:
         - '--secret=API_KEY)'
     - name: bash
       args:
-        - 'echo $API_KEY'
+        - 'echo "$API_KEY"'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
@@ -21,4 +21,3 @@ steps:
         - '-Dapp.deploy.promote=False'
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
-        - '-DAPI_KEY=$API_KEY'
