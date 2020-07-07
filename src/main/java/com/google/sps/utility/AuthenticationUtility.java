@@ -14,10 +14,13 @@
 
 package com.google.sps.utility;
 
+import com.google.api.client.auth.oauth2.BearerToken;	
+import com.google.api.client.auth.oauth2.Credential;	
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -62,10 +65,10 @@ public final class AuthenticationUtility {
     String idTokenString = idTokenCookie.getValue();
 
     // Build a verifier used to ensure the passed user ID is legitimate
-    JacksonFactory jacksonFactory = new JacksonFactory();
-    HttpTransport transport = new NetHttpTransport();
+    JsonFactory jsonFactory = getJsonFactory();
+    HttpTransport transport = getAppEngineTransport();
     GoogleIdTokenVerifier verifier =
-        new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
+        new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
             .setAudience(Collections.singletonList(CLIENT_ID))
             .build();
 

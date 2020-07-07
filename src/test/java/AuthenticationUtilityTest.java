@@ -60,10 +60,14 @@ public final class AuthenticationUtilityTest {
     Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
     Assert.assertEquals(retrievedCookie.getName(), "idToken");
     Assert.assertEquals(retrievedCookie.getValue(), "sample_id_token");
+  }	
+
+  @Test	
+  public void getCookieEmptyCookies() {
     // A cookie is requested from an empty list. Should return null.
     Mockito.when(request.getCookies()).thenReturn(emptyCookies);
 
-    retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
+    Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
     Assert.assertNull(retrievedCookie);
   }
 
@@ -139,5 +143,4 @@ public final class AuthenticationUtilityTest {
     // i.e. invalid accessKey, erroneous input, etc.
     Assert.assertNull(AuthenticationUtility.getGoogleCredential(""));
   }
-
 }
