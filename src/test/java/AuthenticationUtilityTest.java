@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.sps.utility.AuthenticationUtility;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -51,26 +48,18 @@ public final class AuthenticationUtilityTest {
         new Cookie("accessToken", "sample_access_token")
       };
 
-  // Not an actual access token
-  private final String stubbedAccessToken = "abcdefgh";
-
   @Test
   public void getCookie() {
     // A cookie is requested and is present in the list. Should return cookie object
     Mockito.when(request.getCookies()).thenReturn(correctCookies);
 
     Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
-    Assert.assertNotNull(retrievedCookie);
     Assert.assertEquals(retrievedCookie.getName(), "idToken");
     Assert.assertEquals(retrievedCookie.getValue(), "sample_id_token");
-  }
-
-  @Test
-  public void getCookieEmptyCookies() {
     // A cookie is requested from an empty list. Should return null.
     Mockito.when(request.getCookies()).thenReturn(emptyCookies);
 
-    Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
+    retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
     Assert.assertNull(retrievedCookie);
   }
 
@@ -130,33 +119,5 @@ public final class AuthenticationUtilityTest {
 
     String header = AuthenticationUtility.generateAuthorizationHeader(request);
     Assert.assertNull(header);
-  }
-
-  @Test
-  public void getJsonFactory() {
-    // Should return an object that implements the JsonFactory interface
-    Assert.assertTrue(AuthenticationUtility.getJsonFactory() instanceof JsonFactory);
-  }
-
-  @Test
-  public void getAppEngineTransport() {
-    // Should return an object that implements the HttpTransport interface
-    Assert.assertTrue(AuthenticationUtility.getAppEngineTransport() instanceof HttpTransport);
-  }
-
-  @Test
-  public void getValidCredential() {
-    // Should create a valid Google credential object with accessToken stored
-    Credential googleCredential = AuthenticationUtility.getGoogleCredential(stubbedAccessToken);
-    Assert.assertNotNull(googleCredential);
-    Assert.assertEquals(googleCredential.getAccessToken(), stubbedAccessToken);
-  }
-
-  @Test
-  public void getInvalidCredential() {
-    // If a credential is made with "" as the accessToken, a null object should be returned
-    // The makeCredential method is not expected to test for any other forms of invalidity
-    // i.e. invalid accessKey, erroneous input, etc.
-    Assert.assertNull(AuthenticationUtility.getGoogleCredential(""));
   }
 }
