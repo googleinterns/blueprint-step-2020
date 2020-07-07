@@ -5,6 +5,7 @@ steps:
         - 'clean'
         - 'package'
         - 'appengine:deploy'
+        - '-Dmaven.test.skip=true'
         - '-Dapp.deploy.promote=False'
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'

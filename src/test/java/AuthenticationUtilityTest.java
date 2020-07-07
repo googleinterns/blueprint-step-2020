@@ -27,21 +27,20 @@ import org.mockito.Mockito;
 public final class AuthenticationUtilityTest {
 
   // Will mock an HttpServletRequest to be passed to utilities
-  private static final HttpServletRequest REQUEST = Mockito.mock(HttpServletRequest.class);
+  private final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
-  private static final Cookie[] CORRECT_COOKIES =
+  private final Cookie[] correctCookies =
       new Cookie[] {
         new Cookie("junk", "junk_value"),
         new Cookie("idToken", "sample_id_token"),
         new Cookie("accessToken", "sample_access_token")
       };
 
-  private static final Cookie[] EMPTY_COOKIES = new Cookie[] {};
+  private final Cookie[] emptyCookies = new Cookie[] {};
 
-  private static final Cookie[] MISSING_AUTH_COOKIES =
-      new Cookie[] {new Cookie("junk", "junk_value")};
+  private final Cookie[] missingAuthCookies = new Cookie[] {new Cookie("junk", "junk_value")};
 
-  private static final Cookie[] DUPLICATE_COOKIES =
+  private final Cookie[] duplicateCookies =
       new Cookie[] {
         new Cookie("junk", "junk_value"),
         new Cookie("idToken", "sample_id_token"),
@@ -56,9 +55,9 @@ public final class AuthenticationUtilityTest {
   @Test
   public void getCookie() {
     // A cookie is requested and is present in the list. Should return cookie object
-    Mockito.when(REQUEST.getCookies()).thenReturn(CORRECT_COOKIES);
+    Mockito.when(request.getCookies()).thenReturn(correctCookies);
 
-    Cookie retrievedCookie = AuthenticationUtility.getCookie(REQUEST, "idToken");
+    Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
     Assert.assertEquals(retrievedCookie.getName(), "idToken");
     Assert.assertEquals(retrievedCookie.getValue(), "sample_id_token");
   }
@@ -66,27 +65,27 @@ public final class AuthenticationUtilityTest {
   @Test
   public void getCookieEmptyCookies() {
     // A cookie is requested from an empty list. Should return null.
-    Mockito.when(REQUEST.getCookies()).thenReturn(EMPTY_COOKIES);
+    Mockito.when(request.getCookies()).thenReturn(emptyCookies);
 
-    Cookie retrievedCookie = AuthenticationUtility.getCookie(REQUEST, "idToken");
+    Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
     Assert.assertNull(retrievedCookie);
   }
 
   @Test
   public void getCookieNameNotFound() {
     // A cookie is requested and it is not in the list. Should return null
-    Mockito.when(REQUEST.getCookies()).thenReturn(MISSING_AUTH_COOKIES);
+    Mockito.when(request.getCookies()).thenReturn(missingAuthCookies);
 
-    Cookie retrievedCookie = AuthenticationUtility.getCookie(REQUEST, "idToken");
+    Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
     Assert.assertNull(retrievedCookie);
   }
 
   @Test
   public void getCookieFromDuplicates() {
     // A cookie is requested but duplicates present. Should return null
-    Mockito.when(REQUEST.getCookies()).thenReturn(DUPLICATE_COOKIES);
+    Mockito.when(request.getCookies()).thenReturn(duplicateCookies);
 
-    Cookie retrievedCookie = AuthenticationUtility.getCookie(REQUEST, "idToken");
+    Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
     Assert.assertNull(retrievedCookie);
   }
 
@@ -94,9 +93,9 @@ public final class AuthenticationUtilityTest {
   public void getAuthHeader() {
     // An authentication header is requested and the access token is present.
     // Should return "Bearer <access-token>"
-    Mockito.when(REQUEST.getCookies()).thenReturn(CORRECT_COOKIES);
+    Mockito.when(request.getCookies()).thenReturn(correctCookies);
 
-    String header = AuthenticationUtility.generateAuthorizationHeader(REQUEST);
+    String header = AuthenticationUtility.generateAuthorizationHeader(request);
     Assert.assertEquals(header, "Bearer sample_access_token");
   }
 
@@ -104,9 +103,9 @@ public final class AuthenticationUtilityTest {
   public void getAuthHeaderEmptyCookies() {
     // An authentication header is requested but no cookies are present.
     // Should return null
-    Mockito.when(REQUEST.getCookies()).thenReturn(EMPTY_COOKIES);
+    Mockito.when(request.getCookies()).thenReturn(emptyCookies);
 
-    String header = AuthenticationUtility.generateAuthorizationHeader(REQUEST);
+    String header = AuthenticationUtility.generateAuthorizationHeader(request);
     Assert.assertNull(header);
   }
 
@@ -114,9 +113,9 @@ public final class AuthenticationUtilityTest {
   public void getAuthHeaderMissingAuthCookies() {
     // An authentication header is requested but no access token is present.
     // Should return null
-    Mockito.when(REQUEST.getCookies()).thenReturn(MISSING_AUTH_COOKIES);
+    Mockito.when(request.getCookies()).thenReturn(missingAuthCookies);
 
-    String header = AuthenticationUtility.generateAuthorizationHeader(REQUEST);
+    String header = AuthenticationUtility.generateAuthorizationHeader(request);
     Assert.assertNull(header);
   }
 
@@ -124,9 +123,9 @@ public final class AuthenticationUtilityTest {
   public void getAuthHeaderDuplicateTokens() {
     // An authentication header is requested but duplicate access tokens present
     // Should return null
-    Mockito.when(REQUEST.getCookies()).thenReturn(DUPLICATE_COOKIES);
+    Mockito.when(request.getCookies()).thenReturn(duplicateCookies);
 
-    String header = AuthenticationUtility.generateAuthorizationHeader(REQUEST);
+    String header = AuthenticationUtility.generateAuthorizationHeader(request);
     Assert.assertNull(header);
   }
 
