@@ -7,9 +7,6 @@ steps:
         - 'access'	
         - 'latest'	
         - '--secret=API_KEY)'
-    - name: bash
-      args:
-        - 'echo "$API_KEY"'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
