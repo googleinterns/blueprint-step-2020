@@ -1,5 +1,5 @@
 steps:
-    - name: gcr.io/cloud-builders/gcloud
+    - name: bash
       args:
         - 'API_KEY=$(gcloud'
         - 'secrets'	
