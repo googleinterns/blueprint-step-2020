@@ -6,7 +6,7 @@ steps:
     - name: echo
       entrypoint: bash
       args:
-        - 'echo $API_KEY'
+        - 'echo $$API_KEY'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
