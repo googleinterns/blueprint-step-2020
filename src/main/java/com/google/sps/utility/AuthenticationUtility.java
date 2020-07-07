@@ -77,16 +77,14 @@ public final class AuthenticationUtility {
   }
 
   /**
-   * Helper function to create an authorization header for an outgoing HTTP request. Does NOT check
+   * Helper function to create an authorization header for an outgoing HTTP request Does NOT check
    * if the access token provides correct permissions for the request Does NOT check if the
    * userToken was valid. Use verifyUserToken to verify userId validity
    *
-   * @deprecated Use getGoogleCredential and the Google API Java Client if possible.
    * @param request contains cookies for a userToken and accessToken
-   * @return Value of the "Authorization" header. Null if authentication is invald or accessToken
+   * @return Value of the "Authorization" header. Null if authentication is invalid or accessToken
    *     was not found
    */
-  @Deprecated
   public static String generateAuthorizationHeader(HttpServletRequest request) {
     // If accessToken cannot be found, return null
     Cookie authCookie = getCookie(request, "accessToken");
