@@ -51,7 +51,8 @@ public final class AuthenticationUtilityTest {
       };
 
   // Not an actual access token
-  private static final String STUBBED_ACCESS_TOKEN = "abcdefgh";
+  private final String stubbedAccessToken = "abcdefgh";
+
 
   @Test
   public void getCookie() {
@@ -133,8 +134,8 @@ public final class AuthenticationUtilityTest {
   @Test
   public void getValidCredential() {
     // Should create a valid Google credential object with accessToken stored
-    Credential googleCredential = AuthenticationUtility.getGoogleCredential(STUBBED_ACCESS_TOKEN);
-    Assert.assertEquals(googleCredential.getAccessToken(), STUBBED_ACCESS_TOKEN);
+    Credential googleCredential = AuthenticationUtility.getGoogleCredential(stubbedAccessToken);
+    Assert.assertEquals(googleCredential.getAccessToken(), stubbedAccessToken);
   }
 
   @Test
