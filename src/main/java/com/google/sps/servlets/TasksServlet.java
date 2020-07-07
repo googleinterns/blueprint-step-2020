@@ -20,6 +20,7 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.utility.ServletUtility;
 import com.google.sps.utility.TasksUtility;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,9 +59,7 @@ public class TasksServlet extends HttpServlet {
     }
 
     // Convert tasks to JSON and print to response
-    Gson gson = new Gson();
-    String tasksJson = gson.toJson(tasks);
-
+    String tasksJson = ServletUtility.objectToJson(tasks);
     response.setContentType("application/json");
     response.getWriter().println(tasksJson);
   }
