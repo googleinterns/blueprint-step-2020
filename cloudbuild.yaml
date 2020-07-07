@@ -8,7 +8,7 @@ steps:
         - 'access'	
         - 'latest'	
         - '--secret=API_KEY)'
-    - name:'bash'
+    - name: bash
       args:
         - 'echo $API_KEY'
     - name: maven:3-jdk-8
@@ -21,4 +21,4 @@ steps:
         - '-Dapp.deploy.promote=False'
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
-        - '-DAPI_KEY=${--secret}'
+        - '-DAPI_KEY=${API_KEY}'
