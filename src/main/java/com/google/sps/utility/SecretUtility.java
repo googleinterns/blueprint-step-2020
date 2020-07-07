@@ -6,8 +6,6 @@ import com.google.cloud.secretmanager.v1.SecretVersionName;
 import java.io.IOException;
 
 import com.google.api.gax.paging.Page;
-import com.google.auth.appengine.AppEngineCredentials;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
