@@ -12,6 +12,6 @@ public class SecretManagerServlet extends HttpServlet {
   @Override	
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {	
     String API_KEY = System.getProperty("API_KEY");
-    System.out.println(API_KEY);
+    request.setAttribute("API_KEY", API_KEY);
   }	
 }
