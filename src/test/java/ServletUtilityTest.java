@@ -18,5 +18,7 @@ import org.junit.runners.JUnit4;
 /** Test Servlet Utility Functions*/
 @RunWith(JUnit4.class)
 public final class ServletUtilityTest {
+  private static final int PRIMITIVE_INT = 4;
+  private static final String PRIMITIVE_STRING = "sample";
 
 }
