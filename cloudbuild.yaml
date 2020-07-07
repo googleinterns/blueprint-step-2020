@@ -9,6 +9,6 @@ steps:
         - '-Dapp.deploy.promote=False'
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
-        - echo $MY_API_KEY
+        - echo $$MY_API_KEY
       env:
         - 'MY_API_KEY="randomword"'
