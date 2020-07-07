@@ -23,8 +23,7 @@ import com.google.api.services.tasks.model.TaskList;
 import java.io.IOException;
 import java.util.List;
 
-public class TasksUtility {
-  // Make constructor private so no instances of this class can be made
+public final class TasksUtility {
   private TasksUtility() {}
 
   /**
@@ -34,10 +33,13 @@ public class TasksUtility {
    * @return Google Tasks service instance
    */
   public static Tasks getTasksService(Credential credential) {
-    HttpTransport transport = AuthenticationUtility.getAppEngineTransport();
-    JsonFactory jsonFactory = AuthenticationUtility.getJsonFactory();
+    HttpTransport transport = AuthenticationUtility.HTTP_TRANSPORT;
+    JsonFactory jsonFactory = AuthenticationUtility.JSON_FACTORY;
+    String applicationName = AuthenticationUtility.APPLICATION_NAME;
 
-    return new Tasks.Builder(transport, jsonFactory, credential).build();
+    return new Tasks.Builder(transport, jsonFactory, credential)
+        .setApplicationName(applicationName)
+        .build();
   }
 
   /**
