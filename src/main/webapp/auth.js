@@ -14,10 +14,10 @@
 
 // This file contains functionality relating to Google Sign in
 // and storing cookies
-// TODO: Manage User Sign In State (Issue #13)
-// TODO: Handle CommonJS (Issue #31)
+
 /* eslint-disable no-unused-vars */
-/* global gapi, addCookie */
+/* global gapi, addCookie, isCookiePresent, deleteCookie */
+// TODO: Handle CommonJS (Issue #31)
 
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
@@ -35,10 +35,30 @@ function init() {
           gapi.auth2.init({
             'client_id': clientId,
           }).then(() => {
+            handleAuthenticationState();
             renderButton();
           });
         });
   });
+}
+
+/**
+ * Will initialize the page based on the current authentication state
+ */
+function handleAuthenticationState() {
+  const featureContainer = document.querySelector('.feature-container');
+  const signInButton = document.querySelector('#google-sign-in-btn');
+  if (isCookiePresent('idToken')) {
+    // User is logged in.
+    // Hide sign in button, show features
+    signInButton.setAttribute('hidden', '');
+    featureContainer.removeAttribute('hidden');
+  } else {
+    // User is not logged in.
+    // Show sign in button, hide features
+    signInButton.removeAttribute('hidden');
+    featureContainer.setAttribute('hidden', '');
+  }
 }
 
 /**
@@ -64,6 +84,8 @@ function onSignIn(googleUser) {
   // Will automatically delete when the access token expires
   // or when the browser is closed
   addCookie('accessToken', accessToken, expiryUtcTime);
+
+  handleAuthenticationState();
 }
 
 /**
@@ -72,7 +94,11 @@ function onSignIn(googleUser) {
 function signOut() {
   const auth2 = gapi.auth2.getAuthInstance();
   auth2.signOut().then(() => {
-    console.log('User signed out.');
+    // Remove Authentication Cookies
+    deleteCookie('idToken');
+    deleteCookie('accessToken');
+
+    handleAuthenticationState();
   });
 }
 
