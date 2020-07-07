@@ -60,9 +60,9 @@ public final class AuthenticationUtilityTest {
     Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
     Assert.assertEquals(retrievedCookie.getName(), "idToken");
     Assert.assertEquals(retrievedCookie.getValue(), "sample_id_token");
-  }	
+  }
 
-  @Test	
+  @Test
   public void getCookieEmptyCookies() {
     // A cookie is requested from an empty list. Should return null.
     Mockito.when(request.getCookies()).thenReturn(emptyCookies);

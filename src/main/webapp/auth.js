@@ -16,9 +16,7 @@
 // and storing cookies
 
 /* eslint-disable no-unused-vars */
-
 /* global gapi, addCookie, isCookiePresent, deleteCookie, populateGmail */
-
 // TODO: Handle CommonJS (Issue #31)
 
 /**

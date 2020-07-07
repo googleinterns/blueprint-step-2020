@@ -14,8 +14,8 @@
 
 package com.google.sps.utility;
 
-import com.google.api.client.auth.oauth2.BearerToken;	
-import com.google.api.client.auth.oauth2.Credential;	
+import com.google.api.client.auth.oauth2.BearerToken;
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
