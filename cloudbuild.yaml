@@ -1,13 +1,11 @@
 steps:
     - name: gcr.io/cloud-builders/gcloud	
       entrypoint: bash
-      args:
-        - 'touch api-key.txt'
-        - 'gcloud secrets versions access latest --secret=API_KEY >| api-key.txt'
+      args: [ '-c', 'gcloud secrets versions access latest --secret=API_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > decrypted-data.txt' ]
     - name: echo
       entrypoint: bash
       args:
-        - 'echo $(cat api-key.txt)'
+        - 'echo $(cat decrypted-data.txt)'
     - name: maven:3-jdk-8
       entrypoint: mvn
       args:
@@ -18,4 +16,4 @@ steps:
         - '-Dapp.deploy.promote=False'
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
-        - '-DAPI_KEY=$(cat api-key.txt)'
+        - '-DAPI_KEY=$(cat decrypted-data.txt)'
