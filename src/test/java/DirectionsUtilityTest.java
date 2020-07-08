@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,23 +27,47 @@ public class DirectionsUtilityTest {
 
   private final String ORIGIN = "University of Waterloo";
   private final String DESTINATION = "Wilfrid Laurier University";
-  private final List<String> WAYPOINTS = Arrays.asList("University of Waterloo Place");
-  private final String API_KEY = "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y";
+  private final List<String> NO_WAYPOINTS = Arrays.asList();
+  private final List<String> ONE_WAYPOINT = Arrays.asList("University of Waterloo Place");
+  private final List<String> MANY_WAYPOINTS =
+      Arrays.asList("University of Waterloo Place", "Google Kitchener");
+  private final String API_KEY = "SAMPLE_API_KEY";
 
   @Test
-  public void buildUri() throws IOException, URISyntaxException {
-    // Checks that the correct URI is built.
-    String actual = DirectionsUtility.getDirectionsUri(DESTINATION, ORIGIN, WAYPOINTS, API_KEY);
+  public void oneWaypointUri() throws IOException, URISyntaxException {
+    // Checks that the correct URI is built for a single waypoint.
+    String actual = DirectionsUtility.getDirectionsUri(DESTINATION, ORIGIN, ONE_WAYPOINT, API_KEY);
     String expected =
-        "https://maps.googleapis.com/maps/api/directions/json?origin=University+of+Waterloo&destination=Wilfrid+Laurier+University&waypoints=via%3AUniversity+of+Waterloo+Place&departure_time=now&key="
-            + API_KEY;
+        "https://maps.googleapis.com/maps/api/directions/json?origin=University+of+Waterloo&destination=Wilfrid+Laurier+University&waypoints=optimize%3Atrue%7CUniversity+of+Waterloo+Place&departure_time=now&key=SAMPLE_API_KEY";
     Assert.assertEquals(expected, actual);
   }
 
   @Test
-  public void apiCall() throws JSONException, IOException, URISyntaxException {
-    // Ensures that Directions API call is successful.
-    JSONObject actual = DirectionsUtility.getDirections(DESTINATION, ORIGIN, WAYPOINTS, API_KEY);
-    Assert.assertEquals("OK", actual.get("status"));
+  public void noWaypointsUri() throws IOException, URISyntaxException {
+    // Checks that the correct URI is built for no waypoints.
+    String actual = DirectionsUtility.getDirectionsUri(DESTINATION, ORIGIN, NO_WAYPOINTS, API_KEY);
+    String expected =
+        "https://maps.googleapis.com/maps/api/directions/json?origin=University+of+Waterloo&destination=Wilfrid+Laurier+University&waypoints=optimize%3Atrue&departure_time=now&key=SAMPLE_API_KEY";
+    Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void manyWaypointsUri() throws IOException, URISyntaxException {
+    // Checks that the correct URI is built for multiple waypoints.
+    String actual =
+        DirectionsUtility.getDirectionsUri(DESTINATION, ORIGIN, MANY_WAYPOINTS, API_KEY);
+    String expected =
+        "https://maps.googleapis.com/maps/api/directions/json?origin=University+of+Waterloo&destination=Wilfrid+Laurier+University&waypoints=optimize%3Atrue%7CUniversity+of+Waterloo+Place%7CGoogle+Kitchener&departure_time=now&key=SAMPLE_API_KEY";
+    Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void returnToOriginUri() throws IOException, URISyntaxException {
+    // Checks that the correct URI is built for multiple waypoints and destination is the same as
+    // origin.
+    String actual = DirectionsUtility.getDirectionsUri(ORIGIN, ORIGIN, MANY_WAYPOINTS, API_KEY);
+    String expected =
+        "https://maps.googleapis.com/maps/api/directions/json?origin=University+of+Waterloo&destination=University+of+Waterloo&waypoints=optimize%3Atrue%7CUniversity+of+Waterloo+Place%7CGoogle+Kitchener&departure_time=now&key=SAMPLE_API_KEY";
+    Assert.assertEquals(expected, actual);
   }
 }

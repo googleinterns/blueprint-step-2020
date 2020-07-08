@@ -36,18 +36,12 @@ public final class DirectionsUtility {
    * @return A string of waypoints to set to the waypoints parameter.
    */
   private static String buildWaypoints(List<String> waypoints) {
-    StringBuilder waypointsBuilder = new StringBuilder();
-    boolean firstIteration = true;
-    if (waypoints == null) {
-      return "";
+    StringBuilder waypointsBuilder = new StringBuilder("optimize:true");
+    if (waypoints.isEmpty()) {
+      return waypointsBuilder.toString();
     }
     for (String waypoint : waypoints) {
-      if (firstIteration) {
-        waypointsBuilder.append("via:" + waypoint);
-        firstIteration = false;
-        continue;
-      }
-      waypointsBuilder.append("|via:" + waypoint);
+      waypointsBuilder.append("|" + waypoint);
     }
     return waypointsBuilder.toString();
   }
