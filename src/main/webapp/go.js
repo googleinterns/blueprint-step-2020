@@ -22,14 +22,14 @@ function populateGo() {
         let html = '';
         json.map.routes.myArrayList.forEach((route) => {
           route.map.legs.myArrayList.forEach((leg) => {
-            var duration = leg.map.duration.map.text;
-            var distance = leg.map.distance.map.text;
-            var startAddress = leg.map.start_address;
-            var endAddress = leg.map.end_address;
-            legHtml = `<p>Duration: ${duration}<p>Distance: ${distance}<p>Start: ${startAddress}<p>End: ${endAddress}`;
-            html += legHtml;
-          })
-        })
+            const DURATION = leg.map.duration.map.text;
+            const DISTANCE = leg.map.distance.map.text;
+            const START_ADDRESS = leg.map.start_address;
+            const END_ADDRESS = leg.map.end_address;
+            const LEG_HTML = `<p>Duration: ${DURATION}<p>Distance: ${DISTANCE}<p>Start: ${START_ADDRESS}<p>End: ${END_ADDRESS}`;
+            html += LEG_HTML;
+          });
+        });
         document.getElementById('directions-container').innerHTML = html;
       });
 }
