@@ -125,3 +125,7 @@ function renderButton() {
   });
 }
 
+/**
+ * Custom error type to handle cases where user is not authenticated
+ */
+class AuthenticationError extends Error {}
