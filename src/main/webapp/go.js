@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* exported populateGo */
+
 /**
  * Gets key information from each leg and displays them on the DOM.
  */
