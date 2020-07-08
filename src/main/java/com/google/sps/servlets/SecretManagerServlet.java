@@ -14,12 +14,13 @@ public class SecretManagerServlet extends HttpServlet {
   @Override	
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {	
     String apiKey = System.getProperty("API_KEY").toString();
-    sendJson(response, apiKey);
+    response.setContentType("text/html");
+    response.getWriter().println(apiKey);
   }
-
+  /*
   public static void sendJson(HttpServletResponse response, Object object) throws IOException {
     Gson gson = new Gson();
     String json = gson.toJson(object);
     response.getWriter().println(json);
-  }
+  }*/
 }
