@@ -28,22 +28,29 @@ function populateGmail() {
   // and display them on the screen
   fetch('/gmail')
       .then((response) => {
+        console.log(response);
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
-          throw new Error();
+          throw new Error("403");
         }
         return response.json();
       })
       .then((emailList) => {
         // Convert JSON to string containing all messageIds
         // and display it on client
-        const emails =
-            emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
-        gmailContainer.innerText = emails;
+        if (emailList !== null) {
+          const emails =
+              emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
+          gmailContainer.innerText = emails;
+        } else {
+          gmailContainer.innerText = 'No emails found';
+        }
       })
-      .catch(() => {
-        // Sign out user if not authenticated
-        signOut();
+      .catch((e) => {
+        console.log(e);
+        if(e.message === "403") {
+          signOut();
+        }
       });
 }
 
