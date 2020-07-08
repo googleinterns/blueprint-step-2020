@@ -37,6 +37,7 @@ public class DirectionsServlet extends HttpServlet {
 
   /**
    * Converts object to JSON and sends it to a HTTP Servlet Response.
+   *
    * @param response Response to send object to.
    * @param object Object to convert to JSON and send.
    * @throws IOException
@@ -47,9 +48,7 @@ public class DirectionsServlet extends HttpServlet {
     response.getWriter().println(json);
   }
 
-  /**
-   * Get parameters from HTML to store in this class.
-   */
+  /** Get parameters from HTML to store in this class. */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     origin = request.getParameter("origin");
@@ -60,9 +59,7 @@ public class DirectionsServlet extends HttpServlet {
     response.sendRedirect("/index.html");
   }
 
-  /**
-   * Get directions using the parameters stored in this class.
-   */
+  /** Get directions using the parameters stored in this class. */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     try {

@@ -60,8 +60,8 @@ public final class AuthenticationUtility {
     HttpTransport transport = new NetHttpTransport();
     GoogleIdTokenVerifier verifier =
         new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
-          .setAudience(Collections.singletonList(CLIENT_ID))
-          .build();
+            .setAudience(Collections.singletonList(CLIENT_ID))
+            .build();
 
     // If the idToken is not null, the identity is verified and vice versa
     GoogleIdToken idToken;
