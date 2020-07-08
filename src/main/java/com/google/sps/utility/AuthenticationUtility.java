@@ -63,10 +63,10 @@ public final class AuthenticationUtility {
     String idTokenString = idTokenCookie.getValue();
 
     // Build a verifier used to ensure the passed user ID is legitimate
-    JsonFactory jsonFactory = getJsonFactory();
-    HttpTransport transport = getAppEngineTransport();
+    HttpTransport transport = UrlFetchTransport.getDefaultInstance();
+    JsonFactory factory = JacksonFactory.getDefaultInstance();
     GoogleIdTokenVerifier verifier =
-        new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+        new GoogleIdTokenVerifier.Builder(transport, factory)
             .setAudience(Collections.singletonList(CLIENT_ID))
             .build();
 
@@ -84,7 +84,7 @@ public final class AuthenticationUtility {
    *
    * @deprecated Use getGoogleCredential and the Google API Java Client if possible.
    * @param request contains cookies for a userToken and accessToken
-   * @return Value of the "Authorization" header. Null if authentication is invald or accessToken
+   * @return Value of the "Authorization" header. Null if authentication is invalid or accessToken
    *     was not found
    */
   @Deprecated
@@ -104,7 +104,8 @@ public final class AuthenticationUtility {
    * userId prior to creating credential. Be sure to do this before creating the credential
    *
    * @param request http request from client. Must contain idToken and accessToken
-   * @return a Google credential object that can be used to create an API service instance
+   * @return a Google credential object that can be used to create an API service instance null if
+   *     userId cannot be verified or accessToken cannot be found
    */
   public static Credential getGoogleCredential(HttpServletRequest request) {
     // Return null if userId cannot be verified
@@ -147,25 +148,6 @@ public final class AuthenticationUtility {
     credential.setAccessToken(accessToken);
 
     return credential;
-  }
-
-  /**
-   * Get HTTPTransport appropriate for App Engine environment
-   * https://googleapis.dev/java/google-http-client/latest/com/google/api/client/extensions/appengine/http/UrlFetchTransport.html
-   *
-   * @return UrlFetchTransport instance
-   */
-  public static HttpTransport getAppEngineTransport() {
-    return new UrlFetchTransport();
-  }
-
-  /**
-   * Get JsonFactory instance. Use this method to get JsonFactory instances for consistency purposes
-   *
-   * @return JacksonFactory instance
-   */
-  public static JsonFactory getJsonFactory() {
-    return new JacksonFactory();
   }
 
   /**
