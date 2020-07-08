@@ -10,7 +10,3 @@ steps:
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
         - '-DargLine="-DAPI_KEY=${_API_KEY}"'
-      substitutions:
-        - 'SUB_VALUE=${_API_KEY}'
-      options:
-        substitution_option: 'ALLOW_LOOSE'
