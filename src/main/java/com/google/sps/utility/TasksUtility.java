@@ -23,6 +23,7 @@ import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class TasksUtility {
@@ -52,7 +53,9 @@ public final class TasksUtility {
    * @throws IOException if an issue occurs with the Tasks service
    */
   public static List<TaskList> listTaskLists(Tasks tasksService) throws IOException {
-    return tasksService.tasklists().list().execute().getItems();
+    List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
+
+    return taskLists != null ? taskLists : new ArrayList<>();
   }
 
   /**
@@ -60,10 +63,12 @@ public final class TasksUtility {
    *
    * @param tasksService a valid Google Tasks service instance
    * @param taskList a TaskList object that represents a user's tasklist
-   * @return a list of Tasks that belong to the list in the user's account
+   * @return a list of Tasks that belong to the specified list (empty list if no tasks present)
    * @throws IOException if an issue occurs with the Tasks service
    */
   public static List<Task> listTasks(Tasks tasksService, TaskList taskList) throws IOException {
-    return tasksService.tasks().list(taskList.getId()).execute().getItems();
+    List<Task> tasks = tasksService.tasks().list(taskList.getId()).execute().getItems();
+
+    return tasks != null ? tasks : new ArrayList<>();
   }
 }

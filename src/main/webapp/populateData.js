@@ -38,6 +38,7 @@ function populateGmail() {
       .then((emailList) => {
         // Convert JSON to string containing all messageIds
         // and display it on client
+        console.log(emailList);
         if (emailList !== null) {
           const emails =
               emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
@@ -67,20 +68,26 @@ function populateTasks() {
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
-          throw new Error();
+          throw new Error('403');
         }
         return response.json();
       })
       .then((tasksList) => {
         // Convert JSON to string containing all task titles
         // and display it on client
-        const tasks =
-            tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
-        tasksContainer.innerText = tasks;
+        if (tasksList.length !== 0) {
+          const tasks =
+              tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
+          tasksContainer.innerText = tasks;
+        } else {
+          tasksContainer.innerText = 'No tasks found';
+        }
       })
-      .catch(() => {
-        // Sign out user if not authenticated
-        signOut();
+      .catch((e) => {
+        console.log(e);
+        if (e.message === '403') {
+          signOut();
+        }
       });
 }
 
