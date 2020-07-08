@@ -35,12 +35,21 @@ public class DirectionsServlet extends HttpServlet {
   private List<String> waypoints;
   private String apiKey;
 
+  /**
+   * Converts object to JSON and sends it to a HTTP Servlet Response.
+   * @param response Response to send object to.
+   * @param object Object to convert to JSON and send.
+   * @throws IOException
+   */
   public static void sendJson(HttpServletResponse response, Object object) throws IOException {
     Gson gson = new Gson();
     String json = gson.toJson(object);
     response.getWriter().println(json);
   }
 
+  /**
+   * Get parameters from HTML to store in this class.
+   */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     origin = request.getParameter("origin");
@@ -51,6 +60,9 @@ public class DirectionsServlet extends HttpServlet {
     response.sendRedirect("/index.html");
   }
 
+  /**
+   * Get directions using the parameters stored in this class.
+   */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     try {
@@ -58,7 +70,9 @@ public class DirectionsServlet extends HttpServlet {
           DirectionsUtility.getDirections(destination, origin, waypoints, apiKey);
       sendJson(response, directions);
     } catch (JSONException e) {
+      System.out.println("JSONException Occurred.");
     } catch (URISyntaxException e) {
+      System.out.println("URISyntaxException Occurred.");
     }
   }
 }

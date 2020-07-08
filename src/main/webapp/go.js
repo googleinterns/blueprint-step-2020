@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * Gets key information from each leg and displays them on the DOM.
+ */
 function populateGo() {
   fetch('/directions')
     .then((response) => (response.json()))

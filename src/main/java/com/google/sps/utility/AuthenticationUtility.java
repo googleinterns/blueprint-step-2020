@@ -58,10 +58,10 @@ public final class AuthenticationUtility {
     // Build a verifier used to ensure the passed user ID is legitimate
     JacksonFactory jacksonFactory = new JacksonFactory();
     HttpTransport transport = new NetHttpTransport();
-    GoogleIdTokenVerifier verifier = 
-      new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
-        .setAudience(Collections.singletonList(CLIENT_ID))
-        .build();
+    GoogleIdTokenVerifier verifier =
+        new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
+          .setAudience(Collections.singletonList(CLIENT_ID))
+          .build();
 
     // If the idToken is not null, the identity is verified and vice versa
     GoogleIdToken idToken;
