@@ -28,7 +28,10 @@ function populateGo() {
             const DISTANCE = leg.map.distance.map.text;
             const START_ADDRESS = leg.map.start_address;
             const END_ADDRESS = leg.map.end_address;
-            const LEG_HTML = `<p>Duration: ${DURATION}<p>Distance: ${DISTANCE}<p>Start: ${START_ADDRESS}<p>End: ${END_ADDRESS}`;
+            const LEG_HTML = `<p>Duration: ${DURATION}
+              <p>Distance: ${DISTANCE}
+              <p>Start: ${START_ADDRESS}
+              <p>End: ${END_ADDRESS}`;
             html += LEG_HTML;
           });
         });
