@@ -92,7 +92,7 @@
                   <systemProperties>
                     <property>
                       <name>API_KEY</name>
-                      <value>${apikey}</value>
+                      <value>${apiKey}</value>
                     </property>
                   </systemProperties>
                 </configuration>

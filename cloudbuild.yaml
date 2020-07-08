@@ -9,4 +9,4 @@ steps:
         - '-Dapp.deploy.promote=False'
         - '-Dapp.deploy.version=$_PR_NUMBER'
         - '-Dapp.deploy.projectId=$PROJECT_ID'
-        - '-Dapikey=${_API_KEY}'
+        - '-DargLine="-DapiKey=${_API_KEY}"'
