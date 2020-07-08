@@ -58,9 +58,10 @@ public final class AuthenticationUtility {
     // Build a verifier used to ensure the passed user ID is legitimate
     JacksonFactory jacksonFactory = new JacksonFactory();
     HttpTransport transport = new NetHttpTransport();
-    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
-    .setAudience(Collections.singletonList(CLIENT_ID))
-    .build();
+    GoogleIdTokenVerifier verifier = 
+      new GoogleIdTokenVerifier.Builder(transport, jacksonFactory)
+        .setAudience(Collections.singletonList(CLIENT_ID))
+        .build();
 
     // If the idToken is not null, the identity is verified and vice versa
     GoogleIdToken idToken;
@@ -87,31 +88,6 @@ public final class AuthenticationUtility {
 
     // Otherwise, return the accessToken as a Bearer token for the Authorization Header
     return "Bearer " + authCookie.getValue();
-  }
-
-  
-
-  /**
-   * Creates a Credential object to work with the Google API Java Client. Will NOT handle verifying
-   * userId prior to creating credential. Be sure to do this before creating the credential.
-   * Consider using the overloaded method if you need to do a second verification
-   *
-   * @param accessToken String representation of the accessToken to authenticate user
-   * @return a Google credential object that can be used to create an API service instance. null if
-   *     accessToken is empty string
-   */
-  public static Credential getGoogleCredential(String accessToken) {
-    if (accessToken.isEmpty()) {
-      return null;
-    }
-
-    // Build credential object with accessToken
-    Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
-    Credential.Builder credentialBuilder = new Credential.Builder(accessMethod);
-    Credential credential = credentialBuilder.build();
-    credential.setAccessToken(accessToken);
-
-    return credential;
   }
 
   /**
