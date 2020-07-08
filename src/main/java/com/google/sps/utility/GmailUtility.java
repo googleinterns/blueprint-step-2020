@@ -22,6 +22,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -143,15 +144,16 @@ public final class GmailUtility {
    * @param gmailService instance of Gmail Service with valid credential
    * @param query conditions applied to the search to limit which emails are returned. "" for no
    *     restrictions.
-   * @return List of Message objects that contain a message and thread ID
+   * @return List of Message objects with ID and thread ID (Empty if no messages present)
    * @throws IOException if an issue occurs with the Gmail service
    */
   public static List<Message> listUserMessages(Gmail gmailService, String query)
       throws IOException {
+    // Null if no messages present. Convert to empty list for ease
     List<Message> messages =
         gmailService.users().messages().list("me").setQ(query).execute().getMessages();
 
-    return messages;
+    return messages != null ? messages : new ArrayList<>();
   }
 
   /**
@@ -162,7 +164,7 @@ public final class GmailUtility {
    *     Generally retrieved from the listUserMessages method
    * @param format controls how much information from each message is returned
    * @return a Message object that contains the information requested
-   * @throws IOException
+   * @throws IOException if an issue occurs with the Gmail service
    */
   public static Message getMessage(Gmail gmailService, String messageId, MessageFormat format)
       throws IOException {
