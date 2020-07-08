@@ -15,7 +15,7 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut */
+/* global signOut, AuthenticationError */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 /**
  * Populate Gmail container with user information
@@ -28,10 +28,9 @@ function populateGmail() {
   // and display them on the screen
   fetch('/gmail')
       .then((response) => {
-        console.log(response);
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
-          throw new Error('403');
+          throw new AuthenticationError();
         }
         return response.json();
       })
@@ -48,7 +47,7 @@ function populateGmail() {
       })
       .catch((e) => {
         console.log(e);
-        if (e.message === '403') {
+        if (e instanceof AuthenticationError) {
           signOut();
         }
       });
@@ -67,7 +66,7 @@ function populateTasks() {
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
-          throw new Error('403');
+          throw new AuthenticationError();
         }
         return response.json();
       })
@@ -84,7 +83,7 @@ function populateTasks() {
       })
       .catch((e) => {
         console.log(e);
-        if (e.message === '403') {
+        if (e instanceof AuthenticationError) {
           signOut();
         }
       });
