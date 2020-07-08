@@ -93,7 +93,7 @@
                     <API_KEY>${apiKey}</API_KEY>
                   </systemPropertyVariables>
                 </configuration>
-              </plugin>
+            </plugin>
         </plugins>
     </build> 
 </project>
