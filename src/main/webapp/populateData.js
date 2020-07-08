@@ -31,7 +31,7 @@ function populateGmail() {
         console.log(response);
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
-          throw new Error("403");
+          throw new Error('403');
         }
         return response.json();
       })
@@ -48,7 +48,7 @@ function populateGmail() {
       })
       .catch((e) => {
         console.log(e);
-        if(e.message === "403") {
+        if (e.message === '403') {
           signOut();
         }
       });
