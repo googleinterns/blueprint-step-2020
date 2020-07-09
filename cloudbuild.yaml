@@ -4,6 +4,9 @@ steps:
       - 'mkdir'
       - '-p'
       - src/main/resources'
+  - name: ubuntu
+    args:
+      - 'ls'
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: bash
     args:
