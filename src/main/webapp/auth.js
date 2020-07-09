@@ -17,7 +17,7 @@
 
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie, isCookiePresent,
-deleteCookie, populateGmail, populateTasks */
+deleteCookie, populateGmail, populateTasks, populateCalendar */
 
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
