@@ -44,22 +44,22 @@ public class GmailServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // // get Google credential object. Ensure it is valid - otherwise return an error to client
-    // Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
-    // if (googleCredential == null) {
-    //   response.sendError(403, AuthenticationUtility.ERROR_403);
-    //   return;
-    // }
+    // get Google credential object. Ensure it is valid - otherwise return an error to client
+    Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
+    if (googleCredential == null) {
+      response.sendError(403, AuthenticationUtility.ERROR_403);
+      return;
+    }
 
-    // // Get messageIds from Gmail
-    // Gmail gmailService = GmailUtility.getGmailService(googleCredential);
-    // List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
+    // Get messageIds from Gmail
+    Gmail gmailService = GmailUtility.getGmailService(googleCredential);
+    List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
 
-    // // convert messageIds to JSON object and print to response
-    // Gson gson = new Gson();
-    // String messageJson = gson.toJson("hellooooo");
+    // convert messageIds to JSON object and print to response
+    Gson gson = new Gson();
+    String messageJson = gson.toJson(messages);
 
-    response.setContentType("text/plain;charset=UTF-8");
-    response.getWriter().println("Hellloo - message");
+    response.setContentType("application/json");
+    response.getWriter().println(messageJson);
   }
 }

@@ -40,7 +40,7 @@ function populateGmail() {
         if (emailList.length !== 0) {
           const emails =
               emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
-          gmailContainer.innerText = emailList;
+          gmailContainer.innerText = emails;
         } else {
           gmailContainer.innerText = 'No emails found';
         }
@@ -75,7 +75,7 @@ function populateTasks() {
         // and display it on client
         if (tasksList.length !== 0) {
           const tasks =
-              tasksList.map((a) => a).reduce((a, b) => a + '\n' + b);
+              tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
           tasksContainer.innerText = tasks;
         } else {
           tasksContainer.innerText = 'No tasks found';
