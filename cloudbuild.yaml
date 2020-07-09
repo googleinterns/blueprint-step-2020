@@ -1,11 +1,22 @@
 steps:
-    - name: maven:3-jdk-8
-      entrypoint: mvn
-      args:
-        - 'clean'
-        - 'package'
-        - 'appengine:deploy'
-        - '-Dmaven.test.skip=true'
-        - '-Dapp.deploy.promote=False'
-        - '-Dapp.deploy.version=$_PR_NUMBER'
-        - '-Dapp.deploy.projectId=$PROJECT_ID'
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - '-c'
+      - 'gcloud secrets versions access latest --secret=secret-data --format='get(payload.data)' | tr '_-' '/+' | base64 -d > decrypted-data.txt'
+  - name: 'ubuntu'
+    env:
+      - 'GUI_TEST_KEY=$(cat decrypted-data.txt)'
+    args: 'echo $GUI_TEST_KEY'
+
+# steps:
+#     - name: maven:3-jdk-8
+#       entrypoint: mvn
+#       args:
+#         - 'clean'
+#         - 'package'
+#         - 'appengine:deploy'
+#         - '-Dmaven.test.skip=true'
+#         - '-Dapp.deploy.promote=False'
+#         - '-Dapp.deploy.version=$_PR_NUMBER'
+#         - '-Dapp.deploy.projectId=$PROJECT_ID'
