@@ -16,7 +16,13 @@
 // and storing cookies
 
 /* eslint-disable no-unused-vars */
+<<<<<<< HEAD
 /* global gapi, addCookie, isCookiePresent, deleteCookie */
+=======
+/* global gapi, addCookie, isCookiePresent,
+deleteCookie, populateGmail, populateTasks */
+// TODO: Handle CommonJS (Issue #31)
+>>>>>>> ad5db97e2a43f6296e8b12c5745a6d6ff45a6ffa
 
 /**
  * Function called when script https://apis.google.com/js/platform.js loads
@@ -46,6 +52,7 @@ function init() {
  */
 function handleAuthenticationState() {
   const featureContainer = document.querySelector('.feature-container');
+<<<<<<< HEAD
   const logInButton = document.querySelector('#google-sign-in-btn');
   if (isCookiePresent('idToken')) {
     // User is logged in.
@@ -56,6 +63,22 @@ function handleAuthenticationState() {
     // User is not logged in.
     // Show login button, hide features
     logInButton.removeAttribute('hidden');
+=======
+  const signInButton = document.querySelector('#google-sign-in-btn');
+  if (isCookiePresent('idToken')) {
+    // User is logged in.
+    // Hide sign in button, show features
+    signInButton.setAttribute('hidden', '');
+    featureContainer.removeAttribute('hidden');
+
+    // Populate information panels at top of dashboard
+    populateGmail();
+    populateTasks();
+  } else {
+    // User is not logged in.
+    // Show sign in button, hide features
+    signInButton.removeAttribute('hidden');
+>>>>>>> ad5db97e2a43f6296e8b12c5745a6d6ff45a6ffa
     featureContainer.setAttribute('hidden', '');
   }
 }
@@ -121,3 +144,10 @@ function renderButton() {
   });
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Custom error type to handle cases where user is not authenticated
+ */
+class AuthenticationError extends Error {}
+>>>>>>> ad5db97e2a43f6296e8b12c5745a6d6ff45a6ffa

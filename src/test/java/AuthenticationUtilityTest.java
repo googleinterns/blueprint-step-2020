@@ -13,8 +13,6 @@
 // limitations under the License.
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.sps.utility.AuthenticationUtility;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +50,7 @@ public final class AuthenticationUtilityTest {
       };
 
   // Not an actual access token
-  private final String stubbedAccessToken = "abcdefgh";
+  private static final String STUBBED_ACCESS_TOKEN = "abcdefgh";
 
   @Test
   public void getCookie() {
@@ -60,11 +58,6 @@ public final class AuthenticationUtilityTest {
     Mockito.when(request.getCookies()).thenReturn(correctCookies);
 
     Cookie retrievedCookie = AuthenticationUtility.getCookie(request, "idToken");
-    Assert.assertNotNull(retrievedCookie);
-    Assert.assertEquals(retrievedCookie.getName(), "idToken");
-    Assert.assertEquals(retrievedCookie.getValue(), "sample_id_token");
-  }
-
   @Test
   public void getCookieEmptyCookies() {
     // A cookie is requested from an empty list. Should return null.
@@ -133,23 +126,10 @@ public final class AuthenticationUtilityTest {
   }
 
   @Test
-  public void getJsonFactory() {
-    // Should return an object that implements the JsonFactory interface
-    Assert.assertTrue(AuthenticationUtility.getJsonFactory() instanceof JsonFactory);
-  }
-
-  @Test
-  public void getAppEngineTransport() {
-    // Should return an object that implements the HttpTransport interface
-    Assert.assertTrue(AuthenticationUtility.getAppEngineTransport() instanceof HttpTransport);
-  }
-
-  @Test
   public void getValidCredential() {
     // Should create a valid Google credential object with accessToken stored
-    Credential googleCredential = AuthenticationUtility.getGoogleCredential(stubbedAccessToken);
-    Assert.assertNotNull(googleCredential);
-    Assert.assertEquals(googleCredential.getAccessToken(), stubbedAccessToken);
+    Credential googleCredential = AuthenticationUtility.getGoogleCredential(STUBBED_ACCESS_TOKEN);
+    Assert.assertEquals(googleCredential.getAccessToken(), STUBBED_ACCESS_TOKEN);
   }
 
   @Test
