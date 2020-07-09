@@ -14,9 +14,12 @@
 
 package com.google.sps.model;
 
+import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +31,18 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
 
   protected Credential googleCredential;
 
+  private final AuthenticationVerifier authenticationVerifier;
+
+  public AuthenticatedHttpServlet() {
+    super();
+    authenticationVerifier = new AuthenticationVerifierImpl();
+  }
+
+  public AuthenticatedHttpServlet(AuthenticationVerifier authenticationVerifier) {
+    super();
+    this.authenticationVerifier = authenticationVerifier;
+  }
+
   /**
    * Handles a GET request and sending a 403 error in the case that the user is not properly
    * authenticated
@@ -38,7 +53,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    googleCredential = AuthenticationUtility.getGoogleCredential(request);
+    googleCredential = getGoogleCredential(request);
     if (googleCredential == null) {
       response.sendError(403, ERROR_403);
     }
@@ -54,9 +69,44 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    googleCredential = AuthenticationUtility.getGoogleCredential(request);
+    googleCredential = getGoogleCredential(request);
     if (googleCredential == null) {
       response.sendError(403, ERROR_403);
     }
+  }
+
+  private Credential getGoogleCredential(HttpServletRequest request) {
+    Cookie userTokenCookie = ServletUtility.getCookie(request, "idToken");
+    if (userTokenCookie == null) {
+      return null;
+    }
+
+    try {
+      if (!authenticationVerifier.verifyUserToken(userTokenCookie.getValue())) {
+        return null;
+      }
+    } catch (GeneralSecurityException | IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+
+    Cookie accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
+    if (accessTokenCookie == null) {
+      return null;
+    }
+
+    String accessToken = accessTokenCookie.getValue();
+
+    if (accessToken.isEmpty()) {
+      return null;
+    }
+
+    // Build credential object with accessToken
+    Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
+    Credential.Builder credentialBuilder = new Credential.Builder(accessMethod);
+    Credential credential = credentialBuilder.build();
+    credential.setAccessToken(accessToken);
+
+    return credential;
   }
 }

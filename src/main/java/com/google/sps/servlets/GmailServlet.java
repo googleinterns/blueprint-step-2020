@@ -14,11 +14,12 @@
 
 package com.google.sps.servlets;
 
-import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
-import com.google.sps.utility.GmailUtility;
+import com.google.sps.model.GmailClient;
+import com.google.sps.model.GmailClientFactory;
+import com.google.sps.model.GmailClientImpl;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
@@ -32,6 +33,18 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/gmail")
 public class GmailServlet extends AuthenticatedHttpServlet {
+  private final GmailClientFactory gmailClientFactory;
+
+  public GmailServlet() {
+    super();
+    gmailClientFactory = new GmailClientImpl.Factory();
+  }
+
+  public GmailServlet(GmailClientFactory gmailClientFactory) {
+    super();
+    this.gmailClientFactory = gmailClientFactory;
+  }
+
   /**
    * Returns messageIds from the user's Gmail account
    *
@@ -46,8 +59,8 @@ public class GmailServlet extends AuthenticatedHttpServlet {
 
     if (googleCredential != null) {
       // Get messageIds from Gmail
-      Gmail gmailService = GmailUtility.getGmailService(googleCredential);
-      List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
+      GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
+      List<Message> messages = gmailClient.listUserMessages("");
 
       // convert messageIds to JSON object and print to response
       Gson gson = new Gson();
