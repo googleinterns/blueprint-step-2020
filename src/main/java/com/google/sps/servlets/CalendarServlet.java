@@ -15,17 +15,12 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.tasks.Tasks;
-import com.google.api.services.tasks.model.Task;
-import com.google.api.services.tasks.model.TaskList;
-import com.google.appengine.repackaged.com.google.gson.Gson;
-import com.google.sps.utility.AuthenticationUtility;
-import com.google.sps.utility.TasksUtility;
-import com.google.sps.utility.CalendarUtility;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
+import com.google.appengine.repackaged.com.google.gson.Gson;
+import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.utility.CalendarUtility;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
