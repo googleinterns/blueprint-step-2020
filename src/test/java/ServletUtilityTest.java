@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.utility.ServletUtility;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-
-import com.google.sps.utility.ServletUtility;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

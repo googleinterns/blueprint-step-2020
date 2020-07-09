@@ -34,9 +34,6 @@ public final class AuthenticationUtility {
   public static final String CLIENT_ID =
       "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
 
-  // Application Name
-  public static final String APPLICATION_NAME = "PUT NAME HERE";
-
   private AuthenticationUtility() {}
 
   /**
