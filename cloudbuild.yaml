@@ -3,12 +3,12 @@ steps:
     entrypoint: bash
     args:
       - "-c"
-      - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > decrypted-data.txt"
+      - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)'"
     # args: ["gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > decrypted-data.txt"]
-  - name: 'ubuntu'
-    env:
-      - 'GUI_TEST_KEY=$(cat decrypted-data.txt)'
-    args: 'echo $GUI_TEST_KEY'
+  # - name: 'ubuntu'
+  #   env:
+  #     - 'GUI_TEST_KEY=$(cat decrypted-data.txt)'
+  #   args: 'echo $GUI_TEST_KEY'
 
 # steps:
 #     - name: maven:3-jdk-8
