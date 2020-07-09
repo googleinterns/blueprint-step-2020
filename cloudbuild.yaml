@@ -5,7 +5,9 @@ steps:
       - "-c"
       - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > value.txt"
   - name: 'ubuntu'
-    args: ['echo', 'hello world, after 600s']
+    env:
+    - 'GUI_TEST_KEY=$(cat value.txt)'
+    args: ['echo', '$GUI_TEST_KEY']
 
   # - name: gcr.io/cloud-builders/gcloud
   #   entrypoint: bash
