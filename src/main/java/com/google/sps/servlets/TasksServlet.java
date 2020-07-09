@@ -29,10 +29,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Serves selected information from the User's Tasks Account. TODO: Create Servlet Utility to handle
- * common functions (Issue #26)
- */
+/** Serves selected information from the User's Tasks Account. */
 @WebServlet("/tasks")
 public class TasksServlet extends AuthenticatedHttpServlet {
   private final TasksClientFactory tasksClientFactory;
@@ -60,6 +57,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     // Load and verify google credential
     super.doGet(request, response);
 
+    // Credential is null if user is not authenticated.
     if (googleCredential != null) {
       // Get tasks from Google Tasks
       TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
