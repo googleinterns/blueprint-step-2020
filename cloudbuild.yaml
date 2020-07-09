@@ -1,8 +1,7 @@
 steps:
-  - name: ubuntu
-  # - name: gcr.io/cloud-builders/gcloud
+  - name: gcr.io/cloud-builders/gcloud
     entrypoint: bash
-    args: ["gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)'"]
+    args: ["-c", "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)'"]
     # args: ["gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > decrypted-data.txt"]
   # - name: 'ubuntu'
   #   env:
