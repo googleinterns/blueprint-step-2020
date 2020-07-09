@@ -7,7 +7,7 @@ steps:
   - name: 'ubuntu'
     env:
       - "GUI_TEST_KEY=$(cat value.txt)"
-    args: ['cat', 'value.txt']
+    args: ['ls']
 
   # - name: gcr.io/cloud-builders/gcloud
   #   entrypoint: bash
