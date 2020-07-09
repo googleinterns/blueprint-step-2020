@@ -23,6 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /** HttpServlet that enforces the verification of user tokens */
 public abstract class AuthenticatedHttpServlet extends HttpServlet {
+  // Error message if user is not authenticated
+  protected static final String ERROR_403 = "Authentication tokens not present / invalid";
+
   protected Credential googleCredential;
 
   /**
@@ -37,7 +40,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     googleCredential = AuthenticationUtility.getGoogleCredential(request);
     if (googleCredential == null) {
-      response.sendError(403, AuthenticationUtility.ERROR_403);
+      response.sendError(403, ERROR_403);
     }
   }
 
@@ -53,7 +56,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     googleCredential = AuthenticationUtility.getGoogleCredential(request);
     if (googleCredential == null) {
-      response.sendError(403, AuthenticationUtility.ERROR_403);
+      response.sendError(403, ERROR_403);
     }
   }
 }

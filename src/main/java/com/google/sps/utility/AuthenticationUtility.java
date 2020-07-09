@@ -40,9 +40,6 @@ public final class AuthenticationUtility {
   // Application Name
   public static final String APPLICATION_NAME = "PUT NAME HERE";
 
-  // Error message if user is not authenticated
-  public static final String ERROR_403 = "Authentication tokens not present / invalid";
-
   private AuthenticationUtility() {}
 
   /**
