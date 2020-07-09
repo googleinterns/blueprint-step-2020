@@ -38,9 +38,9 @@ function populateGmail() {
         // Convert JSON to string containing all messageIds
         // and display it on client
         if (emailList.length !== 0) {
-          const emails =
-              emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
-          gmailContainer.innerText = emails;
+          // const emails =
+          //     emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
+          gmailContainer.innerText = emailList;
         } else {
           gmailContainer.innerText = 'No emails found';
         }
