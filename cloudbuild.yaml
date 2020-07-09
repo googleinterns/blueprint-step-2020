@@ -6,7 +6,8 @@ steps:
       - src/main/resources'
   - name: ubuntu
     args:
-      - 'ls src/main'
+      - 'ls'
+      - 'src/main'
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: bash
     args:
