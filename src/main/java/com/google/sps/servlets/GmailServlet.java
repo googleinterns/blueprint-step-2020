@@ -25,10 +25,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Serves selected information from the User's Gmail Account. TODO: Create Servlet Utility to handle
- * common functions (Issue #26)
- */
+/** Serves selected information from the User's Gmail Account. */
 @WebServlet("/gmail")
 public class GmailServlet extends AuthenticatedHttpServlet {
   /**
