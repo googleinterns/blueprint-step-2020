@@ -45,6 +45,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     // Load and verify google credential
     super.doGet(request, response);
 
+    // Credential is null if user is not authenticated.
     if (googleCredential != null) {
       // Get tasks from Google Tasks
       Tasks tasksService = TasksUtility.getTasksService(googleCredential);

@@ -27,8 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Serves selected information from the User's Gmail Account. TODO: Create Servlet Utility to handle
- * common functions (Issue #26) TODO: Create abstract class to handle authentication with each
- * request (Issue #37)
+ * common functions (Issue #26)
  */
 @WebServlet("/gmail")
 public class GmailServlet extends AuthenticatedHttpServlet {
@@ -41,9 +40,10 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Verifies and loads the Google Credential
+    // Load and verify google credential
     super.doGet(request, response);
 
+    // Credential is null if user is not authenticated.
     if (googleCredential != null) {
       // Get messageIds from Gmail
       Gmail gmailService = GmailUtility.getGmailService(googleCredential);
