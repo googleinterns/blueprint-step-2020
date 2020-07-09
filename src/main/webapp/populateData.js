@@ -89,6 +89,9 @@ function populateTasks() {
       });
 }
 
+/**
+ * Populate Calendar container with user's events
+ */
 function populateCalendar() {
   const calendarContainer = document.querySelector('#calendar');
   fetch('/calendar')
@@ -105,7 +108,7 @@ function populateCalendar() {
         const events =
             eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
         calendarContainer.innerText = events;
-     })
+      })
       .catch(() => {
         // Sign out user if not authenticated
         signOut();
