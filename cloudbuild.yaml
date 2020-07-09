@@ -1,33 +1,18 @@
 steps:
-  - name: 'ubuntu'
+  - name: ubuntu
     args: 'mkdir -p src/main/resources'
   - name: gcr.io/cloud-builders/gcloud
-    substitutions:
-      _KEY_NAME: GUI_TEST_KEY
     entrypoint: bash
     args:
-      - "-c"
-      - "gcloud secrets versions access latest --secret=$_KEY_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d >> src/main/resources/value.txt"
-  - name: 'ubuntu'
-    env:
-      - "GUI_TEST_KEY=$(cat value.txt)"
-    args: ['ls']
-
-  # - name: gcr.io/cloud-builders/gcloud
-  #   entrypoint: bash
-  #   # env:
-  #   #   # - 'GUI_TEST_KEY=$(cat value.txt)'
-  #   #   - 'GUI_TEST_KEY=$(echo 4)'
-  #   args: 'echo hi'
-
-# steps:
-#     - name: maven:3-jdk-8
-#       entrypoint: mvn
-#       args:
-#         - 'clean'
-#         - 'package'
-#         - 'appengine:deploy'
-#         - '-Dmaven.test.skip=true'
-#         - '-Dapp.deploy.promote=False'
-#         - '-Dapp.deploy.version=$_PR_NUMBER'
-#         - '-Dapp.deploy.projectId=$PROJECT_ID'
+      - '-c'
+      - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > src/main/resources/GUI_TEST_KEY.txt"
+  - name: maven:3-jdk-8
+    entrypoint: mvn
+    args:
+      - 'clean'
+      - 'package'
+      - 'appengine:deploy'
+      - '-Dmaven.test.skip=true'
+      - '-Dapp.deploy.promote=False'
+      - '-Dapp.deploy.version=$_PR_NUMBER'
+      - '-Dapp.deploy.projectId=$PROJECT_ID'
