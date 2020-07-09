@@ -17,6 +17,7 @@ package com.google.sps.servlets;
 import com.google.api.services.gmail.model.Message;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
+import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
@@ -40,8 +41,9 @@ public class GmailServlet extends AuthenticatedHttpServlet {
     gmailClientFactory = new GmailClientImpl.Factory();
   }
 
-  public GmailServlet(GmailClientFactory gmailClientFactory) {
-    super();
+  public GmailServlet(
+      AuthenticationVerifier authenticationVerifier, GmailClientFactory gmailClientFactory) {
+    super(authenticationVerifier);
     this.gmailClientFactory = gmailClientFactory;
   }
 

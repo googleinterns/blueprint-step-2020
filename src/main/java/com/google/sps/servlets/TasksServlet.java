@@ -14,12 +14,14 @@
 
 package com.google.sps.servlets;
 
-import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
-import com.google.sps.utility.TasksUtility;
+import com.google.sps.model.AuthenticationVerifier;
+import com.google.sps.model.TasksClient;
+import com.google.sps.model.TasksClientFactory;
+import com.google.sps.model.TasksClientImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,19 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/tasks")
 public class TasksServlet extends AuthenticatedHttpServlet {
+  private final TasksClientFactory tasksClientFactory;
+
+  public TasksServlet() {
+    super();
+    tasksClientFactory = new TasksClientImpl.Factory();
+  }
+
+  public TasksServlet(
+      AuthenticationVerifier authenticationVerifier, TasksClientFactory tasksClientFactory) {
+    super(authenticationVerifier);
+    this.tasksClientFactory = tasksClientFactory;
+  }
+
   /**
    * Returns taskNames from the user's Tasks account
    *
@@ -47,11 +62,11 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     if (googleCredential != null) {
       // Get tasks from Google Tasks
-      Tasks tasksService = TasksUtility.getTasksService(googleCredential);
-      List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
+      TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+      List<TaskList> taskLists = tasksClient.listTaskLists();
       List<Task> tasks = new ArrayList<>();
       for (TaskList taskList : taskLists) {
-        tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
+        tasks.addAll(tasksClient.listTasks(taskList));
       }
 
       // Convert tasks to JSON and print to response

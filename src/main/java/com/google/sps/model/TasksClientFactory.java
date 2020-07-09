@@ -14,11 +14,8 @@
 
 package com.google.sps.model;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import com.google.api.client.auth.oauth2.Credential;
 
-public interface AuthenticationVerifier {
-  String CLIENT_ID = "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
-
-  boolean verifyUserToken(String userToken) throws GeneralSecurityException, IOException;
+public interface TasksClientFactory {
+  TasksClient getTasksClient(Credential credential);
 }

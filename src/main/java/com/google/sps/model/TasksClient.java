@@ -14,11 +14,13 @@
 
 package com.google.sps.model;
 
+import com.google.api.services.tasks.model.Task;
+import com.google.api.services.tasks.model.TaskList;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.List;
 
-public interface AuthenticationVerifier {
-  String CLIENT_ID = "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
+public interface TasksClient {
+  List<Task> listTasks(TaskList taskList) throws IOException;
 
-  boolean verifyUserToken(String userToken) throws GeneralSecurityException, IOException;
+  List<TaskList> listTaskLists() throws IOException;
 }
