@@ -57,7 +57,7 @@ public class GmailServlet extends HttpServlet {
 
     // convert messageIds to JSON object and print to response
     Gson gson = new Gson();
-    String messageJson = gson.toJson(messages);
+    String messageJson = gson.toJson("hellooooo");
 
     response.setContentType("application/json");
     response.getWriter().println(messageJson);
