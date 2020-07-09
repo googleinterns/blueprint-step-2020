@@ -1,12 +1,14 @@
 steps:
   - name: ubuntu
     args:
-      - 'mkdir -p src/main/resources'
+      - 'mkdir'
+      - '-p'
+      - src/main/resources'
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: bash
     args:
       - '-c'
-      - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > data.txt"
+      - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > src/main/resources/GUI_TEST_KEY.txt"
   # - name: maven:3-jdk-8
   #   entrypoint: mvn
   #   args:
