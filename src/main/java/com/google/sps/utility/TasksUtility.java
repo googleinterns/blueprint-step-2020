@@ -15,16 +15,18 @@
 package com.google.sps.utility;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class TasksUtility {
-  // Make constructor private so no instances of this class can be made
+public final class TasksUtility {
   private TasksUtility() {}
 
   /**
@@ -34,10 +36,13 @@ public class TasksUtility {
    * @return Google Tasks service instance
    */
   public static Tasks getTasksService(Credential credential) {
-    HttpTransport transport = AuthenticationUtility.getAppEngineTransport();
-    JsonFactory jsonFactory = AuthenticationUtility.getJsonFactory();
+    HttpTransport transport = UrlFetchTransport.getDefaultInstance();
+    JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+    String applicationName = AuthenticationUtility.APPLICATION_NAME;
 
-    return new Tasks.Builder(transport, jsonFactory, credential).build();
+    return new Tasks.Builder(transport, jsonFactory, credential)
+        .setApplicationName(applicationName)
+        .build();
   }
 
   /**
@@ -48,7 +53,9 @@ public class TasksUtility {
    * @throws IOException if an issue occurs with the Tasks service
    */
   public static List<TaskList> listTaskLists(Tasks tasksService) throws IOException {
-    return tasksService.tasklists().list().execute().getItems();
+    List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
+
+    return taskLists != null ? taskLists : new ArrayList<>();
   }
 
   /**
@@ -56,10 +63,12 @@ public class TasksUtility {
    *
    * @param tasksService a valid Google Tasks service instance
    * @param taskList a TaskList object that represents a user's tasklist
-   * @return a list of Tasks that belong to the list in the user's account
+   * @return a list of Tasks that belong to the specified list (empty list if no tasks present)
    * @throws IOException if an issue occurs with the Tasks service
    */
   public static List<Task> listTasks(Tasks tasksService, TaskList taskList) throws IOException {
-    return tasksService.tasks().list(taskList.getId()).execute().getItems();
+    List<Task> tasks = tasksService.tasks().list(taskList.getId()).execute().getItems();
+
+    return tasks != null ? tasks : new ArrayList<>();
   }
 }

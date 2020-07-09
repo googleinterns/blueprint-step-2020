@@ -15,21 +15,42 @@
 package com.google.sps.utility;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
-import com.google.sps.model.MessageFormat;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Contains logic that handles GET & POST requests to the Gmail API and transforms those responses
  * into easily usable Java types
  */
-public class GmailUtility {
-  // Make constructor private so no instances of this class can be made
+public final class GmailUtility {
   private GmailUtility() {}
+
+  /**
+   * Encapsulates possible values for the "format" query parameter in the Gmail GET message method
+   * FULL: Returns full email message data METADATA: Returns only email message ID, labels, and
+   * email headers MINIMAL: Returns only email message ID and labels; does not return the email
+   * headers, body, or payload. RAW: Returns the full email message data with body content in the
+   * raw field as a base64url encoded string;
+   */
+  public enum MessageFormat {
+    FULL("full"),
+    METADATA("metadata"),
+    MINIMAL("minimal"),
+    RAW("raw");
+
+    public final String formatValue;
+
+    MessageFormat(String formatValue) {
+      this.formatValue = formatValue;
+    }
+  }
 
   /**
    * Creates a query string for Gmail. Use in search to return emails that fit certain restrictions
@@ -55,7 +76,8 @@ public class GmailUtility {
   }
 
   /**
-   * Creates Gmail query for age of emails
+   * Creates Gmail query for age of emails. Use of months and years not supported as they are out of
+   * scope for the application's current purpose (there is no need for it yet)
    *
    * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. Set to 0 to
    *     ignore filter
@@ -67,12 +89,13 @@ public class GmailUtility {
   public static String emailAgeQuery(int emailAge, String emailAgeUnits) {
     // newer_than:#d where # is an integer will specify to only return emails from last # days
     if (emailAge > 0 && (emailAgeUnits.equals("h") || emailAgeUnits.equals("d"))) {
-      return String.format("newer_than: %d%s ", emailAge, emailAgeUnits);
+      return String.format("newer_than:%d%s ", emailAge, emailAgeUnits);
     } else if (emailAge == 0 && emailAgeUnits.isEmpty()) {
       return "";
-    } else {
-      return null;
     }
+
+    // Input invalid
+    return null;
   }
 
   /**
@@ -96,7 +119,7 @@ public class GmailUtility {
    */
   public static String fromEmailQuery(String from) {
     // from: <emailAddress> will return only emails from that sender
-    return !from.equals("") ? String.format("from: %s ", from) : "";
+    return !from.equals("") ? String.format("from:%s ", from) : "";
   }
 
   /**
@@ -106,10 +129,13 @@ public class GmailUtility {
    * @return Gmail service instance
    */
   public static Gmail getGmailService(Credential credential) {
-    JsonFactory jsonFactory = AuthenticationUtility.getJsonFactory();
-    HttpTransport transport = AuthenticationUtility.getAppEngineTransport();
+    JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+    HttpTransport transport = UrlFetchTransport.getDefaultInstance();
+    String applicationName = AuthenticationUtility.APPLICATION_NAME;
 
-    return new Gmail.Builder(transport, jsonFactory, credential).build();
+    return new Gmail.Builder(transport, jsonFactory, credential)
+        .setApplicationName(applicationName)
+        .build();
   }
 
   /**
@@ -118,15 +144,16 @@ public class GmailUtility {
    * @param gmailService instance of Gmail Service with valid credential
    * @param query conditions applied to the search to limit which emails are returned. "" for no
    *     restrictions.
-   * @return List of Message objects that contain a message and thread ID
+   * @return List of Message objects with ID and thread ID (Empty if no messages present)
    * @throws IOException if an issue occurs with the Gmail service
    */
   public static List<Message> listUserMessages(Gmail gmailService, String query)
       throws IOException {
+    // Null if no messages present. Convert to empty list for ease
     List<Message> messages =
         gmailService.users().messages().list("me").setQ(query).execute().getMessages();
 
-    return messages;
+    return messages != null ? messages : new ArrayList<>();
   }
 
   /**
@@ -137,7 +164,7 @@ public class GmailUtility {
    *     Generally retrieved from the listUserMessages method
    * @param format controls how much information from each message is returned
    * @return a Message object that contains the information requested
-   * @throws IOException
+   * @throws IOException if an issue occurs with the Gmail service
    */
   public static Message getMessage(Gmail gmailService, String messageId, MessageFormat format)
       throws IOException {

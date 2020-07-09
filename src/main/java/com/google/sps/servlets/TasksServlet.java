@@ -29,7 +29,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Serves selected information from the User's Tasks Account. */
+/**
+ * Serves selected information from the User's Tasks Account. TODO: Create Servlet Utility to handle
+ * common functions (Issue #26)
+ */
 @WebServlet("/tasks")
 public class TasksServlet extends HttpServlet {
 
