@@ -5,7 +5,7 @@ steps:
     entrypoint: bash
     args:
       - "-c"
-      - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > src/main/resources/data.txt"
+      - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > data.txt"
   # - name: maven:3-jdk-8
   #   entrypoint: mvn
   #   args:
