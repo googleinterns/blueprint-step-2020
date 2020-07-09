@@ -15,8 +15,10 @@
 package com.google.sps.utility;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
@@ -28,10 +30,13 @@ public class CalendarUtility {
   private CalendarUtility() {}
 
   public static Calendar getCalendarService(Credential credential) {
-    HttpTransport HTTP_TRANSPORT = AuthenticationUtility.getAppEngineTransport();
-    JsonFactory JSON_FACTORY = AuthenticationUtility.getJsonFactory();
+    HttpTransport httpTransport = UrlFetchTransport.getDefaultInstance();
+    JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+    String applicationName = AuthenticationUtility.APPLICATION_NAME;
 
-    return new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
+    return new Calendar.Builder(httpTransport, jsonFactory, credential)
+        .setApplicationName(applicationName)
+        .build();
   }
 
   public static List<Event> getCalendarEvents(Calendar calendarService) throws IOException {
