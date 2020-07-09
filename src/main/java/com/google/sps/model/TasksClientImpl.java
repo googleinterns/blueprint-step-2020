@@ -42,22 +42,43 @@ public class TasksClientImpl implements TasksClient {
             .build();
   }
 
+  /**
+   * Get all tasks from a tasklist in a user's Tasks account.
+   *
+   * @param taskList TaskList object that contains the desired tasks
+   * @return List of all tasks in the tasklist
+   * @throws IOException if an issue occurs with the TasksService
+   */
   @Override
   public List<Task> listTasks(TaskList taskList) throws IOException {
+    // returns null if no tasks exist. Convert to empty list for ease.
     List<Task> tasks = tasksService.tasks().list(taskList.getId()).execute().getItems();
 
     return tasks != null ? tasks : new ArrayList<>();
   }
 
+  /**
+   * Get all tasklists in a user's Tasks account.
+   *
+   * @return List of all tasklists
+   * @throws IOException if an issue occurs with the TasksService
+   */
   @Override
   public List<TaskList> listTaskLists() throws IOException {
+    // returns null if no tasklists exist. Convert to empty list for ease.
     List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
 
     return taskLists != null ? taskLists : new ArrayList<>();
   }
 
+  /** Factory to create a TasksClientImpl instance with given credential */
   public static class Factory implements TasksClientFactory {
-
+    /**
+     * Create a TasksClientImpl instance
+     *
+     * @param credential Google credential object
+     * @return TasksClientImpl instance with credential
+     */
     @Override
     public TasksClient getTasksClient(Credential credential) {
       return new TasksClientImpl(credential);

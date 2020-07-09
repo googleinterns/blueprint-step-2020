@@ -34,11 +34,18 @@ import javax.servlet.http.HttpServletResponse;
 public class TasksServlet extends AuthenticatedHttpServlet {
   private final TasksClientFactory tasksClientFactory;
 
+  /** Create servlet with default TasksClient and Authentication Verifier implementations */
   public TasksServlet() {
     super();
     tasksClientFactory = new TasksClientImpl.Factory();
   }
 
+  /**
+   * Create servlet with explicit implementations of TasksClient and AuthenticationVerifier
+   *
+   * @param authenticationVerifier implementation of AuthenticationVerifier
+   * @param tasksClientFactory implementation of TasksClientFactory
+   */
   public TasksServlet(
       AuthenticationVerifier authenticationVerifier, TasksClientFactory tasksClientFactory) {
     super(authenticationVerifier);

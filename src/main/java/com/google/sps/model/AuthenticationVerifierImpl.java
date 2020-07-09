@@ -24,10 +24,11 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
+/** Verifies authentication information with Google */
 public class AuthenticationVerifierImpl implements AuthenticationVerifier {
 
   @Override
-  public boolean verifyUserToken(String userToken) throws GeneralSecurityException, IOException {
+  public boolean verifyUserToken(String idToken) throws GeneralSecurityException, IOException {
     // Build a verifier used to ensure the passed user ID is legitimate
     HttpTransport transport = UrlFetchTransport.getDefaultInstance();
     JsonFactory factory = JacksonFactory.getDefaultInstance();
@@ -36,10 +37,9 @@ public class AuthenticationVerifierImpl implements AuthenticationVerifier {
             .setAudience(Collections.singletonList(CLIENT_ID))
             .build();
 
-    // If the idToken is not null, the identity is verified and vice versa
-    GoogleIdToken idToken;
-    idToken = verifier.verify(userToken);
+    // If the userToken is not null, the identity is verified and vice versa
+    GoogleIdToken userToken = verifier.verify(idToken);
 
-    return idToken != null;
+    return userToken != null;
   }
 }

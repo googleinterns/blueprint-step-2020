@@ -14,10 +14,7 @@
 
 package com.google.sps.utility;
 
-/**
- * Contains logic that handles GET & POST requests to the Gmail API and transforms those responses
- * into easily usable Java types
- */
+/** Contains logic that transforms and creates Gmail data structures (no network requests) */
 public final class GmailUtility {
   private GmailUtility() {}
 

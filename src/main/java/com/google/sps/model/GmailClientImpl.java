@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Handles GET requests from Gmail API */
 public class GmailClientImpl implements GmailClient {
   private Gmail gmailService;
 
@@ -40,6 +41,13 @@ public class GmailClientImpl implements GmailClient {
             .build();
   }
 
+  /**
+   * Get all of the message IDs from a user's Gmail account
+   *
+   * @param query search query to filter which results are returned
+   * @return a list of messages with IDs and Thread IDs
+   * @throws IOException if an issue occurs with the Gmail Service
+   */
   @Override
   public List<Message> listUserMessages(String query) throws IOException {
     // Null if no messages present. Convert to empty list for ease
@@ -49,6 +57,14 @@ public class GmailClientImpl implements GmailClient {
     return messages != null ? messages : new ArrayList<>();
   }
 
+  /**
+   * Get a message from a user's Gmail account
+   *
+   * @param messageId the messageID (retrieved from listUserMessages) of the desired Message
+   * @param format MessageFormat enum that defines how much of the Message object is populated
+   * @return a Message object with the requested information
+   * @throws IOException if an issue occurs with the Gmail service
+   */
   @Override
   public Message getUserMessage(String messageId, MessageFormat format) throws IOException {
     Message message =
@@ -62,7 +78,14 @@ public class GmailClientImpl implements GmailClient {
     return message;
   }
 
+  /** Factory to create a GmailClientImpl instance with given credential */
   public static class Factory implements GmailClientFactory {
+    /**
+     * Create a GmailClientImpl instance
+     *
+     * @param credential Google credential object
+     * @return GmailClientImpl instance with credential
+     */
     @Override
     public GmailClient getGmailClient(Credential credential) {
       return new GmailClientImpl(credential);

@@ -32,11 +32,18 @@ import javax.servlet.http.HttpServletResponse;
 public class GmailServlet extends AuthenticatedHttpServlet {
   private final GmailClientFactory gmailClientFactory;
 
+  /** Create servlet with default GmailClient and Authentication Verifier implementations */
   public GmailServlet() {
     super();
     gmailClientFactory = new GmailClientImpl.Factory();
   }
 
+  /**
+   * Create servlet with explicit implementations of GmailClient and AuthenticationVerifier
+   *
+   * @param authenticationVerifier implementation of AuthenticationVerifier
+   * @param gmailClientFactory implementation of GmailClientFactory
+   */
   public GmailServlet(
       AuthenticationVerifier authenticationVerifier, GmailClientFactory gmailClientFactory) {
     super(authenticationVerifier);

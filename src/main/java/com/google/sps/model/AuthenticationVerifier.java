@@ -17,8 +17,18 @@ package com.google.sps.model;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
+/** Contract for verifying user with Google Sign in API */
 public interface AuthenticationVerifier {
+  // OAuth 2.0 Client ID
   String CLIENT_ID = "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
 
-  boolean verifyUserToken(String userToken) throws GeneralSecurityException, IOException;
+  /**
+   * Verifies that Google User ID Token is legitimate
+   *
+   * @param idToken idToken from HTTP Request
+   * @return true if token is valid, false otherwise
+   * @throws GeneralSecurityException If an issue occurs verifying the user token with Google
+   * @throws IOException If an issue occurs verifying the user token with Google
+   */
+  boolean verifyUserToken(String idToken) throws GeneralSecurityException, IOException;
 }

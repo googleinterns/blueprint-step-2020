@@ -16,6 +16,7 @@ package com.google.sps.model;
 
 import com.google.api.client.auth.oauth2.Credential;
 
+/** Contract for creating a TasksClient instance */
 public interface TasksClientFactory {
   TasksClient getTasksClient(Credential credential);
 }

@@ -18,9 +18,25 @@ import com.google.api.services.gmail.model.Message;
 import java.io.IOException;
 import java.util.List;
 
+/** Contract for trivial get requests from the Gmail API */
 public interface GmailClient {
+  /**
+   * Get all of the message IDs from a user's Gmail account
+   *
+   * @param query search query to filter which results are returned
+   * @return a list of messages with IDs and Thread IDs
+   * @throws IOException if an issue occurs with the Gmail Service
+   */
   List<Message> listUserMessages(String query) throws IOException;
 
+  /**
+   * Get a message from a user's Gmail account
+   *
+   * @param messageId the messageID (retrieved from listUserMessages) of the desired Message
+   * @param format MessageFormat enum that defines how much of the Message object is populated
+   * @return a Message object with the requested information
+   * @throws IOException if an issue occurs with the Gmail service
+   */
   Message getUserMessage(String messageId, MessageFormat format) throws IOException;
 
   /**

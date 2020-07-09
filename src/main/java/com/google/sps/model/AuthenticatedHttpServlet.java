@@ -33,11 +33,17 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
 
   private final AuthenticationVerifier authenticationVerifier;
 
+  /** Create AuthenticatedHttpServlet with default implementations of the AuthenticationVerifier */
   public AuthenticatedHttpServlet() {
     super();
     authenticationVerifier = new AuthenticationVerifierImpl();
   }
 
+  /**
+   * Create AuthenticatedHttpServlet with an explicit implementation of the AuthenticationVerifier
+   *
+   * @param authenticationVerifier implementation of the AuthenticationVerifier
+   */
   public AuthenticatedHttpServlet(AuthenticationVerifier authenticationVerifier) {
     super();
     this.authenticationVerifier = authenticationVerifier;
@@ -75,6 +81,13 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
     }
   }
 
+  /**
+   * Get a Google Credential object from the authentication cookies (idToken & accessToken) in the
+   * HTTP Request
+   *
+   * @param request Http Request sent from client
+   * @return Credential object with accessToken. null if tokens not present / are invalid
+   */
   private Credential getGoogleCredential(HttpServletRequest request) {
     Cookie userTokenCookie = ServletUtility.getCookie(request, "idToken");
     if (userTokenCookie == null) {
@@ -101,7 +114,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
       return null;
     }
 
-    // Build credential object with accessToken
+    // Build Google credential with verified authentication information
     Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
     Credential.Builder credentialBuilder = new Credential.Builder(accessMethod);
     Credential credential = credentialBuilder.build();

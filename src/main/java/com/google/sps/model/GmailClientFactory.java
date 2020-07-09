@@ -16,6 +16,7 @@ package com.google.sps.model;
 
 import com.google.api.client.auth.oauth2.Credential;
 
+/** Contract for creating a GmailClient with a given credential */
 public interface GmailClientFactory {
   GmailClient getGmailClient(Credential credential);
 }
