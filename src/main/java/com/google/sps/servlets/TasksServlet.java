@@ -15,12 +15,14 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.gmail.Gmail;
-import com.google.api.services.gmail.model.Message;
+import com.google.api.services.tasks.Tasks;
+import com.google.api.services.tasks.model.Task;
+import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.utility.AuthenticationUtility;
-import com.google.sps.utility.GmailUtility;
+import com.google.sps.utility.TasksUtility;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -28,18 +30,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Serves selected information from the User's Gmail Account. TODO: Create Servlet Utility to handle
- * common functions (Issue #26) TODO: Create abstract class to handle authentication with each
- * request (Issue #37)
+ * Serves selected information from the User's Tasks Account. TODO: Create Servlet Utility to handle
+ * common functions (Issue #26)
  */
-@WebServlet("/gmail")
-public class GmailServlet extends HttpServlet {
+@WebServlet("/tasks")
+public class TasksServlet extends HttpServlet {
 
   /**
-   * Returns messageIds from the user's Gmail account
+   * Returns taskNames from the user's Tasks account
    *
-   * @param request Http request from the client. Should contain idToken and accessToken
-   * @param response 403 if user is not authenticated, list of messageIds otherwise
+   * @param request Http request from client. Should contain idToken and accessToken
+   * @param response 403 if user is not authenticated, list of taskNames otherwise
    * @throws IOException if an issue arises while processing the request
    */
   @Override
@@ -51,15 +52,19 @@ public class GmailServlet extends HttpServlet {
       return;
     }
 
-    // Get messageIds from Gmail
-    Gmail gmailService = GmailUtility.getGmailService(googleCredential);
-    List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
+    // Get tasks from Google Tasks
+    Tasks tasksService = TasksUtility.getTasksService(googleCredential);
+    List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
+    }
 
-    // convert messageIds to JSON object and print to response
+    // Convert tasks to JSON and print to response
     Gson gson = new Gson();
-    String messageJson = gson.toJson(messages);
+    String tasksJson = gson.toJson(tasks);
 
     response.setContentType("application/json");
-    response.getWriter().println(messageJson);
+    response.getWriter().println(tasksJson);
   }
 }

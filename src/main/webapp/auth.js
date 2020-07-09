@@ -16,7 +16,8 @@
 // and storing cookies
 
 /* eslint-disable no-unused-vars */
-/* global gapi, addCookie, isCookiePresent, deleteCookie, populateGmail */
+/* global gapi, addCookie, isCookiePresent,
+deleteCookie, populateGmail, populateTasks */
 // TODO: Handle CommonJS (Issue #31)
 
 /**
@@ -56,6 +57,7 @@ function handleAuthenticationState() {
 
     // Populate information panels at top of dashboard
     populateGmail();
+    populateTasks();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
