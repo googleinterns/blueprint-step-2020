@@ -21,12 +21,11 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
 import java.io.IOException;
 import java.util.List;
 
 public class CalendarUtility {
-  
+
   private CalendarUtility() {}
 
   public static Calendar getCalendarService(Credential credential) {
