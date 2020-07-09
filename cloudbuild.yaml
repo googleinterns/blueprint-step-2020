@@ -5,9 +5,9 @@ steps:
       - "-c"
       - "gcloud secrets versions access latest --secret=GUI_TEST_KEY --format='get(payload.data)' | tr '_-' '/+' | base64 -d > value.txt"
   - name: ubuntu
-    env:
-      # - 'GUI_TEST_KEY=$(cat value.txt)'
-      - 'GUI_TEST_KEY=$(echo 4)'
+    # env:
+    #   # - 'GUI_TEST_KEY=$(cat value.txt)'
+    #   - 'GUI_TEST_KEY=$(echo 4)'
     args: 'echo hi'
 
 # steps:
