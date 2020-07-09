@@ -14,16 +14,14 @@
 
 package com.google.sps.servlets;
 
-import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import com.google.appengine.repackaged.com.google.gson.Gson;
-import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.utility.GmailUtility;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,8 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  * request (Issue #37)
  */
 @WebServlet("/gmail")
-public class GmailServlet extends HttpServlet {
-
+public class GmailServlet extends AuthenticatedHttpServlet {
   /**
    * Returns messageIds from the user's Gmail account
    *
@@ -44,22 +41,20 @@ public class GmailServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // get Google credential object. Ensure it is valid - otherwise return an error to client
-    Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
-    if (googleCredential == null) {
-      response.sendError(403, AuthenticationUtility.ERROR_403);
-      return;
+    // Verifies and loads the Google Credential
+    super.doGet(request, response);
+
+    if (googleCredential != null) {
+      // Get messageIds from Gmail
+      Gmail gmailService = GmailUtility.getGmailService(googleCredential);
+      List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
+
+      // convert messageIds to JSON object and print to response
+      Gson gson = new Gson();
+      String messageJson = gson.toJson(messages);
+
+      response.setContentType("application/json");
+      response.getWriter().println(messageJson);
     }
-
-    // Get messageIds from Gmail
-    Gmail gmailService = GmailUtility.getGmailService(googleCredential);
-    List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
-
-    // convert messageIds to JSON object and print to response
-    Gson gson = new Gson();
-    String messageJson = gson.toJson(messages);
-
-    response.setContentType("application/json");
-    response.getWriter().println(messageJson);
   }
 }

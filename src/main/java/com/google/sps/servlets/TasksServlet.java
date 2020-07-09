@@ -14,18 +14,16 @@
 
 package com.google.sps.servlets;
 
-import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
-import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.utility.TasksUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -34,8 +32,7 @@ import javax.servlet.http.HttpServletResponse;
  * common functions (Issue #26)
  */
 @WebServlet("/tasks")
-public class TasksServlet extends HttpServlet {
-
+public class TasksServlet extends AuthenticatedHttpServlet {
   /**
    * Returns taskNames from the user's Tasks account
    *
@@ -45,26 +42,24 @@ public class TasksServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // get Google credential object. Ensure it is valid - otherwise return an error to client
-    Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
-    if (googleCredential == null) {
-      response.sendError(403, AuthenticationUtility.ERROR_403);
-      return;
+    // Load and verify google credential
+    super.doGet(request, response);
+
+    if (googleCredential != null) {
+      // Get tasks from Google Tasks
+      Tasks tasksService = TasksUtility.getTasksService(googleCredential);
+      List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
+      List<Task> tasks = new ArrayList<>();
+      for (TaskList taskList : taskLists) {
+        tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
+      }
+
+      // Convert tasks to JSON and print to response
+      Gson gson = new Gson();
+      String tasksJson = gson.toJson(tasks);
+
+      response.setContentType("application/json");
+      response.getWriter().println(tasksJson);
     }
-
-    // Get tasks from Google Tasks
-    Tasks tasksService = TasksUtility.getTasksService(googleCredential);
-    List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
-    }
-
-    // Convert tasks to JSON and print to response
-    Gson gson = new Gson();
-    String tasksJson = gson.toJson(tasks);
-
-    response.setContentType("application/json");
-    response.getWriter().println(tasksJson);
   }
 }
