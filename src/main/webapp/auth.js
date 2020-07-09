@@ -16,7 +16,8 @@
 // and storing cookies
 
 /* eslint-disable no-unused-vars */
-/* global gapi, addCookie, isCookiePresent, deleteCookie */
+/* global gapi, addCookie, isCookiePresent,
+deleteCookie, populateGmail, populateTasks */
 // TODO: Handle CommonJS (Issue #31)
 
 /**
@@ -53,6 +54,10 @@ function handleAuthenticationState() {
     // Hide sign in button, show features
     signInButton.setAttribute('hidden', '');
     featureContainer.removeAttribute('hidden');
+
+    // Populate information panels at top of dashboard
+    populateGmail();
+    populateTasks();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
@@ -122,3 +127,7 @@ function renderButton() {
   });
 }
 
+/**
+ * Custom error type to handle cases where user is not authenticated
+ */
+class AuthenticationError extends Error {}
