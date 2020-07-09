@@ -15,8 +15,8 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut */
-
+/* global signOut, AuthenticationError */
+// TODO: Refactor so populate functions are done in parallel (Issue #26)
 /**
  * Populate Gmail container with user information
  */
@@ -30,20 +30,26 @@ function populateGmail() {
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
-          throw new Error();
+          throw new AuthenticationError();
         }
         return response.json();
       })
       .then((emailList) => {
         // Convert JSON to string containing all messageIds
         // and display it on client
-        const emails =
-            emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
-        gmailContainer.innerText = emails;
+        if (emailList.length !== 0) {
+          const emails =
+              emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
+          gmailContainer.innerText = emails;
+        } else {
+          gmailContainer.innerText = 'No emails found';
+        }
       })
-      .catch(() => {
-        // Sign out user if not authenticated
-        signOut();
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
       });
 }
 
@@ -60,20 +66,26 @@ function populateTasks() {
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
-          throw new Error();
+          throw new AuthenticationError();
         }
         return response.json();
       })
       .then((tasksList) => {
         // Convert JSON to string containing all task titles
         // and display it on client
-        const tasks =
-            tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
-        tasksContainer.innerText = tasks;
+        if (tasksList.length !== 0) {
+          const tasks =
+              tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
+          tasksContainer.innerText = tasks;
+        } else {
+          tasksContainer.innerText = 'No tasks found';
+        }
       })
-      .catch(() => {
-        // Sign out user if not authenticated
-        signOut();
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
       });
 }
 

@@ -43,7 +43,6 @@ public final class AuthenticationUtility {
   // Error message if user is not authenticated
   public static final String ERROR_403 = "Authentication tokens not present / invalid";
 
-  // Make constructor private so no instances of this class can be made
   private AuthenticationUtility() {}
 
   /**
@@ -66,10 +65,10 @@ public final class AuthenticationUtility {
     String idTokenString = idTokenCookie.getValue();
 
     // Build a verifier used to ensure the passed user ID is legitimate
-    JsonFactory jsonFactory = getJsonFactory();
-    HttpTransport transport = getAppEngineTransport();
+    HttpTransport transport = UrlFetchTransport.getDefaultInstance();
+    JsonFactory factory = JacksonFactory.getDefaultInstance();
     GoogleIdTokenVerifier verifier =
-        new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+        new GoogleIdTokenVerifier.Builder(transport, factory)
             .setAudience(Collections.singletonList(CLIENT_ID))
             .build();
 
@@ -81,16 +80,14 @@ public final class AuthenticationUtility {
   }
 
   /**
-   * Helper function to create an authorization header for an outgoing HTTP request. Does NOT check
+   * Helper function to create an authorization header for an outgoing HTTP request Does NOT check
    * if the access token provides correct permissions for the request Does NOT check if the
    * userToken was valid. Use verifyUserToken to verify userId validity
    *
-   * @deprecated Use getGoogleCredential and the Google API Java Client if possible.
    * @param request contains cookies for a userToken and accessToken
-   * @return Value of the "Authorization" header. Null if authentication is invald or accessToken
+   * @return Value of the "Authorization" header. Null if authentication is invalid or accessToken
    *     was not found
    */
-  @Deprecated
   public static String generateAuthorizationHeader(HttpServletRequest request) {
     // If accessToken cannot be found, return null
     Cookie authCookie = getCookie(request, "accessToken");
@@ -151,25 +148,6 @@ public final class AuthenticationUtility {
     credential.setAccessToken(accessToken);
 
     return credential;
-  }
-
-  /**
-   * Get HTTPTransport appropriate for App Engine environment
-   * https://googleapis.dev/java/google-http-client/latest/com/google/api/client/extensions/appengine/http/UrlFetchTransport.html
-   *
-   * @return UrlFetchTransport instance
-   */
-  public static HttpTransport getAppEngineTransport() {
-    return new UrlFetchTransport();
-  }
-
-  /**
-   * Get JsonFactory instance. Use this method to get JsonFactory instances for consistency purposes
-   *
-   * @return JacksonFactory instance
-   */
-  public static JsonFactory getJsonFactory() {
-    return new JacksonFactory();
   }
 
   /**
