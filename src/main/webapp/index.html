@@ -11,48 +11,58 @@
 <link rel="stylesheet" href="style/base/_typography.css">
 <!-- Quicksand font import -->
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
-<article class="panel-row">
-  <div class="panel u-border-gmail">
-    <div class="panel__header">
-      <div class="panel__content-entry">
-        <a href="https://www.gmail.com">
-          <img class="panel__logo" src="assets/gmail.png">
-        </a>
-        <p class="panel__section-heading u-vertical-center">Gmail
-      </div>
-      <p class="panel__section-subheading">From the last 7 days:
-      <div class="panel__content">
+<script src="utilities.js"></script>
+<script src="populateData.js"></script>
+<script src="auth.js"></script>
+<!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
+<script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
+<!-- Google-Styled button that handles authentication -->
+<div id="google-sign-in-btn"></div>
+<div hidden class="feature-container">
+  <a href="#" onclick="signOut()">Sign out</a>
+  <article class="panel-row">
+    <div class="panel u-border-gmail">
+      <div class="panel__header">
         <div class="panel__content-entry">
-          <div class="panel__rounded-number">
-            <p class="panel__text-data-point u-text-white">35
+          <a href="https://www.gmail.com">
+            <img class="panel__logo" src="assets/gmail.png">
+          </a>
+          <p class="panel__section-heading u-vertical-center">Gmail
+        </div>
+        <p class="panel__section-subheading">From the last 7 days:
+        <div class="panel__content">
+          <div class="panel__content-entry">
+            <div class="panel__rounded-number">
+              <p class="panel__text-data-point u-text-white">35
+            </div>
+            <p class="panel__text-data-point u-vertical-center">Unread Emails:
           </div>
-          <p class="panel__text-data-point u-vertical-center">Unread Emails:
-        </div>
-        <div class="panel__content-entry">
-          <img class="panel__content-icon u-indent" src="assets/clock.png">
-          <p class="panel__text-large u-vertical-center">2 from last 3 hours
-        </div>
-        <div class="panel__content-entry">
-          <img class="panel__content-icon u-indent" src="assets/flag.png">
-          <p class="panel__text-large u-vertical-center">10 marked important
-        </div>
-        <div class="panel__content-entry">
-          <div class="panel__round-letter u-indent">
-            <p class="panel__text-data-point u-text-white">A
+          <div class="panel__content-entry">
+            <img class="panel__content-icon u-indent" src="assets/clock.png">
+            <p class="panel__text-large u-vertical-center">2 from last 3 hours
           </div>
-          <p class="panel__text-large u-vertical-center">Alex Smith sent the most unread emails
+          <div class="panel__content-entry">
+            <img class="panel__content-icon u-indent" src="assets/flag.png">
+            <p class="panel__text-large u-vertical-center">10 marked important
+          </div>
+          <div class="panel__content-entry">
+            <div class="panel__round-letter u-indent">
+              <p class="panel__text-data-point u-text-white">A
+            </div>
+            <p class="panel__text-large u-vertical-center">Alex Smith sent the most unread emails
+          </div>
         </div>
       </div>
     </div>
+    <div class="panel">Tasks</div>
+    <div class="panel">Calendar</div>
+  </article>
+  <div class="panel-row">
+    <div class="panel">Assign</div>
+    <div class="panel">Plan</div>
+    <div class="panel">Go</div>
   </div>
-  <div class="panel">Tasks</div>
-  <div class="panel">Calendar</div>
-</article>
-<div class="panel-row">
-  <div class="panel">Assign</div>
-  <div class="panel">Plan</div>
-  <div class="panel">Go</div>
-</div>
-<div>
-  <p class="attribution-footer">Icons made by <a href="https://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+  <div>
+    <p class="attribution-footer">Icons made by <a href="https://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+  </div>
 </div>
