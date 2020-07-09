@@ -28,6 +28,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Serves selected information from the User's Tasks Account. TODO: Create Servlet Utility to handle
@@ -53,12 +56,22 @@ public class TasksServlet extends HttpServlet {
     }
 
     // Get tasks from Google Tasks
-    Tasks tasksService = TasksUtility.getTasksService(googleCredential);
-    List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
+    // Tasks tasksService = TasksUtility.getTasksService(googleCredential);
+    // List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
+    // List<Task> tasks = new ArrayList<>();
+    // for (TaskList taskList : taskLists) {
+    //   tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
+    // }
+
+
+    String secret = "";
+    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    try (InputStream is = classloader.getResourceAsStream("GUI_TEST_KEY.txt")) {
+      secret = IOUtils.toString(is, StandardCharsets.UTF_8);
     }
+
+    List<String> tasks = new ArrayList<>();
+    tasks.add(secret);
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();
