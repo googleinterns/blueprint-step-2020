@@ -114,10 +114,8 @@ function populateCalendar() {
           calendarContainer.innerText = 'No events in the calendar';
         }
       })
-      .catch((e) => {
-        console.log(e);
-        if (e instanceof AuthenticationError) {
-          signOut();
-        }
+      .catch(() => {
+        // Sign out user if not authenticated
+        signOut();
       });
 }
