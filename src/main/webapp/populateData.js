@@ -98,19 +98,25 @@ function populateCalendar() {
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
-          throw new Error();
+          throw new AuthentificationError();
         }
         return response.json();
       })
       .then((eventList) => {
         // Convert JSON to string containing all event summaries
         // and display it on client
-        const events =
-            eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
-        calendarContainer.innerText = events;
+        if(eventList.length !== 0) {
+          const events =
+              eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
+          calendarContainer.innerText = events;
+        } else {
+          calendarContainer.innerText = 'No events in the calendar';
+        }
       })
-      .catch(() => {
-        // Sign out user if not authenticated
-        signOut();
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
       });
 }
