@@ -28,9 +28,17 @@ function getCookie(cookieName) {
 
   // Get the value of all matching cookies
   const matchingCookies = allCookies.filter((cookie) => {
+<<<<<<< HEAD
     const retrievedCookieName = cookie.split('=')[0];
     return retrievedCookieName === cookieName;
   }).map((cookieString) => {
+=======
+    // Gets the name of the first cookie
+    const retrievedCookieName = cookie.split('=')[0];
+    return retrievedCookieName === cookieName;
+  }).map((cookieString) => {
+    // Extracts the value of each cookie
+>>>>>>> ea0e8bb6ed1203810f788a9d3fcee758c2fd81c9
     return cookieString.split('=')[1];
   });
 
@@ -43,6 +51,10 @@ function getCookie(cookieName) {
     return null;
   }
 
+<<<<<<< HEAD
+=======
+  // Return the only cookie in the list (as expected)
+>>>>>>> ea0e8bb6ed1203810f788a9d3fcee758c2fd81c9
   return matchingCookies[0];
 }
 
@@ -70,5 +82,11 @@ function addCookie(cookieName, cookieValue, expiryUtcTime) {
  * @param {string} cookieName name of cookie to be deleted
  */
 function deleteCookie(cookieName) {
+<<<<<<< HEAD
   document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';`;
+=======
+  // Set time to 1 second past EPOCH time.
+  // Will prompt cookie to immediately expire
+  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+>>>>>>> ea0e8bb6ed1203810f788a9d3fcee758c2fd81c9
 }
