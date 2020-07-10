@@ -24,6 +24,7 @@ import java.security.GeneralSecurityException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,6 +78,12 @@ public class AuthenticatedHttpServletTest {
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
     when(response.getWriter()).thenReturn(printWriter);
+  }
+
+  @After
+  public void clear() {
+    // Dump contents after each test
+    stringWriter.getBuffer().setLength(0);
   }
 
   @Test

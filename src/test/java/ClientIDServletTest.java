@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,12 @@ public final class ClientIDServletTest {
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
     when(response.getWriter()).thenReturn(printWriter);
+  }
+
+  @After
+  public void clear() {
+    // Dump contents after each test
+    stringWriter.getBuffer().setLength(0);
   }
 
   @Test
