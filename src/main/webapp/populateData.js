@@ -105,7 +105,7 @@ function populateCalendar() {
       .then((eventList) => {
         // Convert JSON to string containing all event summaries
         // and display it on client
-        // Handle case where user has no events, avoid unwanted behaviour in that case.
+        // Handle case where user has no events to avoid unwanted behaviour
         if (eventList.length !== 0) {
           const events =
               eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
