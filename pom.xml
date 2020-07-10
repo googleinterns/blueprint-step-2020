@@ -56,34 +56,34 @@
             <version>1.9.5</version>
         </dependency>
         <dependency>
-          <groupId>com.google.apis</groupId>
-          <artifactId>google-api-services-gmail</artifactId>
-          <version>v1-rev20200601-1.30.9</version>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-gmail</artifactId>
+            <version>v1-rev20200601-1.30.9</version>
         </dependency>
         <dependency>
-          <groupId>com.google.apis</groupId>
-          <artifactId>google-api-services-tasks</artifactId>
-          <version>v1-rev20200516-1.30.9</version>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-tasks</artifactId>
+            <version>v1-rev20200516-1.30.9</version>
         </dependency>
         <dependency>
-          <groupId>com.google.apis</groupId>
-          <artifactId>google-api-services-calendar</artifactId>
-          <version>v3-rev20200610-1.30.9</version>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-calendar</artifactId>
+            <version>v3-rev20200610-1.30.9</version>
         </dependency>
         <dependency>
-          <groupId>org.json</groupId>
-          <artifactId>json</artifactId>
-          <version>20200518</version>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20200518</version>
         </dependency>
         <dependency>
-          <groupId>org.apache.httpcomponents</groupId>
-          <artifactId>fluent-hc</artifactId>
-          <version>4.5.12</version>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>fluent-hc</artifactId>
+            <version>4.5.12</version>
         </dependency>
         <dependency>
-          <groupId>com.google.code.gson</groupId>
-          <artifactId>gson</artifactId>
-          <version>1.4</version>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>1.4</version>
         </dependency>
     </dependencies>
 
