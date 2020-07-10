@@ -68,6 +68,7 @@ public final class TasksServletTest {
   private static StringWriter stringWriter;
   private static PrintWriter printWriter;
 
+  // Tasks must be returned in order of retrieval - JSON includes tasks in desired order
   private static final String TASK_TITLE_ONE = "task one";
   private static final String TASK_TITLE_TWO = "task two";
   private static final String TASK_TITLE_THREE = "task three";
@@ -79,10 +80,8 @@ public final class TasksServletTest {
           "[{\"title\":\"%s\"},{\"title\":\"%s\"},{\"title\":\"%s\"},{\"title\":\"%s\"}]",
           TASK_TITLE_ONE, TASK_TITLE_TWO, TASK_TITLE_THREE, TASK_TITLE_FOUR);
   private static final String EMPTY_JSON = "[]";
-
   private static final List<TaskList> noTaskLists = new ArrayList<>();
   private static final List<TaskList> someTaskLists = Arrays.asList(new TaskList(), new TaskList());
-
   private static final List<Task> noTasks = new ArrayList<>();
   private static final List<Task> tasksOneTwo =
       Arrays.asList(new Task().setTitle(TASK_TITLE_ONE), new Task().setTitle(TASK_TITLE_TWO));
@@ -92,6 +91,7 @@ public final class TasksServletTest {
   @BeforeClass
   public static void classInit() throws GeneralSecurityException, IOException {
     when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
+    // Authentication will always pass
     when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     when(request.getCookies()).thenReturn(validCookies);
@@ -99,6 +99,7 @@ public final class TasksServletTest {
 
   @Before
   public void init() throws IOException {
+    // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
     when(response.getWriter()).thenReturn(printWriter);
@@ -108,6 +109,7 @@ public final class TasksServletTest {
   public void noTaskLists() throws IOException {
     when(tasksClient.listTaskLists()).thenReturn(noTaskLists);
     servlet.doGet(request, response);
+    printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(EMPTY_JSON));
   }
 
@@ -116,6 +118,7 @@ public final class TasksServletTest {
     when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
     when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks);
     servlet.doGet(request, response);
+    printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(EMPTY_JSON));
   }
 
@@ -124,6 +127,7 @@ public final class TasksServletTest {
     when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
     when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks).thenReturn(tasksOneTwo);
     servlet.doGet(request, response);
+    printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(TASK_ONE_TWO_JSON));
   }
 
@@ -132,6 +136,7 @@ public final class TasksServletTest {
     when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
     when(tasksClient.listTasks(Mockito.any())).thenReturn(tasksOneTwo).thenReturn(tasksThreeFour);
     servlet.doGet(request, response);
+    printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(TASK_ALL_JSON));
   }
 }

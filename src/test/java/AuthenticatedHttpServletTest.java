@@ -32,6 +32,7 @@ import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 public class AuthenticatedHttpServletTest {
+  // Mock abstract servlet with real constructor and real methods
   private static final AuthenticationVerifier authVerifier =
       Mockito.mock(AuthenticationVerifier.class);
   private static final AuthenticatedHttpServlet servlet =
@@ -72,6 +73,7 @@ public class AuthenticatedHttpServletTest {
 
   @Before
   public void init() throws IOException {
+    // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
     when(response.getWriter()).thenReturn(printWriter);

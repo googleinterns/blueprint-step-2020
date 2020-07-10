@@ -51,11 +51,6 @@ public final class GmailServletTest {
   private static final GmailServlet servlet =
       new GmailServlet(authenticationVerifier, gmailClientFactory);
 
-  private static final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-  private final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
-  private static StringWriter stringWriter;
-  private static PrintWriter printWriter;
-
   private static final boolean AUTHENTICATION_VERIFIED = true;
   private static final String ID_TOKEN_KEY = "idToken";
   private static final String ID_TOKEN_VALUE = "sampleId";
@@ -67,10 +62,14 @@ public final class GmailServletTest {
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
+  private static final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+  private final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+  private static StringWriter stringWriter;
+  private static PrintWriter printWriter;
+
   private static final String MESSAGE_ID_ONE = "messageIdOne";
   private static final String MESSAGE_ID_TWO = "messageIdTwo";
   private static final String MESSAGE_ID_THREE = "messageIdThree";
-
   private static final List<Message> noMessages = new ArrayList<>();
   private static final List<Message> threeMessages =
       Arrays.asList(
@@ -86,6 +85,7 @@ public final class GmailServletTest {
   @BeforeClass
   public static void classInit() throws GeneralSecurityException, IOException {
     when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
+    // Authentication will always pass
     when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     when(request.getCookies()).thenReturn(validCookies);
@@ -93,6 +93,7 @@ public final class GmailServletTest {
 
   @Before
   public void init() throws IOException {
+    // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
     when(response.getWriter()).thenReturn(printWriter);
@@ -102,7 +103,7 @@ public final class GmailServletTest {
   public void noMessages() throws IOException {
     when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(noMessages);
     servlet.doGet(request, response);
-
+    printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(NO_MESSAGES_JSON));
   }
 
@@ -110,6 +111,7 @@ public final class GmailServletTest {
   public void threeMessages() throws IOException {
     when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(threeMessages);
     servlet.doGet(request, response);
+    printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(THREE_MESSAGES_JSON));
   }
 }
