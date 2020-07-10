@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Google Dashboard</title>
-</head>
-<body>
-  Hello World!
-</body>
-</html>
+<meta charset="UTF-8">
+<title>Google Dashboard</title>
+<link rel="stylesheet" href="variables.css">
+<link rel="stylesheet" href="styles.css">
+<script src="utilities.js"></script>
+<script src="populateData.js"></script>
+<script src="auth.js"></script>
+<!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
+<script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
+<!-- Google-Styled button that handles authentication -->
+<div id="google-sign-in-btn"></div>
+<!-- Link to sign out of account -->
+<div hidden class="feature-container">
+  <a href="#" onclick="signOut()">Sign out</a>
+  <div class="flex-container">
+    <div class="flex-item" id="gmail">Gmail</div>
+    <div class="flex-item" id="tasks">Tasks</div>
+    <div class="flex-item" id="calendar">Calendar</div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-item">Assign</div>
+    <div class="flex-item">Plan</div>
+    <div class="flex-item">Go</div>
+  </div>
+</div>
+
