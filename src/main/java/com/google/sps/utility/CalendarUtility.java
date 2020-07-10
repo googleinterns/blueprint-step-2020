@@ -24,9 +24,7 @@ import com.google.api.services.calendar.model.Event;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Utility class to use Calendar API instead of handling everything from the servlet
- */
+/** Utility class to use Calendar API instead of handling everything from the servlet */
 public class CalendarUtility {
   private CalendarUtility() {}
 
