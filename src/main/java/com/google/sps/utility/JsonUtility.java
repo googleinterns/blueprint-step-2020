@@ -34,6 +34,7 @@ public final class JsonUtility {
   public static void sendJson(HttpServletResponse response, Object object) throws IOException {
     Gson gson = new Gson();
     String json = gson.toJson(object);
+    response.setContentType("application/json");
     response.getWriter().println(json);
   }
 }
