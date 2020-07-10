@@ -42,7 +42,7 @@ public class AuthenticatedHttpServletTest {
               .useConstructor(authVerifier)
               .defaultAnswer(Mockito.CALLS_REAL_METHODS));
 
-  private final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+  private static final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
   private final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
   private static StringWriter stringWriter;
   private static PrintWriter printWriter;
