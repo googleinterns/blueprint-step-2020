@@ -37,7 +37,8 @@ public final class ServletUtilityTest {
 
   private static final Cookie[] emptyCookies = new Cookie[] {};
 
-  private static final Cookie[] missingAuthCookies = new Cookie[] {new Cookie("junk", "junk_value")};
+  private static final Cookie[] missingAuthCookies =
+      new Cookie[] {new Cookie("junk", "junk_value")};
 
   private static final Cookie[] duplicateCookies =
       new Cookie[] {
