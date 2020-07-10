@@ -103,6 +103,12 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
       return null;
     }
 
+    String idToken = userTokenCookie.getValue();
+
+    if (idToken.isEmpty()) {
+      return null;
+    }
+
     try {
       if (!authenticationVerifier.verifyUserToken(userTokenCookie.getValue())) {
         return null;

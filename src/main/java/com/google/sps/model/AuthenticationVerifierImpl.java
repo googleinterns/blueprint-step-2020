@@ -26,7 +26,6 @@ import java.util.Collections;
 
 /** Verifies authentication information with Google */
 public class AuthenticationVerifierImpl implements AuthenticationVerifier {
-
   @Override
   public boolean verifyUserToken(String idToken) throws GeneralSecurityException, IOException {
     // Build a verifier used to ensure the passed user ID is legitimate
