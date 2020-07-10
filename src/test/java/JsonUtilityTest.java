@@ -64,7 +64,7 @@ public class JsonUtilityTest {
 
   @Test
   public void sendStringToResponse() throws IOException {
-    // Verifies that String is sent successfully and in the expected format
+    // String should be sent successfully and in the expected format
     JsonUtility.sendJson(response, STRING_OBJECT);
 
     String expected = gson.toJson(STRING_OBJECT);
@@ -76,7 +76,7 @@ public class JsonUtilityTest {
 
   @Test
   public void sendListToResponse() throws IOException {
-    // Verifies that List is sent successfully and in the expected format
+    // List should be sent successfully and in the expected format
     JsonUtility.sendJson(response, LIST_OBJECT);
 
     String expected = gson.toJson(LIST_OBJECT);
@@ -88,7 +88,7 @@ public class JsonUtilityTest {
 
   @Test
   public void sendMapToResponse() throws IOException {
-    // Verifies that Map is sent successfully and in the expected format
+    // Map should be sent successfully and in the expected format
     JsonUtility.sendJson(response, MAP_OBJECT);
 
     String expected = gson.toJson(MAP_OBJECT);
