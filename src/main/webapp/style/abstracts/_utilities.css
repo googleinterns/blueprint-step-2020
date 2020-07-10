@@ -22,18 +22,18 @@
 }
 
 /*
+  Utility to make font the color of calendar logo
+ */
+.u-text-calendar {
+  color: var(--color-calendar);
+}
+
+/*
   Utility to vertically contents of a container
  */
 .u-vertical-center {
   align-items: center;
   display: flex;
-}
-
-/*
-  Indents items without an existing left-margin
- */
-.u-indent {
-  margin-left: var(--indent);
 }
 
 /*
@@ -82,4 +82,11 @@
  */
 .u-background-calendar {
   background-color: var(--color-calendar) !important;
+}
+
+/*
+  Utility to set a single element to block display setting
+ */
+.u-block {
+  display: block;
 }
