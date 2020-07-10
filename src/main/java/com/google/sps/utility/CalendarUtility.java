@@ -24,10 +24,18 @@ import com.google.api.services.calendar.model.Event;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Utility class to use Calendar API instead of handling everything from the servlet
+ */
 public class CalendarUtility {
-
   private CalendarUtility() {}
 
+  /**
+   * Get instance of Calendar Service
+   *
+   * @param credential valid Google credential object with user's accessKey inside
+   * @return Google Calendar service instance
+   */
   public static Calendar getCalendarService(Credential credential) {
     HttpTransport httpTransport = UrlFetchTransport.getDefaultInstance();
     JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -38,6 +46,12 @@ public class CalendarUtility {
         .build();
   }
 
+  /**
+   * Get the list of events in the user's calendar
+   *
+   * @param calendarService a valid Google Calendar service instance
+   * @return the list of Event from the calendar
+   */
   public static List<Event> getCalendarEvents(Calendar calendarService) throws IOException {
     return calendarService.events().list("primary").setPageToken(null).execute().getItems();
   }
