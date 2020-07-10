@@ -38,10 +38,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    googleCredential = AuthenticationUtility.getGoogleCredential(request);
-    if (googleCredential == null) {
-      response.sendError(403, ERROR_403);
-    }
+    loadCredential(request, response);
   }
 
   /**
@@ -54,6 +51,16 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    loadCredential(request, response);
+  }
+
+  /**
+   * Get credential, or return 403 error if the credential is invalid
+   * @param request HttpRequest from client
+   * @param response Response to send to client
+   * @throws IOException if an issue occurs processing the response
+   */
+  private void loadCredential(HttpServletRequest request, HttpServletResponse response) throws IOException {
     googleCredential = AuthenticationUtility.getGoogleCredential(request);
     if (googleCredential == null) {
       response.sendError(403, ERROR_403);
