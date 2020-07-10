@@ -16,7 +16,8 @@
 // and storing cookies
 
 /* eslint-disable no-unused-vars */
-/* global gapi, addCookie, isCookiePresent, deleteCookie */
+/* global gapi, addCookie, isCookiePresent,
+deleteCookie, populateGmail, populateTasks, populateCalendar */
 // TODO: Handle CommonJS (Issue #31)
 
 /**
@@ -53,6 +54,11 @@ function handleAuthenticationState() {
     // Hide sign in button, show features
     signInButton.setAttribute('hidden', '');
     featureContainer.removeAttribute('hidden');
+
+    // Populate information panels at top of dashboard
+    populateGmail();
+    populateTasks();
+    populateCalendar();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
@@ -111,7 +117,7 @@ function signOut() {
 function renderButton() {
   gapi.signin2.render('google-sign-in-btn', {
     'scope': 'https://www.googleapis.com/auth/gmail.readonly ' +
-        'https://www.googleapis.com/auth/calendar.readonly ' +
+        'https://www.googleapis.com/auth/calendar ' +
         'https://www.googleapis.com/auth/tasks.readonly',
     'width': 240,
     'height': 40,
@@ -122,3 +128,7 @@ function renderButton() {
   });
 }
 
+/**
+ * Custom error type to handle cases where user is not authenticated
+ */
+class AuthenticationError extends Error {}
