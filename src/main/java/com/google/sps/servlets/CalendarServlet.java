@@ -27,6 +27,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * GET function responds JSON string containing events in user's calendar.
+ */
 @WebServlet("/calendar")
 public class CalendarServlet extends HttpServlet {
 
