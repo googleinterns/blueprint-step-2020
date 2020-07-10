@@ -27,11 +27,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+/** Test Json Utility methods */
 @RunWith(JUnit4.class)
 public class JsonUtilityTest {
 
@@ -45,15 +47,21 @@ public class JsonUtilityTest {
         }
       };
 
-  static HttpServletResponse response = mock(HttpServletResponse.class);
-  static StringWriter stringWriter = new StringWriter();
-  static PrintWriter printWriter = new PrintWriter(stringWriter);
+  private static HttpServletResponse response = mock(HttpServletResponse.class);
+  private static StringWriter stringWriter = new StringWriter();
+  private static PrintWriter printWriter = new PrintWriter(stringWriter);
   private final Gson gson = new Gson();
 
   @BeforeClass
   public static void init() throws IOException {
     // Dependency injection before tests
     when(response.getWriter()).thenReturn(printWriter);
+  }
+
+  @Before
+  public void flush() {
+    // Flush in case text is still in buffer
+    stringWriter.flush();
   }
 
   @After
@@ -70,8 +78,7 @@ public class JsonUtilityTest {
     String expected = gson.toJson(STRING_OBJECT);
     String actual = stringWriter.toString();
 
-    // "\n" because println is used in JsonUtility.json
-    Assert.assertEquals(expected + "\n", actual);
+    Assert.assertTrue(actual.contains(expected));
   }
 
   @Test
@@ -82,8 +89,7 @@ public class JsonUtilityTest {
     String expected = gson.toJson(LIST_OBJECT);
     String actual = stringWriter.toString();
 
-    // "\n" because println is used in JsonUtility.json
-    Assert.assertEquals(expected + "\n", actual);
+    Assert.assertTrue(actual.contains(expected));
   }
 
   @Test
@@ -94,7 +100,6 @@ public class JsonUtilityTest {
     String expected = gson.toJson(MAP_OBJECT);
     String actual = stringWriter.toString();
 
-    // "\n" because println is used in JsonUtility.json
-    Assert.assertEquals(expected + "\n", actual);
+    Assert.assertTrue(actual.contains(expected));
   }
 }
