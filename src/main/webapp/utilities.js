@@ -28,9 +28,6 @@ function getCookie(cookieName) {
 
   // Get the value of all matching cookies
   const matchingCookies = allCookies.filter((cookie) => {
-    const retrievedCookieName = cookie.split('=')[0];
-    return retrievedCookieName === cookieName;
-  }).map((cookieString) => {
     // Gets the name of the first cookie
     const retrievedCookieName = cookie.split('=')[0];
     return retrievedCookieName === cookieName;
@@ -48,6 +45,7 @@ function getCookie(cookieName) {
     return null;
   }
 
+  // Return the only cookie in the list (as expected)
   return matchingCookies[0];
 }
 
