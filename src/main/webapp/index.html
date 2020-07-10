@@ -20,14 +20,78 @@
 <div id="google-sign-in-btn"></div>
 <div hidden class="feature-container">
   <a href="#" onclick="signOut()">Sign out</a>
-  <article class="panel-row">
+  <div class="panel-row">
     <div class="panel u-border-gmail">
       <div class="panel__header">
         <div class="panel__content-entry">
-          <a href="https://www.gmail.com">
-            <img class="panel__logo" src="assets/gmail.png">
+          <a target="_blank" href="https://www.gmail.com">
+            <img class="panel__logo" alt="gmail-logo" src="assets/gmail.png">
           </a>
           <p class="panel__section-heading u-vertical-center">Gmail
+        </div>
+        <p class="panel__section-subheading">From the last 7 days:
+        <div class="panel__content">
+          <div class="panel__content-entry">
+            <div class="panel__rounded-number u-background-gmail">
+              <p class="panel__text-data-point u-text-white">35
+            </div>
+            <p class="panel__text-data-point u-vertical-center">Unread Emails:
+          </div>
+          <div class="panel__content-entry">
+            <img class="panel__content-icon u-indent" alt="clock-icon" src="assets/clock.png">
+            <p class="panel__text-large u-vertical-center">2 from last 3 hours
+          </div>
+          <div class="panel__content-entry">
+            <img class="panel__content-icon u-indent" alt="flag-icon" src="assets/flag.png">
+            <p class="panel__text-large u-vertical-center">10 marked important
+          </div>
+          <div class="panel__content-entry">
+            <div class="panel__round-letter u-indent u-background-gmail">
+              <p class="panel__text-data-point u-text-white">A
+            </div>
+            <p class="panel__text-large u-vertical-center">Alex Smith sent the most unread emails
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel u-border-tasks">
+      <div class="panel__header">
+        <div class="panel__content-entry">
+          <a target="_blank" href="https://calendar.google.com/calendar/b/0/r?opentasks=1">
+            <img class="panel__logo" alt="tasks-logo" src="assets/tasks.png">
+          </a>
+          <p class="panel__section-heading u-vertical-center">Tasks
+        </div>
+        <p class="panel__section-subheading">From the last 7 days:
+        <div class="panel__content">
+          <div class="panel__content-entry">
+            <div class="panel__rounded-number u-background-tasks">
+              <p class="panel__text-data-point u-text-white">15
+            </div>
+            <p class="panel__text-data-point u-vertical-center">Tasks to complete
+          </div>
+          <div class="panel__content-entry">
+            <img class="panel__content-icon u-indent" alt="clipboard-icon" src="assets/clipboard.png">
+            <p class="panel__text-large u-vertical-center">4 tasks due today
+          </div>
+          <div class="panel__content-entry">
+            <img class="panel__content-icon u-indent" alt="checkmark-icon" src="assets/checkmark.png">
+            <p class="panel__text-large u-vertical-center">2 tasks completed today
+          </div>
+          <div class="panel__content-entry">
+            <img class="panel__content-icon u-indent" alt="exclamation-icon" src="assets/exclamation.png">
+            <p class="panel__text-large u-vertical-center">1 task overdue
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel u-border-calendar">
+      <div class="panel__header">
+        <div class="panel__content-entry">
+          <a target="_blank" href="https://calendar.google.com/calendar/b/0/r">
+            <img class="panel__logo" alt="calendar-logo" src="assets/calendar.png">
+          </a>
+          <p class="panel__section-heading u-vertical-center">Calendar
         </div>
         <p class="panel__section-subheading">From the last 7 days:
         <div class="panel__content">
@@ -38,11 +102,11 @@
             <p class="panel__text-data-point u-vertical-center">Unread Emails:
           </div>
           <div class="panel__content-entry">
-            <img class="panel__content-icon u-indent" src="assets/clock.png">
+            <img class="panel__content-icon u-indent" alt="clock-icon" src="assets/clock.png">
             <p class="panel__text-large u-vertical-center">2 from last 3 hours
           </div>
           <div class="panel__content-entry">
-            <img class="panel__content-icon u-indent" src="assets/flag.png">
+            <img class="panel__content-icon u-indent" alt="flag-icon" src="assets/flag.png">
             <p class="panel__text-large u-vertical-center">10 marked important
           </div>
           <div class="panel__content-entry">
@@ -54,9 +118,7 @@
         </div>
       </div>
     </div>
-    <div class="panel">Tasks</div>
-    <div class="panel">Calendar</div>
-  </article>
+  </div>
   <div class="panel-row">
     <div class="panel">Assign</div>
     <div class="panel">Plan</div>

@@ -35,7 +35,7 @@
   flex-shrink: 0;
   justify-content: center;
   border-radius: 1000px;
-  background-color: var(--color-gmail);
+  background-color: var(--color-black);
   height: var(--panel-icon-width);
   margin-right: var(--panel-flex-margin);
   width: var(--panel-icon-width);
@@ -47,7 +47,7 @@
   flex-shrink: 0;
   justify-content: center;
   border-radius: var(--panel-rounded-number-border-radius);
-  background-color: var(--color-gmail);
+  background-color: var(--color-black);
   height: var(--panel-icon-width);
   margin-right: var(--panel-flex-margin);
   width: var(--panel-icon-width);
