@@ -90,3 +90,22 @@
 .u-block {
   display: block;
 }
+
+/*
+  Removes top margin from elements. Helpful when top element in container
+ */
+.u-remove-top-margin {
+  margin-top: 0 !important;
+}
+
+/*
+  Aligns element with the left edge of the first panel in a panel row
+ */
+.u-align-with-first-panel {
+  margin-left: calc(50% - var(--panel-width)*1.5 - var(--panel-margin-horizontal)*2) !important;
+}
+
+.u-text-shadow {
+  text-shadow: -.5rem .5rem 3rem var(--color-shadow);
+}
+

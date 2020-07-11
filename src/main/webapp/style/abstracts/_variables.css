@@ -18,7 +18,7 @@
   Panel Variables
  */
 :root {
-  --panel-border: .2rem;
+  --panel-border: .3rem;
   --panel-border-radius: 2.5rem;
   --panel-content-entry-vertical-margin: 2rem;
   --panel-flex-margin: 2.5rem;
@@ -26,7 +26,8 @@
   --panel-icon-width: 5rem;
   --panel-logo-width: 7rem;
   --panel-rounded-number-border-radius: calc(var(--panel-icon-width)/10);
-  --panel-margin: 2%;
+  --panel-margin-horizontal: 2%;
+  --panel-margin-vertical: 2rem;
   --panel-width: 50rem;
 }
 
@@ -43,6 +44,7 @@
   --font-size-large: 2.5rem;
   --font-size-small: 1.6rem;
   --font-size-subheading: 3rem;
+  --font-size-row-title: 3rem;
 }
 
 /*
@@ -50,6 +52,10 @@
  */
 :root {
   --color-black: black;
+  --color-background-light: white;
+  --color-background-dark: #fbfbfb;
+  --color-panel: #fbfbfb;
+  --color-shadow: rgba(0,0,0,.3);
   --color-gmail: #d44638;
   --color-tasks: #f7c01a;
   --color-calendar: #508ff8;

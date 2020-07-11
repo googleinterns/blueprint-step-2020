@@ -14,19 +14,9 @@
   limitations under the License.
 */
 
-.panel-row {
+.panel-row__content {
   align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: center;
 }
-
-.panel {
-  border: var(--panel-border) solid black;
-  border-radius: var(--panel-border-radius);
-  height: var(--panel-height);
-  margin: var(--panel-margin);
-  padding: var(--panel-border-radius);
-  width: var(--panel-width);
-}
-

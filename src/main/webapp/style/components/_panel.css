@@ -14,6 +14,17 @@
   limitations under the License.
 */
 
+.panel {
+  background-color: var(--color-panel);
+  border: var(--panel-border) solid black;
+  border-radius: var(--panel-border-radius);
+  box-shadow: -1rem 1rem 3rem var(--color-shadow);
+  height: var(--panel-height);
+  margin: var(--panel-margin-vertical) var(--panel-margin-horizontal);
+  padding: var(--panel-border-radius);
+  width: var(--panel-width);
+}
+
 .panel__header {
   display: flex;
   flex-direction: column;
@@ -23,10 +34,6 @@
   flex-shrink: 0;
   margin-right: var(--panel-flex-margin);
   width: var(--panel-logo-width);
-}
-
-.panel__content {
-
 }
 
 .panel__round-letter {
