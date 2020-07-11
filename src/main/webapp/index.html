@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="style/layout/_layout.css">
 <link rel="stylesheet" href="style/components/_panel.css">
 <link rel="stylesheet" href="style/components/_header.css">
+<link rel="stylesheet" href="style/components/_footer.css">
 <link rel="stylesheet" href="style/base/_base.css">
 <link rel="stylesheet" href="style/base/_typography.css">
 <link rel="stylesheet" href="style/layout/_responsive.css">
@@ -19,27 +20,31 @@
 <script src="auth.js"></script>
 <!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
 <script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
-<!-- Google-Styled button that handles authentication -->
+<!-- Title container for page with log-in button -->
 <div class="header u-align-with-first-panel">
   <div class="header__heading-with-photo">
     <h1 class="header__heading-text u-text-shadow">Blueprint</h1>
     <img src="assets/compass.png" alt="blueprint-logo" class="header__heading-logo u-box-shadow">
   </div>
-  <h2 class="header__subheading u-text-shadow">How will you build your day?</h2>
+  <p class="header__subheading u-text-shadow">How will you build your day?</p>
+  <!-- Google-Styled button that handles authentication -->
   <div id="google-sign-in-btn"></div>
 </div>
+<!-- Contains features (gmail, tasks, calendar, etc). Hidden when user not authenticated -->
 <div hidden class="feature-container">
   <a class="u-align-with-first-panel" href="#" onclick="signOut()">Sign out</a>
+  <!-- Contains at-a-glance information about user's services -->
   <article>
-    <h3 class="panel-row__header u-align-with-first-panel u-text-shadow">Services (at a glance):</h3>
+    <h2 class="panel-row__header u-align-with-first-panel u-text-shadow">Services (at a glance):</h2>
     <div class="panel-row__content">
+      <!-- Gmail container -->
       <div class="panel u-border-gmail">
         <div class="panel__header">
           <div class="panel__content-entry u-remove-top-margin">
             <a target="_blank" href="https://www.gmail.com">
               <img class="panel__logo" alt="gmail-logo" src="assets/gmail.png">
             </a>
-            <h4 class="panel__section-heading u-vertical-center">Gmail
+            <h3 class="panel__section-heading u-vertical-center">Gmail</h3>
           </div>
           <p class="panel__section-subheading">From the last 7 days:
           <div class="panel__content">
@@ -66,13 +71,14 @@
           </div>
         </div>
       </div>
+      <!-- Tasks container -->
       <div class="panel u-border-tasks">
         <div class="panel__header">
           <div class="panel__content-entry u-remove-top-margin">
             <a target="_blank" href="https://calendar.google.com/calendar/b/0/r?opentasks=1">
               <img class="panel__logo" alt="tasks-logo" src="assets/tasks.png">
             </a>
-            <h4 class="panel__section-heading u-vertical-center">Tasks
+            <h3 class="panel__section-heading u-vertical-center">Tasks</h3>
           </div>
           <p class="panel__section-subheading">Selected Tasks:
           <div class="panel__content">
@@ -97,13 +103,14 @@
           </div>
         </div>
       </div>
+      <!-- Calendar container -->
       <div class="panel u-border-calendar">
         <div class="panel__header">
           <div class="panel__content-entry u-remove-top-margin">
             <a target="_blank" href="https://calendar.google.com/calendar/b/0/r">
               <img class="panel__logo" alt="calendar-logo" src="assets/calendar.png">
             </a>
-            <h4 class="panel__section-heading u-vertical-center">Calendar
+            <h3 class="panel__section-heading u-vertical-center">Calendar</h3>
           </div>
           <p class="panel__section-subheading">Selected Calendars:
           <div class="panel__content">
@@ -147,16 +154,17 @@
       </div>
     </div>
   </article>
+  <!-- Placeholder panels for features built in future -->
   <article>
-    <h3 class="panel-row__header u-align-with-first-panel">Build your plan:</h3>
+    <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
     <div class="panel-row__content">
       <div class="panel">Assign</div>
       <div class="panel">Plan</div>
       <div class="panel">Go</div>
     </div>
   </article>
-  <div class="u-align-with-first-panel">
-    <p>Icons made by <a href="https://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+  <div class="footer u-align-with-first-panel">
+    <p>Icons made by <a target="_blank" href="https://www.flaticon.com/authors/google" title="Google">Google</a> from <a target="_blank" href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
     <p><a target="_blank" href="https://icons8.com/icons/set/drafting-compass">Drafting Compass icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
   </div>
 </div>

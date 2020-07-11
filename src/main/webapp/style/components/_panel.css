@@ -38,24 +38,24 @@
 
 .panel__round-letter {
   align-items: center;
+  background-color: var(--color-black);
+  border-radius: 1000px;
   display: flex;
   flex-shrink: 0;
-  justify-content: center;
-  border-radius: 1000px;
-  background-color: var(--color-black);
   height: var(--panel-icon-width);
+  justify-content: center;
   margin-right: var(--panel-flex-margin);
   width: var(--panel-icon-width);
 }
 
 .panel__rounded-number {
   align-items: center;
+  background-color: var(--color-black);
+  border-radius: var(--panel-rounded-number-border-radius);
   display: flex;
   flex-shrink: 0;
-  justify-content: center;
-  border-radius: var(--panel-rounded-number-border-radius);
-  background-color: var(--color-black);
   height: var(--panel-icon-width);
+  justify-content: center;
   margin-right: var(--panel-flex-margin);
   width: var(--panel-icon-width);
 }

@@ -24,64 +24,64 @@
   --panel-flex-margin: 2.5rem;
   --panel-height: 50rem;
   --panel-icon-width: 5rem;
+  --panel-left-edge-x: calc(50% - var(--panel-width)*1.5 - var(--panel-margin-horizontal)*2);
   --panel-logo-width: 7rem;
-  --panel-rounded-number-border-radius: calc(var(--panel-icon-width)/10);
   --panel-margin-horizontal: 2%;
   --panel-margin-vertical: 2rem;
+  --panel-rounded-number-border-radius: calc(var(--panel-icon-width)/10);
   --panel-width: 50rem;
-  --panel-left-edge-x: calc(50% - var(--panel-width)*1.5 - var(--panel-margin-horizontal)*2);
 }
 
 /*
   Header Variables
  */
 :root {
-  --header-margin-top: 5rem;
   --header-margin-bottom: 3rem;
+  --header-margin-top: 5rem;
   --header-logo-margin-horizontal: 1rem;
+}
+
+/*
+  Footer Variables
+ */
+:root {
+  --footer-margin-vertical: 3rem;
 }
 
 /*
   Typography Variables
  */
 :root {
-  --font-weight-bold: 700;
-  --font-weight-light: 300;
-  --font-weight-medium: 600;
-  --font-weight-regular: 400;
   --font-size-data-point: var(--font-size-subheading);
+  --font-size-header-heading: 7rem;
+  --font-size-header-subheading: 5rem;
   --font-size-heading: 5rem;
   --font-size-large: 2.5rem;
   --font-size-small: 1.6rem;
   --font-size-subheading: 3rem;
   --font-size-row-title: 3rem;
-  --font-size-header-heading: 7rem;
-  --font-size-header-subheading: 5rem;
+  --font-weight-bold: 700;
+  --font-weight-light: 300;
+  --font-weight-medium: 600;
+  --font-weight-regular: 400;
 }
 
 /*
-  Colour Variables
+  Color Variables
  */
 :root {
   --color-black: black;
-  --color-background-light: white;
   --color-background-dark: #f5f5f5;
-  --color-panel: #fbfbfb;
-  --color-shadow: rgba(0,0,0,.3);
-  --color-gmail: #d44638;
-  --color-tasks: #f7c01a;
+  --color-background-light: white;
   --color-calendar: #508ff8;
+  --color-dark-blue: #185ABC;
+  --color-dark-green: #137333;
   --color-dark-red: #B31412;
   --color-dark-yellow: #EA8600;
-  --color-dark-green: #137333;
-  --color-dark-blue: #185ABC;
-  --color-white: white;
+  --color-gmail: #d44638;
   --color-header-heading: #4788c6;
-}
-
-/*
-  Other Variables
- */
-:root {
-  --indent: 2rem;
+  --color-panel: #fbfbfb;
+  --color-shadow: rgba(0,0,0,.3);
+  --color-tasks: #f7c01a;
+  --color-white: white;
 }

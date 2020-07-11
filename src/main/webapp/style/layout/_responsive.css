@@ -33,7 +33,9 @@
   }
 }
 
-/* Alter flex-container to fit on smaller screens (e.g. mobile devices) */
+/*
+  Alter flex-container to fit on smaller screens (e.g. tablets, "larger" mobile devices)
+*/
 @media screen and (max-width: 800px) {
   html {
     font-size: 62.5%;
@@ -48,12 +50,15 @@
   }
 
   :root {
+    --font-size-header-subheading: 3.5rem;
     --panel-left-edge-x: calc(50vw - var(--panel-width)/2);
     --panel-margin-horizontal: 3rem;
-    --font-size-header-subheading: 3.5rem;
   }
 }
 
+/*
+  Scale small screen view for ultra-mobile devices (i.e. mobile phones, etc)
+*/
 @media screen and (max-width: 550px) {
   html {
     font-size: 1.819vw;

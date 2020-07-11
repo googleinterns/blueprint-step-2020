@@ -14,18 +14,6 @@
   limitations under the License.
 */
 
-.header {
-  margin: var(--header-margin-top) 0 var(--header-margin-bottom);
-}
-
-.header__heading-with-photo {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-}
-
-.header__heading-logo {
-  filter: drop-shadow(-.5rem .5rem 3rem var(--color-shadow));
-  height: var(--font-size-header-heading);
-  margin: 0 var(--header-logo-margin-horizontal);
+.footer {
+  margin: var(--footer-margin-vertical) 0;
 }
