@@ -102,7 +102,7 @@
   Aligns element with the left edge of the first panel in a panel row
  */
 .u-align-with-first-panel {
-  margin-left: calc(50% - var(--panel-width)*1.5 - var(--panel-margin-horizontal)*2) !important;
+  margin-left: var(--panel-left-edge-x) !important;
 }
 
 .u-text-shadow {

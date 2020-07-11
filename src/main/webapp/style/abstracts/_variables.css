@@ -29,6 +29,7 @@
   --panel-margin-horizontal: 2%;
   --panel-margin-vertical: 2rem;
   --panel-width: 50rem;
+  --panel-left-edge-x: calc(50% - var(--panel-width)*1.5 - var(--panel-margin-horizontal)*2);
 }
 
 /*

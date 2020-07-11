@@ -14,13 +14,55 @@
   limitations under the License.
 */
 
+/*
+  The panel's full size (with margin) is now larger than the viewport.
+  Thus, to align with the left edge of the first panel in a row, simply use the same left margin
+*/
+@media screen and (max-width: 1700px) {
+  :root {
+    --panel-left-edge-x: var(--panel-margin-horizontal);
+  }
+}
+
+/*
+  Retain desktop view for smaller desktop screens (801px - 1500px wide)
+*/
+@media screen and (max-width: 1500px) {
+  html {
+    font-size: .667vw;
+  }
+}
+
 /* Alter flex-container to fit on smaller screens (e.g. mobile devices) */
-@media screen and (max-width: 500px) {
-  .panel-row {
+@media screen and (max-width: 800px) {
+  html {
+    font-size: 62.5%;
+  }
+
+  .panel-row__content {
     flex-direction: column;
   }
 
+  .panel:first-child {
+    margin-top: .5rem;
+  }
+
+  :root {
+    --panel-left-edge-x: calc(50vw - var(--panel-width)/2);
+    --panel-margin-horizontal: 3rem;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  html {
+    font-size: 1.819vw;
+  }
+
   .panel {
-    width: calc(100% - 2*var(--panel-margin));
+    width: calc(100vw - 2*var(--panel-margin-horizontal));
+  }
+
+  :root {
+    --panel-left-edge-x: var(--panel-margin-horizontal);
   }
 }
