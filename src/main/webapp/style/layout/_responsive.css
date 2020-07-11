@@ -50,6 +50,7 @@
   :root {
     --panel-left-edge-x: calc(50vw - var(--panel-width)/2);
     --panel-margin-horizontal: 3rem;
+    --font-size-header-subheading: 3.5rem;
   }
 }
 

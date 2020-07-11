@@ -53,3 +53,14 @@ body {
   font-size: var(--font-size-row-title);
   font-weight: var(--font-weight-bold);
 }
+
+.header__heading-text {
+  color: var(--color-header-heading);
+  font-size: var(--font-size-header-heading);
+  font-weight: var(--font-weight-bold);
+}
+
+.header__subheading {
+  font-size: var(--font-size-header-subheading);
+  font-weight: var(--font-weight-medium);
+}

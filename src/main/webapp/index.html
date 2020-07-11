@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="style/abstracts/_utilities.css">
 <link rel="stylesheet" href="style/layout/_layout.css">
 <link rel="stylesheet" href="style/components/_panel.css">
+<link rel="stylesheet" href="style/components/_header.css">
 <link rel="stylesheet" href="style/base/_base.css">
 <link rel="stylesheet" href="style/base/_typography.css">
 <link rel="stylesheet" href="style/layout/_responsive.css">
@@ -19,11 +20,18 @@
 <!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
 <script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
 <!-- Google-Styled button that handles authentication -->
-<div id="google-sign-in-btn"></div>
+<div class="header u-align-with-first-panel">
+  <div class="header__heading-with-photo">
+    <h1 class="header__heading-text u-text-shadow">Blueprint</h1>
+    <img src="assets/compass.png" alt="blueprint-logo" class="header__heading-logo u-box-shadow">
+  </div>
+  <h2 class="header__subheading u-text-shadow">How will you build your day?</h2>
+  <div id="google-sign-in-btn"></div>
+</div>
 <div hidden class="feature-container">
-  <a href="#" onclick="signOut()">Sign out</a>
+  <a class="u-align-with-first-panel" href="#" onclick="signOut()">Sign out</a>
   <article>
-    <h2 class="panel-row__header u-align-with-first-panel u-text-shadow">Services (at a glance):</h2>
+    <h3 class="panel-row__header u-align-with-first-panel u-text-shadow">Services (at a glance):</h3>
     <div class="panel-row__content">
       <div class="panel u-border-gmail">
         <div class="panel__header">
@@ -31,7 +39,7 @@
             <a target="_blank" href="https://www.gmail.com">
               <img class="panel__logo" alt="gmail-logo" src="assets/gmail.png">
             </a>
-            <p class="panel__section-heading u-vertical-center">Gmail
+            <h4 class="panel__section-heading u-vertical-center">Gmail
           </div>
           <p class="panel__section-subheading">From the last 7 days:
           <div class="panel__content">
@@ -64,7 +72,7 @@
             <a target="_blank" href="https://calendar.google.com/calendar/b/0/r?opentasks=1">
               <img class="panel__logo" alt="tasks-logo" src="assets/tasks.png">
             </a>
-            <p class="panel__section-heading u-vertical-center">Tasks
+            <h4 class="panel__section-heading u-vertical-center">Tasks
           </div>
           <p class="panel__section-subheading">Selected Tasks:
           <div class="panel__content">
@@ -95,7 +103,7 @@
             <a target="_blank" href="https://calendar.google.com/calendar/b/0/r">
               <img class="panel__logo" alt="calendar-logo" src="assets/calendar.png">
             </a>
-            <p class="panel__section-heading u-vertical-center">Calendar
+            <h4 class="panel__section-heading u-vertical-center">Calendar
           </div>
           <p class="panel__section-subheading">Selected Calendars:
           <div class="panel__content">
@@ -140,7 +148,7 @@
     </div>
   </article>
   <article>
-    <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
+    <h3 class="panel-row__header u-align-with-first-panel">Build your plan:</h3>
     <div class="panel-row__content">
       <div class="panel">Assign</div>
       <div class="panel">Plan</div>
