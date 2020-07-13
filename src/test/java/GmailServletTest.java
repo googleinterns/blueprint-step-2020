@@ -63,8 +63,8 @@ public final class GmailServletTest {
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
-  private static final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-  private final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+  private static HttpServletRequest request;
+  private HttpServletResponse response;
   private static StringWriter stringWriter;
   private static PrintWriter printWriter;
 
@@ -89,11 +89,14 @@ public final class GmailServletTest {
     // Authentication will always pass
     when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
-    when(request.getCookies()).thenReturn(validCookies);
   }
 
   @Before
   public void init() throws IOException {
+    request = Mockito.mock(HttpServletRequest.class);
+    response = Mockito.mock(HttpServletResponse.class);
+    when(request.getCookies()).thenReturn(validCookies);
+
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
