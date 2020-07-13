@@ -49,6 +49,10 @@ public final class ServletUtility {
     // when they are user set).
     if (cookies.size() > 1) {
       System.out.println("Duplicate cookie");
+      for (int i = 0; i < cookies.size(); i++) {
+        System.out.println(String.format("Cookie %d: %s", i + 1, cookies.get(i).getValue()));
+      }
+
       return null;
     }
 
