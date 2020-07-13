@@ -43,8 +43,8 @@ public class AuthenticatedHttpServletTest {
               .useConstructor(authVerifier)
               .defaultAnswer(Mockito.CALLS_REAL_METHODS));
 
-  private static final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-  private final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+  private static HttpServletRequest request;
+  private HttpServletResponse response;
   private static StringWriter stringWriter;
   private static PrintWriter printWriter;
 
@@ -74,6 +74,9 @@ public class AuthenticatedHttpServletTest {
 
   @Before
   public void init() throws IOException {
+    request = Mockito.mock(HttpServletRequest.class);
+    response = Mockito.mock(HttpServletResponse.class);
+
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
