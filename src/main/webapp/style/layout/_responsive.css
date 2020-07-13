@@ -46,7 +46,7 @@
   }
 
   .panel:first-child {
-    margin-top: .5rem;
+    margin: .5rem 0 0;
   }
 
   :root {

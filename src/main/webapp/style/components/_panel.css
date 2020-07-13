@@ -32,7 +32,7 @@
 
 .panel__logo {
   flex-shrink: 0;
-  margin-right: var(--panel-flex-margin);
+  margin: 0 var(--panel-flex-margin) 0;
   width: var(--panel-logo-width);
 }
 
@@ -44,7 +44,7 @@
   flex-shrink: 0;
   height: var(--panel-icon-width);
   justify-content: center;
-  margin-right: var(--panel-flex-margin);
+  margin: 0 var(--panel-flex-margin) 0;
   width: var(--panel-icon-width);
 }
 
@@ -56,13 +56,13 @@
   flex-shrink: 0;
   height: var(--panel-icon-width);
   justify-content: center;
-  margin-right: var(--panel-flex-margin);
+  margin: 0 var(--panel-flex-margin) 0;
   width: var(--panel-icon-width);
 }
 
 .panel__content-icon {
   flex-shrink: 0;
-  margin-right: var(--panel-flex-margin);
+  margin: 0 var(--panel-flex-margin) 0;
   width: var(--panel-icon-width);
 }
 
