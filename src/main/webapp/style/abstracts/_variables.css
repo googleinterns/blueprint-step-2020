@@ -24,11 +24,11 @@
   --panel-flex-margin: 2.5rem;
   --panel-height: 50rem;
   --panel-icon-width: 5rem;
-  --panel-left-edge-x: calc(50% - var(--panel-width)*1.5 - var(--panel-margin-horizontal)*2);
+  --panel-left-edge-x: calc(50% - var(--panel-width) * 1.5 - var(--panel-margin-horizontal) * 2);
   --panel-logo-width: 7rem;
   --panel-margin-horizontal: 2%;
   --panel-margin-vertical: 2rem;
-  --panel-rounded-number-border-radius: calc(var(--panel-icon-width)/10);
+  --panel-rounded-number-border-radius: calc(var(--panel-icon-width) / 10);
   --panel-width: 50rem;
 }
 
@@ -81,7 +81,7 @@
   --color-gmail: #d44638;
   --color-header-heading: #4788c6;
   --color-panel: #fbfbfb;
-  --color-shadow: rgba(0,0,0,.3);
+  --color-shadow: rgba(0, 0, 0, .3);
   --color-tasks: #f7c01a;
   --color-white: white;
 }

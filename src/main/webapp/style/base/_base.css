@@ -17,14 +17,16 @@
 /*
   Reset the browser display settings so the site displays consistently across browsers
  */
-*, *::after, *::before {
+*,
+*::after,
+*::before {
   box-sizing: inherit;
   margin: 0;
   padding: 0;
 }
 
 /*
-  Used for REM sizing units, where 1 REM = 10px
+  Used for REM sizing units, where 1 REM = 10px.
 */
 html {
   background-image: linear-gradient(45deg, var(--color-background-light), var(--color-background-dark));
@@ -35,4 +37,3 @@ html {
 body {
   box-sizing: border-box;
 }
-

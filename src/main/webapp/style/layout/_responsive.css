@@ -51,7 +51,7 @@
 
   :root {
     --font-size-header-subheading: 3.5rem;
-    --panel-left-edge-x: calc(50vw - var(--panel-width)/2);
+    --panel-left-edge-x: calc(50vw - var(--panel-width) / 2);
     --panel-margin-horizontal: 3rem;
   }
 }
@@ -65,7 +65,7 @@
   }
 
   .panel {
-    width: calc(100vw - 2*var(--panel-margin-horizontal));
+    width: calc(100vw - 2 * var(--panel-margin-horizontal));
   }
 
   :root {

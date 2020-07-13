@@ -72,7 +72,7 @@
   margin: var(--panel-content-entry-vertical-margin) 0;
 }
 
-.panel__content-entry a {
+.panel__content-entry-link {
   display: flex;
   align-items: center;
 }
