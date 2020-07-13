@@ -46,8 +46,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-    // Credential is null if user is not authenticated.
-    if (googleCredential != null) {
+      assert googleCredential != null;
       // Get tasks from Google Tasks
       Tasks tasksService = TasksUtility.getTasksService(googleCredential);
       List<Task> tasks = getTasks(tasksService);
@@ -58,7 +57,6 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
       response.setContentType("application/json");
       response.getWriter().println(tasksJson);
-    }
   }
 
   /**
