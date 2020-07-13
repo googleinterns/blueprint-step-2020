@@ -68,21 +68,25 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * @param googleCredential valid, verified google credential object
    * @throws IOException is there is an issue processing the request
    */
-  public abstract void doGet(
+  public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException;
+      throws IOException {
+    response.sendError(400, "GET is not supported");
+  }
 
   /**
-   * Handle GET request
+   * Handle POST request
    *
    * @param request HTTP request from client
    * @param response Http response to be sent to client
    * @param googleCredential valid, verified google credential object
    * @throws IOException is there is an issue processing the request
    */
-  public abstract void doPost(
+  public void doPost(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException;
+      throws IOException {
+    response.sendError(400, "POST is not supported");
+  }
 
   /**
    * Get credential, or return 403 error if the credential is invalid
