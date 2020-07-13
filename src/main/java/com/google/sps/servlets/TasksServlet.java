@@ -46,17 +46,17 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-      assert googleCredential != null;
-      // Get tasks from Google Tasks
-      Tasks tasksService = TasksUtility.getTasksService(googleCredential);
-      List<Task> tasks = getTasks(tasksService);
+    super.doGet(request, response, googleCredential);
+    // Get tasks from Google Tasks
+    Tasks tasksService = TasksUtility.getTasksService(googleCredential);
+    List<Task> tasks = getTasks(tasksService);
 
-      // Convert tasks to JSON and print to response
-      Gson gson = new Gson();
-      String tasksJson = gson.toJson(tasks);
+    // Convert tasks to JSON and print to response
+    Gson gson = new Gson();
+    String tasksJson = gson.toJson(tasks);
 
-      response.setContentType("application/json");
-      response.getWriter().println(tasksJson);
+    response.setContentType("application/json");
+    response.getWriter().println(tasksJson);
   }
 
   /**
@@ -65,13 +65,14 @@ public class TasksServlet extends AuthenticatedHttpServlet {
    * @param request Http request from client
    * @param response Http response to be sent to client
    * @param googleCredential a valid google credential object (already verified)
-   * @throws IOException
+   * @throws IOException If an issue arises with processing the request
    */
   @Override
   public void doPost(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-    response.sendError(400, "POST not yet supported");
+    super.doPost(request, response, googleCredential);
+    response.sendError(400, "Post is not yet supported");
   }
 
   /**

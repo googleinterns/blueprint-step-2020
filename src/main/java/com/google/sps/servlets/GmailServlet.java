@@ -44,6 +44,7 @@ public class GmailServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
+    super.doGet(request, response, googleCredential);
     // Get messageIds from Gmail
     Gmail gmailService = GmailUtility.getGmailService(googleCredential);
     List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
@@ -68,6 +69,7 @@ public class GmailServlet extends AuthenticatedHttpServlet {
   public void doPost(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
+    super.doPost(request, response, googleCredential);
     response.sendError(400, "Post is not supported");
   }
 }
