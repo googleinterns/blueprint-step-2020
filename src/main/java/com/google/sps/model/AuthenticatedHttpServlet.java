@@ -14,9 +14,12 @@
 
 package com.google.sps.model;
 
+import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +28,24 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class AuthenticatedHttpServlet extends HttpServlet {
   // Error message if user is not authenticated
   protected static final String ERROR_403 = "Authentication tokens not present / invalid";
+
+  private final AuthenticationVerifier authenticationVerifier;
+
+  /** Create AuthenticatedHttpServlet with default implementations of the AuthenticationVerifier */
+  public AuthenticatedHttpServlet() {
+    super();
+    authenticationVerifier = new AuthenticationVerifierImpl();
+  }
+
+  /**
+   * Create AuthenticatedHttpServlet with an explicit implementation of the AuthenticationVerifier
+   *
+   * @param authenticationVerifier implementation of the AuthenticationVerifier
+   */
+  public AuthenticatedHttpServlet(AuthenticationVerifier authenticationVerifier) {
+    super();
+    this.authenticationVerifier = authenticationVerifier;
+  }
 
   /**
    * Verifies user credentials on GET (sending a 403 error in the case that the user is not properly
@@ -93,11 +114,59 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    */
   private Credential loadCredential(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
+    Credential googleCredential = getGoogleCredential(request);
     if (googleCredential == null) {
       response.sendError(403, ERROR_403);
     }
 
     return googleCredential;
+  }
+
+  /**
+   * Get a Google Credential object from the authentication cookies (idToken & accessToken) in the
+   * HTTP Request
+   *
+   * @param request Http Request sent from client
+   * @return Credential object with accessToken. null if tokens not present / are invalid
+   */
+  private Credential getGoogleCredential(HttpServletRequest request) {
+    Cookie userTokenCookie = ServletUtility.getCookie(request, "idToken");
+    if (userTokenCookie == null) {
+      return null;
+    }
+
+    String idToken = userTokenCookie.getValue();
+
+    if (idToken.isEmpty()) {
+      return null;
+    }
+
+    try {
+      if (!authenticationVerifier.verifyUserToken(userTokenCookie.getValue())) {
+        return null;
+      }
+    } catch (GeneralSecurityException | IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+
+    Cookie accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
+    if (accessTokenCookie == null) {
+      return null;
+    }
+
+    String accessToken = accessTokenCookie.getValue();
+
+    if (accessToken.isEmpty()) {
+      return null;
+    }
+
+    // Build Google credential with verified authentication information
+    Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
+    Credential.Builder credentialBuilder = new Credential.Builder(accessMethod);
+    Credential credential = credentialBuilder.build();
+    credential.setAccessToken(accessToken);
+
+    return credential;
   }
 }

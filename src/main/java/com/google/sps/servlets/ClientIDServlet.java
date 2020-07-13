@@ -15,7 +15,7 @@
 package com.google.sps.servlets;
 
 import com.google.appengine.repackaged.com.google.gson.JsonObject;
-import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.model.AuthenticationVerifier;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -36,7 +36,7 @@ public class ClientIDServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     JsonObject clientIdJson = new JsonObject();
-    clientIdJson.addProperty("client-id", AuthenticationUtility.CLIENT_ID);
+    clientIdJson.addProperty("client-id", AuthenticationVerifier.CLIENT_ID);
 
     response.setContentType("application/json");
     response.getWriter().println(clientIdJson);
