@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 
 /** Contains methods for common servlet operations */
 public final class ServletUtility {
-  // Application Name
   public static final String APPLICATION_NAME = "PUT NAME HERE";
 
   private ServletUtility() {}
