@@ -136,7 +136,8 @@ public class AuthenticatedHttpServletTest {
     when(authVerifier.verifyUserToken(Mockito.anyString())).thenReturn(AUTHENTICATION_VERIFIED);
     when(request.getCookies()).thenReturn(validCookies);
     servlet.doGet(request, response);
-    verify(response, Mockito.times(0)).sendError(Mockito.anyInt(), Mockito.anyString());
+    // doGet's default implementation should return a 400 error to client to indicate request not supported.
+    verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
   }
 
   @Test
@@ -189,6 +190,7 @@ public class AuthenticatedHttpServletTest {
     when(authVerifier.verifyUserToken(Mockito.anyString())).thenReturn(AUTHENTICATION_VERIFIED);
     when(request.getCookies()).thenReturn(validCookies);
     servlet.doPost(request, response);
-    verify(response, Mockito.times(0)).sendError(Mockito.anyInt(), Mockito.anyString());
+    // doPost's default implementation should return a 400 error to client to indicate request not supported.
+    verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
   }
 }
