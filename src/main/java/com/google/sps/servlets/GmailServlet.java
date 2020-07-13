@@ -14,6 +14,7 @@
 
 package com.google.sps.servlets;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.gmail.model.Message;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
@@ -55,25 +56,37 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    *
    * @param request Http request from the client. Should contain idToken and accessToken
    * @param response 403 if user is not authenticated, list of messageIds otherwise
+   * @param googleCredential valid google credential object (already verified)
    * @throws IOException if an issue arises while processing the request
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Load and verify google credential
-    super.doGet(request, response);
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
+    // Get messageIds from Gmail
+    GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
+    List<Message> messages = gmailClient.listUserMessages("");
 
-    // Credential is null if user is not authenticated.
-    if (googleCredential != null) {
-      // Get messageIds from Gmail
-      GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
-      List<Message> messages = gmailClient.listUserMessages("");
+    // convert messageIds to JSON object and print to response
+    Gson gson = new Gson();
+    String messageJson = gson.toJson(messages);
 
-      // convert messageIds to JSON object and print to response
-      Gson gson = new Gson();
-      String messageJson = gson.toJson(messages);
+    response.setContentType("application/json");
+    response.getWriter().println(messageJson);
+  }
 
-      response.setContentType("application/json");
-      response.getWriter().println(messageJson);
-    }
+  /**
+   * Post is not supported by GmailServlet.
+   *
+   * @param request HTTP request from client
+   * @param response Response which will contain 400 error
+   * @param googleCredential valid google credential object (already verified)
+   * @throws IOException if an issue arises while processing the request
+   */
+  @Override
+  public void doPost(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
+    response.sendError(400, "Post is not supported");
   }
 }
