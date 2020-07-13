@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 /** Utility class to help handle OAuth 2.0 verification. */
 public final class AuthenticationUtility {
   // OAuth 2.0 Client ID
+  // TODO: Hide Client ID (Issue #72)
   public static final String CLIENT_ID =
       "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
 
