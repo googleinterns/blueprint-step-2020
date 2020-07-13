@@ -73,7 +73,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
       throws IOException;
 
   /**
-   * Handle GET request
+   * Handle POST request
    *
    * @param request HTTP request from client
    * @param response Http response to be sent to client
