@@ -37,7 +37,6 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   @Override
   public final void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    System.out.println("Hey!");
     Credential googleCredential = loadCredential(request, response);
     if (googleCredential != null) {
       doGet(request, response, googleCredential);
