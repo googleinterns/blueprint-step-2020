@@ -71,7 +71,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-    assert googleCredential != null;
+    response.sendError(400, "GET is not supported");
   }
 
   /**
@@ -85,7 +85,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   public void doPost(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-    assert googleCredential != null;
+    response.sendError(400, "POST is not supported");
   }
 
   /**

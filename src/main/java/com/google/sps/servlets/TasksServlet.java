@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Serves selected information from the User's Tasks Account. TODO: Create Servlet Utility to handle
- * common functions (Issue #26)
+ * common functions (Issue #26) TODO: Implement Post (Issue #53)
  */
 @WebServlet("/tasks")
 public class TasksServlet extends AuthenticatedHttpServlet {
@@ -46,7 +46,9 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-    super.doGet(request, response, googleCredential);
+    // Null credentials (i.e. unauthenticated requests) should be handled by parent class
+    assert googleCredential != null;
+
     // Get tasks from Google Tasks
     Tasks tasksService = TasksUtility.getTasksService(googleCredential);
     List<Task> tasks = getTasks(tasksService);
@@ -57,22 +59,6 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     response.setContentType("application/json");
     response.getWriter().println(tasksJson);
-  }
-
-  /**
-   * TODO: Implement Post (Issue #53)
-   *
-   * @param request Http request from client
-   * @param response Http response to be sent to client
-   * @param googleCredential a valid google credential object (already verified)
-   * @throws IOException If an issue arises with processing the request
-   */
-  @Override
-  public void doPost(
-      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException {
-    super.doPost(request, response, googleCredential);
-    response.sendError(400, "Post is not yet supported");
   }
 
   /**

@@ -44,7 +44,9 @@ public class GmailServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-    super.doGet(request, response, googleCredential);
+    // Null credentials (i.e. unauthenticated requests) should be handled by parent class
+    assert googleCredential != null;
+
     // Get messageIds from Gmail
     Gmail gmailService = GmailUtility.getGmailService(googleCredential);
     List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
@@ -55,21 +57,5 @@ public class GmailServlet extends AuthenticatedHttpServlet {
 
     response.setContentType("application/json");
     response.getWriter().println(messageJson);
-  }
-
-  /**
-   * Post is not supported by GmailServlet.
-   *
-   * @param request HTTP request from client
-   * @param response Response which will contain 400 error
-   * @param googleCredential valid google credential object (already verified)
-   * @throws IOException if an issue arises while processing the request
-   */
-  @Override
-  public void doPost(
-      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException {
-    super.doPost(request, response, googleCredential);
-    response.sendError(400, "Post is not supported");
   }
 }
