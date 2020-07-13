@@ -20,6 +20,7 @@ import java.security.GeneralSecurityException;
 /** Contract for verifying user with Google Sign in API */
 public interface AuthenticationVerifier {
   // OAuth 2.0 Client ID
+  // TODO: Hide Client ID (Issue #72)
   String CLIENT_ID = "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
 
   /**

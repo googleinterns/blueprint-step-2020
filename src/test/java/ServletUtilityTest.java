@@ -16,6 +16,7 @@ import com.google.sps.utility.ServletUtility;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -25,8 +26,7 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class ServletUtilityTest {
 
-  // Will mock an HttpServletRequest to be passed to utilities
-  private static final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+  private static HttpServletRequest request;
 
   private static final Cookie[] correctCookies =
       new Cookie[] {
@@ -48,6 +48,11 @@ public final class ServletUtilityTest {
         new Cookie("accessToken", "sample_access_token"),
         new Cookie("accessToken", "sample_access_token")
       };
+
+  @Before
+  public void init() {
+    request = Mockito.mock(HttpServletRequest.class);
+  }
 
   @Test
   public void getCookie() {
