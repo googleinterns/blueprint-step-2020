@@ -14,6 +14,7 @@
 
 package com.google.sps.servlets;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
@@ -31,26 +32,23 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/tasks")
 public class TasksServlet extends AuthenticatedHttpServlet {
   /**
-   * Returns taskNames from the user's Tasks account
+   * Returns Tasks from the user's Tasks account
    *
    * @param request Http request from client. Should contain idToken and accessToken
-   * @param response 403 if user is not authenticated, list of taskNames otherwise
+   * @param response 403 if user is not authenticated, list of Tasks otherwise
+   * @param googleCredential a valid google credential object (already verified)
    * @throws IOException if an issue arises while processing the request
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Load and verify google credential
-    super.doGet(request, response);
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
 
     // Credential is null if user is not authenticated.
     if (googleCredential != null) {
       // Get tasks from Google Tasks
       Tasks tasksService = TasksUtility.getTasksService(googleCredential);
-      List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
-      List<Task> tasks = new ArrayList<>();
-      for (TaskList taskList : taskLists) {
-        tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
-      }
+      List<Task> tasks = getTasks(tasksService);
 
       // Convert tasks to JSON and print to response
       Gson gson = new Gson();
@@ -59,5 +57,36 @@ public class TasksServlet extends AuthenticatedHttpServlet {
       response.setContentType("application/json");
       response.getWriter().println(tasksJson);
     }
+  }
+
+  /**
+   * TODO: Implement Post (Issue #53)
+   *
+   * @param request Http request from client
+   * @param response Http response to be sent to client
+   * @param googleCredential a valid google credential object (already verified)
+   * @throws IOException
+   */
+  @Override
+  public void doPost(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
+    response.sendError(400, "POST not yet supported");
+  }
+
+  /**
+   * Get the names of the tasks in all of the user's tasklists
+   *
+   * @param tasksService a valid tasksService with a valid credential
+   * @return List of tasks from user's account
+   * @throws IOException if an issue occurs with the tasksService
+   */
+  private List<Task> getTasks(Tasks tasksService) throws IOException {
+    List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
+    }
+    return tasks;
   }
 }
