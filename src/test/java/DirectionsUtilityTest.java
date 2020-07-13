@@ -22,6 +22,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+/**
+ * The parameters for these tests are assumed to be valid since invalid or edge parameters will be
+ * handled in the Places class. TODO: Implement Places interface #64
+ */
 @RunWith(JUnit4.class)
 public class DirectionsUtilityTest {
 

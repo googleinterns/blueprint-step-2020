@@ -44,7 +44,13 @@ public class DirectionsServlet extends HttpServlet {
     response.getWriter().println(json);
   }
 
-  /** Get directions using the parameters stored in this class. */
+  /**
+   * Get directions using the parameters stored in this class.
+   *
+   * @param request Request to get parameters from.
+   * @param response Response to write directions to.
+   * @throws IOException
+   */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String origin = request.getParameter("origin");
