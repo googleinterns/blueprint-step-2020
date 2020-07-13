@@ -56,7 +56,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * @throws IOException if there is an issue processing the request
    */
   @Override
-  public final void doGet(HttpServletRequest request, HttpServletResponse response)
+  protected final void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     Credential googleCredential = loadCredential(request, response);
     if (googleCredential != null) {
@@ -73,7 +73,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * @throws IOException if there is an issue processing the request
    */
   @Override
-  public final void doPost(HttpServletRequest request, HttpServletResponse response)
+  protected final void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     Credential googleCredential = loadCredential(request, response);
     if (googleCredential != null) {
@@ -82,7 +82,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   }
 
   /**
-   * Handle GET request
+   * Handle GET request. Public for testing purposes
    *
    * @param request HTTP request from client
    * @param response Http response to be sent to client
@@ -96,7 +96,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   }
 
   /**
-   * Handle POST request
+   * Handle POST request. Public for testing purposes
    *
    * @param request HTTP request from client
    * @param response Http response to be sent to client
