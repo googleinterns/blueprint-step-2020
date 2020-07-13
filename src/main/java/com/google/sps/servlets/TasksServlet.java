@@ -14,6 +14,7 @@
 
 package com.google.sps.servlets;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
@@ -38,12 +39,11 @@ public class TasksServlet extends AuthenticatedHttpServlet {
    *
    * @param request Http request from client. Should contain idToken and accessToken
    * @param response 403 if user is not authenticated, list of Tasks otherwise
+   * @param googleCredential a valid google credential object (already verified)
    * @throws IOException if an issue arises while processing the request
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Load and verify google credential
-    super.doGet(request, response);
+  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException {
 
     // Credential is null if user is not authenticated.
     if (googleCredential != null) {
@@ -58,6 +58,18 @@ public class TasksServlet extends AuthenticatedHttpServlet {
       response.setContentType("application/json");
       response.getWriter().println(tasksJson);
     }
+  }
+
+  /**
+   * TODO: Implement Post (Issue #53)
+   * @param request Http request from client
+   * @param response Http response to be sent to client
+   * @param googleCredential a valid google credential object (already verified)
+   * @throws IOException
+   */
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException {
+    response.sendError(400, "POST not yet supported");
   }
 
   /**
