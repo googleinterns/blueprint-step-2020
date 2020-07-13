@@ -10,7 +10,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
+/**
+ * Class to interact with the Secret Manager API.
+ */
 public final class ApiKeyProvider {
+  /**
+   * Gets the value of a key from the Secret Manager API.
+   * @param name A string representing the name of the key.
+   * @return A string representing the value of stored under the given key.
+   * @throws IOException
+   */
   public static String get(String name) throws IOException {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     InputStream stream = loader.getResourceAsStream("API_KEYS.json");

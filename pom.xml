@@ -65,12 +65,11 @@
             <artifactId>google-api-services-tasks</artifactId>
             <version>v1-rev20200516-1.30.9</version>
         </dependency>
-    
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>2.6</version>
-      </dependency>
+        <dependency>
+          <groupId>commons-io</groupId>
+          <artifactId>commons-io</artifactId>
+          <version>2.6</version>
+        </dependency>
     </dependencies>
 
     <build>
