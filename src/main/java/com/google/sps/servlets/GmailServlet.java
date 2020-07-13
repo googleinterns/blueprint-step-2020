@@ -44,7 +44,6 @@ public class GmailServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-
     // Get messageIds from Gmail
     Gmail gmailService = GmailUtility.getGmailService(googleCredential);
     List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
