@@ -15,7 +15,7 @@
 */
 
 .header {
-  margin: var(--header-margin-top) 0 var(--header-margin-bottom);
+  margin: var(--header-margin-top) 0 var(--header-margin-bottom) 0;
 }
 
 .header__heading-with-photo {
