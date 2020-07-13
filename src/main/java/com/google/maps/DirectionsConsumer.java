@@ -16,9 +16,7 @@ package com.google.maps;
 
 import java.util.List;
 
-/**
- * Consumer interface to declare contract for Directions consumer classes.
- */
+/** Consumer interface to declare contract for Directions consumer classes. */
 public interface DirectionsConsumer {
   /**
    * Gets the result of a call to the Directions API.

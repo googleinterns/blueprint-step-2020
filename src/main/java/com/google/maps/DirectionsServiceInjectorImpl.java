@@ -14,9 +14,7 @@
 
 package com.google.maps;
 
-/**
- * Service injector class which fulfills the declared Directions service injector contract.
- */
+/** Service injector class which fulfills the declared Directions service injector contract. */
 public class DirectionsServiceInjectorImpl implements DirectionsServiceInjector {
   @Override
   public DirectionsConsumer getConsumer() {

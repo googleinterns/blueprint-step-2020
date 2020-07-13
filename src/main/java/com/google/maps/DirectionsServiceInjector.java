@@ -14,12 +14,8 @@
 
 package com.google.maps;
 
-/**
- * Service injector interface to declare contract for Directions service injector classes.
- */
+/** Service injector interface to declare contract for Directions service injector classes. */
 public interface DirectionsServiceInjector {
-  /**
-   * Gets an instance of a Directions application.
-   */
+  /** Gets an instance of a Directions application. */
   public DirectionsConsumer getConsumer();
 }

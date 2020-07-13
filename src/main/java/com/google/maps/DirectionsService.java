@@ -14,12 +14,11 @@
 
 package com.google.maps;
 
-/**
- * Service interface to declare contract for Directions service classes.
- */
+/** Service interface to declare contract for Directions service classes. */
 public interface DirectionsService {
   /**
    * Gets the result of a call to the Directions API.
+   *
    * @param uri A string representing the URI to send a HTTP GET request to.
    * @return A string representing the result from a call to the Google Directions API.
    */

@@ -19,15 +19,11 @@ import java.net.URISyntaxException;
 import java.util.List;
 import org.apache.http.client.utils.URIBuilder;
 
-/**
- * Application class which fulfills the declared Directions consumer contract.
- */
+/** Application class which fulfills the declared Directions consumer contract. */
 public class DirectionsApplication implements DirectionsConsumer {
   private DirectionsService directionsService;
 
-  /**
-   * Changes constructor to require an instantiated service.
-   */
+  /** Changes constructor to require an instantiated service. */
   public DirectionsApplication(DirectionsService service) {
     this.directionsService = service;
   }

@@ -17,9 +17,7 @@ package com.google.maps;
 import java.io.IOException;
 import org.apache.http.client.fluent.Request;
 
-/**
- * Service class which fulfills the declared Directions service contract.
- */
+/** Service class which fulfills the declared Directions service contract. */
 public class DirectionsServiceImpl implements DirectionsService {
   @Override
   public String getDirections(String uri) {
