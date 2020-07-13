@@ -49,7 +49,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
 
   /**
    * Verifies user credentials on GET (sending a 403 error in the case that the user is not properly
-   * authenticated).
+   * authenticated). Public for testing purposes
    *
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
@@ -66,7 +66,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
 
   /**
    * Verifies user credentials on POST (sending a 403 error in the case that the user is not
-   * properly authenticated).
+   * properly authenticated). Public for testing purposes
    *
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
@@ -82,7 +82,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   }
 
   /**
-   * Handle GET request
+   * Handle GET request. Public for testing purposes
    *
    * @param request HTTP request from client
    * @param response Http response to be sent to client
@@ -96,7 +96,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   }
 
   /**
-   * Handle POST request
+   * Handle POST request. Public for testing purposes
    *
    * @param request HTTP request from client
    * @param response Http response to be sent to client
