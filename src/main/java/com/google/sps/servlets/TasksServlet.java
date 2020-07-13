@@ -15,12 +15,14 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
-import com.google.sps.utility.TasksUtility;
+import com.google.sps.model.AuthenticationVerifier;
+import com.google.sps.model.TasksClient;
+import com.google.sps.model.TasksClientFactory;
+import com.google.sps.model.TasksClientImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,26 @@ import javax.servlet.http.HttpServletResponse;
 /** Serves selected information from the User's Tasks Account. */
 @WebServlet("/tasks")
 public class TasksServlet extends AuthenticatedHttpServlet {
+  private final TasksClientFactory tasksClientFactory;
+
+  /** Create servlet with default TasksClient and Authentication Verifier implementations */
+  public TasksServlet() {
+    super();
+    tasksClientFactory = new TasksClientImpl.Factory();
+  }
+
+  /**
+   * Create servlet with explicit implementations of TasksClient and AuthenticationVerifier
+   *
+   * @param authenticationVerifier implementation of AuthenticationVerifier
+   * @param tasksClientFactory implementation of TasksClientFactory
+   */
+  public TasksServlet(
+      AuthenticationVerifier authenticationVerifier, TasksClientFactory tasksClientFactory) {
+    super(authenticationVerifier);
+    this.tasksClientFactory = tasksClientFactory;
+  }
+
   /**
    * Returns Tasks from the user's Tasks account
    *
@@ -43,19 +65,16 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-    // Credential is null if user is not authenticated.
-    if (googleCredential != null) {
-      // Get tasks from Google Tasks
-      Tasks tasksService = TasksUtility.getTasksService(googleCredential);
-      List<Task> tasks = getTasks(tasksService);
+    // Get tasks from Google Tasks
+    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+    List<Task> tasks = getTasks(tasksClient);
 
-      // Convert tasks to JSON and print to response
-      Gson gson = new Gson();
-      String tasksJson = gson.toJson(tasks);
+    // Convert tasks to JSON and print to response
+    Gson gson = new Gson();
+    String tasksJson = gson.toJson(tasks);
 
-      response.setContentType("application/json");
-      response.getWriter().println(tasksJson);
-    }
+    response.setContentType("application/json");
+    response.getWriter().println(tasksJson);
   }
 
   /**
@@ -76,15 +95,15 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   /**
    * Get the names of the tasks in all of the user's tasklists
    *
-   * @param tasksService a valid tasksService with a valid credential
+   * @param tasksClient either a mock TaskClient or a taskClient with a valid credential
    * @return List of tasks from user's account
    * @throws IOException if an issue occurs with the tasksService
    */
-  private List<Task> getTasks(Tasks tasksService) throws IOException {
-    List<TaskList> taskLists = TasksUtility.listTaskLists(tasksService);
+  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
+    List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
     for (TaskList taskList : taskLists) {
-      tasks.addAll(TasksUtility.listTasks(tasksService, taskList));
+      tasks.addAll(tasksClient.listTasks(taskList));
     }
     return tasks;
   }
