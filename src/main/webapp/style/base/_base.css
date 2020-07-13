@@ -26,11 +26,11 @@
 }
 
 /*
-  Used for REM sizing units, where 1 REM = 10px.
+  Font size set for REM sizing units, where 1 REM = 10px.
 */
 html {
   background-image: linear-gradient(45deg, var(--color-background-light), var(--color-background-dark));
-  font-size: 62.5%;
+  font-size: 10px;
   height: 100vh;
 }
 
