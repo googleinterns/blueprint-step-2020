@@ -21,25 +21,26 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-/** Test Authentication Utility functions TODO: Mock the Google verification service (Issue #5) */
+/** Test Authentication Utility functions */
 @RunWith(JUnit4.class)
 public final class ServletUtilityTest {
 
   // Will mock an HttpServletRequest to be passed to utilities
-  private final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+  private static final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
-  private final Cookie[] correctCookies =
+  private static final Cookie[] correctCookies =
       new Cookie[] {
         new Cookie("junk", "junk_value"),
         new Cookie("idToken", "sample_id_token"),
         new Cookie("accessToken", "sample_access_token")
       };
 
-  private final Cookie[] emptyCookies = new Cookie[] {};
+  private static final Cookie[] emptyCookies = new Cookie[] {};
 
-  private final Cookie[] missingAuthCookies = new Cookie[] {new Cookie("junk", "junk_value")};
+  private static final Cookie[] missingAuthCookies =
+      new Cookie[] {new Cookie("junk", "junk_value")};
 
-  private final Cookie[] duplicateCookies =
+  private static final Cookie[] duplicateCookies =
       new Cookie[] {
         new Cookie("junk", "junk_value"),
         new Cookie("idToken", "sample_id_token"),
