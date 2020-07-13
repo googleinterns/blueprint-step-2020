@@ -15,7 +15,6 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
@@ -66,16 +65,16 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-      // Get tasks from Google Tasks
-      TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
-      List<Task> tasks = getTasks(tasksClient);
+    // Get tasks from Google Tasks
+    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+    List<Task> tasks = getTasks(tasksClient);
 
-      // Convert tasks to JSON and print to response
-      Gson gson = new Gson();
-      String tasksJson = gson.toJson(tasks);
+    // Convert tasks to JSON and print to response
+    Gson gson = new Gson();
+    String tasksJson = gson.toJson(tasks);
 
-      response.setContentType("application/json");
-      response.getWriter().println(tasksJson);
+    response.setContentType("application/json");
+    response.getWriter().println(tasksJson);
   }
 
   /**
