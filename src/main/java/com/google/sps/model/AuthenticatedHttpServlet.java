@@ -29,8 +29,6 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   // Error message if user is not authenticated
   protected static final String ERROR_403 = "Authentication tokens not present / invalid";
 
-  protected Credential googleCredential;
-
   private final AuthenticationVerifier authenticationVerifier;
 
   /** Create AuthenticatedHttpServlet with default implementations of the AuthenticationVerifier */
@@ -50,30 +48,62 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   }
 
   /**
-   * Handles a GET request and sending a 403 error in the case that the user is not properly
-   * authenticated
+   * Verifies user credentials on GET (sending a 403 error in the case that the user is not properly
+   * authenticated).
    *
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
    * @throws IOException if there is an issue processing the request
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    loadCredential(request, response);
+  public final void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    Credential googleCredential = loadCredential(request, response);
+    if (googleCredential != null) {
+      doGet(request, response, googleCredential);
+    }
   }
 
   /**
-   * Handles a POST request and sending a 403 error in the case that the user is not properly
-   * authenticated
+   * Verifies user credentials on POST (sending a 403 error in the case that the user is not
+   * properly authenticated).
    *
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
    * @throws IOException if there is an issue processing the request
    */
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    loadCredential(request, response);
+  public final void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    Credential googleCredential = loadCredential(request, response);
+    if (googleCredential != null) {
+      doPost(request, response, googleCredential);
+    }
   }
+
+  /**
+   * Handle GET request
+   *
+   * @param request HTTP request from client
+   * @param response Http response to be sent to client
+   * @param googleCredential valid, verified google credential object
+   * @throws IOException is there is an issue processing the request
+   */
+  public abstract void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException;
+
+  /**
+   * Handle GET request
+   *
+   * @param request HTTP request from client
+   * @param response Http response to be sent to client
+   * @param googleCredential valid, verified google credential object
+   * @throws IOException is there is an issue processing the request
+   */
+  public abstract void doPost(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException;
 
   /**
    * Get credential, or return 403 error if the credential is invalid
@@ -82,12 +112,14 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * @param response Response to send to client
    * @throws IOException if an issue occurs processing the response
    */
-  private void loadCredential(HttpServletRequest request, HttpServletResponse response)
+  private Credential loadCredential(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    googleCredential = getGoogleCredential(request);
+    Credential googleCredential = getGoogleCredential(request);
     if (googleCredential == null) {
       response.sendError(403, ERROR_403);
     }
+
+    return googleCredential;
   }
 
   /**
