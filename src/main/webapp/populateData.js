@@ -89,3 +89,27 @@ function populateTasks() {
       });
 }
 
+/**
+ * Gets key information from each leg and displays them on the DOM.
+ */
+function getDirections() {
+  fetch('/directions')
+      .then((response) => (response.json()))
+      .then((json) => {
+        let text = '';
+        json.map.routes.myArrayList.forEach((route) => {
+          route.map.legs.myArrayList.forEach((leg) => {
+            const DURATION = leg.map.duration.map.text;
+            const DISTANCE = leg.map.distance.map.text;
+            const START_ADDRESS = leg.map.start_address;
+            const END_ADDRESS = leg.map.end_address;
+            const LEG_HTML = `Duration: ${DURATION}
+              Distance: ${DISTANCE}
+              Start: ${START_ADDRESS}
+              End: ${END_ADDRESS}`;
+            text += LEG_HTML;
+          });
+        });
+        document.getElementById('directions-container').innerHTML = text;
+      });
+}
