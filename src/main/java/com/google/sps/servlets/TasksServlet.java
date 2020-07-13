@@ -43,7 +43,9 @@ public class TasksServlet extends AuthenticatedHttpServlet {
    * @throws IOException if an issue arises while processing the request
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException {
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
 
     // Credential is null if user is not authenticated.
     if (googleCredential != null) {
@@ -62,18 +64,22 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
   /**
    * TODO: Implement Post (Issue #53)
+   *
    * @param request Http request from client
    * @param response Http response to be sent to client
    * @param googleCredential a valid google credential object (already verified)
    * @throws IOException
    */
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException {
+  public void doPost(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
     response.sendError(400, "POST not yet supported");
   }
 
   /**
    * Get the names of the tasks in all of the user's tasklists
+   *
    * @param tasksService a valid tasksService with a valid credential
    * @return List of tasks from user's account
    * @throws IOException if an issue occurs with the tasksService

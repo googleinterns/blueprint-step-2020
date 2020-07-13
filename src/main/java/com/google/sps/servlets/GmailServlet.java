@@ -41,7 +41,9 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    * @throws IOException if an issue arises while processing the request
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException {
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
 
     // Get messageIds from Gmail
     Gmail gmailService = GmailUtility.getGmailService(googleCredential);
@@ -57,13 +59,16 @@ public class GmailServlet extends AuthenticatedHttpServlet {
 
   /**
    * Post is not supported by GmailServlet.
+   *
    * @param request HTTP request from client
    * @param response Response which will contain 400 error
    * @param googleCredential valid google credential object (already verified)
    * @throws IOException if an issue arises while processing the request
    */
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException {
+  public void doPost(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
     response.sendError(400, "Post is not supported");
   }
 }
