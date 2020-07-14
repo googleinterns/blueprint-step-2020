@@ -65,6 +65,11 @@
             <artifactId>google-api-services-tasks</artifactId>
             <version>v1-rev20200516-1.30.9</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-calendar</artifactId>
+            <version>v3-rev20200610-1.30.9</version>
+        </dependency>
     </dependencies>
 
     <build>
