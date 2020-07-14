@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import static org.mockito.Mockito.when;
-
 import com.google.api.services.gmail.model.Message;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
@@ -85,9 +83,9 @@ public final class GmailServletTest {
 
   @BeforeClass
   public static void classInit() throws GeneralSecurityException, IOException {
-    when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
+    Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
     // Authentication will always pass
-    when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
+    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
   }
 
@@ -95,12 +93,12 @@ public final class GmailServletTest {
   public void init() throws IOException {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
-    when(request.getCookies()).thenReturn(validCookies);
+    Mockito.when(request.getCookies()).thenReturn(validCookies);
 
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
-    when(response.getWriter()).thenReturn(printWriter);
+    Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
   @After
@@ -111,7 +109,7 @@ public final class GmailServletTest {
 
   @Test
   public void noMessages() throws IOException {
-    when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(noMessages);
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(noMessages);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(NO_MESSAGES_JSON));
@@ -119,7 +117,7 @@ public final class GmailServletTest {
 
   @Test
   public void threeMessages() throws IOException {
-    when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(threeMessages);
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(threeMessages);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(THREE_MESSAGES_JSON));
