@@ -14,6 +14,7 @@
 
 package com.google.sps.utility;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,8 +33,9 @@ public final class ServletUtility {
    * @param request HttpServletRequest that contains desired cookie
    * @param cookieName name of desired cookie. Case sensitive
    * @return Cookie if found, null if not found or if duplicates present
+   * @throws IOException if duplicate cookies are found and, thus, a value cannot be parsed
    */
-  public static Cookie getCookie(HttpServletRequest request, String cookieName) {
+  public static Cookie getCookie(HttpServletRequest request, String cookieName) throws IOException {
     List<Cookie> cookies =
         Arrays.stream(request.getCookies())
             .filter((Cookie c) -> c.getName().equals(cookieName))
@@ -48,10 +50,10 @@ public final class ServletUtility {
     // This is unexpected - duplicate cookies are usually blocked by the browser (especially
     // when they are user set).
     if (cookies.size() > 1) {
-      System.out.printf("%d duplicate cookies with name %s\n", cookies.size(), cookieName);
-      cookies.forEach(c -> System.out.println(c.getValue()));
-
-      return null;
+      String errorMessage =
+          String.format("%d duplicate cookies with name %s\n", cookies.size(), cookieName);
+      errorMessage += cookies.stream().map(Cookie::getValue).reduce((a, b) -> a + "\n" + b);
+      throw new IOException(errorMessage);
     }
 
     return cookies.get(0);
@@ -65,8 +67,9 @@ public final class ServletUtility {
    * @param request contains cookies for a userToken and accessToken
    * @return Value of the "Authorization" header. Null if authentication is invalid or accessToken
    *     was not found
+   * @throws IOException if duplicate cookies are found and, thus, a value cannot be parsed
    */
-  public static String generateAuthorizationHeader(HttpServletRequest request) {
+  public static String generateAuthorizationHeader(HttpServletRequest request) throws IOException {
     // If accessToken cannot be found, return null
     Cookie authCookie = getCookie(request, "accessToken");
     if (authCookie == null) {
