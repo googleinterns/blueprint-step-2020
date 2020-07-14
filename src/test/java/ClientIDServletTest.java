@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import static org.mockito.Mockito.when;
-
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.servlets.ClientIDServlet;
 import java.io.IOException;
@@ -46,7 +44,7 @@ public final class ClientIDServletTest {
 
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
-    when(response.getWriter()).thenReturn(printWriter);
+    Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
   @After
