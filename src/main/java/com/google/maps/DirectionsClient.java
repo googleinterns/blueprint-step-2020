@@ -1,5 +1,10 @@
 package com.google.maps;
 
+import java.util.List;
+
+/**
+ * Contract for sending GET requests to the Google Directions API.
+ */
 public interface DirectionsClient {
-  public String getDirections(String uri);
+  List<String> getDirections(String origin, String destination, String[] waypoints);
 }

@@ -1,5 +1,8 @@
 package com.google.maps;
 
+/**
+ * Contract for creating a DirectionsClient with a given API key.
+ */
 public interface DirectionsClientFactory {
-  public DirectionsClient create();
+  DirectionsClient getDirectionsClient(String apiKey);
 }

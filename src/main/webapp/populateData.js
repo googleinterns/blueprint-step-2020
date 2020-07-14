@@ -89,3 +89,6 @@ function populateTasks() {
       });
 }
 
+function populateGo() {
+  fetch('/directions');
+}
