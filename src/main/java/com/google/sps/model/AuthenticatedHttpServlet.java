@@ -19,6 +19,7 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class AuthenticatedHttpServlet extends HttpServlet {
   // Error message if user is not authenticated
   protected static final String ERROR_403 = "Authentication tokens not present / invalid";
+
+  protected static final String ERROR_500 = "Oops! Something unexpected happened";
 
   private final AuthenticationVerifier authenticationVerifier;
 
@@ -51,11 +54,12 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    *
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
-   * @throws IOException if there is an issue processing the request
+   * @throws IOException if a read/write issue arises while processing the request
+   * @throws ServletException if the request cannot be handled due to unexpected errors
    */
   @Override
   public final void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
+      throws IOException, ServletException {
     try {
       Credential googleCredential = getGoogleCredential(request);
       if (googleCredential == null) {
@@ -65,8 +69,8 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
       doGet(request, response, googleCredential);
     } catch (TokenVerificationError e) {
       response.sendError(403, ERROR_403);
-    } catch (GeneralSecurityException | IOException e) {
-      response.sendError(500, e.getMessage());
+    } catch (GeneralSecurityException e) {
+      throw new ServletException(ERROR_500);
     }
   }
 
@@ -78,10 +82,11 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
    * @throws IOException if there is an issue processing the request
+   * @throws ServletException if the request cannot be handled due to unexpected errors
    */
   @Override
   public final void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
+      throws IOException, ServletException {
     try {
       Credential googleCredential = getGoogleCredential(request);
       if (googleCredential == null) {
@@ -91,8 +96,8 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
       doPost(request, response, googleCredential);
     } catch (TokenVerificationError e) {
       response.sendError(403, ERROR_403);
-    } catch (GeneralSecurityException | IOException e) {
-      response.sendError(500, e.getMessage());
+    } catch (GeneralSecurityException e) {
+      throw new ServletException(ERROR_500);
     }
   }
 
