@@ -66,16 +66,6 @@
             <version>v1-rev20200516-1.30.9</version>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20200518</version>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.httpcomponents</groupId>
-          <artifactId>fluent-hc</artifactId>
-          <version>4.5.7</version>
-        </dependency>
-        <dependency>
           <groupId>com.google.maps</groupId>
           <artifactId>google-maps-services</artifactId>
           <version>0.14.0</version>
