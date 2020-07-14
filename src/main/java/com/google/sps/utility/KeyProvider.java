@@ -11,7 +11,7 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 /** Class to interact with the Secret Manager API. */
-public final class ApiKeyProvider {
+public final class KeyProvider {
   /**
    * Gets the value of a key from the Secret Manager API.
    *
@@ -19,12 +19,12 @@ public final class ApiKeyProvider {
    * @return A string representing the value of stored under the given key.
    * @throws IOException
    */
-  public static String get(String name) throws IOException {
+  public static String getKey(String name) throws IOException {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    InputStream stream = loader.getResourceAsStream("API_KEYS.json");
+    InputStream stream = loader.getResourceAsStream("KEYS.json");
     if (stream == null) {
       throw new FileNotFoundException(
-          "make sure your local keys are stored under src/main/resources/API_KEYS.json");
+          "make sure your local keys are stored under src/main/resources/KEYS.json");
     }
     String rawJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
     stream.close();
