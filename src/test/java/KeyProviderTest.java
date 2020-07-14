@@ -24,12 +24,34 @@ import org.junit.runners.JUnit4;
 public class KeyProviderTest {
 
   private static final String SAMPLE_KEY = "sampleKey";
+  private static final String CAPITALISED_SAMPLE_KEY = "SAMPLEKEY";
+  private static final String INVALID_KEY = "invalidKey";
+
   private static final String SAMPLE_VALUE = "sampleValue";
 
   @Test
   public void getSampleKeyValue() throws IOException {
+    // Gets the value of sampleKey which is in src/main/resources/KEYS.json.
+    // invalidKey is expected.
     String expected = SAMPLE_VALUE;
     String actual = KeyProvider.getKey(SAMPLE_KEY);
     Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void getCapitalisedSampleKeyValue() throws IOException {
+    // Gets the value of SAMPLEKEY which is not in src/main/resources/KEYS.json since keys are cases
+    // sensitive.
+    // null is expected.
+    String actual = KeyProvider.getKey(CAPITALISED_SAMPLE_KEY);
+    Assert.assertNull(actual);
+  }
+
+  @Test
+  public void getInvalidKeyValue() throws IOException {
+    // Gets the value of an invalid key which is not in src/main/resources/KEYS.json.
+    // null is expected.
+    String actual = KeyProvider.getKey(INVALID_KEY);
+    Assert.assertNull(actual);
   }
 }
