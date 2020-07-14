@@ -43,10 +43,10 @@ public class AuthenticatedHttpServletTest {
               .useConstructor(authVerifier)
               .defaultAnswer(Mockito.CALLS_REAL_METHODS));
 
-  private static HttpServletRequest request;
+  private HttpServletRequest request;
   private HttpServletResponse response;
-  private static StringWriter stringWriter;
-  private static PrintWriter printWriter;
+  private StringWriter stringWriter;
+  private PrintWriter printWriter;
 
   private static final Boolean AUTHENTICATION_VERIFIED = true;
   private static final Boolean AUTHENTICATION_NOT_VERIFIED = false;
