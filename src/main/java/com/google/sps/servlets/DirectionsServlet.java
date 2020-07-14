@@ -56,12 +56,12 @@ public class DirectionsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String apiKey =
-        "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y"; // TODO: Replace with get addresses from Tasks
-    String origin = "Montreal, QC"; // TODO: Replace with get addresses from Tasks
-    String destination = "Montreal, QC"; // TODO: Replace with get addresses from Tasks
+        ""; // TODO: Merge ApiKeyProvider to make a request here (Issue #77)
+    String origin = "Montreal, QC"; // TODO: Replace with getOrigin from Tasks upon implementation (Issue #78)
+    String destination = "Montreal, QC"; // TODO: Replace with getDestination from Tasks implementation (Issue #78)
     String[] waypoints = {
       "Windsor, ON", "Waterloo, ON", "Kitchener, ON"
-    }; // TODO: Replace with get addresses from Tasks
+    }; // TODO: Replace with getWaypoints from Tasks implementation (Issue #78)
 
     DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
     List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
