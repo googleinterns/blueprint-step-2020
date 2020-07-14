@@ -142,7 +142,9 @@ public final class TasksServletTest {
   @Test
   public void completeTaskList() throws IOException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
-    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(tasksOneTwo).thenReturn(tasksThreeFour);
+    Mockito.when(tasksClient.listTasks(Mockito.any()))
+        .thenReturn(tasksOneTwo)
+        .thenReturn(tasksThreeFour);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(TASK_ALL_JSON));
