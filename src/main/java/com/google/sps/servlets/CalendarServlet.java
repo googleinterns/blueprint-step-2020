@@ -15,26 +15,26 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.gmail.Gmail;
-import com.google.api.services.gmail.model.Message;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.Event;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
-import com.google.sps.utility.GmailUtility;
+import com.google.sps.utility.CalendarUtility;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Serves selected information from the User's Gmail Account. */
-@WebServlet("/gmail")
-public class GmailServlet extends AuthenticatedHttpServlet {
+/** GET function responds JSON string containing events in user's calendar. */
+@WebServlet("/calendar")
+public class CalendarServlet extends AuthenticatedHttpServlet {
+
   /**
-   * Returns messageIds from the user's Gmail account
+   * Returns List of events from the user's calendar
    *
    * @param request Http request from the client. Should contain idToken and accessToken
-   * @param response 403 if user is not authenticated, list of messageIds otherwise
-   * @param googleCredential valid google credential object (already verified)
+   * @param response 403 if user is not authenticated, or Json string with the user's events
    * @throws IOException if an issue arises while processing the request
    */
   @Override
@@ -44,15 +44,14 @@ public class GmailServlet extends AuthenticatedHttpServlet {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
-    // Get messageIds from Gmail
-    Gmail gmailService = GmailUtility.getGmailService(googleCredential);
-    List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
+    Calendar calendarService = CalendarUtility.getCalendarService(googleCredential);
+    List<Event> calendarEvents = CalendarUtility.getCalendarEvents(calendarService);
 
-    // convert messageIds to JSON object and print to response
+    // Convert event list to JSON and print to response
     Gson gson = new Gson();
-    String messageJson = gson.toJson(messages);
+    String eventJson = gson.toJson(calendarEvents);
 
     response.setContentType("application/json");
-    response.getWriter().println(messageJson);
+    response.getWriter().println(eventJson);
   }
 }
