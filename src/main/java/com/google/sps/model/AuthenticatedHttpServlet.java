@@ -47,7 +47,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
 
   /**
    * Verifies user credentials on GET (sending a 403 error in the case that the user is not properly
-   * authenticated). Public for testing purposes
+   * authenticated, or 500 error if verification service fails). Public for testing purposes
    *
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
@@ -56,18 +56,24 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   @Override
   public final void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    Credential googleCredential = getGoogleCredential(request);
-    if (googleCredential == null) {
+    try {
+      Credential googleCredential = getGoogleCredential(request);
+      if (googleCredential == null) {
+        response.sendError(403, ERROR_403);
+        return;
+      }
+      doGet(request, response, googleCredential);
+    } catch (TokenVerificationError e) {
       response.sendError(403, ERROR_403);
-      return;
+    } catch (GeneralSecurityException | IOException e) {
+      response.sendError(500, e.getMessage());
     }
-
-    doGet(request, response, googleCredential);
   }
 
   /**
    * Verifies user credentials on POST (sending a 403 error in the case that the user is not
-   * properly authenticated). Public for testing purposes
+   * properly authenticated, or 500 error if verification service fails). Public for testing
+   * purposes
    *
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
@@ -76,13 +82,18 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   @Override
   public final void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    Credential googleCredential = getGoogleCredential(request);
-    if (googleCredential == null) {
+    try {
+      Credential googleCredential = getGoogleCredential(request);
+      if (googleCredential == null) {
+        response.sendError(403, ERROR_403);
+        return;
+      }
+      doPost(request, response, googleCredential);
+    } catch (TokenVerificationError e) {
       response.sendError(403, ERROR_403);
-      return;
+    } catch (GeneralSecurityException | IOException e) {
+      response.sendError(500, e.getMessage());
     }
-
-    doPost(request, response, googleCredential);
   }
 
   /**
@@ -118,38 +129,29 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * HTTP Request
    *
    * @param request Http Request sent from client
-   * @return Credential object with accessToken. null if tokens not present / are invalid
+   * @return Credential object with accessToken. null if tokens not present / are empty
+   * @throws TokenVerificationError if the passed idToken is confirmed to be false / is unverifiable
+   * @throws GeneralSecurityException if an issue occurs with Google's verification service
+   * @throws IOException if an issue occurs with Google's verification service
    */
-  private Credential getGoogleCredential(HttpServletRequest request) {
-    Cookie userTokenCookie = ServletUtility.getCookie(request, "idToken");
-    if (userTokenCookie == null) {
+  private Credential getGoogleCredential(HttpServletRequest request)
+      throws TokenVerificationError, GeneralSecurityException, IOException {
+    // If cookies not present, return null (user's session likely expired)
+    Cookie idTokenCookie = ServletUtility.getCookie(request, "idToken");
+    Cookie accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
+    if (idTokenCookie == null || accessTokenCookie == null) {
       return null;
     }
-
-    String idToken = userTokenCookie.getValue();
-
-    if (idToken.isEmpty()) {
-      return null;
-    }
+    String idToken = idTokenCookie.getValue();
+    String accessToken = accessTokenCookie.getValue();
 
     try {
-      if (!authenticationVerifier.verifyUserToken(userTokenCookie.getValue())) {
-        return null;
+      if (!authenticationVerifier.verifyUserToken(idToken)) {
+        throw new TokenVerificationError(String.format("idToken (value=%s) is invalid!", idToken));
       }
     } catch (GeneralSecurityException | IOException e) {
       e.printStackTrace();
-      return null;
-    }
-
-    Cookie accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
-    if (accessTokenCookie == null) {
-      return null;
-    }
-
-    String accessToken = accessTokenCookie.getValue();
-
-    if (accessToken.isEmpty()) {
-      return null;
+      throw e;
     }
 
     // Build Google credential with verified authentication information
