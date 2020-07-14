@@ -40,16 +40,16 @@
   Adds border to panel in color of Gmail logo.
   Overrides other non-important border settings.
  */
-.u-border-gmail {
-  border-color: var(--color-gmail) !important;
+.u-border-mail {
+  border-color: var(--color-mail) !important;
 }
 
 /*
   Background color set to color of Gmail logo
   Overrides other non-important background settings.
  */
-.u-background-gmail {
-  background-color: var(--color-gmail) !important;
+.u-background-mail {
+  background-color: var(--color-mail) !important;
 }
 
 /*
