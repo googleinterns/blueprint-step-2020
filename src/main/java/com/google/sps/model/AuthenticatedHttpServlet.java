@@ -58,10 +58,13 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   @Override
   public final void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    Credential googleCredential = loadCredential(request, response);
-    if (googleCredential != null) {
-      doGet(request, response, googleCredential);
+    Credential googleCredential = getGoogleCredential(request);
+    if (googleCredential == null) {
+      response.sendError(403, ERROR_403);
+      return;
     }
+
+    doGet(request, response, googleCredential);
   }
 
   /**
@@ -75,10 +78,13 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   @Override
   public final void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    Credential googleCredential = loadCredential(request, response);
-    if (googleCredential != null) {
-      doPost(request, response, googleCredential);
+    Credential googleCredential = getGoogleCredential(request);
+    if (googleCredential == null) {
+      response.sendError(403, ERROR_403);
+      return;
     }
+
+    doPost(request, response, googleCredential);
   }
 
   /**
@@ -107,23 +113,6 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
     response.sendError(400, "POST is not supported");
-  }
-
-  /**
-   * Get credential, or return 403 error if the credential is invalid
-   *
-   * @param request HttpRequest from client
-   * @param response Response to send to client
-   * @throws IOException if an issue occurs processing the response
-   */
-  private Credential loadCredential(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-    Credential googleCredential = getGoogleCredential(request);
-    if (googleCredential == null) {
-      response.sendError(403, ERROR_403);
-    }
-
-    return googleCredential;
   }
 
   /**
