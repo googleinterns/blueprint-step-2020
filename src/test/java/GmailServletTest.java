@@ -63,10 +63,10 @@ public final class GmailServletTest {
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
-  private static HttpServletRequest request;
+  private HttpServletRequest request;
   private HttpServletResponse response;
-  private static StringWriter stringWriter;
-  private static PrintWriter printWriter;
+  private StringWriter stringWriter;
+  private PrintWriter printWriter;
 
   private static final String MESSAGE_ID_ONE = "messageIdOne";
   private static final String MESSAGE_ID_TWO = "messageIdTwo";
