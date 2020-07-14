@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles basic GET/POST requests to and from the Google Tasks service
+ */
 public class TasksClientImpl implements TasksClient {
 
   private final Tasks tasksService;
@@ -42,13 +45,6 @@ public class TasksClientImpl implements TasksClient {
             .build();
   }
 
-  /**
-   * Get all tasks from a tasklist in a user's Tasks account.
-   *
-   * @param taskList TaskList object that contains the desired tasks
-   * @return List of all tasks in the tasklist
-   * @throws IOException if an issue occurs with the TasksService
-   */
   @Override
   public List<Task> listTasks(TaskList taskList) throws IOException {
     // returns null if no tasks exist. Convert to empty list for ease.
@@ -57,12 +53,6 @@ public class TasksClientImpl implements TasksClient {
     return tasks != null ? tasks : new ArrayList<>();
   }
 
-  /**
-   * Get all tasklists in a user's Tasks account.
-   *
-   * @return List of all tasklists
-   * @throws IOException if an issue occurs with the TasksService
-   */
   @Override
   public List<TaskList> listTaskLists() throws IOException {
     // returns null if no tasklists exist. Convert to empty list for ease.
@@ -76,7 +66,7 @@ public class TasksClientImpl implements TasksClient {
     /**
      * Create a TasksClientImpl instance
      *
-     * @param credential Google credential object
+     * @param credential valid Google credential object
      * @return TasksClientImpl instance with credential
      */
     @Override

@@ -18,5 +18,11 @@ import com.google.api.client.auth.oauth2.Credential;
 
 /** Contract for creating a TasksClient instance */
 public interface TasksClientFactory {
+  /**
+   * Create a TasksClient instance
+   *
+   * @param credential valid Google credential object
+   * @return TasksClient instance with credential
+   */
   TasksClient getTasksClient(Credential credential);
 }

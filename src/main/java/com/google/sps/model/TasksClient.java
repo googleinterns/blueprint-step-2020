@@ -24,7 +24,20 @@ import java.util.List;
  * (Issue #53)
  */
 public interface TasksClient {
+  /**
+   * Get all tasks from a tasklist in a user's Tasks account.
+   *
+   * @param taskList TaskList object that contains the desired tasks
+   * @return List of all tasks in the tasklist
+   * @throws IOException if an issue occurs with the TasksService
+   */
   List<Task> listTasks(TaskList taskList) throws IOException;
 
+  /**
+   * Get all tasklists in a user's Tasks account.
+   *
+   * @return List of all tasklists
+   * @throws IOException if an issue occurs with the TasksService
+   */
   List<TaskList> listTaskLists() throws IOException;
 }
