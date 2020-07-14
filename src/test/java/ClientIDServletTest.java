@@ -19,7 +19,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,19 +37,13 @@ public final class ClientIDServletTest {
   private PrintWriter printWriter;
 
   @Before
-  public void init() throws IOException {
+  public void setUp() throws IOException {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
 
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
     Mockito.when(response.getWriter()).thenReturn(printWriter);
-  }
-
-  @After
-  public void clear() {
-    // Dump contents after each test
-    stringWriter.getBuffer().setLength(0);
   }
 
   @Test
