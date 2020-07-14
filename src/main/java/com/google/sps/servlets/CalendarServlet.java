@@ -18,15 +18,13 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.appengine.repackaged.com.google.gson.Gson;
-import com.google.sps.utility.AuthenticationUtility;
+import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.utility.CalendarUtility;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.sps.model.AuthenticatedHttpServlet;
 
 /** GET function responds JSON string containing events in user's calendar. */
 @WebServlet("/calendar")
@@ -40,8 +38,10 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
    * @throws IOException if an issue arises while processing the request
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException {
-   assert googleCredential != null
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
+    assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     Calendar calendarService = CalendarUtility.getCalendarService(googleCredential);
