@@ -59,16 +59,13 @@ public class AuthenticatedHttpServletTest {
   private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
   private static final Cookie sampleAccessTokenCookie =
       new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
-  private static final Cookie emptyIdToken = new Cookie(ID_TOKEN_KEY, "");
-  private static final Cookie emptyAccessToken = new Cookie(ACCESS_TOKEN_KEY, "");
+  private static final Cookie emptyIdTokenCookie = new Cookie(ID_TOKEN_KEY, "");
 
   private static final Cookie[] noCookies = new Cookie[] {};
   private static final Cookie[] noAccessTokenCookies = new Cookie[] {sampleIdTokenCookie};
   private static final Cookie[] noIdTokenCookies = new Cookie[] {sampleAccessTokenCookie};
   private static final Cookie[] emptyIdTokenCookies =
-      new Cookie[] {emptyIdToken, sampleAccessTokenCookie};
-  private static final Cookie[] emptyAccessTokenCookies =
-      new Cookie[] {sampleIdTokenCookie, emptyAccessToken};
+      new Cookie[] {emptyIdTokenCookie, sampleAccessTokenCookie};
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
@@ -104,13 +101,6 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void getRequestEmptyIdToken() throws IOException {
-    when(request.getCookies()).thenReturn(emptyIdTokenCookies);
-    servlet.doGet(request, response);
-    verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
-  }
-
-  @Test
   public void getRequestFakeIdToken() throws GeneralSecurityException, IOException {
     when(authVerifier.verifyUserToken(Mockito.anyString())).thenReturn(AUTHENTICATION_NOT_VERIFIED);
     when(request.getCookies()).thenReturn(validCookies);
@@ -122,14 +112,6 @@ public class AuthenticatedHttpServletTest {
   public void getRequestNoAccessToken() throws GeneralSecurityException, IOException {
     when(authVerifier.verifyUserToken(Mockito.anyString())).thenReturn(AUTHENTICATION_VERIFIED);
     when(request.getCookies()).thenReturn(noAccessTokenCookies);
-    servlet.doGet(request, response);
-    verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
-  }
-
-  @Test
-  public void getRequestEmptyAccessToken() throws GeneralSecurityException, IOException {
-    when(authVerifier.verifyUserToken(Mockito.anyString())).thenReturn(AUTHENTICATION_VERIFIED);
-    when(request.getCookies()).thenReturn(emptyAccessTokenCookies);
     servlet.doGet(request, response);
     verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
@@ -159,13 +141,6 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void postRequestEmptyIdToken() throws IOException {
-    when(request.getCookies()).thenReturn(emptyIdTokenCookies);
-    servlet.doPost(request, response);
-    verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
-  }
-
-  @Test
   public void postRequestFakeIdToken() throws GeneralSecurityException, IOException {
     when(authVerifier.verifyUserToken(Mockito.anyString())).thenReturn(AUTHENTICATION_NOT_VERIFIED);
     when(request.getCookies()).thenReturn(validCookies);
@@ -177,14 +152,6 @@ public class AuthenticatedHttpServletTest {
   public void postRequestNoAccessToken() throws GeneralSecurityException, IOException {
     when(authVerifier.verifyUserToken(Mockito.anyString())).thenReturn(AUTHENTICATION_VERIFIED);
     when(request.getCookies()).thenReturn(noAccessTokenCookies);
-    servlet.doPost(request, response);
-    verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
-  }
-
-  @Test
-  public void postRequestEmptyAccessToken() throws GeneralSecurityException, IOException {
-    when(authVerifier.verifyUserToken(Mockito.anyString())).thenReturn(AUTHENTICATION_VERIFIED);
-    when(request.getCookies()).thenReturn(emptyAccessTokenCookies);
     servlet.doPost(request, response);
     verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
