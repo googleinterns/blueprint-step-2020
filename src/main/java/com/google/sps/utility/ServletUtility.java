@@ -15,8 +15,6 @@
 package com.google.sps.utility;
 
 import com.google.sps.model.CookieParseException;
-
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +35,8 @@ public final class ServletUtility {
    * @return Cookie if found, null if not found or if duplicates present
    * @throws CookieParseException if duplicate cookies are found and, thus, a value cannot be parsed
    */
-  public static Cookie getCookie(HttpServletRequest request, String cookieName) throws CookieParseException {
+  public static Cookie getCookie(HttpServletRequest request, String cookieName)
+      throws CookieParseException {
     List<Cookie> cookies =
         Arrays.stream(request.getCookies())
             .filter((Cookie c) -> c.getName().equals(cookieName))
@@ -71,7 +70,8 @@ public final class ServletUtility {
    *     was not found
    * @throws CookieParseException if duplicate cookies are found and, thus, a value cannot be parsed
    */
-  public static String generateAuthorizationHeader(HttpServletRequest request) throws CookieParseException {
+  public static String generateAuthorizationHeader(HttpServletRequest request)
+      throws CookieParseException {
     // If accessToken cannot be found, return null
     Cookie authCookie = getCookie(request, "accessToken");
     if (authCookie == null) {

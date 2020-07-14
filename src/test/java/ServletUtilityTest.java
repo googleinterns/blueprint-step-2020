@@ -14,7 +14,6 @@
 
 import com.google.sps.model.CookieParseException;
 import com.google.sps.utility.ServletUtility;
-import java.io.IOException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;

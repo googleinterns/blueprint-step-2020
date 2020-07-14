@@ -139,13 +139,16 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    *
    * @param request Http Request sent from client
    * @return Credential object with accessToken. null if tokens not present / are empty
-   * @throws TokenVerificationException if the passed idToken is confirmed to be false / is unverifiable
+   * @throws TokenVerificationException if the passed idToken is confirmed to be false / is
+   *     unverifiable
    * @throws GeneralSecurityException if an issue occurs with Google's verification service
    * @throws IOException if an issue occurs with Google's verification service
-   * @throws CookieParseException if an issue occurs while parsing cookie values (e.g. duplicates present)
+   * @throws CookieParseException if an issue occurs while parsing cookie values (e.g. duplicates
+   *     present)
    */
   private Credential getGoogleCredential(HttpServletRequest request)
-      throws TokenVerificationException, GeneralSecurityException, IOException, CookieParseException {
+      throws TokenVerificationException, GeneralSecurityException, IOException,
+          CookieParseException {
     // If cookies not present, return null (user's session likely expired)
     Cookie idTokenCookie = ServletUtility.getCookie(request, "idToken");
     Cookie accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
@@ -156,7 +159,8 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
     String accessToken = accessTokenCookie.getValue();
 
     if (!authenticationVerifier.verifyUserToken(idToken)) {
-      throw new TokenVerificationException(String.format("idToken (value=%s) is invalid!", idToken));
+      throw new TokenVerificationException(
+          String.format("idToken (value=%s) is invalid!", idToken));
     }
 
     // Build Google credential with verified authentication information
