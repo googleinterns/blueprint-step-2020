@@ -89,3 +89,35 @@ function populateTasks() {
       });
 }
 
+/**
+ * Populate Calendar container with user's events
+ */
+function populateCalendar() {
+  const calendarContainer = document.querySelector('#calendar');
+  fetch('/calendar')
+      .then((response) => {
+        // If response is a 403, user is not authenticated
+        if (response.status === 403) {
+          throw new AuthenticationError();
+        }
+        return response.json();
+      })
+      .then((eventList) => {
+        // Convert JSON to string containing all event summaries
+        // and display it on client
+        // Handle case where user has no events to avoid unwanted behaviour
+        if (eventList.length !== 0) {
+          const events =
+              eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
+          calendarContainer.innerText = events;
+        } else {
+          calendarContainer.innerText = 'No events in the calendar';
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
+      });
+}
