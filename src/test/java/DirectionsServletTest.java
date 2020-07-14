@@ -95,7 +95,7 @@ public final class DirectionsServletTest {
   }
 
   @Test
-  public void windsorToMontrealWithWaypoints() throws IOException {
+  public void windsorToMontrealWithWaypoints() throws Exception {
     // Get optimized route of travel from Windsor, ON to Montreal, QC with waypoints Markham, ON,
     // Waterloo, ON and Quebec City, QC in between.
     // Should return four legs: Windsor, ON -> Waterloo, ON -> Markham, ON -> Quebec City, QC ->
@@ -117,7 +117,7 @@ public final class DirectionsServletTest {
   }
 
   @Test
-  public void montrealToMontrealWithWaypoints() throws IOException {
+  public void montrealToMontrealWithWaypoints() throws Exception {
     // Get optimized route of travel from Montreal, QC to Montreal, QC with waypoints Windsor, ON,
     // Waterloo, ON and Kitchener, ON in between.
     // Should return four legs: Montreal, QC -> Kitchener, ON -> Waterloo, ON -> Windsor, ON ->
@@ -139,7 +139,7 @@ public final class DirectionsServletTest {
   }
 
   @Test
-  public void montrealToWaterlooNoWaypoints() throws IOException {
+  public void montrealToWaterlooNoWaypoints() throws Exception {
     // Get optimized route of travel from Montreal, QC to Waterloo, ON with no waypoints in between.
     // Should return only one leg from Montreal, QC to Waterloo, ON.
     when(directionsClient.getDirections(
