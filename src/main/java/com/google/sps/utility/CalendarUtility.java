@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.List;
 
 /** Utility class to use Calendar API instead of handling everything from the servlet */
-public class CalendarUtility {
+public final class CalendarUtility {
   private CalendarUtility() {}
 
   /**
@@ -51,6 +51,6 @@ public class CalendarUtility {
    * @return the list of Event from the calendar
    */
   public static List<Event> getCalendarEvents(Calendar calendarService) throws IOException {
-    return calendarService.events().list("primary").setPageToken(null).execute().getItems();
+    return calendarService.events().list("primary").execute().getItems();
   }
 }
