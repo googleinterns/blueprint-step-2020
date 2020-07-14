@@ -25,6 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -96,7 +97,7 @@ public final class TasksServletTest {
   }
 
   @Before
-  public void init() throws IOException {
+  public void setUp() throws IOException {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
@@ -107,14 +108,8 @@ public final class TasksServletTest {
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
-  @After
-  public void clear() {
-    // Dump contents after each test
-    stringWriter.getBuffer().setLength(0);
-  }
-
   @Test
-  public void noTaskLists() throws IOException {
+  public void noTaskLists() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(noTaskLists);
     servlet.doGet(request, response);
     printWriter.flush();
@@ -122,7 +117,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void emptyTaskLists() throws IOException {
+  public void emptyTaskLists() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
     Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks);
     servlet.doGet(request, response);
@@ -131,7 +126,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void oneEmptyTaskList() throws IOException {
+  public void oneEmptyTaskList() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
     Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks).thenReturn(tasksOneTwo);
     servlet.doGet(request, response);
@@ -140,7 +135,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void completeTaskList() throws IOException {
+  public void completeTaskList() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
     Mockito.when(tasksClient.listTasks(Mockito.any()))
         .thenReturn(tasksOneTwo)
