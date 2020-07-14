@@ -33,7 +33,6 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
 
   /** Create AuthenticatedHttpServlet with default implementations of the AuthenticationVerifier */
   public AuthenticatedHttpServlet() {
-    super();
     authenticationVerifier = new AuthenticationVerifierImpl();
   }
 
@@ -43,7 +42,6 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * @param authenticationVerifier implementation of the AuthenticationVerifier
    */
   public AuthenticatedHttpServlet(AuthenticationVerifier authenticationVerifier) {
-    super();
     this.authenticationVerifier = authenticationVerifier;
   }
 
