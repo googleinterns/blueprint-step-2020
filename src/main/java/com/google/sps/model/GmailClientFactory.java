@@ -18,5 +18,11 @@ import com.google.api.client.auth.oauth2.Credential;
 
 /** Contract for creating a GmailClient with a given credential */
 public interface GmailClientFactory {
+  /**
+   * Creates a GmailClient instance
+   *
+   * @param credential a valid Google credential object
+   * @return a GmailClient instance that contains the user's credentials
+   */
   GmailClient getGmailClient(Credential credential);
 }
