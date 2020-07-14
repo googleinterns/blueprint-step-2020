@@ -131,7 +131,7 @@ public final class GmailUtility {
   public static Gmail getGmailService(Credential credential) {
     JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
     HttpTransport transport = UrlFetchTransport.getDefaultInstance();
-    String applicationName = AuthenticationUtility.APPLICATION_NAME;
+    String applicationName = ServletUtility.APPLICATION_NAME;
 
     return new Gmail.Builder(transport, jsonFactory, credential)
         .setApplicationName(applicationName)
