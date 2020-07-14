@@ -37,7 +37,7 @@ public final class CalendarUtility {
   public static Calendar getCalendarService(Credential credential) {
     HttpTransport httpTransport = UrlFetchTransport.getDefaultInstance();
     JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-    String applicationName = AuthenticationUtility.APPLICATION_NAME;
+    String applicationName = ServletUtility.APPLICATION_NAME;
 
     return new Calendar.Builder(httpTransport, jsonFactory, credential)
         .setApplicationName(applicationName)

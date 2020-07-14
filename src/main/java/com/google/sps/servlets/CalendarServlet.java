@@ -26,10 +26,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.sps.model.AuthenticatedHttpServlet;
 
 /** GET function responds JSON string containing events in user's calendar. */
 @WebServlet("/calendar")
-public class CalendarServlet extends HttpServlet {
+public class CalendarServlet extends AuthenticatedHttpServlet {
 
   /**
    * Returns List of events from the user's calendar
@@ -39,12 +40,10 @@ public class CalendarServlet extends HttpServlet {
    * @throws IOException if an issue arises while processing the request
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
-    if (googleCredential == null) {
-      response.sendError(403, AuthenticationUtility.ERROR_403);
-      return;
-    }
+  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException {
+   assert googleCredential != null
+        : "Null credentials (i.e. unauthenticated requests) should already be handled";
+
     Calendar calendarService = CalendarUtility.getCalendarService(googleCredential);
     List<Event> calendarEvents = CalendarUtility.getCalendarEvents(calendarService);
 
