@@ -37,7 +37,6 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
   /** Create servlet with default TasksClient and Authentication Verifier implementations */
   public TasksServlet() {
-    super();
     tasksClientFactory = new TasksClientImpl.Factory();
   }
 

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import static org.mockito.Mockito.when;
-
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.sps.model.AuthenticationVerifier;
@@ -91,9 +89,9 @@ public final class TasksServletTest {
 
   @BeforeClass
   public static void classInit() throws GeneralSecurityException, IOException {
-    when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
+    Mockito.when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
     // Authentication will always pass
-    when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
+    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
   }
 
@@ -101,12 +99,12 @@ public final class TasksServletTest {
   public void init() throws IOException {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
-    when(request.getCookies()).thenReturn(validCookies);
+    Mockito.when(request.getCookies()).thenReturn(validCookies);
 
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
-    when(response.getWriter()).thenReturn(printWriter);
+    Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
   @After
@@ -117,7 +115,7 @@ public final class TasksServletTest {
 
   @Test
   public void noTaskLists() throws IOException {
-    when(tasksClient.listTaskLists()).thenReturn(noTaskLists);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(noTaskLists);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(EMPTY_JSON));
@@ -125,8 +123,8 @@ public final class TasksServletTest {
 
   @Test
   public void emptyTaskLists() throws IOException {
-    when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
-    when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
+    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(EMPTY_JSON));
@@ -134,8 +132,8 @@ public final class TasksServletTest {
 
   @Test
   public void oneEmptyTaskList() throws IOException {
-    when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
-    when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks).thenReturn(tasksOneTwo);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
+    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks).thenReturn(tasksOneTwo);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(TASK_ONE_TWO_JSON));
@@ -143,8 +141,8 @@ public final class TasksServletTest {
 
   @Test
   public void completeTaskList() throws IOException {
-    when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
-    when(tasksClient.listTasks(Mockito.any())).thenReturn(tasksOneTwo).thenReturn(tasksThreeFour);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
+    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(tasksOneTwo).thenReturn(tasksThreeFour);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(TASK_ALL_JSON));
