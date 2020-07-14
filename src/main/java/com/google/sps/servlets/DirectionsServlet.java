@@ -40,7 +40,7 @@ public class DirectionsServlet extends HttpServlet {
    * Construct servlet with explicit implementation of DirectionsClient.
    *
    * @param factory A DirectionsClientFactory containing the implementation of
-   *                DirectionsClientFactory.
+   *     DirectionsClientFactory.
    */
   public DirectionsServlet(DirectionsClientFactory factory) {
     directionsClientFactory = factory;
@@ -49,17 +49,21 @@ public class DirectionsServlet extends HttpServlet {
   /**
    * Returns the most optimal order of travel between addresses.
    *
-   * @param request  HTTP request from the client.
+   * @param request HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws IOException Indicates failed or interrupted I/O operations.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String apiKey = ""; // TODO: Merge ApiKeyProvider to make a request here (Issue #77)
-    String origin = "Montreal, QC"; // TODO: Replace with getOrigin from Tasks upon implementation (Issue #78)
-    String destination = "Montreal, QC"; // TODO: Replace with getDestination from Tasks implementation (Issue #78)
-    String[] waypoints = { "Windsor, ON", "Waterloo, ON", "Kitchener, ON" }; // TODO: Replace with getWaypoints from
-                                                                             // Tasks implementation (Issue #78)
+    String origin =
+        "Montreal, QC"; // TODO: Replace with getOrigin from Tasks upon implementation (Issue #78)
+    String destination =
+        "Montreal, QC"; // TODO: Replace with getDestination from Tasks implementation (Issue #78)
+    String[] waypoints = {
+      "Windsor, ON", "Waterloo, ON", "Kitchener, ON"
+    }; // TODO: Replace with getWaypoints from
+    // Tasks implementation (Issue #78)
 
     DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
     List<String> directions;

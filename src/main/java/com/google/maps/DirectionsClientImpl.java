@@ -49,16 +49,15 @@ public class DirectionsClientImpl implements DirectionsClient {
   /**
    * Gets the result of a GET request to the Google Directions API.
    *
-   * @param destination A string representing the destination to get directions
-   *                    to.
-   * @param origin      A string representing the origin to get directions from.
-   * @param waypoints   A list of string consisting of waypoints to visit between
-   *                    the destination and the origin.
-   * @return A string representing the result from a GET request to the Google
-   *         Directions API.
+   * @param destination A string representing the destination to get directions to.
+   * @param origin A string representing the origin to get directions from.
+   * @param waypoints A list of string consisting of waypoints to visit between the destination and
+   *     the origin.
+   * @return A string representing the result from a GET request to the Google Directions API.
    * @throws Exception
    */
-  public List<String> getDirections(String origin, String destination, String[] waypoints) throws Exception {
+  public List<String> getDirections(String origin, String destination, String[] waypoints)
+      throws Exception {
     try {
       DirectionsResult result =
           directionsService
