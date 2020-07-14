@@ -38,7 +38,7 @@ public final class TasksUtility {
   public static Tasks getTasksService(Credential credential) {
     HttpTransport transport = UrlFetchTransport.getDefaultInstance();
     JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-    String applicationName = AuthenticationUtility.APPLICATION_NAME;
+    String applicationName = ServletUtility.APPLICATION_NAME;
 
     return new Tasks.Builder(transport, jsonFactory, credential)
         .setApplicationName(applicationName)
