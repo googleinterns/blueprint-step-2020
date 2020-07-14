@@ -27,9 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Handles basic GET/POST requests to and from the Google Tasks service
- */
+/** Handles basic GET/POST requests to and from the Google Tasks service */
 public class TasksClientImpl implements TasksClient {
 
   private final Tasks tasksService;
