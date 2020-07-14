@@ -163,4 +163,4 @@ dist
 .pnp.*
 
 # Local keys
-src/main/resources/API_KEYS.json
+src/main/resources/KEYS.json
