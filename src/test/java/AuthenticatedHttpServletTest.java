@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -85,21 +86,21 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void getRequestNoTokens() throws IOException {
+  public void getRequestNoTokens() throws IOException, ServletException {
     Mockito.when(request.getCookies()).thenReturn(noCookies);
     servlet.doGet(request, response);
     Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
 
   @Test
-  public void getRequestNoIdTokens() throws IOException {
+  public void getRequestNoIdTokens() throws IOException, ServletException {
     Mockito.when(request.getCookies()).thenReturn(noIdTokenCookies);
     servlet.doGet(request, response);
     Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
 
   @Test
-  public void getRequestFakeIdToken() throws GeneralSecurityException, IOException {
+  public void getRequestFakeIdToken() throws GeneralSecurityException, IOException, ServletException {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_NOT_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
@@ -108,7 +109,7 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void getRequestNoAccessToken() throws GeneralSecurityException, IOException {
+  public void getRequestNoAccessToken() throws GeneralSecurityException, IOException, ServletException {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(noAccessTokenCookies);
@@ -117,7 +118,7 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void getRequestProperAuthentication() throws GeneralSecurityException, IOException {
+  public void getRequestProperAuthentication() throws GeneralSecurityException, IOException, ServletException {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
@@ -128,21 +129,21 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void postRequestNoTokens() throws IOException {
+  public void postRequestNoTokens() throws IOException, ServletException {
     Mockito.when(request.getCookies()).thenReturn(noCookies);
     servlet.doPost(request, response);
     Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
 
   @Test
-  public void postRequestNoIdTokens() throws IOException {
+  public void postRequestNoIdTokens() throws IOException, ServletException {
     Mockito.when(request.getCookies()).thenReturn(noIdTokenCookies);
     servlet.doPost(request, response);
     Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
 
   @Test
-  public void postRequestFakeIdToken() throws GeneralSecurityException, IOException {
+  public void postRequestFakeIdToken() throws GeneralSecurityException, IOException, ServletException {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_NOT_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
@@ -151,7 +152,7 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void postRequestNoAccessToken() throws GeneralSecurityException, IOException {
+  public void postRequestNoAccessToken() throws GeneralSecurityException, IOException, ServletException {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(noAccessTokenCookies);
@@ -160,7 +161,7 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void postRequestProperAuthentication() throws GeneralSecurityException, IOException {
+  public void postRequestProperAuthentication() throws GeneralSecurityException, IOException, ServletException {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
