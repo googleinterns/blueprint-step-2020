@@ -58,6 +58,7 @@
 
 /*
   Scale small screen view for ultra-mobile devices (i.e. mobile phones, etc)
+  TODO: Fix Scaling (Issue #79)
 */
 @media screen and (max-width: 550px) {
   html {
