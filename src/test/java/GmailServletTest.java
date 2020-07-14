@@ -24,10 +24,10 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -90,7 +90,7 @@ public final class GmailServletTest {
   }
 
   @Before
-  public void init() throws IOException {
+  public void setUp() throws IOException {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
@@ -101,14 +101,8 @@ public final class GmailServletTest {
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
-  @After
-  public void clear() {
-    // Dump contents after each test
-    stringWriter.getBuffer().setLength(0);
-  }
-
   @Test
-  public void noMessages() throws IOException {
+  public void noMessagesPresent() throws IOException, ServletException {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(noMessages);
     servlet.doGet(request, response);
     printWriter.flush();
@@ -116,7 +110,7 @@ public final class GmailServletTest {
   }
 
   @Test
-  public void threeMessages() throws IOException {
+  public void someMessagesPresent() throws IOException, ServletException {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(threeMessages);
     servlet.doGet(request, response);
     printWriter.flush();
