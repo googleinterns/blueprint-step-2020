@@ -34,10 +34,10 @@ import org.mockito.Mockito;
 public final class ClientIDServletTest {
   private static final ClientIDServlet servlet = new ClientIDServlet();
 
-  private static HttpServletRequest request;
+  private HttpServletRequest request;
   private HttpServletResponse response;
-  private static StringWriter stringWriter;
-  private static PrintWriter printWriter;
+  private StringWriter stringWriter;
+  private PrintWriter printWriter;
 
   @Before
   public void init() throws IOException {

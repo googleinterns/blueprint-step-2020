@@ -48,10 +48,8 @@ public final class ServletUtility {
     // This is unexpected - duplicate cookies are usually blocked by the browser (especially
     // when they are user set).
     if (cookies.size() > 1) {
-      System.out.println("Duplicate cookie");
-      for (int i = 0; i < cookies.size(); i++) {
-        System.out.println(String.format("Cookie %d: %s", i + 1, cookies.get(i).getValue()));
-      }
+      System.out.printf("%d duplicate cookies with name %s\n", cookies.size(), cookieName);
+      cookies.forEach(c -> System.out.println(c.getValue()));
 
       return null;
     }

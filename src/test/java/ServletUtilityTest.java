@@ -26,7 +26,7 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class ServletUtilityTest {
 
-  private static HttpServletRequest request;
+  private HttpServletRequest request;
 
   private static final Cookie[] correctCookies =
       new Cookie[] {
