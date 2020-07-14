@@ -41,8 +41,8 @@ public class GmailServlet extends AuthenticatedHttpServlet {
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws IOException {
-    // Null credentials (i.e. unauthenticated requests) should be handled by parent class
-    assert googleCredential != null;
+    assert googleCredential != null
+        : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     // Get messageIds from Gmail
     Gmail gmailService = GmailUtility.getGmailService(googleCredential);
