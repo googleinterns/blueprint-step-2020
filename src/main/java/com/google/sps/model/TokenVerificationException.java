@@ -15,13 +15,13 @@
 package com.google.sps.model;
 
 /** Error to indicate that a user's id token could not be verified with Google */
-public class TokenVerificationError extends RuntimeException {
+public class TokenVerificationException extends RuntimeException {
   /**
    * Creates TokenVerificationError instance
    *
    * @param errorMessage reason for throwing error
    */
-  public TokenVerificationError(String errorMessage) {
+  public TokenVerificationException(String errorMessage) {
     super(errorMessage);
   }
 }
