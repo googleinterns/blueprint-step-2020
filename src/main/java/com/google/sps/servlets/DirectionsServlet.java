@@ -19,32 +19,28 @@ import com.google.maps.DirectionsClient;
 import com.google.maps.DirectionsClientFactory;
 import com.google.maps.DirectionsClientImpl;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Serves key information from optimizing between addresses.
- */
+/** Serves key information from optimizing between addresses. */
 @WebServlet("/directions")
 public class DirectionsServlet extends HttpServlet {
 
   private final DirectionsClientFactory directionsClientFactory;
 
-  /**
-   * Construct servlet with default DirectionsClient.
-   */
+  /** Construct servlet with default DirectionsClient. */
   public DirectionsServlet() {
     directionsClientFactory = new DirectionsClientImpl.Factory();
   }
 
   /**
    * Construct servlet with explicit implementation of DirectionsClient.
-   * @param factory A DirectionsClientFactory containing the implementation of DirectionsClientFactory.
+   *
+   * @param factory A DirectionsClientFactory containing the implementation of
+   *     DirectionsClientFactory.
    */
   public DirectionsServlet(DirectionsClientFactory factory) {
     directionsClientFactory = factory;
@@ -52,23 +48,26 @@ public class DirectionsServlet extends HttpServlet {
 
   /**
    * Returns the most optimal order of travel between addresses.
+   *
    * @param request HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws IOException Indicates failed or interrupted I/O operations.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String apiKey = "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y"; // TODO: Replace with get addresses from Tasks
+    String apiKey =
+        "AIzaSyBsHP0Wo698KQk2lkNlroMzSWHKyH9-05Y"; // TODO: Replace with get addresses from Tasks
     String origin = "Montreal, QC"; // TODO: Replace with get addresses from Tasks
     String destination = "Montreal, QC"; // TODO: Replace with get addresses from Tasks
-    String[] waypoints = {"Windsor, ON", "Waterloo, ON", "Kitchener, ON"}; // TODO: Replace with get addresses from Tasks
+    String[] waypoints = {
+      "Windsor, ON", "Waterloo, ON", "Kitchener, ON"
+    }; // TODO: Replace with get addresses from Tasks
 
     DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
     List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
 
     Gson gson = new Gson();
     String directionsJson = gson.toJson(directions);
-    System.out.println(directionsJson);
 
     response.setContentType("application/json");
     response.getWriter().println(directionsJson);
