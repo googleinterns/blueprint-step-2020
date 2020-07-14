@@ -31,6 +31,13 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/calendar")
 public class CalendarServlet extends HttpServlet {
 
+  /**
+   * Returns List of events from the user's calendar
+   *
+   * @param request Http request from the client. Should contain idToken and accessToken
+   * @param response 403 if user is not authenticated, or Json string with the user's events
+   * @throws IOException if an issue arises while processing the request
+   */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     Credential googleCredential = AuthenticationUtility.getGoogleCredential(request);
