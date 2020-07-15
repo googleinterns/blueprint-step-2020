@@ -73,7 +73,7 @@ public final class ServletUtility {
             .filter((Cookie c) -> c.getName().equals(cookieName))
             .collect(Collectors.toList());
 
-    return cookies.size() > 0;
+    return !cookies.isEmpty();
   }
 
   /**
