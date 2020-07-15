@@ -1,0 +1,113 @@
+/*
+  Copyright 2020 Google LLC
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/*
+  Utility to make font color white.
+ */
+.u-text-white {
+  color: var(--color-white);
+}
+
+/*
+  Utility to make font the color of calendar logo
+ */
+.u-text-calendar {
+  color: var(--color-calendar);
+}
+
+/*
+  Utility to vertically contents of a container
+ */
+.u-vertical-center {
+  align-items: center;
+  display: flex;
+}
+
+/*
+  Adds border to panel in color of Gmail logo.
+  Overrides other non-important border settings.
+ */
+.u-border-mail {
+  border-color: var(--color-mail) !important;
+}
+
+/*
+  Background color set to color of Gmail logo
+  Overrides other non-important background settings.
+ */
+.u-background-mail {
+  background-color: var(--color-mail) !important;
+}
+
+/*
+  Adds border to panel in color of Tasks logo
+  Overrides other non-important border settings.
+ */
+.u-border-tasks {
+  border-color: var(--color-tasks) !important;
+}
+
+/*
+  Background color set to color of Tasks logo
+  Overrides other non-important background settings.
+ */
+.u-background-tasks {
+  background-color: var(--color-tasks) !important;
+}
+
+/*
+  Adds border to panel in color of Calendar logo
+  Overrides other non-important border settings.
+ */
+.u-border-calendar {
+  border-color: var(--color-calendar) !important;
+}
+
+/*
+  Background color set to color of Calendar logo
+  Overrides other non-important background settings.
+ */
+.u-background-calendar {
+  background-color: var(--color-calendar) !important;
+}
+
+/*
+  Utility to set a single element to block display setting
+ */
+.u-block {
+  display: block;
+}
+
+/*
+  Removes top margin from elements. Helpful when top element in container
+ */
+.u-remove-top-margin {
+  margin-top: 0 !important;
+}
+
+/*
+  Aligns element with the left edge of the first panel in a panel row
+ */
+.u-align-with-first-panel {
+  margin-left: var(--panel-left-edge-x) !important;
+}
+
+/*
+  Adds shadow to text elements
+ */
+.u-text-shadow {
+  text-shadow: -.5rem .5rem 3rem var(--color-shadow);
+}

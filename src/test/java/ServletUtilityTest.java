@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.sps.model.CookieParseException;
+import com.google.sps.exceptions.CookieParseException;
 import com.google.sps.utility.ServletUtility;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -65,18 +65,18 @@ public final class ServletUtilityTest {
     Assert.assertEquals(retrievedCookie.getValue(), "sample_id_token");
   }
 
-  @Test
+  @Test(expected = CookieParseException.class)
   public void getCookieEmptyCookies() throws CookieParseException {
-    // A cookie is requested from an empty list. Should return null.
+    // A cookie is requested from an empty list. Should throw CookieParseException
     Mockito.when(request.getCookies()).thenReturn(emptyCookies);
 
     Cookie retrievedCookie = ServletUtility.getCookie(request, "idToken");
     Assert.assertNull(retrievedCookie);
   }
 
-  @Test
+  @Test(expected = CookieParseException.class)
   public void getCookieNameNotFound() throws CookieParseException {
-    // A cookie is requested and it is not in the list. Should return null
+    // A cookie is requested and it is not in the list. Should throw CookieParseException
     Mockito.when(request.getCookies()).thenReturn(missingAuthCookies);
 
     Cookie retrievedCookie = ServletUtility.getCookie(request, "idToken");
@@ -102,20 +102,20 @@ public final class ServletUtilityTest {
     Assert.assertEquals(header, "Bearer sample_access_token");
   }
 
-  @Test
+  @Test(expected = CookieParseException.class)
   public void getAuthHeaderEmptyCookies() throws CookieParseException {
     // An authentication header is requested but no cookies are present.
-    // Should return null
+    // Should throw CookieParseException
     Mockito.when(request.getCookies()).thenReturn(emptyCookies);
 
     String header = ServletUtility.generateAuthorizationHeader(request);
     Assert.assertNull(header);
   }
 
-  @Test
+  @Test(expected = CookieParseException.class)
   public void getAuthHeaderMissingAuthCookies() throws CookieParseException {
     // An authentication header is requested but no access token is present.
-    // Should return null
+    // Should throw CookieParseException
     Mockito.when(request.getCookies()).thenReturn(missingAuthCookies);
 
     String header = ServletUtility.generateAuthorizationHeader(request);
@@ -129,5 +129,27 @@ public final class ServletUtilityTest {
     Mockito.when(request.getCookies()).thenReturn(duplicateCookies);
 
     ServletUtility.generateAuthorizationHeader(request);
+  }
+
+  @Test
+  public void hasCookieIsPresent() throws CookieParseException {
+    Mockito.when(request.getCookies()).thenReturn(correctCookies);
+
+    Assert.assertTrue(ServletUtility.hasCookie(request, "idToken"));
+  }
+
+  @Test
+  public void hasCookieIsNotPresent() throws CookieParseException {
+    Mockito.when(request.getCookies()).thenReturn(emptyCookies);
+
+    Assert.assertFalse(ServletUtility.hasCookie(request, "idToken"));
+  }
+
+  @Test
+  public void hasCookieDuplicates() throws CookieParseException {
+    // hasCookies is not responsible for checking duplicates.
+    Mockito.when(request.getCookies()).thenReturn(duplicateCookies);
+
+    Assert.assertTrue(ServletUtility.hasCookie(request, "idToken"));
   }
 }

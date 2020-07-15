@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.model;
+package com.google.sps.exceptions;
 
-/** Error to indicate that a user's id token could not be verified with Google */
-public class TokenVerificationException extends RuntimeException {
+/** Error to indicate that a user's credentials could not be verified */
+public class CredentialVerificationException extends RuntimeException {
   /**
-   * Creates TokenVerificationError instance
+   * Creates CredentialVerificationError instance
    *
    * @param errorMessage reason for throwing error
    */
-  public TokenVerificationException(String errorMessage) {
+  public CredentialVerificationException(String errorMessage) {
     super(errorMessage);
   }
 }
