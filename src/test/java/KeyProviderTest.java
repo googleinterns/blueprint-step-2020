@@ -29,7 +29,6 @@ public class KeyProviderTest {
   private static final String SAMPLE_KEY = "sampleKey";
   private static final String CAPITALISED_SAMPLE_KEY = "SAMPLEKEY";
   private static final String INVALID_KEY = "invalidKey";
-
   private static final String SAMPLE_VALUE = "sampleValue";
   private static final String KEYS_JSON = "{%nsampleKey : sampleValue%n}";
 
