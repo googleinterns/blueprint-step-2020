@@ -1,0 +1,66 @@
+/*
+  Copyright 2020 Google LLC
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/*
+  Set default font to 16px
+ */
+body {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.6rem;
+}
+
+.panel__section-heading {
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-bold);
+}
+
+.panel__section-subheading {
+  font-size: var(--font-size-subheading);
+  font-weight: var(--font-weight-medium);
+}
+
+.panel__text-data-point {
+  font-size: var(--font-size-data-point);
+  font-weight: var(--font-weight-medium);
+}
+
+.panel__text-large {
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-regular);
+}
+
+.panel__text-icon {
+  display: inline-block;
+  font-size: var(--font-size-data-point);
+  font-weight: var(--font-weight-bold);
+  width: var(--panel-icon-width);
+}
+
+.panel-row__header {
+  font-size: var(--font-size-row-title);
+  font-weight: var(--font-weight-bold);
+}
+
+.header__heading-text {
+  color: var(--color-header-heading);
+  font-size: var(--font-size-header-heading);
+  font-weight: var(--font-weight-bold);
+}
+
+.header__subheading {
+  font-size: var(--font-size-header-subheading);
+  font-weight: var(--font-weight-medium);
+}
