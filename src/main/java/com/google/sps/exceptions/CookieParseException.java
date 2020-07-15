@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.model;
+package com.google.sps.exceptions;
 
 /** Error to indicate that a cookie's value could not be parsed */
 public class CookieParseException extends RuntimeException {

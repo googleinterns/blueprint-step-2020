@@ -16,6 +16,8 @@ package com.google.sps.model;
 
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.sps.exceptions.CookieParseException;
+import com.google.sps.exceptions.CredentialVerificationException;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -61,18 +63,16 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   public final void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     try {
-      Credential googleCredential = getGoogleCredential(request);
-      if (googleCredential == null) {
+      if (!hasCredentials(request)) {
         response.sendError(403, ERROR_403);
         return;
       }
+      Credential googleCredential = getGoogleCredential(request);
       doGet(request, response, googleCredential);
-    } catch (TokenVerificationException e) {
-      response.sendError(403, ERROR_403);
+    } catch (CredentialVerificationException e) {
+      throw new ServletException(e.getMessage());
     } catch (GeneralSecurityException e) {
       throw new ServletException(ERROR_500);
-    } catch (CookieParseException e) {
-      throw new ServletException(e.getMessage());
     }
   }
 
@@ -90,18 +90,16 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   public final void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     try {
-      Credential googleCredential = getGoogleCredential(request);
-      if (googleCredential == null) {
+      if (!hasCredentials(request)) {
         response.sendError(403, ERROR_403);
         return;
       }
+      Credential googleCredential = getGoogleCredential(request);
       doPost(request, response, googleCredential);
-    } catch (TokenVerificationException e) {
-      response.sendError(403, ERROR_403);
+    } catch (CredentialVerificationException e) {
+      throw new ServletException(e.getMessage());
     } catch (GeneralSecurityException e) {
       throw new ServletException(ERROR_500);
-    } catch (CookieParseException e) {
-      throw new ServletException(e.getMessage());
     }
   }
 
@@ -138,28 +136,33 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * HTTP Request
    *
    * @param request Http Request sent from client
-   * @return Credential object with accessToken. null if tokens not present / are empty
-   * @throws TokenVerificationException if the passed idToken is confirmed to be false / is
-   *     unverifiable
+   * @return Credential object with accessToken.
+   * @throws CredentialVerificationException if the credentials are invalid / not present
    * @throws GeneralSecurityException if an issue occurs with Google's verification service
    * @throws IOException if an issue occurs with Google's verification service
-   * @throws CookieParseException if an issue occurs while parsing cookie values (e.g. duplicates
-   *     present)
    */
   private Credential getGoogleCredential(HttpServletRequest request)
-      throws TokenVerificationException, GeneralSecurityException, IOException,
-          CookieParseException {
-    // If cookies not present, return null (user's session likely expired)
-    Cookie idTokenCookie = ServletUtility.getCookie(request, "idToken");
-    Cookie accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
-    if (idTokenCookie == null || accessTokenCookie == null) {
-      return null;
+      throws CredentialVerificationException, GeneralSecurityException, IOException {
+    Cookie idTokenCookie;
+    Cookie accessTokenCookie;
+
+    try {
+      idTokenCookie = ServletUtility.getCookie(request, "idToken");
+    } catch (CookieParseException e) {
+      throw new CredentialVerificationException("idToken is not present / cannot be parsed!");
     }
+
+    try {
+      accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
+    } catch (CookieParseException e) {
+      throw new CredentialVerificationException("accessToken is not present / cannot be parsed!");
+    }
+
     String idToken = idTokenCookie.getValue();
     String accessToken = accessTokenCookie.getValue();
 
     if (!authenticationVerifier.verifyUserToken(idToken)) {
-      throw new TokenVerificationException(
+      throw new CredentialVerificationException(
           String.format("idToken (value=%s) is invalid!", idToken));
     }
 
@@ -170,5 +173,16 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
     credential.setAccessToken(accessToken);
 
     return credential;
+  }
+
+  /**
+   * Checks that the request contains cookies for idToken and accessToken
+   *
+   * @param request Http request from client
+   * @return true if present (duplicates will return true), false otherwise
+   */
+  private boolean hasCredentials(HttpServletRequest request) {
+    return ServletUtility.hasCookie(request, "idToken")
+        && ServletUtility.hasCookie(request, "accessToken");
   }
 }
