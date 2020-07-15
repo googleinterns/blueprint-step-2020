@@ -41,7 +41,6 @@ public final class KeyProvider {
           "make sure your local keys are stored under src/main/resources/KEYS.json");
     }
     String rawJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
-    System.out.println(rawJson);
     stream.close();
     Gson gson = new Gson();
     Type mapType = new TypeToken<Map<String, String>>() {}.getType();
@@ -63,7 +62,6 @@ public final class KeyProvider {
           "make sure your local keys are stored under src/main/resources/KEYS.json");
     }
     String rawJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
-    System.out.println(rawJson);
     stream.close();
     Gson gson = new Gson();
     Type mapType = new TypeToken<Map<String, String>>() {}.getType();
