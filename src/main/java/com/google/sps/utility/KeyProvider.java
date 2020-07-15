@@ -27,10 +27,16 @@ public final class KeyProvider {
 
   private File file;
 
+  /** Constructor to create instance with file linked to default path. */
   public KeyProvider() {
     this.file = new File("src/main/resources/KEYS.json");
   }
 
+  /**
+   * Constructor to create instance with file linked to specified file path.
+   *
+   * @param file An object which contains the path to the file storing the keys.
+   */
   public KeyProvider(File file) {
     this.file = file;
   }
