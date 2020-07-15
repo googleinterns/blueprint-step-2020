@@ -53,10 +53,15 @@ function populateGmail() {
             gmailResponse['unreadEmailsFrom3Hours'];
         importantEmailsContainer.innerText =
             gmailResponse['unreadImportantEmailsFromNDays'];
-        senderContainer.innerText =
-            gmailResponse['senderOfUnreadEmailsFromNDays'];
-        senderInitialContainer.innerText =
-            gmailResponse['senderOfUnreadEmailsFromNDays'][0].toUpperCase();
+        if (parseInt(gmailResponse['unreadEmailsFromNDays']) !== 0) {
+          senderContainer.innerText =
+              gmailResponse['senderOfUnreadEmailsFromNDays'];
+          senderInitialContainer.innerText =
+              gmailResponse['senderOfUnreadEmailsFromNDays'][0].toUpperCase();
+        } else {
+          senderContainer.innerText = 'N/A';
+          senderInitialContainer.innerText = '-';
+        }
       })
       .catch((e) => {
         console.log(e);
