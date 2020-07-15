@@ -142,7 +142,8 @@ public final class GmailClientTest {
   public void getQueryStringCombined() {
     // Should return query matching all specified rules
     String multipleFilterQuery =
-        GmailClient.emailQueryString(ONE_UNIT_OF_TIME, DAYS_UNIT, RETURN_UNREAD_ONLY, RETURN_IMPORTANT_ONLY, SAMPLE_EMAIL);
+        GmailClient.emailQueryString(
+            ONE_UNIT_OF_TIME, DAYS_UNIT, RETURN_UNREAD_ONLY, RETURN_IMPORTANT_ONLY, SAMPLE_EMAIL);
 
     Assert.assertTrue(multipleFilterQuery.contains(ONE_DAY_QUERY));
     Assert.assertTrue(multipleFilterQuery.contains(UNREAD_EMAILS_QUERY));

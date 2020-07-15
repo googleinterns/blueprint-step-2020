@@ -15,15 +15,14 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.gmail.model.Message;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
+import com.google.sps.model.GmailResponse;
 import java.io.IOException;
-import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,11 +67,18 @@ public class GmailServlet extends AuthenticatedHttpServlet {
 
     // Get messageIds from Gmail
     GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
-    List<Message> messages = gmailClient.listUserMessages("");
+    GmailResponse resp = new GmailResponse(gmailClient, 7);
+    //    System.out.println(resp.getNDays());
+    //    System.out.println(resp.getSenderOfUnreadEmailsFromNDays());
+    //    System.out.println(resp.getUnreadEmailsFrom3Hours());
+    //    System.out.println(resp.getUnreadEmailsFromNDays());
+    //    System.out.println(resp.getUnreadImportantEmailsFromNDays());
 
     // convert messageIds to JSON object and print to response
     Gson gson = new Gson();
-    String messageJson = gson.toJson(messages);
+    String messageJson = gson.toJson(resp);
+
+    System.out.println(messageJson);
 
     response.setContentType("application/json");
     response.getWriter().println(messageJson);
