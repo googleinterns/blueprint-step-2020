@@ -37,7 +37,7 @@ public class GmailResponse {
 
   public GmailResponse(GmailClient gmailClient, int nDays) {
     this.nDays = nDays;
-    //populateNDaysMethods(nDays, gmailClient);
+    // populateNDaysMethods(nDays, gmailClient);
     setUnreadEmailsFrom3Hours(gmailClient);
     setUnreadEmailsFromNDays(nDays, gmailClient);
     setUnreadImportantEmailsFromNDays(nDays, gmailClient);
@@ -114,29 +114,45 @@ public class GmailResponse {
       throw new RuntimeException(e);
     }
 
+    if (unreadEmails.isEmpty()) {
+      senderOfUnreadEmailsFromNDays = "";
+      return;
+    }
+
     HashMap<String, Integer> senders = new HashMap<>();
 
     unreadEmails.forEach(
         (Message m) -> {
           List<MessagePartHeader> senderList = m.getPayload().getHeaders();
 
-          System.out.println("Here");
+          // senderList.forEach((me) -> System.out.println(me.getName() + " " + me.getValue()));
 
-          senderList.stream()
-              .filter((MessagePartHeader header) -> header.getName().equals("From"))
-              .collect(Collectors.toList());
+          senderList =
+              senderList.stream()
+                  .filter((MessagePartHeader header) -> header.getName().equals("From"))
+                  .collect(Collectors.toList());
 
-          System.out.println(senderList.size());
+          senderList.forEach((me) -> System.out.println(me.getName() + ": " + me.getValue()));
 
           String sender = senderList.get(0).getValue();
 
           senders.put(sender, senders.get(sender) != null ? senders.get(sender) + 1 : 1);
         });
 
-    Map.Entry<String, Integer> entry =
-        senders.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(null);
+    String sender = senders.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
 
-    senderOfUnreadEmailsFromNDays = entry != null ? entry.getKey() : "";
+    // From headers look one of two ways:
+    // Sample Sender <sampleemail@sample.com>
+    // OR
+    // <sampleemail@sample.com> (if name is not available)
+    // If a name is available, this should be extracted. Otherwise, extract the email.
+    // If no emails were unread, return null.
+
+    if (sender.charAt(0) == '<') {
+      senderOfUnreadEmailsFromNDays = sender.substring(1, sender.length() - 1);
+    } else {
+      senderOfUnreadEmailsFromNDays = sender.split("<")[0].trim();
+    }
 
     System.out.println(senderOfUnreadEmailsFromNDays);
   }
