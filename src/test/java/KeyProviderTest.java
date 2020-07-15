@@ -38,6 +38,7 @@ public class KeyProviderTest {
   public void init() {
     // Creates a new file in src/main/resources and writes json content to the file.
     try {
+      file.mkdirs();
       file.createNewFile();
       FileWriter writer = new FileWriter("src/main/resources/TEST_KEYS.json");
       writer.write(KEYS_JSON);
