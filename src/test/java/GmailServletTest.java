@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -74,9 +73,6 @@ public final class GmailServletTest {
           "[{\"id\":\"%s\"},{\"id\":\"%s\"},{\"id\":\"%s\"}]",
           MESSAGE_ID_ONE, MESSAGE_ID_TWO, MESSAGE_ID_THREE);
   private static final String NO_MESSAGES_JSON = "[]";
-
-  @BeforeClass
-  public static void classInit() throws GeneralSecurityException, IOException {}
 
   @Before
   public void setUp() throws IOException, GeneralSecurityException {
