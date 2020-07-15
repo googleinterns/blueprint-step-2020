@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.maps.DirectionsClient;
 import com.google.maps.DirectionsClientFactory;
 import com.google.maps.DirectionsClientImpl;
+import com.google.maps.errors.ApiException;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
@@ -51,10 +52,9 @@ public class DirectionsServlet extends HttpServlet {
    *
    * @param request HTTP request from the client.
    * @param response HTTP response to the client.
-   * @throws IOException Indicates failed or interrupted I/O operations.
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) {
     String apiKey = ""; // TODO: Merge ApiKeyProvider to make a request here (Issue #77)
     String origin =
         "Montreal, QC"; // TODO: Replace with getOrigin from Tasks upon implementation (Issue #78)
@@ -64,16 +64,14 @@ public class DirectionsServlet extends HttpServlet {
       "Windsor, ON", "Waterloo, ON", "Kitchener, ON"
     }; // TODO: Replace with getWaypoints from
     // Tasks implementation (Issue #78)
-
-    DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
-    List<String> directions;
     try {
-      directions = directionsClient.getDirections(origin, destination, waypoints);
+      DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
+      List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
       Gson gson = new Gson();
       String directionsJson = gson.toJson(directions);
       response.setContentType("application/json");
       response.getWriter().println(directionsJson);
-    } catch (Exception e) {
+    } catch (ApiException | InterruptedException | IOException e) {
       e.printStackTrace();
     }
   }

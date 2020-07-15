@@ -57,7 +57,7 @@ public class DirectionsClientImpl implements DirectionsClient {
    * @throws Exception
    */
   public List<String> getDirections(String origin, String destination, String[] waypoints)
-      throws Exception {
+      throws ApiException, InterruptedException, IOException {
     try {
       DirectionsResult result =
           directionsService

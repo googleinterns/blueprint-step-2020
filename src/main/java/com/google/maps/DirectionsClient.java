@@ -14,10 +14,12 @@
 
 package com.google.maps;
 
+import com.google.maps.errors.ApiException;
+import java.io.IOException;
 import java.util.List;
 
 /** Contract for sending GET requests to the Google Directions API. */
 public interface DirectionsClient {
   List<String> getDirections(String origin, String destination, String[] waypoints)
-      throws Exception;
+      throws ApiException, InterruptedException, IOException;
 }

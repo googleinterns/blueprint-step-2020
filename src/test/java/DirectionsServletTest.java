@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.maps.DirectionsClient;
 import com.google.maps.DirectionsClientFactory;
+import com.google.maps.errors.ApiException;
 import com.google.sps.servlets.DirectionsServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,13 +36,12 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 /**
- * Test Directions Servlet to ensure response contains correctly parsed legs. Assumes all parameters
- * origin, destination and waypoints are valid addresses.
+ * Test Directions Servlet to ensure response contains correctly parsed legs.
+ * Assumes all parameters origin, destination and waypoints are valid addresses.
  */
 @RunWith(JUnit4.class)
 public final class DirectionsServletTest {
-  private static final DirectionsClientFactory directionsClientFactory =
-      Mockito.mock(DirectionsClientFactory.class);
+  private static final DirectionsClientFactory directionsClientFactory = Mockito.mock(DirectionsClientFactory.class);
   private static final DirectionsClient directionsClient = Mockito.mock(DirectionsClient.class);
   private static final DirectionsServlet servlet = new DirectionsServlet(directionsClientFactory);
 
@@ -50,27 +50,21 @@ public final class DirectionsServletTest {
   private static StringWriter stringWriter;
   private static PrintWriter printWriter;
 
-  private static final List<String> windsorToMontrealWithWaypoints =
-      Arrays.asList(
-          "[DirectionsLeg: \"Windsor, ON, Canada\" -> \"Waterloo, ON, Canada\" (42.31486680,-83.03656800 -> 43.46430180,-80.52042120), duration=2 hours 58 mins, distance=293 km: 16 steps]",
-          "[DirectionsLeg: \"Waterloo, ON, Canada\" -> \"Markham, ON, Canada\" (43.46430180,-80.52042120 -> 43.85644940,-79.33771690), duration=1 hour 14 mins, distance=123 km: 15 steps]",
-          "[DirectionsLeg: \"Markham, ON, Canada\" -> \"Quebec City, QC, Canada\" (43.85644940,-79.33771690 -> 46.81380600,-71.20822600), duration=7 hours 42 mins, distance=790 km: 30 steps]",
-          "[DirectionsLeg: \"Quebec City, QC, Canada\" -> \"Montreal, QC, Canada\" (46.81380600,-71.20822600 -> 45.50171230,-73.56721840), duration=2 hours 46 mins, distance=253 km: 29 steps]");
-  private static final List<String> montrealToMontrealWithWaypoints =
-      Arrays.asList(
-          "[DirectionsLeg: \"Montreal, QC, Canada\" -> \"Kitchener, ON, Canada\" (45.50171230,-73.56721840 -> 43.45184990,-80.49313410), duration=6 hours 10 mins, distance=632 km: 16 steps]",
-          "[DirectionsLeg: \"Kitchener, ON, Canada\" -> \"Waterloo, ON, Canada\" (43.45184990,-80.49313410 -> 43.46430180,-80.52042120), duration=8 mins, distance=3.0 km: 5 steps]",
-          "[DirectionsLeg: \"Waterloo, ON, Canada\" -> \"Windsor, ON, Canada\" (43.46430180,-80.52042120 -> 42.31486680,-83.03656800), duration=2 hours 55 mins, distance=291 km: 18 steps]",
-          "[DirectionsLeg: \"Windsor, ON, Canada\" -> \"Montreal, QC, Canada\" (42.31486680,-83.03656800 -> 45.50171230,-73.56721840), duration=8 hours 42 mins, distance=897 km: 21 steps]");
-  private static final List<String> montrealToWaterlooNoWaypoints =
-      Arrays.asList(
-          "[DirectionsLeg: \"Montreal, QC, Canada\" -> \"Waterloo, ON, Canada\" (45.50171230,-73.56721840 -> 43.46430180,-80.52042120), duration=6 hours 11 mins, distance=638 km: 22 steps]");
-  private static final String WINDSOR_TO_MONTREAL_WITH_WAYPOINTS_JSON =
-      "[\"[DirectionsLeg: \"Windsor, ON, Canada\" -\u003e \"Waterloo, ON, Canada\" (42.31486680,-83.03656800 -\u003e 43.46430180,-80.52042120), duration\u003d2 hours 58 mins, distance\u003d293 km: 16 steps]\",\"[DirectionsLeg: \"Waterloo, ON, Canada\" -\u003e \"Markham, ON, Canada\" (43.46430180,-80.52042120 -\u003e 43.85644940,-79.33771690), duration\u003d1 hour 14 mins, distance\u003d123 km: 15 steps]\",\"[DirectionsLeg: \"Markham, ON, Canada\" -\u003e \"Quebec City, QC, Canada\" (43.85644940,-79.33771690 -\u003e 46.81380600,-71.20822600), duration\u003d7 hours 42 mins, distance\u003d790 km: 30 steps]\",\"[DirectionsLeg: \"Quebec City, QC, Canada\" -\u003e \"Montreal, QC, Canada\" (46.81380600,-71.20822600 -\u003e 45.50171230,-73.56721840), duration\u003d2 hours 46 mins, distance\u003d253 km: 29 steps]\"]";
-  private static final String MONTREAL_TO_MONTREAL_WITH_WAYPOINTS_JSON =
-      "[\"[DirectionsLeg: \"Montreal, QC, Canada\" -\u003e \"Kitchener, ON, Canada\" (45.50171230,-73.56721840 -\u003e 43.45184990,-80.49313410), duration\u003d6 hours 10 mins, distance\u003d632 km: 16 steps]\",\"[DirectionsLeg: \"Kitchener, ON, Canada\" -\u003e \"Waterloo, ON, Canada\" (43.45184990,-80.49313410 -\u003e 43.46430180,-80.52042120), duration\u003d8 mins, distance\u003d3.0 km: 5 steps]\",\"[DirectionsLeg: \"Waterloo, ON, Canada\" -\u003e \"Windsor, ON, Canada\" (43.46430180,-80.52042120 -\u003e 42.31486680,-83.03656800), duration\u003d2 hours 55 mins, distance\u003d291 km: 18 steps]\",\"[DirectionsLeg: \"Windsor, ON, Canada\" -\u003e \"Montreal, QC, Canada\" (42.31486680,-83.03656800 -\u003e 45.50171230,-73.56721840), duration\u003d8 hours 42 mins, distance\u003d897 km: 21 steps]\"]";
-  private static final String MONTREAL_TO_WATERLOO_NO_WAYPOINTS_JSON =
-      "[\"[DirectionsLeg: \"Montreal, QC, Canada\" -\u003e \"Waterloo, ON, Canada\" (45.50171230,-73.56721840 -\u003e 43.46430180,-80.52042120), duration\u003d6 hours 11 mins, distance\u003d638 km: 22 steps]\"]";
+  private static final List<String> windsorToMontrealWithWaypoints = Arrays.asList(
+      "[DirectionsLeg: \"Windsor, ON, Canada\" -> \"Waterloo, ON, Canada\" (42.31486680,-83.03656800 -> 43.46430180,-80.52042120), duration=2 hours 58 mins, distance=293 km: 16 steps]",
+      "[DirectionsLeg: \"Waterloo, ON, Canada\" -> \"Markham, ON, Canada\" (43.46430180,-80.52042120 -> 43.85644940,-79.33771690), duration=1 hour 14 mins, distance=123 km: 15 steps]",
+      "[DirectionsLeg: \"Markham, ON, Canada\" -> \"Quebec City, QC, Canada\" (43.85644940,-79.33771690 -> 46.81380600,-71.20822600), duration=7 hours 42 mins, distance=790 km: 30 steps]",
+      "[DirectionsLeg: \"Quebec City, QC, Canada\" -> \"Montreal, QC, Canada\" (46.81380600,-71.20822600 -> 45.50171230,-73.56721840), duration=2 hours 46 mins, distance=253 km: 29 steps]");
+  private static final List<String> montrealToMontrealWithWaypoints = Arrays.asList(
+      "[DirectionsLeg: \"Montreal, QC, Canada\" -> \"Kitchener, ON, Canada\" (45.50171230,-73.56721840 -> 43.45184990,-80.49313410), duration=6 hours 10 mins, distance=632 km: 16 steps]",
+      "[DirectionsLeg: \"Kitchener, ON, Canada\" -> \"Waterloo, ON, Canada\" (43.45184990,-80.49313410 -> 43.46430180,-80.52042120), duration=8 mins, distance=3.0 km: 5 steps]",
+      "[DirectionsLeg: \"Waterloo, ON, Canada\" -> \"Windsor, ON, Canada\" (43.46430180,-80.52042120 -> 42.31486680,-83.03656800), duration=2 hours 55 mins, distance=291 km: 18 steps]",
+      "[DirectionsLeg: \"Windsor, ON, Canada\" -> \"Montreal, QC, Canada\" (42.31486680,-83.03656800 -> 45.50171230,-73.56721840), duration=8 hours 42 mins, distance=897 km: 21 steps]");
+  private static final List<String> montrealToWaterlooNoWaypoints = Arrays.asList(
+      "[DirectionsLeg: \"Montreal, QC, Canada\" -> \"Waterloo, ON, Canada\" (45.50171230,-73.56721840 -> 43.46430180,-80.52042120), duration=6 hours 11 mins, distance=638 km: 22 steps]");
+  private static final String WINDSOR_TO_MONTREAL_WITH_WAYPOINTS_JSON = "[\"[DirectionsLeg: \"Windsor, ON, Canada\" -\u003e \"Waterloo, ON, Canada\" (42.31486680,-83.03656800 -\u003e 43.46430180,-80.52042120), duration\u003d2 hours 58 mins, distance\u003d293 km: 16 steps]\",\"[DirectionsLeg: \"Waterloo, ON, Canada\" -\u003e \"Markham, ON, Canada\" (43.46430180,-80.52042120 -\u003e 43.85644940,-79.33771690), duration\u003d1 hour 14 mins, distance\u003d123 km: 15 steps]\",\"[DirectionsLeg: \"Markham, ON, Canada\" -\u003e \"Quebec City, QC, Canada\" (43.85644940,-79.33771690 -\u003e 46.81380600,-71.20822600), duration\u003d7 hours 42 mins, distance\u003d790 km: 30 steps]\",\"[DirectionsLeg: \"Quebec City, QC, Canada\" -\u003e \"Montreal, QC, Canada\" (46.81380600,-71.20822600 -\u003e 45.50171230,-73.56721840), duration\u003d2 hours 46 mins, distance\u003d253 km: 29 steps]\"]";
+  private static final String MONTREAL_TO_MONTREAL_WITH_WAYPOINTS_JSON = "[\"[DirectionsLeg: \"Montreal, QC, Canada\" -\u003e \"Kitchener, ON, Canada\" (45.50171230,-73.56721840 -\u003e 43.45184990,-80.49313410), duration\u003d6 hours 10 mins, distance\u003d632 km: 16 steps]\",\"[DirectionsLeg: \"Kitchener, ON, Canada\" -\u003e \"Waterloo, ON, Canada\" (43.45184990,-80.49313410 -\u003e 43.46430180,-80.52042120), duration\u003d8 mins, distance\u003d3.0 km: 5 steps]\",\"[DirectionsLeg: \"Waterloo, ON, Canada\" -\u003e \"Windsor, ON, Canada\" (43.46430180,-80.52042120 -\u003e 42.31486680,-83.03656800), duration\u003d2 hours 55 mins, distance\u003d291 km: 18 steps]\",\"[DirectionsLeg: \"Windsor, ON, Canada\" -\u003e \"Montreal, QC, Canada\" (42.31486680,-83.03656800 -\u003e 45.50171230,-73.56721840), duration\u003d8 hours 42 mins, distance\u003d897 km: 21 steps]\"]";
+  private static final String MONTREAL_TO_WATERLOO_NO_WAYPOINTS_JSON = "[\"[DirectionsLeg: \"Montreal, QC, Canada\" -\u003e \"Waterloo, ON, Canada\" (45.50171230,-73.56721840 -\u003e 43.46430180,-80.52042120), duration\u003d6 hours 11 mins, distance\u003d638 km: 22 steps]\"]";
 
   @BeforeClass
   public static void classInit() throws GeneralSecurityException, IOException {
@@ -95,56 +89,58 @@ public final class DirectionsServletTest {
   }
 
   @Test
-  public void windsorToMontrealWithWaypoints() throws Exception {
-    // Get optimized route of travel from Windsor, ON to Montreal, QC with waypoints Markham, ON,
+  public void windsorToMontrealWithWaypoints() {
+    // Get optimized route of travel from Windsor, ON to Montreal, QC with waypoints
+    // Markham, ON,
     // Waterloo, ON and Quebec City, QC in between.
-    // Should return four legs: Windsor, ON -> Waterloo, ON -> Markham, ON -> Quebec City, QC ->
+    // Should return four legs: Windsor, ON -> Waterloo, ON -> Markham, ON -> Quebec
+    // City, QC ->
     // Montreal, QC.
-    when(directionsClient.getDirections(
-            Mockito.anyString(), Mockito.anyString(), Mockito.any(String[].class)))
-        .thenReturn(windsorToMontrealWithWaypoints);
+    try {
+      when(directionsClient.getDirections(Mockito.anyString(), Mockito.anyString(), Mockito.any(String[].class)))
+          .thenReturn(windsorToMontrealWithWaypoints);
+    } catch (ApiException | InterruptedException | IOException e) {
+      e.printStackTrace();
+    }
     servlet.doGet(request, response);
     printWriter.flush();
     // Replace unicode and escaped characters
-    String actual =
-        stringWriter
-            .toString()
-            .replace("\\u003e", ">")
-            .replace("\\u003d", "=")
-            .replace("\\\"", "\"");
-    String expected = WINDSOR_TO_MONTREAL_WITH_WAYPOINTS_JSON;
-    Assert.assertTrue(actual.contains(expected));
+    String actual = stringWriter.toString().replace("\\u003e", ">").replace("\\u003d", "=").replace("\\\"", "\"");
+    Assert.assertTrue(actual.contains(WINDSOR_TO_MONTREAL_WITH_WAYPOINTS_JSON));
   }
 
   @Test
-  public void montrealToMontrealWithWaypoints() throws Exception {
-    // Get optimized route of travel from Montreal, QC to Montreal, QC with waypoints Windsor, ON,
+  public void montrealToMontrealWithWaypoints() {
+    // Get optimized route of travel from Montreal, QC to Montreal, QC with
+    // waypoints Windsor, ON,
     // Waterloo, ON and Kitchener, ON in between.
-    // Should return four legs: Montreal, QC -> Kitchener, ON -> Waterloo, ON -> Windsor, ON ->
+    // Should return four legs: Montreal, QC -> Kitchener, ON -> Waterloo, ON ->
+    // Windsor, ON ->
     // Montreal, QC.
-    when(directionsClient.getDirections(
-            Mockito.anyString(), Mockito.anyString(), Mockito.any(String[].class)))
-        .thenReturn(montrealToMontrealWithWaypoints);
+    try {
+      when(directionsClient.getDirections(Mockito.anyString(), Mockito.anyString(), Mockito.any(String[].class)))
+          .thenReturn(montrealToMontrealWithWaypoints);
+    } catch (ApiException | InterruptedException | IOException e) {
+      e.printStackTrace();
+    }
     servlet.doGet(request, response);
     printWriter.flush();
     // Replace unicode and escaped characters
-    String actual =
-        stringWriter
-            .toString()
-            .replace("\\u003e", ">")
-            .replace("\\u003d", "=")
-            .replace("\\\"", "\"");
-    String expected = MONTREAL_TO_MONTREAL_WITH_WAYPOINTS_JSON;
-    Assert.assertTrue(actual.contains(expected));
+    String actual = stringWriter.toString().replace("\\u003e", ">").replace("\\u003d", "=").replace("\\\"", "\"");
+    Assert.assertTrue(actual.contains(MONTREAL_TO_MONTREAL_WITH_WAYPOINTS_JSON));
   }
 
   @Test
-  public void montrealToWaterlooNoWaypoints() throws Exception {
-    // Get optimized route of travel from Montreal, QC to Waterloo, ON with no waypoints in between.
+  public void montrealToWaterlooNoWaypoints() {
+    // Get optimized route of travel from Montreal, QC to Waterloo, ON with no
+    // waypoints in between.
     // Should return only one leg from Montreal, QC to Waterloo, ON.
-    when(directionsClient.getDirections(
-            Mockito.anyString(), Mockito.anyString(), Mockito.any(String[].class)))
-        .thenReturn(montrealToWaterlooNoWaypoints);
+    try {
+      when(directionsClient.getDirections(Mockito.anyString(), Mockito.anyString(), Mockito.any(String[].class)))
+          .thenReturn(montrealToWaterlooNoWaypoints);
+    } catch (ApiException | InterruptedException | IOException e) {
+      e.printStackTrace();
+    }
     servlet.doGet(request, response);
     printWriter.flush();
     // Replace unicode and escaped characters
@@ -154,7 +150,6 @@ public final class DirectionsServletTest {
             .replace("\\u003e", ">")
             .replace("\\u003d", "=")
             .replace("\\\"", "\"");
-    String expected = MONTREAL_TO_WATERLOO_NO_WAYPOINTS_JSON;
-    Assert.assertTrue(actual.contains(expected));
+    Assert.assertTrue(actual.contains(MONTREAL_TO_WATERLOO_NO_WAYPOINTS_JSON));
   }
 }
