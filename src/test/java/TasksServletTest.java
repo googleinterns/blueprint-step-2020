@@ -14,6 +14,7 @@
 
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
+import com.google.common.collect.ImmutableList;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
@@ -43,13 +44,10 @@ import org.mockito.Mockito;
  */
 @RunWith(JUnit4.class)
 public final class TasksServletTest {
-  private static final AuthenticationVerifier authenticationVerifier =
-      Mockito.mock(AuthenticationVerifier.class);
-  private static final TasksClientFactory tasksClientFactory =
-      Mockito.mock(TasksClientFactory.class);
-  private static final TasksClient tasksClient = Mockito.mock(TasksClient.class);
-  private static final TasksServlet servlet =
-      new TasksServlet(authenticationVerifier, tasksClientFactory);
+  private AuthenticationVerifier authenticationVerifier;
+  private TasksClientFactory tasksClientFactory;
+  private TasksClient tasksClient;
+  private TasksServlet servlet;
 
   private static final boolean AUTHENTICATION_VERIFIED = true;
   private static final String ID_TOKEN_KEY = "idToken";
@@ -79,24 +77,29 @@ public final class TasksServletTest {
           "[{\"title\":\"%s\"},{\"title\":\"%s\"},{\"title\":\"%s\"},{\"title\":\"%s\"}]",
           TASK_TITLE_ONE, TASK_TITLE_TWO, TASK_TITLE_THREE, TASK_TITLE_FOUR);
   private static final String EMPTY_JSON = "[]";
-  private static final List<TaskList> noTaskLists = new ArrayList<>();
-  private static final List<TaskList> someTaskLists = Arrays.asList(new TaskList(), new TaskList());
-  private static final List<Task> noTasks = new ArrayList<>();
-  private static final List<Task> tasksOneTwo =
-      Arrays.asList(new Task().setTitle(TASK_TITLE_ONE), new Task().setTitle(TASK_TITLE_TWO));
-  private static final List<Task> tasksThreeFour =
-      Arrays.asList(new Task().setTitle(TASK_TITLE_THREE), new Task().setTitle(TASK_TITLE_FOUR));
+  private static final List<TaskList> NO_TASK_LISTS = ImmutableList.of();
+  private static final List<TaskList> SOME_TASK_LISTS = ImmutableList.of(new TaskList(), new TaskList());
+  private static final List<Task> NO_TASKS = ImmutableList.of();
+  private static final List<Task> TASKS_ONE_TWO =
+      ImmutableList.of(new Task().setTitle(TASK_TITLE_ONE), new Task().setTitle(TASK_TITLE_TWO));
+  private static final List<Task> TASKS_THREE_FOUR =
+      ImmutableList.of(new Task().setTitle(TASK_TITLE_THREE), new Task().setTitle(TASK_TITLE_FOUR));
 
-  @BeforeClass
-  public static void classInit() throws GeneralSecurityException, IOException {
+  @Before
+  public void setUp() throws IOException, GeneralSecurityException {
+    authenticationVerifier =
+        Mockito.mock(AuthenticationVerifier.class);
+    tasksClientFactory =
+        Mockito.mock(TasksClientFactory.class);
+    tasksClient = Mockito.mock(TasksClient.class);
+    servlet =
+        new TasksServlet(authenticationVerifier, tasksClientFactory);
+
     Mockito.when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
     // Authentication will always pass
     Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
-  }
 
-  @Before
-  public void setUp() throws IOException {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
@@ -109,7 +112,7 @@ public final class TasksServletTest {
 
   @Test
   public void noTaskLists() throws IOException, ServletException {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(noTaskLists);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASK_LISTS);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(EMPTY_JSON));
@@ -117,8 +120,8 @@ public final class TasksServletTest {
 
   @Test
   public void emptyTaskLists() throws IOException, ServletException {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
-    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASK_LISTS);
+    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(NO_TASKS);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(EMPTY_JSON));
@@ -126,8 +129,8 @@ public final class TasksServletTest {
 
   @Test
   public void oneEmptyTaskList() throws IOException, ServletException {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
-    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(noTasks).thenReturn(tasksOneTwo);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASK_LISTS);
+    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(NO_TASKS).thenReturn(TASKS_ONE_TWO);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(TASK_ONE_TWO_JSON));
@@ -135,10 +138,10 @@ public final class TasksServletTest {
 
   @Test
   public void completeTaskList() throws IOException, ServletException {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(someTaskLists);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASK_LISTS);
     Mockito.when(tasksClient.listTasks(Mockito.any()))
-        .thenReturn(tasksOneTwo)
-        .thenReturn(tasksThreeFour);
+        .thenReturn(TASKS_ONE_TWO)
+        .thenReturn(TASKS_THREE_FOUR);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(TASK_ALL_JSON));
