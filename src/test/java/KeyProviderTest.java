@@ -13,11 +13,14 @@
 // limitations under the License.
 
 import com.google.sps.utility.KeyProvider;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 /** Test Key Provider functions */
 @RunWith(JUnit4.class)
@@ -28,14 +31,21 @@ public class KeyProviderTest {
   private static final String INVALID_KEY = "invalidKey";
 
   private static final String SAMPLE_VALUE = "sampleValue";
+  private static final String KEYS_JSON = "{%nsampleKey : sampleValue%n}";
+
+  @Before
+  public void init() {
+    ClassLoader loader = Mockito.mock(ClassLoader.class);
+    Mockito.when(loader.getResourceAsStream(Mockito.any()))
+        .thenReturn(new ByteArrayInputStream(KEYS_JSON.getBytes()));
+  }
 
   @Test
   public void getSampleKeyValue() throws IOException {
     // Gets the value of sampleKey which is in src/main/resources/KEYS.json.
     // invalidKey is expected.
-    String expected = SAMPLE_VALUE;
     String actual = KeyProvider.getKey(SAMPLE_KEY);
-    Assert.assertEquals(expected, actual);
+    Assert.assertEquals(SAMPLE_VALUE, actual);
   }
 
   @Test
