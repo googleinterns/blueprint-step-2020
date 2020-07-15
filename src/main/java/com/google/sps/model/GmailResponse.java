@@ -37,7 +37,7 @@ public class GmailResponse {
 
   public GmailResponse(GmailClient gmailClient, int nDays) {
     this.nDays = nDays;
-    // populateNDaysMethods(nDays, gmailClient);
+    //populateNDaysMethods(nDays, gmailClient);
     setUnreadEmailsFrom3Hours(gmailClient);
     setUnreadEmailsFromNDays(nDays, gmailClient);
     setUnreadImportantEmailsFromNDays(nDays, gmailClient);

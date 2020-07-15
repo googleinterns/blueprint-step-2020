@@ -21,11 +21,21 @@
  * Populate Gmail container with user information
  */
 function populateGmail() {
-  // Get container for Gmail content
-  const gmailContainer = document.querySelector('#gmail');
+  // Get containers for all gmail fields
+  const nDaysContainer = document.querySelector('#gmailNDays');
+  const unreadEmailsContainer =
+      document.querySelector('#gmailUnreadEmails');
+  const unreadEmailsThreeHrsContainer =
+      document.querySelector('#gmailUnreadEmailsThreeHrs');
+  const importantEmailsContainer =
+      document.querySelector('#gmailImportantEmails');
+  const senderContainer =
+      document.querySelector('#gmailSender');
+  const senderInitialContainer =
+      document.querySelector('#gmailSenderInitial');
 
-  // Get list of messageIds from user's Gmail account
-  // and display them on the screen
+  // Get GmailResponse object that reflects user's gmail account
+  // Should contain a field for each datapoint in the Gmail panel
   fetch('/gmail')
       .then((response) => {
         // If response is a 403, user is not authenticated
@@ -34,16 +44,19 @@ function populateGmail() {
         }
         return response.json();
       })
-      .then((emailList) => {
-        // Convert JSON to string containing all messageIds
-        // and display it on client
-        if (emailList.length !== 0) {
-          const emails =
-              emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
-          gmailContainer.innerText = emails;
-        } else {
-          gmailContainer.innerText = 'No emails found';
-        }
+      .then((gmailResponse) => {
+        nDaysContainer.innerText =
+            gmailResponse['nDays'];
+        unreadEmailsContainer.innerText =
+            gmailResponse['unreadEmailsFromNDays'];
+        unreadEmailsThreeHrsContainer.innerText =
+            gmailResponse['unreadEmailsFrom3Hours'];
+        importantEmailsContainer.innerText =
+            gmailResponse['unreadImportantEmailsFromNDays'];
+        senderContainer.innerText =
+            gmailResponse['senderOfUnreadEmailsFromNDays'];
+        senderInitialContainer.innerText =
+            gmailResponse['senderOfUnreadEmailsFromNDays'][0].toUpperCase();
       })
       .catch((e) => {
         console.log(e);
