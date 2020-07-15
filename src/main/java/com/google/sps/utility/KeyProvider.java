@@ -41,6 +41,29 @@ public final class KeyProvider {
           "make sure your local keys are stored under src/main/resources/KEYS.json");
     }
     String rawJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
+    System.out.println(rawJson);
+    stream.close();
+    Gson gson = new Gson();
+    Type mapType = new TypeToken<Map<String, String>>() {}.getType();
+    Map<String, String> keys = gson.fromJson(rawJson, mapType);
+    return keys.get(name);
+  }
+  /**
+   * Gets the value of a key from the Secret Manager API with a specified loader.
+   *
+   * @param name A string representing the name of the key.
+   * @param loader A ClassLoader to get resource from.
+   * @return A string representing the value of stored under the given key.
+   * @throws IOException
+   */
+  public static String getKey(String name, ClassLoader loader) throws IOException {
+    InputStream stream = loader.getResourceAsStream("KEYS.json");
+    if (stream == null) {
+      throw new FileNotFoundException(
+          "make sure your local keys are stored under src/main/resources/KEYS.json");
+    }
+    String rawJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
+    System.out.println(rawJson);
     stream.close();
     Gson gson = new Gson();
     Type mapType = new TypeToken<Map<String, String>>() {}.getType();
