@@ -26,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 
 /** Class to interact with the Secret Manager API. */
 public final class KeyProvider {
+
   /**
    * Gets the value of a key from the Secret Manager API.
    *
@@ -47,6 +48,7 @@ public final class KeyProvider {
     Map<String, String> keys = gson.fromJson(rawJson, mapType);
     return keys.get(name);
   }
+
   /**
    * Gets the value of a key from the Secret Manager API with a specified loader.
    *
