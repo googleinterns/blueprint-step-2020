@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -32,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -78,7 +75,8 @@ public final class TasksServletTest {
           TASK_TITLE_ONE, TASK_TITLE_TWO, TASK_TITLE_THREE, TASK_TITLE_FOUR);
   private static final String EMPTY_JSON = "[]";
   private static final List<TaskList> NO_TASK_LISTS = ImmutableList.of();
-  private static final List<TaskList> SOME_TASK_LISTS = ImmutableList.of(new TaskList(), new TaskList());
+  private static final List<TaskList> SOME_TASK_LISTS =
+      ImmutableList.of(new TaskList(), new TaskList());
   private static final List<Task> NO_TASKS = ImmutableList.of();
   private static final List<Task> TASKS_ONE_TWO =
       ImmutableList.of(new Task().setTitle(TASK_TITLE_ONE), new Task().setTitle(TASK_TITLE_TWO));
@@ -87,13 +85,10 @@ public final class TasksServletTest {
 
   @Before
   public void setUp() throws IOException, GeneralSecurityException {
-    authenticationVerifier =
-        Mockito.mock(AuthenticationVerifier.class);
-    tasksClientFactory =
-        Mockito.mock(TasksClientFactory.class);
+    authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
+    tasksClientFactory = Mockito.mock(TasksClientFactory.class);
     tasksClient = Mockito.mock(TasksClient.class);
-    servlet =
-        new TasksServlet(authenticationVerifier, tasksClientFactory);
+    servlet = new TasksServlet(authenticationVerifier, tasksClientFactory);
 
     Mockito.when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
     // Authentication will always pass
@@ -130,7 +125,9 @@ public final class TasksServletTest {
   @Test
   public void oneEmptyTaskList() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASK_LISTS);
-    Mockito.when(tasksClient.listTasks(Mockito.any())).thenReturn(NO_TASKS).thenReturn(TASKS_ONE_TWO);
+    Mockito.when(tasksClient.listTasks(Mockito.any()))
+        .thenReturn(NO_TASKS)
+        .thenReturn(TASKS_ONE_TWO);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(TASK_ONE_TWO_JSON));
