@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.sps.utility.GmailUtility;
+import com.google.sps.model.GmailClient;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Test Gmail Utility functions */
+/** Test GmailClient static functions */
 @RunWith(JUnit4.class)
-public final class GmailUtilityTest {
+public final class GmailClientTest {
 
   // Units of time for email query string
   private static final String DAYS_UNIT = "d";
@@ -50,14 +50,14 @@ public final class GmailUtilityTest {
 
   @Test
   public void getQueryStringDays() {
-    String daysQuery = GmailUtility.emailAgeQuery(ONE_UNIT_OF_TIME, DAYS_UNIT);
+    String daysQuery = GmailClient.emailAgeQuery(ONE_UNIT_OF_TIME, DAYS_UNIT);
 
     Assert.assertEquals(daysQuery, ONE_DAY_QUERY);
   }
 
   @Test
   public void getQueryStringHours() {
-    String hoursQuery = GmailUtility.emailAgeQuery(ONE_UNIT_OF_TIME, HOURS_UNIT);
+    String hoursQuery = GmailClient.emailAgeQuery(ONE_UNIT_OF_TIME, HOURS_UNIT);
 
     Assert.assertEquals(hoursQuery, ONE_HOUR_QUERY);
   }
@@ -65,7 +65,7 @@ public final class GmailUtilityTest {
   @Test
   public void getQueryStringInvalidUnit() {
     // Inputting an invalid unit should have a null result
-    String invalidQuery = GmailUtility.emailAgeQuery(DEFAULT_UNIT_OF_TIME, INVALID_UNIT);
+    String invalidQuery = GmailClient.emailAgeQuery(DEFAULT_UNIT_OF_TIME, INVALID_UNIT);
 
     Assert.assertNull(invalidQuery);
   }
@@ -73,7 +73,7 @@ public final class GmailUtilityTest {
   @Test
   public void getQueryStringInvalidUnitOfTime() {
     // Inputting an invalid amount of time should have a null result
-    String invalidQuery = GmailUtility.emailAgeQuery(INVALID_UNIT_OF_TIME, DEFAULT_UNIT);
+    String invalidQuery = GmailClient.emailAgeQuery(INVALID_UNIT_OF_TIME, DEFAULT_UNIT);
 
     Assert.assertNull(invalidQuery);
   }
@@ -81,7 +81,7 @@ public final class GmailUtilityTest {
   @Test
   public void getQueryStringIgnoreUnitOfTime() {
     // Inputting the default units for time and amount of time should result in an empty query
-    String ignoreTimeQuery = GmailUtility.emailAgeQuery(DEFAULT_UNIT_OF_TIME, DEFAULT_UNIT);
+    String ignoreTimeQuery = GmailClient.emailAgeQuery(DEFAULT_UNIT_OF_TIME, DEFAULT_UNIT);
 
     Assert.assertEquals(ignoreTimeQuery, EMPTY_QUERY);
   }
@@ -89,7 +89,7 @@ public final class GmailUtilityTest {
   @Test
   public void getQueryStringUnreadEmail() {
     // Specifying unreadEmails should only be returned should result in a matching query
-    String unreadQuery = GmailUtility.unreadEmailQuery(RETURN_UNREAD_ONLY);
+    String unreadQuery = GmailClient.unreadEmailQuery(RETURN_UNREAD_ONLY);
 
     Assert.assertEquals(unreadQuery, UNREAD_EMAILS_QUERY);
   }
@@ -97,7 +97,7 @@ public final class GmailUtilityTest {
   @Test
   public void getQueryStringAnyEmail() {
     // Specifying any email can be returned should result in an empty query
-    String anyEmailQuery = GmailUtility.unreadEmailQuery(DEFAULT_UNREAD_FILTER);
+    String anyEmailQuery = GmailClient.unreadEmailQuery(DEFAULT_UNREAD_FILTER);
 
     Assert.assertEquals(anyEmailQuery, EMPTY_QUERY);
   }
@@ -105,7 +105,7 @@ public final class GmailUtilityTest {
   @Test
   public void getQueryStringFromSpecificSender() {
     // Specifying that emails must be send from a specific email should result in a matching query
-    String fromSenderQuery = GmailUtility.fromEmailQuery(SAMPLE_EMAIL);
+    String fromSenderQuery = GmailClient.fromEmailQuery(SAMPLE_EMAIL);
 
     Assert.assertEquals(fromSenderQuery, FROM_EMAIL_QUERY);
   }
@@ -114,7 +114,7 @@ public final class GmailUtilityTest {
   public void getQueryStringFromAnySender() {
     // Specifying that emails can be sent from any email (with default parameter as argument)
     // should result in a matching query
-    String fromAnySenderQuery = GmailUtility.fromEmailQuery(DEFAULT_EMAIL);
+    String fromAnySenderQuery = GmailClient.fromEmailQuery(DEFAULT_EMAIL);
 
     Assert.assertEquals(fromAnySenderQuery, EMPTY_QUERY);
   }
@@ -123,8 +123,7 @@ public final class GmailUtilityTest {
   public void getQueryStringCombined() {
     // Should return query matching all specified rules
     String multipleFilterQuery =
-        GmailUtility.emailQueryString(
-            ONE_UNIT_OF_TIME, DAYS_UNIT, RETURN_UNREAD_ONLY, SAMPLE_EMAIL);
+        GmailClient.emailQueryString(ONE_UNIT_OF_TIME, DAYS_UNIT, RETURN_UNREAD_ONLY, SAMPLE_EMAIL);
 
     Assert.assertTrue(multipleFilterQuery.contains(ONE_DAY_QUERY));
     Assert.assertTrue(multipleFilterQuery.contains(UNREAD_EMAILS_QUERY));
