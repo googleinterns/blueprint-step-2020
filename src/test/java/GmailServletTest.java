@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import com.google.api.services.gmail.model.Message;
+import com.google.common.collect.ImmutableList;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
@@ -21,8 +22,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -42,13 +41,8 @@ import org.mockito.Mockito;
  */
 @RunWith(JUnit4.class)
 public final class GmailServletTest {
-  private static final AuthenticationVerifier authenticationVerifier =
-      Mockito.mock(AuthenticationVerifier.class);
-  private static final GmailClientFactory gmailClientFactory =
-      Mockito.mock(GmailClientFactory.class);
-  private static final GmailClient gmailClient = Mockito.mock(GmailClient.class);
-  private static final GmailServlet servlet =
-      new GmailServlet(authenticationVerifier, gmailClientFactory);
+  private GmailClient gmailClient;
+  private GmailServlet servlet;
 
   private static final boolean AUTHENTICATION_VERIFIED = true;
   private static final String ID_TOKEN_KEY = "idToken";
@@ -69,9 +63,9 @@ public final class GmailServletTest {
   private static final String MESSAGE_ID_ONE = "messageIdOne";
   private static final String MESSAGE_ID_TWO = "messageIdTwo";
   private static final String MESSAGE_ID_THREE = "messageIdThree";
-  private static final List<Message> noMessages = new ArrayList<>();
-  private static final List<Message> threeMessages =
-      Arrays.asList(
+  private static final List<Message> NO_MESSAGES = ImmutableList.of();
+  private static final List<Message> THREE_MESSAGES =
+      ImmutableList.of(
           new Message().setId(MESSAGE_ID_ONE),
           new Message().setId(MESSAGE_ID_TWO),
           new Message().setId(MESSAGE_ID_THREE));
@@ -82,15 +76,20 @@ public final class GmailServletTest {
   private static final String NO_MESSAGES_JSON = "[]";
 
   @BeforeClass
-  public static void classInit() throws GeneralSecurityException, IOException {
+  public static void classInit() throws GeneralSecurityException, IOException {}
+
+  @Before
+  public void setUp() throws IOException, GeneralSecurityException {
+    AuthenticationVerifier authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
+    GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
+    gmailClient = Mockito.mock(GmailClient.class);
+    servlet = new GmailServlet(authenticationVerifier, gmailClientFactory);
+
     Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
     // Authentication will always pass
     Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
-  }
 
-  @Before
-  public void setUp() throws IOException {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
@@ -103,7 +102,7 @@ public final class GmailServletTest {
 
   @Test
   public void noMessagesPresent() throws IOException, ServletException {
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(noMessages);
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(NO_MESSAGES_JSON));
@@ -111,7 +110,7 @@ public final class GmailServletTest {
 
   @Test
   public void someMessagesPresent() throws IOException, ServletException {
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(threeMessages);
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(THREE_MESSAGES);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(THREE_MESSAGES_JSON));
