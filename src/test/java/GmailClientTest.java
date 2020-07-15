@@ -35,6 +35,10 @@ public final class GmailClientTest {
   private static final Boolean RETURN_UNREAD_ONLY = true;
   private static final Boolean DEFAULT_UNREAD_FILTER = false;
 
+  // Values to toggle filtering important vs all emails in email query string
+  private static final Boolean RETURN_IMPORTANT_ONLY = true;
+  private static final Boolean DEFAULT_IMPORTANT_FILTER = false;
+
   // Sample emails for email query string
   private static final String SAMPLE_EMAIL = "example@example.com";
   private static final String DEFAULT_EMAIL = "";
@@ -46,6 +50,7 @@ public final class GmailClientTest {
   private static final String ONE_HOUR_QUERY =
       String.format("newer_than:%d%s ", ONE_UNIT_OF_TIME, HOURS_UNIT);
   private static final String UNREAD_EMAILS_QUERY = "is:unread ";
+  private static final String IMPORTANT_EMAILS_QUERY = "is:important ";
   private static final String FROM_EMAIL_QUERY = String.format("from:%s ", SAMPLE_EMAIL);
 
   @Test
@@ -120,13 +125,28 @@ public final class GmailClientTest {
   }
 
   @Test
+  public void getQueryStringImportantEmailsOnly() {
+    String importantQuery = GmailClient.isImportantQuery(RETURN_IMPORTANT_ONLY);
+
+    Assert.assertEquals(importantQuery, IMPORTANT_EMAILS_QUERY);
+  }
+
+  @Test
+  public void getQueryStringDontFilterForImportantTag() {
+    String noImportantFilterQuery = GmailClient.isImportantQuery(DEFAULT_IMPORTANT_FILTER);
+
+    Assert.assertEquals(noImportantFilterQuery, EMPTY_QUERY);
+  }
+
+  @Test
   public void getQueryStringCombined() {
     // Should return query matching all specified rules
     String multipleFilterQuery =
-        GmailClient.emailQueryString(ONE_UNIT_OF_TIME, DAYS_UNIT, RETURN_UNREAD_ONLY, SAMPLE_EMAIL);
+        GmailClient.emailQueryString(ONE_UNIT_OF_TIME, DAYS_UNIT, RETURN_UNREAD_ONLY, RETURN_IMPORTANT_ONLY, SAMPLE_EMAIL);
 
     Assert.assertTrue(multipleFilterQuery.contains(ONE_DAY_QUERY));
     Assert.assertTrue(multipleFilterQuery.contains(UNREAD_EMAILS_QUERY));
+    Assert.assertTrue(multipleFilterQuery.contains(IMPORTANT_EMAILS_QUERY));
     Assert.assertTrue(multipleFilterQuery.contains(FROM_EMAIL_QUERY));
   }
 }

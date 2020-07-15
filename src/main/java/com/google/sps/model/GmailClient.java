@@ -76,16 +76,18 @@ public interface GmailClient {
    *     ignore filter
    * @param emailAgeUnits "d" for days, "h" for hours, "" for ignore email
    * @param unreadOnly true if only returning unread emails, false otherwise
+   * @param isImportant true if only returning important emails, false otherwise
    * @param from email address of the sender. "" if not specified
    * @return string to use in gmail (either client or API) to find emails that match criteria
    */
   static String emailQueryString(
-      int emailAge, String emailAgeUnits, boolean unreadOnly, String from) {
+      int emailAge, String emailAgeUnits, boolean unreadOnly, boolean isImportant, String from) {
     String queryString = "";
 
     // Add query components
     queryString += emailAgeQuery(emailAge, emailAgeUnits);
     queryString += unreadEmailQuery(unreadOnly);
+    queryString += isImportantQuery(isImportant);
     queryString += fromEmailQuery(from);
 
     // Return multi-part query
@@ -137,5 +139,16 @@ public interface GmailClient {
   static String fromEmailQuery(String from) {
     // from: <emailAddress> will return only emails from that sender
     return !from.equals("") ? String.format("from:%s ", from) : "";
+  }
+
+  /**
+   * Creates Gmail query to find emails marked as important
+   *
+   * @param isImportant true if filtering for important emails, false otherwise
+   * @return string to use in gmail (either client or APi) to find emails that match these criteria
+   *     Trailing space added to string so multiple queries can be concatenated
+   */
+  static String isImportantQuery(boolean isImportant) {
+    return isImportant ? "is:important " : "";
   }
 }
