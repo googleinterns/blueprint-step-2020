@@ -24,24 +24,16 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 /** Utility class to help handle OAuth 2.0 verification. */
 public final class AuthenticationUtility {
   // OAuth 2.0 Client ID
+  // TODO: Hide Client ID (Issue #72)
   public static final String CLIENT_ID =
       "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
-
-  // Application Name
-  public static final String APPLICATION_NAME = "PUT NAME HERE";
-
-  // Error message if user is not authenticated
-  public static final String ERROR_403 = "Authentication tokens not present / invalid";
 
   private AuthenticationUtility() {}
 
@@ -57,7 +49,7 @@ public final class AuthenticationUtility {
       throws GeneralSecurityException, IOException, IllegalArgumentException {
 
     // If idToken not present, user needs to reauthenticate.
-    Cookie idTokenCookie = getCookie(request, "idToken");
+    Cookie idTokenCookie = ServletUtility.getCookie(request, "idToken");
     if (idTokenCookie == null) {
       return false;
     }
@@ -80,26 +72,6 @@ public final class AuthenticationUtility {
   }
 
   /**
-   * Helper function to create an authorization header for an outgoing HTTP request Does NOT check
-   * if the access token provides correct permissions for the request Does NOT check if the
-   * userToken was valid. Use verifyUserToken to verify userId validity
-   *
-   * @param request contains cookies for a userToken and accessToken
-   * @return Value of the "Authorization" header. Null if authentication is invalid or accessToken
-   *     was not found
-   */
-  public static String generateAuthorizationHeader(HttpServletRequest request) {
-    // If accessToken cannot be found, return null
-    Cookie authCookie = getCookie(request, "accessToken");
-    if (authCookie == null) {
-      return null;
-    }
-
-    // Otherwise, return the accessToken as a Bearer token for the Authorization Header
-    return "Bearer " + authCookie.getValue();
-  }
-
-  /**
    * Creates a Credential object to work with the Google API Java Client. Will handle verifying
    * userId prior to creating credential. Be sure to do this before creating the credential
    *
@@ -119,7 +91,7 @@ public final class AuthenticationUtility {
     }
 
     // Return null if accessToken cannot be found
-    Cookie accessTokenCookie = getCookie(request, "accessToken");
+    Cookie accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
     if (accessTokenCookie == null) {
       return null;
     }
@@ -148,34 +120,5 @@ public final class AuthenticationUtility {
     credential.setAccessToken(accessToken);
 
     return credential;
-  }
-
-  /**
-   * Helper method to get a cookie from an HttpServletRequest
-   *
-   * @param request HttpServletRequest that contains desired cookie
-   * @param cookieName name of desired cookie. Case sensitive
-   * @return Cookie if found, null if not found or if duplicates present
-   */
-  public static Cookie getCookie(HttpServletRequest request, String cookieName) {
-    List<Cookie> cookies =
-        Arrays.stream(request.getCookies())
-            .filter((Cookie c) -> c.getName().equals(cookieName))
-            .collect(Collectors.toList());
-
-    if (cookies.isEmpty()) {
-      System.out.println("Cookie not found");
-      return null;
-    }
-
-    // If more than one cookies are found, it is ambiguous as to which one to return.
-    // This is unexpected - duplicate cookies are usually blocked by the browser (especially
-    // when they are user set).
-    if (cookies.size() > 1) {
-      System.out.println("Duplicate cookie");
-      return null;
-    }
-
-    return cookies.get(0);
   }
 }

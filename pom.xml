@@ -66,14 +66,19 @@
             <version>v1-rev20200516-1.30.9</version>
         </dependency>
         <dependency>
-          <groupId>com.google.maps</groupId>
-          <artifactId>google-maps-services</artifactId>
-          <version>0.14.0</version>
+            <groupId>com.google.maps</groupId>
+            <artifactId>google-maps-services</artifactId>
+            <version>0.14.0</version>
         </dependency>
         <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-          <version>1.7.25</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-calendar</artifactId>
+            <version>v3-rev20200610-1.30.9</version>
         </dependency>
     </dependencies>
 
