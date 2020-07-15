@@ -31,20 +31,21 @@ public class KeyProviderTest {
   private static final String INVALID_KEY = "invalidKey";
   private static final String SAMPLE_VALUE = "sampleValue";
   private static final String KEYS_JSON = "{%nsampleKey : sampleValue%n}";
+  private ClassLoader loader;
 
   @Before
   public void init() {
     // Mocks the input stream to return the contents of KEYS.json as a string to avoid file I/O
     // operations in unit testing.
-    ClassLoader loader = Mockito.mock(ClassLoader.class);
-    Mockito.when(loader.getResourceAsStream(Mockito.any()))
-        .thenReturn(new ByteArrayInputStream(KEYS_JSON.getBytes()));
+    loader = Mockito.mock(ClassLoader.class);
   }
 
   @Test
   public void getSampleKeyValue() throws IOException {
     // Gets the value of sampleKey which is in src/main/resources/KEYS.json.
     // invalidKey is expected.
+    Mockito.when(loader.getResourceAsStream(Mockito.any()))
+        .thenReturn(new ByteArrayInputStream(KEYS_JSON.getBytes()));
     String actual = KeyProvider.getKey(SAMPLE_KEY);
     Assert.assertEquals(SAMPLE_VALUE, actual);
   }
@@ -54,6 +55,8 @@ public class KeyProviderTest {
     // Gets the value of SAMPLEKEY which is not in src/main/resources/KEYS.json since keys are cases
     // sensitive.
     // null is expected.
+    Mockito.when(loader.getResourceAsStream(Mockito.any()))
+        .thenReturn(new ByteArrayInputStream(KEYS_JSON.getBytes()));
     String actual = KeyProvider.getKey(CAPITALISED_SAMPLE_KEY);
     Assert.assertNull(actual);
   }
@@ -62,6 +65,8 @@ public class KeyProviderTest {
   public void getInvalidKeyValue() throws IOException {
     // Gets the value of an invalid key which is not in src/main/resources/KEYS.json.
     // null is expected.
+    Mockito.when(loader.getResourceAsStream(Mockito.any()))
+        .thenReturn(new ByteArrayInputStream(KEYS_JSON.getBytes()));
     String actual = KeyProvider.getKey(INVALID_KEY);
     Assert.assertNull(actual);
   }
