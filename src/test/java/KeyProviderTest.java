@@ -34,6 +34,8 @@ public class KeyProviderTest {
 
   @Before
   public void init() {
+    // Mocks the input stream to return the contents of KEYS.json as a string to avoid file I/O
+    // operations in unit testing.
     ClassLoader loader = Mockito.mock(ClassLoader.class);
     Mockito.when(loader.getResourceAsStream(Mockito.any()))
         .thenReturn(new ByteArrayInputStream(KEYS_JSON.getBytes()));
