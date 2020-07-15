@@ -1,28 +1,176 @@
 <!DOCTYPE html>
-<html lang="en">
 <meta charset="UTF-8">
-<title>Google Dashboard</title>
+<!-- Needed for proper mobile rendering on Chrome Developer Tools -->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blueprint</title>
+<link rel="icon" type="image/png" href="/assets/favicon.ico"/>
 <link rel="stylesheet" href="style/abstracts/_variables.css">
+<link rel="stylesheet" href="style/abstracts/_utilities.css">
 <link rel="stylesheet" href="style/layout/_layout.css">
+<link rel="stylesheet" href="style/components/_panel.css">
+<link rel="stylesheet" href="style/layout/_header.css">
+<link rel="stylesheet" href="style/layout/_footer.css">
+<link rel="stylesheet" href="style/base/_base.css">
+<link rel="stylesheet" href="style/base/_typography.css">
+<link rel="stylesheet" href="style/layout/_responsive.css">
+<!-- Quicksand font import -->
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="utilities.js"></script>
 <script src="populateData.js"></script>
 <script src="auth.js"></script>
 <!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
 <script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
-<!-- Google-Styled button that handles authentication -->
-<div id="google-sign-in-btn"></div>
-<!-- Link to sign out of account -->
-<div hidden class="feature-container">
-  <a href="#" onclick="signOut()">Sign out</a>
-  <div class="flex-container">
-    <div class="flex-item" id="gmail">Gmail</div>
-    <div class="flex-item" id="tasks">Tasks</div>
-    <div class="flex-item" id="calendar">Calendar</div>
+<!-- Title container for page with log-in button -->
+<div class="header u-align-with-first-panel">
+  <div class="header__heading-with-photo">
+    <h1 class="header__heading-text u-text-shadow">Blueprint</h1>
+    <img src="assets/compass.png" alt="blueprint-logo" class="header__heading-logo u-box-shadow">
   </div>
-  <div class="flex-container">
-    <div class="flex-item">Assign</div>
-    <div class="flex-item">Plan</div>
-    <div class="flex-item">Go</div>
+  <p class="header__subheading u-text-shadow">How will you build your day?</p>
+  <!-- Google-Styled button that handles authentication -->
+  <div id="google-sign-in-btn"></div>
+</div>
+<!-- Contains features (gmail, tasks, calendar, etc). Hidden when user not authenticated -->
+<div hidden class="feature-container">
+  <a class="u-align-with-first-panel" href="#" onclick="signOut()">Sign out</a>
+  <!-- Contains at-a-glance information about user's services -->
+  <article>
+    <h2 class="panel-row__header u-align-with-first-panel u-text-shadow">Services (at a glance):</h2>
+    <div class="panel-row__content">
+      <!-- Gmail container -->
+      <div class="panel u-border-mail">
+        <div class="panel__header">
+          <div class="panel__content-entry u-remove-top-margin">
+            <a class="panel__content-entry-link" target="_blank" href="https://www.gmail.com">
+              <img class="panel__logo" alt="mail-logo" src="assets/mail.png">
+            </a>
+            <h3 class="panel__section-heading u-vertical-center">Mail</h3>
+          </div>
+          <p class="panel__section-subheading">From the last 7 days:
+          <div class="panel__content">
+            <div class="panel__content-entry">
+              <div class="panel__rounded-number u-background-mail">
+                <p class="panel__text-data-point u-text-white">35
+              </div>
+              <p class="panel__text-data-point u-vertical-center">Unread Emails:
+            </div>
+            <div class="panel__content-entry">
+              <img class="panel__content-icon" alt="clock-icon" src="assets/clock.png">
+              <p class="panel__text-large u-vertical-center">2 from last 3 hours
+            </div>
+            <div class="panel__content-entry">
+              <img class="panel__content-icon" alt="flag-icon" src="assets/flag.png">
+              <p class="panel__text-large u-vertical-center">10 marked important
+            </div>
+            <div class="panel__content-entry">
+              <div class="panel__round-letter">
+                <p class="panel__text-data-point u-text-white">A
+              </div>
+              <p class="panel__text-large u-vertical-center">Alex Smith sent the most unread emails
+            </div>
+          </div>
+        </div>
+        <!-- Container to display prototype data. TODO: Delete prototype containers once panel's complete (Issue #74) -->
+        <div id="gmail"></div>
+      </div>
+      <!-- Tasks container -->
+      <div class="panel u-border-tasks">
+        <div class="panel__header">
+          <div class="panel__content-entry u-remove-top-margin">
+            <a class="panel__content-entry-link" target="_blank" href="https://calendar.google.com/calendar/b/0/r?opentasks=1">
+              <img class="panel__logo" alt="tasks-logo" src="assets/tasks.png">
+            </a>
+            <h3 class="panel__section-heading u-vertical-center">Tasks</h3>
+          </div>
+          <p class="panel__section-subheading">Selected Tasks:
+          <div class="panel__content">
+            <div class="panel__content-entry">
+              <div class="panel__rounded-number u-background-tasks">
+                <p class="panel__text-data-point u-text-white">15
+              </div>
+              <p class="panel__text-data-point u-vertical-center">Tasks to complete
+            </div>
+            <div class="panel__content-entry">
+              <img class="panel__content-icon" alt="clipboard-icon" src="assets/clipboard.png">
+              <p class="panel__text-large u-vertical-center">4 tasks due today
+            </div>
+            <div class="panel__content-entry">
+              <img class="panel__content-icon" alt="checkmark-icon" src="assets/checkmark.png">
+              <p class="panel__text-large u-vertical-center">2 tasks completed today
+            </div>
+            <div class="panel__content-entry">
+              <img class="panel__content-icon" alt="exclamation-icon" src="assets/exclamation.png">
+              <p class="panel__text-large u-vertical-center">1 task overdue
+            </div>
+          </div>
+        </div>
+        <!-- Container to display prototype data. TODO: Delete prototype containers once panel's complete (Issue #74) -->
+        <div id="tasks"></div>
+      </div>
+      <!-- Calendar container -->
+      <div class="panel u-border-calendar">
+        <div class="panel__header">
+          <div class="panel__content-entry u-remove-top-margin">
+            <a class="panel__content-entry-link" target="_blank" href="https://calendar.google.com/calendar/b/0/r">
+              <img class="panel__logo" alt="calendar-logo" src="assets/calendar.png">
+            </a>
+            <h3 class="panel__section-heading u-vertical-center">Calendar</h3>
+          </div>
+          <p class="panel__section-subheading">Selected Calendars:
+          <div class="panel__content">
+            <div class="panel__content-entry">
+              <p class="panel__text-icon u-text-calendar">M:
+              <div>
+                <p class="u-block">3h 4m free (working)
+                <p class="u-block">4h 12m free (personal)
+              </div>
+            </div>
+            <div class="panel__content-entry">
+              <p class="panel__text-icon u-text-calendar">T:
+              <div>
+                <p class="u-block">3h 4m free (working)
+                <p class="u-block">4h 12m free (personal)
+              </div>
+            </div>
+            <div class="panel__content-entry">
+              <p class="panel__text-icon u-text-calendar">W:
+              <div>
+                <p class="u-block">3h 4m free (working)
+                <p class="u-block">4h 12m free (personal)
+              </div>
+            </div>
+            <div class="panel__content-entry">
+              <p class="panel__text-icon u-text-calendar">T:
+              <div>
+                <p class="u-block">3h 4m free (working)
+                <p class="u-block">4h 12m free (personal)
+              </div>
+            </div>
+            <div class="panel__content-entry">
+              <p class="panel__text-icon u-text-calendar">F:
+              <div>
+                <p class="u-block">3h 4m free (working)
+                <p class="u-block">4h 12m free (personal)
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Container to display prototype data. TODO: Delete prototype containers once panel's complete (Issue #74) -->
+        <div id="calendar"></div>
+      </div>
+    </div>
+  </article>
+  <!-- Placeholder panels for features built in future -->
+  <article>
+    <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
+    <div class="panel-row__content">
+      <div class="panel">Assign</div>
+      <div class="panel">Plan</div>
+      <div class="panel">Go</div>
+    </div>
+  </article>
+  <div class="footer u-align-with-first-panel">
+    <p>Icons made by <a target="_blank" href="https://www.flaticon.com/authors/google" title="Google">Google</a> from <a target="_blank" href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+    <p><a target="_blank" href="https://icons8.com/icons/set/drafting-compass">Drafting Compass icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
   </div>
 </div>
-
