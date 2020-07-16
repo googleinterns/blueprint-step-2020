@@ -68,7 +68,6 @@ public final class TasksServletTest {
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
-
   // Tasks must be returned in order of retrieval - JSON includes tasks in desired order
   private static final String TASK_TITLE_ONE = "task one";
   private static final String TASK_TITLE_TWO = "task two";
