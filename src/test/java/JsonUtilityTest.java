@@ -65,7 +65,7 @@ public class JsonUtilityTest {
   private final Gson gson = new Gson();
 
   @Before
-  public void init() throws IOException {
+  public void setUp() throws IOException {
     // Mock servlet response writer
     response = Mockito.mock(HttpServletResponse.class);
     stringWriter = new StringWriter();
@@ -74,7 +74,7 @@ public class JsonUtilityTest {
   }
 
   @After
-  public void clear() throws IOException {
+  public void tearDown() throws IOException {
     // Dump contents after each test
     stringWriter.getBuffer().setLength(0);
     stringWriter.close();
