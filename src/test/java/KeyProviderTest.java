@@ -35,7 +35,7 @@ public class KeyProviderTest {
   private static final File file = new File("src/main/resources/TEST_KEYS.json");
 
   @Before
-  public void init() {
+  public void setUp() {
     // Creates a new file in src/main/resources and writes json content to the file.
     try {
       file.getParentFile().mkdirs();
@@ -49,7 +49,7 @@ public class KeyProviderTest {
   }
 
   @After
-  public void tear() {
+  public void tearDown() {
     // Removes the file created in src/main/resources from calling init()
     file.delete();
   }
