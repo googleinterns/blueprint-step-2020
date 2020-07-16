@@ -16,9 +16,9 @@ import com.google.sps.utility.KeyProvider;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -27,55 +27,43 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class KeyProviderTest {
 
-  private static final String SAMPLE_KEY = "sampleKey";
-  private static final String CAPITALISED_SAMPLE_KEY = "SAMPLEKEY";
-  private static final String INVALID_KEY = "invalidKey";
-  private static final String SAMPLE_VALUE = "sampleValue";
-  private static final String KEYS_JSON = "{\"sampleKey\" : \"sampleValue\"}";
   private static final File file = new File("src/main/resources/TEST_KEYS.json");
 
-  @Before
-  public void setUp() {
+  @BeforeClass
+  public static void setUp() throws IOException {
     // Creates a new file in src/main/resources and writes json content to the file.
-    try {
-      file.getParentFile().mkdirs();
-      file.createNewFile();
-      FileWriter writer = new FileWriter("src/main/resources/TEST_KEYS.json");
-      writer.write(KEYS_JSON);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    file.getParentFile().mkdirs();
+    file.createNewFile();
+    FileWriter writer = new FileWriter(file);
+    writer.write("{\"sampleKey\" : \"sampleValue\"}");
+    writer.close();
   }
 
-  @After
-  public void tearDown() {
-    // Removes the file created in src/main/resources from calling init()
+  @AfterClass
+  public static void tearDown() {
+    // Removes the file created in src/main/resources from calling setUp.
     file.delete();
   }
 
   @Test
   public void getSampleKeyValue() throws IOException {
     // Gets the value of sampleKey which is in src/main/resources/TEST_KEYS.json.
-    // invalidKey is expected.
-    String actual = (new KeyProvider(file)).getKey(SAMPLE_KEY);
-    Assert.assertEquals(SAMPLE_VALUE, actual);
+    String actual = (new KeyProvider(file)).getKey("sampleKey");
+    Assert.assertEquals("sampleValue", actual);
   }
 
   @Test
   public void getCapitalisedSampleKeyValue() throws IOException {
     // Gets the value of SAMPLEKEY which is not in src/main/resources/TEST_KEYS.json since keys are
     // case sensitive.
-    // null is expected.
-    String actual = (new KeyProvider(file)).getKey(CAPITALISED_SAMPLE_KEY);
+    String actual = (new KeyProvider(file)).getKey("SAMPLEKEY");
     Assert.assertNull(actual);
   }
 
   @Test
   public void getInvalidKeyValue() throws IOException {
     // Gets the value of an invalid key which is not in src/main/resources/TEST_KEYS.json.
-    // null is expected.
-    String actual = (new KeyProvider(file)).getKey(INVALID_KEY);
+    String actual = (new KeyProvider(file)).getKey("invalidKey");
     Assert.assertNull(actual);
   }
 }
