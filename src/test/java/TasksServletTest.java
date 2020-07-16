@@ -31,6 +31,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -134,10 +135,8 @@ public final class TasksServletTest {
     servlet.doGet(request, response);
     printWriter.flush();
     List<Task> tasks = gson.fromJson(stringWriter.toString(), LIST_OF_TASKS_TYPE);
-    tasks.forEach(
-        (task) -> {
-          Assert.assertTrue(TASKS_ONE_TWO.contains(task) || TASKS_THREE_FOUR.contains(task));
-        });
+    Assert.assertEquals(2, tasks.size());
+    Assert.assertThat(tasks, CoreMatchers.hasItems(TASKS_ONE_TWO.get(0), TASKS_ONE_TWO.get(1)));
   }
 
   @Test
@@ -148,9 +147,13 @@ public final class TasksServletTest {
     servlet.doGet(request, response);
     printWriter.flush();
     List<Task> tasks = gson.fromJson(stringWriter.toString(), LIST_OF_TASKS_TYPE);
-    tasks.forEach(
-        (task) -> {
-          Assert.assertTrue(TASKS_ONE_TWO.contains(task) || TASKS_THREE_FOUR.contains(task));
-        });
+    Assert.assertEquals(4, tasks.size());
+    Assert.assertThat(
+        tasks,
+        CoreMatchers.hasItems(
+            TASKS_ONE_TWO.get(0),
+            TASKS_ONE_TWO.get(1),
+            TASKS_THREE_FOUR.get(0),
+            TASKS_THREE_FOUR.get(1)));
   }
 }
