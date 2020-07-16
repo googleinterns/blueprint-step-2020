@@ -45,6 +45,10 @@ import org.mockito.Mockito;
 public final class GmailServletTest {
   private GmailClient gmailClient;
   private GmailServlet servlet;
+  private HttpServletRequest request;
+  private HttpServletResponse response;
+  private StringWriter stringWriter;
+  private PrintWriter printWriter;
 
   private static final Gson gson = new Gson();
   private static final Type LIST_OF_MESSAGES_TYPE = new TypeToken<List<Message>>() {}.getType();
@@ -54,16 +58,14 @@ public final class GmailServletTest {
   private static final String ID_TOKEN_VALUE = "sampleId";
   private static final String ACCESS_TOKEN_KEY = "accessToken";
   private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
+
+  private static final String DEFAULT_QUERY_STRING = "";
+
   private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
   private static final Cookie sampleAccessTokenCookie =
       new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
-
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
 
   private static final String MESSAGE_ID_ONE = "messageIdOne";
   private static final String MESSAGE_ID_TWO = "messageIdTwo";
@@ -99,7 +101,7 @@ public final class GmailServletTest {
 
   @Test
   public void noMessagesPresent() throws IOException, ServletException {
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+    Mockito.when(gmailClient.listUserMessages(DEFAULT_QUERY_STRING)).thenReturn(NO_MESSAGES);
     servlet.doGet(request, response);
     printWriter.flush();
     List<Message> messages = gson.fromJson(stringWriter.toString(), LIST_OF_MESSAGES_TYPE);
@@ -108,7 +110,7 @@ public final class GmailServletTest {
 
   @Test
   public void someMessagesPresent() throws IOException, ServletException {
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(THREE_MESSAGES);
+    Mockito.when(gmailClient.listUserMessages(DEFAULT_QUERY_STRING)).thenReturn(THREE_MESSAGES);
     servlet.doGet(request, response);
     printWriter.flush();
     List<Message> messages = gson.fromJson(stringWriter.toString(), LIST_OF_MESSAGES_TYPE);
