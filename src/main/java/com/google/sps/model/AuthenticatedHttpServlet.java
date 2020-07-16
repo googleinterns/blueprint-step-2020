@@ -155,7 +155,8 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
     try {
       accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
     } catch (CookieParseException e) {
-      throw new CredentialVerificationException("accessToken is not present / cannot be parsed!", e);
+      throw new CredentialVerificationException(
+          "accessToken is not present / cannot be parsed!", e);
     }
 
     String idToken = idTokenCookie.getValue();

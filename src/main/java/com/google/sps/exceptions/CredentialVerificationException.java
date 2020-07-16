@@ -27,6 +27,7 @@ public class CredentialVerificationException extends RuntimeException {
 
   /**
    * Creates CredentialVerificationException instance
+   *
    * @param errorMessage reason for throwing error
    * @param exceptionCause initial error that caused the exception
    */
