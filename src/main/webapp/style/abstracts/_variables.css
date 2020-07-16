@@ -14,9 +14,51 @@
   limitations under the License.
 */
 
+/*
+  Global variables used in various styles.
+  First word of name directly correlates to variable type (e.g. color or font) or specific component (e.g. panel)
+ */
 :root {
-  --flex-item-border: 1px;
-  --flex-item-height: 500px;
-  --flex-item-margin: 2%;
-  --flex-item-width: 500px;
+  --color-black: black;
+  --color-background-dark: #f5f5f5;
+  --color-background-light: white;
+  --color-calendar: #508ff8;
+  --color-dark-blue: #185abc;
+  --color-dark-green: #137333;
+  --color-dark-red: #b31412;
+  --color-dark-yellow: #ea8600;
+  --color-mail: #d44638;
+  --color-header-heading: #4788c6;
+  --color-panel: #fbfbfb;
+  --color-shadow: rgba(0, 0, 0, .3);
+  --color-tasks: #f7c01a;
+  --color-white: white;
+  --font-size-data-point: var(--font-size-subheading);
+  --font-size-header-heading: 7rem;
+  --font-size-header-subheading: 5rem;
+  --font-size-heading: 5rem;
+  --font-size-large: 2.5rem;
+  --font-size-small: 1.6rem;
+  --font-size-subheading: 3rem;
+  --font-size-row-title: 3rem;
+  --font-weight-bold: 700;
+  --font-weight-light: 300;
+  --font-weight-medium: 600;
+  --font-weight-regular: 400;
+  --footer-margin-vertical: 3rem;
+  --header-margin-bottom: 3rem;
+  --header-margin-top: 5rem;
+  --header-logo-margin-horizontal: 1rem;
+  --panel-border: .3rem;
+  --panel-border-radius: 2.5rem;
+  --panel-content-entry-vertical-margin: 2rem;
+  --panel-flex-margin: 2.5rem;
+  --panel-height: 50rem;
+  --panel-icon-width: 5rem;
+  --panel-left-edge-x: calc(50% - var(--panel-width) * 1.5 - var(--panel-margin-horizontal) * 2);
+  --panel-logo-width: 7rem;
+  --panel-margin-horizontal: 2%;
+  --panel-margin-vertical: 2rem;
+  --panel-rounded-number-border-radius: calc(var(--panel-icon-width) / 10);
+  --panel-width: 50rem;
 }
