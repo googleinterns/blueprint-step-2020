@@ -15,7 +15,9 @@
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
+import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
@@ -23,6 +25,7 @@ import com.google.sps.servlets.GmailServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
@@ -45,22 +48,27 @@ import org.mockito.Mockito;
 public final class GmailServletTest {
   private GmailClient gmailClient;
   private GmailServlet servlet;
+  private HttpServletRequest request;
+  private HttpServletResponse response;
+  private StringWriter stringWriter;
+  private PrintWriter printWriter;
+
+  private static final Gson gson = new Gson();
+  private static final Type LIST_OF_MESSAGES_TYPE = new TypeToken<List<Message>>() {}.getType();
 
   private static final boolean AUTHENTICATION_VERIFIED = true;
   private static final String ID_TOKEN_KEY = "idToken";
   private static final String ID_TOKEN_VALUE = "sampleId";
   private static final String ACCESS_TOKEN_KEY = "accessToken";
   private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
+
+  private static final String DEFAULT_QUERY_STRING = "";
+
   private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
   private static final Cookie sampleAccessTokenCookie =
       new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
-
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
 
   private static final String MESSAGE_ID_ONE = "messageIdOne";
   private static final String MESSAGE_ID_TWO = "messageIdTwo";
@@ -157,7 +165,7 @@ public final class GmailServletTest {
 
   @Test
   public void noMessagesPresent() throws IOException, ServletException {
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+    Mockito.when(gmailClient.listUserMessages(DEFAULT_QUERY_STRING)).thenReturn(NO_MESSAGES);
     servlet.doGet(request, response);
     printWriter.flush();
     Assert.assertTrue(stringWriter.toString().contains(NO_MESSAGES_JSON));
