@@ -14,9 +14,26 @@
   limitations under the License.
 */
 
-.panel-row__content {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+/*
+  Reset the browser display settings so the site displays consistently across browsers
+ */
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+  Font size set for REM sizing units, where 1 REM = 10px.
+*/
+html {
+  background-image: linear-gradient(45deg, var(--color-background-light), var(--color-background-dark));
+  font-size: 10px;
+  height: 100vh;
+}
+
+body {
+  box-sizing: border-box;
 }

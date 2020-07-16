@@ -12,16 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.model;
+package com.google.sps.exceptions;
 
-/** Error to indicate that a cookie's value could not be parsed */
-public class CookieParseException extends RuntimeException {
+/** Error to indicate that a user's credentials could not be verified */
+public class CredentialVerificationException extends RuntimeException {
   /**
-   * Creates CookieRetrievalException instance
+   * Creates CredentialVerificationException instance
    *
    * @param errorMessage reason for throwing error
    */
-  public CookieParseException(String errorMessage) {
+  public CredentialVerificationException(String errorMessage) {
     super(errorMessage);
+  }
+
+  /**
+   * Creates CredentialVerificationException instance
+   *
+   * @param errorMessage reason for throwing error
+   * @param exceptionCause initial error that caused the exception
+   */
+  public CredentialVerificationException(String errorMessage, Exception exceptionCause) {
+    super(errorMessage, exceptionCause);
   }
 }

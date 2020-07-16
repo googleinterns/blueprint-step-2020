@@ -14,9 +14,6 @@
   limitations under the License.
 */
 
-.panel-row__content {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+.footer {
+  margin: var(--footer-margin-vertical) 0;
 }

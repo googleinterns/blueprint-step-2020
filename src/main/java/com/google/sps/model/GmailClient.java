@@ -12,37 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.utility;
+package com.google.sps.model;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Contains logic that handles GET & POST requests to the Gmail API and transforms those responses
- * into easily usable Java types
- */
-public final class GmailUtility {
-  private GmailUtility() {}
+/** Contract for handling/making GET requests to the Gmail API */
+public interface GmailClient {
+  /**
+   * Get all of the message IDs from a user's Gmail account
+   *
+   * @param query search query to filter which results are returned (see:
+   *     https://support.google.com/mail/answer/7190?hl=en)
+   * @return a list of messages with IDs and Thread IDs
+   * @throws IOException if an issue occurs with the Gmail Service
+   */
+  List<Message> listUserMessages(String query) throws IOException;
+
+  /**
+   * Get a message from a user's Gmail account
+   *
+   * @param messageId the messageID (retrieved from listUserMessages) of the desired Message
+   * @param format MessageFormat enum that defines how much of the Message object is populated
+   * @return a Message object with the requested information
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  Message getUserMessage(String messageId, MessageFormat format) throws IOException;
 
   /**
    * Encapsulates possible values for the "format" query parameter in the Gmail GET message method
-   * FULL: Returns full email message data METADATA: Returns only email message ID, labels, and
-   * email headers MINIMAL: Returns only email message ID and labels; does not return the email
-   * headers, body, or payload. RAW: Returns the full email message data with body content in the
-   * raw field as a base64url encoded string;
    */
-  public enum MessageFormat {
+  enum MessageFormat {
+    /** Returns full email message data */
     FULL("full"),
+
+    /** Returns only email message ID, labels, and email headers */
     METADATA("metadata"),
+
+    /**
+     * Returns only email message ID and labels; does not return the email headers, body, or
+     * payload.
+     */
     MINIMAL("minimal"),
+
+    /**
+     * Returns the full email message data with body content in the raw field as a base64url encoded
+     * string
+     */
     RAW("raw");
 
     public final String formatValue;
@@ -62,7 +79,7 @@ public final class GmailUtility {
    * @param from email address of the sender. "" if not specified
    * @return string to use in gmail (either client or API) to find emails that match criteria
    */
-  public static String emailQueryString(
+  static String emailQueryString(
       int emailAge, String emailAgeUnits, boolean unreadOnly, String from) {
     String queryString = "";
 
@@ -86,7 +103,7 @@ public final class GmailUtility {
    *     or null if either one of the arguments are invalid Trailing space added to properties so
    *     multiple queries can be concatenated
    */
-  public static String emailAgeQuery(int emailAge, String emailAgeUnits) {
+  static String emailAgeQuery(int emailAge, String emailAgeUnits) {
     // newer_than:#d where # is an integer will specify to only return emails from last # days
     if (emailAge > 0 && (emailAgeUnits.equals("h") || emailAgeUnits.equals("d"))) {
       return String.format("newer_than:%d%s ", emailAge, emailAgeUnits);
@@ -105,7 +122,7 @@ public final class GmailUtility {
    * @return string to use in gmail (either client or API) to find emails that match these criteria
    *     Trailing space added to properties so multiple queries can be concatenated
    */
-  public static String unreadEmailQuery(boolean unreadOnly) {
+  static String unreadEmailQuery(boolean unreadOnly) {
     // is:unread will return only unread emails
     return unreadOnly ? "is:unread " : "";
   }
@@ -117,65 +134,8 @@ public final class GmailUtility {
    * @return string to use in Gmail (either client or API) to find emails that match these criteria
    *     Trailing space added to properties so multiple queries can be concatenated
    */
-  public static String fromEmailQuery(String from) {
+  static String fromEmailQuery(String from) {
     // from: <emailAddress> will return only emails from that sender
     return !from.equals("") ? String.format("from:%s ", from) : "";
-  }
-
-  /**
-   * Get a gmail service instance given a credential. Required to access any Gmail API services
-   *
-   * @param credential Google Credential object with user's accessToken inside
-   * @return Gmail service instance
-   */
-  public static Gmail getGmailService(Credential credential) {
-    JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-    HttpTransport transport = UrlFetchTransport.getDefaultInstance();
-    String applicationName = ServletUtility.APPLICATION_NAME;
-
-    return new Gmail.Builder(transport, jsonFactory, credential)
-        .setApplicationName(applicationName)
-        .build();
-  }
-
-  /**
-   * Lists all emails (that match the criteria, if provided) in the user's Gmail account
-   *
-   * @param gmailService instance of Gmail Service with valid credential
-   * @param query conditions applied to the search to limit which emails are returned. "" for no
-   *     restrictions.
-   * @return List of Message objects with ID and thread ID (Empty if no messages present)
-   * @throws IOException if an issue occurs with the Gmail service
-   */
-  public static List<Message> listUserMessages(Gmail gmailService, String query)
-      throws IOException {
-    // Null if no messages present. Convert to empty list for ease
-    List<Message> messages =
-        gmailService.users().messages().list("me").setQ(query).execute().getMessages();
-
-    return messages != null ? messages : new ArrayList<>();
-  }
-
-  /**
-   * Gets a specific message from a user's Gmail account, given the messageId
-   *
-   * @param gmailService instance of Gmail Service with valid credential
-   * @param messageId a specific message Id that corresponds to a message in the user's account.
-   *     Generally retrieved from the listUserMessages method
-   * @param format controls how much information from each message is returned
-   * @return a Message object that contains the information requested
-   * @throws IOException if an issue occurs with the Gmail service
-   */
-  public static Message getMessage(Gmail gmailService, String messageId, MessageFormat format)
-      throws IOException {
-    Message message =
-        gmailService
-            .users()
-            .messages()
-            .get("me", messageId)
-            .setFormat(format.formatValue)
-            .execute();
-
-    return message;
   }
 }

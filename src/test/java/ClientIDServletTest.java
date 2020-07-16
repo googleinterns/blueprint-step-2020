@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-/** Test Client ID Servlet to ensure response contains defined OAuth 2.0 client ID */
+/** Test Client ID Servlet to ensure response contains a defined OAuth 2.0 client ID */
 @RunWith(JUnit4.class)
 public final class ClientIDServletTest {
   private static final ClientIDServlet servlet = new ClientIDServlet();

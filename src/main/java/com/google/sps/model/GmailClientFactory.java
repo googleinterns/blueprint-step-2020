@@ -14,14 +14,15 @@
 
 package com.google.sps.model;
 
-/** Error to indicate that a user's id token could not be verified with Google */
-public class TokenVerificationException extends RuntimeException {
+import com.google.api.client.auth.oauth2.Credential;
+
+/** Contract for creating a GmailClient with a given credential */
+public interface GmailClientFactory {
   /**
-   * Creates TokenVerificationError instance
+   * Creates a GmailClient instance
    *
-   * @param errorMessage reason for throwing error
+   * @param credential a valid Google credential object
+   * @return a GmailClient instance that contains the user's credentials
    */
-  public TokenVerificationException(String errorMessage) {
-    super(errorMessage);
-  }
+  GmailClient getGmailClient(Credential credential);
 }

@@ -87,14 +87,15 @@ public class AuthenticatedHttpServletTest {
     Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
 
-  @Test
+  @Test(expected = ServletException.class)
   public void getRequestFakeIdToken()
       throws GeneralSecurityException, IOException, ServletException {
+    // If a fake (or empty, which is fake) idToken is present, ServletException should be thrown.
+    // This is not an expected path, and indicates malicious behaviour.
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_NOT_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
     servlet.doGet(request, response);
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
 
   @Test
@@ -133,14 +134,15 @@ public class AuthenticatedHttpServletTest {
     Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
 
-  @Test
+  @Test(expected = ServletException.class)
   public void postRequestFakeIdToken()
       throws GeneralSecurityException, IOException, ServletException {
+    // If a fake (or empty, which is fake) idToken is present, ServletException should be thrown.
+    // This is not an expected path, and indicates malicious behaviour.
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_NOT_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
     servlet.doPost(request, response);
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
   }
 
   @Test
