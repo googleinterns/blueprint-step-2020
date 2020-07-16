@@ -36,11 +36,28 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public class JsonUtilityTest {
 
+  private static class CustomClass {
+    String topSecret;
+
+    CustomClass(String topSecret) {
+      this.topSecret = topSecret;
+    }
+
+    public static CustomClass getInstance(String topSecret) {
+      return new CustomClass(topSecret);
+    }
+
+    public String revealSecret() {
+      return topSecret;
+    }
+  }
+
   private static final String STRING_OBJECT = "HELLO WORLD";
   private static final List<Integer> LIST_OBJECT = Arrays.asList(1, 3, 5, 9, 7);
   private static final Map<String, Integer> MAP_OBJECT =
       ImmutableMap.of(
           "One", Integer.valueOf(1), "Two", Integer.valueOf(2), "Three", Integer.valueOf(3));
+  private static final CustomClass CUSTOM_OBJECT = CustomClass.getInstance("shhh");
 
   private static HttpServletResponse response;
   private static StringWriter stringWriter;
@@ -66,7 +83,8 @@ public class JsonUtilityTest {
 
   @Test
   public void sendStringToResponse() throws IOException {
-    // String should be sent successfully and have the same contents as the sent object.
+    // Sends an object of type String to response as json.
+    // Response should have the same contents as String object.
     JsonUtility.sendJson(response, STRING_OBJECT);
     printWriter.flush();
 
@@ -77,7 +95,8 @@ public class JsonUtilityTest {
 
   @Test
   public void sendListToResponse() throws IOException {
-    // List should be sent successfully and have the same contents as the sent object.
+    // Sends an object of type List to response as json.
+    // Response should have the same contents as List object.
     JsonUtility.sendJson(response, LIST_OBJECT);
     printWriter.flush();
 
@@ -90,7 +109,8 @@ public class JsonUtilityTest {
 
   @Test
   public void sendMapToResponse() throws IOException {
-    // Map should be sent successfully and have the same contents as the sent object.
+    // Sends an object of type Map to response as json.
+    // Response should have the same contents as Map object.
     JsonUtility.sendJson(response, MAP_OBJECT);
     printWriter.flush();
 
@@ -101,5 +121,29 @@ public class JsonUtilityTest {
     Assert.assertEquals(MAP_OBJECT.get("One"), actual.get("One"));
     Assert.assertEquals(MAP_OBJECT.get("Two"), actual.get("Two"));
     Assert.assertEquals(MAP_OBJECT.get("Three"), actual.get("Three"));
+  }
+
+  @Test
+  public void sendNullToResponse() throws IOException {
+    // Sends null to response as json.
+    // Response should contain only a newline character as a result of println.
+    JsonUtility.sendJson(response, null);
+    printWriter.flush();
+
+    Assert.assertEquals("\n", stringWriter.toString());
+  }
+
+  @Test
+  public void sendCustomClassToResponse() throws IOException {
+    // Sends an object of type CustomClass to response as json.
+    // Response should have the same contents as CustomClass object.
+    JsonUtility.sendJson(response, CUSTOM_OBJECT);
+    printWriter.flush();
+
+    String actualString = stringWriter.toString();
+    Type type = new TypeToken<Map<String, String>>() {}.getType();
+    Map<String, String> actual = gson.fromJson(actualString, type);
+
+    Assert.assertEquals(CUSTOM_OBJECT.revealSecret(), actual.get("topSecret"));
   }
 }
