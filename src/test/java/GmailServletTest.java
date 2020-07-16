@@ -30,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,9 +115,8 @@ public final class GmailServletTest {
     servlet.doGet(request, response);
     printWriter.flush();
     List<Message> messages = gson.fromJson(stringWriter.toString(), LIST_OF_MESSAGES_TYPE);
-    messages.forEach(
-        (message) -> {
-          Assert.assertTrue(THREE_MESSAGES.contains(message));
-        });
+    Assert.assertThat(
+        messages,
+        CoreMatchers.hasItems(THREE_MESSAGES.get(0), THREE_MESSAGES.get(1), THREE_MESSAGES.get(2)));
   }
 }
