@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import com.google.api.services.calendar.model.Event;
+import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.reflect.TypeToken;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.CalendarClient;
 import com.google.sps.model.CalendarClientFactory;
@@ -21,6 +23,7 @@ import com.google.sps.servlets.CalendarServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -41,6 +44,11 @@ public final class CalendarServletTest {
   private CalendarClientFactory calendarClientFactory;
   private CalendarClient calendarClient;
   private CalendarServlet servlet;
+  private HttpServletRequest request;
+  private HttpServletResponse response;
+  private StringWriter stringWriter;
+  private PrintWriter printWriter;
+  private final Gson gson = new Gson();
 
   private static final boolean AUTHENTICATION_VERIFIED = true;
   private static final String ID_TOKEN_KEY = "idToken";
@@ -52,11 +60,6 @@ public final class CalendarServletTest {
       new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
-
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
 
   // Events must be returned in order of retrieval - JSON includes tasks in desired order
   private static final String EVENT_SUMMARY_ONE = "test event one";
@@ -108,7 +111,10 @@ public final class CalendarServletTest {
     Mockito.when(calendarClient.getCalendarEvents()).thenReturn(NO_EVENT);
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(EMPTY_JSON));
+    String actualString = stringWriter.toString();
+    Type type = new TypeToken<List<Event>>() {}.getType();
+    List<Event> actual = gson.fromJson(actualString, type);
+    Assert.assertEquals(NO_EVENT, actual);
   }
 
   @Test
@@ -117,7 +123,10 @@ public final class CalendarServletTest {
     Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_ONE_TWO);
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(EVENT_ONE_TWO_JSON));
+    String actualString = stringWriter.toString();
+    Type type = new TypeToken<List<Event>>() {}.getType();
+    List<Event> actual = gson.fromJson(actualString, type);
+    Assert.assertEquals(EVENT_ONE_TWO, actual);
   }
 
   @Test
@@ -126,7 +135,10 @@ public final class CalendarServletTest {
     Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_UNDEFINED);
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(EVENT_UNDEFINED_JSON));
+    String actualString = stringWriter.toString();
+    Type type = new TypeToken<List<Event>>() {}.getType();
+    List<Event> actual = gson.fromJson(actualString, type);
+    Assert.assertEquals(EVENT_UNDEFINED, actual);
   }
 
   @Test
@@ -135,6 +147,9 @@ public final class CalendarServletTest {
     Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_ALL);
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(EVENT_ALL_JSON));
+    String actualString = stringWriter.toString();
+    Type type = new TypeToken<List<Event>>() {}.getType();
+    List<Event> actual = gson.fromJson(actualString, type);
+    Assert.assertEquals(EVENT_ALL, actual);
   }
 }
