@@ -17,11 +17,20 @@ package com.google.sps.exceptions;
 /** Error to indicate that a user's credentials could not be verified */
 public class CredentialVerificationException extends RuntimeException {
   /**
-   * Creates CredentialVerificationError instance
+   * Creates CredentialVerificationException instance
    *
    * @param errorMessage reason for throwing error
    */
   public CredentialVerificationException(String errorMessage) {
     super(errorMessage);
+  }
+
+  /**
+   * Creates CredentialVerificationException instance
+   * @param errorMessage reason for throwing error
+   * @param exceptionCause initial error that caused the exception
+   */
+  public CredentialVerificationException(String errorMessage, Exception exceptionCause) {
+    super(errorMessage, exceptionCause);
   }
 }
