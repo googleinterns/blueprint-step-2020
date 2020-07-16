@@ -15,11 +15,13 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
-import com.google.sps.utility.GmailUtility;
+import com.google.sps.model.AuthenticationVerifier;
+import com.google.sps.model.GmailClient;
+import com.google.sps.model.GmailClientFactory;
+import com.google.sps.model.GmailClientImpl;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
@@ -29,6 +31,26 @@ import javax.servlet.http.HttpServletResponse;
 /** Serves selected information from the User's Gmail Account. */
 @WebServlet("/gmail")
 public class GmailServlet extends AuthenticatedHttpServlet {
+  private final GmailClientFactory gmailClientFactory;
+
+  /** Create servlet with default GmailClient and Authentication Verifier implementations */
+  public GmailServlet() {
+    super();
+    gmailClientFactory = new GmailClientImpl.Factory();
+  }
+
+  /**
+   * Create servlet with explicit implementations of GmailClient and AuthenticationVerifier
+   *
+   * @param authenticationVerifier implementation of AuthenticationVerifier
+   * @param gmailClientFactory implementation of GmailClientFactory
+   */
+  public GmailServlet(
+      AuthenticationVerifier authenticationVerifier, GmailClientFactory gmailClientFactory) {
+    super(authenticationVerifier);
+    this.gmailClientFactory = gmailClientFactory;
+  }
+
   /**
    * Returns messageIds from the user's Gmail account
    *
@@ -45,8 +67,8 @@ public class GmailServlet extends AuthenticatedHttpServlet {
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     // Get messageIds from Gmail
-    Gmail gmailService = GmailUtility.getGmailService(googleCredential);
-    List<Message> messages = GmailUtility.listUserMessages(gmailService, "");
+    GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
+    List<Message> messages = gmailClient.listUserMessages("");
 
     // convert messageIds to JSON object and print to response
     Gson gson = new Gson();
