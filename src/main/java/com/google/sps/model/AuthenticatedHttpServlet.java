@@ -97,9 +97,9 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
       Credential googleCredential = getGoogleCredential(request);
       doPost(request, response, googleCredential);
     } catch (CredentialVerificationException e) {
-      throw new ServletException(e.getMessage());
+      throw new ServletException(e.getMessage(), e);
     } catch (GeneralSecurityException e) {
-      throw new ServletException(ERROR_500);
+      throw new ServletException(ERROR_500, e);
     }
   }
 
@@ -149,13 +149,14 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
     try {
       idTokenCookie = ServletUtility.getCookie(request, "idToken");
     } catch (CookieParseException e) {
-      throw new CredentialVerificationException("idToken is not present / cannot be parsed!");
+      throw new CredentialVerificationException("idToken is not present / cannot be parsed!", e);
     }
 
     try {
       accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
     } catch (CookieParseException e) {
-      throw new CredentialVerificationException("accessToken is not present / cannot be parsed!");
+      throw new CredentialVerificationException(
+          "accessToken is not present / cannot be parsed!", e);
     }
 
     String idToken = idTokenCookie.getValue();
