@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import com.google.api.services.gmail.model.Message;
+import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
@@ -21,6 +23,7 @@ import com.google.sps.servlets.GmailServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -42,6 +45,9 @@ import org.mockito.Mockito;
 public final class GmailServletTest {
   private GmailClient gmailClient;
   private GmailServlet servlet;
+
+  private static final Gson gson = new Gson();
+  private static final Type LIST_OF_MESSAGES_TYPE = new TypeToken<List<Message>>() {}.getType();
 
   private static final boolean AUTHENTICATION_VERIFIED = true;
   private static final String ID_TOKEN_KEY = "idToken";
@@ -68,11 +74,6 @@ public final class GmailServletTest {
           new Message().setId(MESSAGE_ID_ONE),
           new Message().setId(MESSAGE_ID_TWO),
           new Message().setId(MESSAGE_ID_THREE));
-  private static final String THREE_MESSAGES_JSON =
-      String.format(
-          "[{\"id\":\"%s\"},{\"id\":\"%s\"},{\"id\":\"%s\"}]",
-          MESSAGE_ID_ONE, MESSAGE_ID_TWO, MESSAGE_ID_THREE);
-  private static final String NO_MESSAGES_JSON = "[]";
 
   @Before
   public void setUp() throws IOException, GeneralSecurityException {
@@ -101,7 +102,8 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(NO_MESSAGES_JSON));
+    List<Message> messages = gson.fromJson(stringWriter.toString(), LIST_OF_MESSAGES_TYPE);
+    Assert.assertTrue(messages.isEmpty());
   }
 
   @Test
@@ -109,6 +111,10 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(THREE_MESSAGES);
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(THREE_MESSAGES_JSON));
+    List<Message> messages = gson.fromJson(stringWriter.toString(), LIST_OF_MESSAGES_TYPE);
+    messages.forEach(
+        (message) -> {
+          Assert.assertTrue(THREE_MESSAGES.contains(message));
+        });
   }
 }
