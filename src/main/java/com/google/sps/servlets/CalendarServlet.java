@@ -15,11 +15,13 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
-import com.google.sps.utility.CalendarUtility;
+import com.google.sps.model.AuthenticationVerifier;
+import com.google.sps.model.CalendarClient;
+import com.google.sps.model.CalendarClientFactory;
+import com.google.sps.model.CalendarClientImpl;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
@@ -29,6 +31,24 @@ import javax.servlet.http.HttpServletResponse;
 /** GET function responds JSON string containing events in user's calendar. */
 @WebServlet("/calendar")
 public class CalendarServlet extends AuthenticatedHttpServlet {
+  private final CalendarClientFactory calendarClientFactory;
+
+  /** Create servlet with default CalendarClient and Authentication Verifier implementations */
+  public CalendarServlet() {
+    calendarClientFactory = new CalendarClientImpl.Factory();
+  }
+
+  /**
+   * Create servlet with explicit implementations of CalendarClient and AuthenticationVerifier
+   *
+   * @param authenticationVerifier implementation of AuthenticationVerifier
+   * @param calendarClientFactory implementation of CalendarClientFactory
+   */
+  public CalendarServlet(
+      AuthenticationVerifier authenticationVerifier, CalendarClientFactory calendarClientFactory) {
+    super(authenticationVerifier);
+    this.calendarClientFactory = calendarClientFactory;
+  }
 
   /**
    * Returns List of events from the user's calendar
@@ -44,8 +64,8 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
-    Calendar calendarService = CalendarUtility.getCalendarService(googleCredential);
-    List<Event> calendarEvents = CalendarUtility.getCalendarEvents(calendarService);
+    CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
+    List<Event> calendarEvents = calendarClient.getCalendarEvents();
 
     // Convert event list to JSON and print to response
     Gson gson = new Gson();
