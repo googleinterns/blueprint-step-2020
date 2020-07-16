@@ -16,7 +16,7 @@ package com.google.sps.model;
 
 import com.google.api.client.auth.oauth2.Credential;
 
-/** Interface for creating a TasksClient instance */
+/** Interface for creating a  CalendarClient instance */
 public interface CalendarClientFactory {
   /**
    * Create a CalendarClient instance
