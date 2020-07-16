@@ -24,4 +24,14 @@ public class CookieParseException extends RuntimeException {
   public CookieParseException(String errorMessage) {
     super(errorMessage);
   }
+
+  /**
+   * Creates CookieParseException instance
+   *
+   * @param errorMessage reason for throwing error
+   * @param exceptionCause error that caused the runtime exception
+   */
+  public CookieParseException(String errorMessage, Exception exceptionCause) {
+    super(errorMessage, exceptionCause);
+  }
 }
