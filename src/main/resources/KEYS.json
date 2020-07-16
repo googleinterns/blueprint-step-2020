@@ -1,0 +1,4 @@
+{
+  "sampleKey" : "sampleValue",
+  "SAMPLEKEY" : "fail"
+}
