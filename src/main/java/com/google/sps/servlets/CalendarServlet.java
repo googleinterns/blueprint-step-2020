@@ -16,7 +16,7 @@ package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.calendar.model.Event;
-import com.google.appengine.repackaged.com.google.gson.Gson;
+import com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.CalendarClient;
