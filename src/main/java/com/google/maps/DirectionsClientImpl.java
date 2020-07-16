@@ -15,29 +15,22 @@
 package com.google.maps;
 
 import com.google.maps.errors.ApiException;
-import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** Handles GET requests to the Google Directions API */
 public class DirectionsClientImpl implements DirectionsClient {
   private DirectionsApiRequest directionsService;
 
-  DirectionsClientImpl(DirectionsApiRequest service) {
+  private DirectionsClientImpl(DirectionsApiRequest service) {
     directionsService = service;
   }
 
   /** Factory to create a DirectionsClientImpl instance with given API key */
   public static class Factory implements DirectionsClientFactory {
-    /**
-     * Gets a DirectionsClient which executes against the given API key.
-     *
-     * @param apiKey A string representing the API key to authenticate a Google Directions API call.
-     * @return DirectionsClientImpl instance which executes against the given API key.
-     */
     @Override
     public DirectionsClient getDirectionsClient(String apiKey) {
       GeoApiContext context = new GeoApiContext.Builder().apiKey(apiKey).build();
@@ -46,38 +39,34 @@ public class DirectionsClientImpl implements DirectionsClient {
     }
   }
 
-  /**
-   * Gets the result of a GET request to the Google Directions API.
-   *
-   * @param destination A string representing the destination to get directions to.
-   * @param origin A string representing the origin to get directions from.
-   * @param waypoints A list of string consisting of waypoints to visit between the destination and
-   *     the origin.
-   * @return A string representing the result from a GET request to the Google Directions API.
-   * @throws Exception
-   */
-  public List<String> getDirections(String origin, String destination, String[] waypoints)
-      throws ApiException, InterruptedException, IOException {
+  @Override
+  public List<String> getDirections(String origin, String destination, List<String> waypoints)
+      throws DirectionsException {
+    String[] waypointsArray = waypoints.toArray(new String[0]);
     try {
       DirectionsResult result =
           directionsService
               .origin(origin)
               .destination(destination)
-              .waypoints(waypoints)
+              .waypoints(waypointsArray)
               .optimizeWaypoints(true)
               .await();
-      List<String> listLegs = new ArrayList<>();
-      DirectionsRoute routes[] = result.routes;
-      for (DirectionsRoute route : routes) {
-        DirectionsLeg legs[] = route.legs;
-        for (DirectionsLeg leg : legs) {
-          listLegs.add(leg.toString());
-        }
-      }
-      return listLegs;
+
+      return Arrays.asList(result.routes).stream()
+          .map(
+              route -> {
+                return Arrays.asList(route.legs).stream()
+                    .map(
+                        leg -> {
+                          return leg.toString();
+                        })
+                    .collect(Collectors.toList());
+              })
+          .flatMap(leg -> leg.stream())
+          .collect(Collectors.toList());
+
     } catch (ApiException | InterruptedException | IOException e) {
-      e.printStackTrace();
-      throw e;
+      throw new DirectionsException("Failed to get directions " + e);
     }
   }
 }

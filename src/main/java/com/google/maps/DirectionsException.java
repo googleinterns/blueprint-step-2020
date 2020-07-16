@@ -14,16 +14,8 @@
 
 package com.google.maps;
 
-/**
- * Contract for creating a DirectionsClient with a given API key. Implement getDirectionsClient to
- * obtain an instance of DirectionsClient.
- */
-public interface DirectionsClientFactory {
-  /**
-   * Gets a DirectionsClient which executes against the given API key.
-   *
-   * @param apiKey A string representing the API key to authenticate a Google Directions API call.
-   * @return DirectionsClientImpl instance which executes against the given API key.
-   */
-  DirectionsClient getDirectionsClient(String apiKey);
+public class DirectionsException extends Exception {
+  public DirectionsException(String message) {
+    super(message);
+  }
 }

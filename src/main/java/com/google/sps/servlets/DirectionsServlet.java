@@ -14,13 +14,15 @@
 
 package com.google.sps.servlets;
 
+import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.maps.DirectionsClient;
 import com.google.maps.DirectionsClientFactory;
 import com.google.maps.DirectionsClientImpl;
-import com.google.maps.errors.ApiException;
+import com.google.maps.DirectionsException;
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -52,17 +54,19 @@ public class DirectionsServlet extends HttpServlet {
    *
    * @param request HTTP request from the client.
    * @param response HTTP response to the client.
+   * @throws ServletException
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) {
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException {
     String apiKey = ""; // TODO: Merge ApiKeyProvider to make a request here (Issue #77)
     String origin =
         "Montreal, QC"; // TODO: Replace with getOrigin from Tasks upon implementation (Issue #78)
     String destination =
         "Montreal, QC"; // TODO: Replace with getDestination from Tasks implementation (Issue #78)
-    String[] waypoints = {
-      "Windsor, ON", "Waterloo, ON", "Kitchener, ON"
-    }; // TODO: Replace with getWaypoints from
+    List<String> waypoints =
+        ImmutableList.of(
+            "Windsor, ON", "Waterloo, ON", "Kitchener, ON"); // TODO: Replace with getWaypoints from
     // Tasks implementation (Issue #78)
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
@@ -71,8 +75,8 @@ public class DirectionsServlet extends HttpServlet {
       String directionsJson = gson.toJson(directions);
       response.setContentType("application/json");
       response.getWriter().println(directionsJson);
-    } catch (ApiException | InterruptedException | IOException e) {
-      e.printStackTrace();
+    } catch (DirectionsException | IOException e) {
+      throw new ServletException(e);
     }
   }
 }

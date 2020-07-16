@@ -14,12 +14,24 @@
 
 package com.google.maps;
 
-import com.google.maps.errors.ApiException;
-import java.io.IOException;
 import java.util.List;
 
-/** Contract for sending GET requests to the Google Directions API. */
+/**
+ * Contract for sending GET requests to the Google Directions API. Implement getDirections to obtain
+ * optimized route from the API.
+ */
 public interface DirectionsClient {
-  List<String> getDirections(String origin, String destination, String[] waypoints)
-      throws ApiException, InterruptedException, IOException;
+  /**
+   * Gets the result of a GET request to the Google Directions API.
+   *
+   * @param destination A string representing the destination to get directions to.
+   * @param origin A string representing the origin to get directions from.
+   * @param waypoints A list of string consisting of waypoints to visit between the destination and
+   *     the origin.
+   * @return A string representing the result from a GET request to the Google Directions API.
+   * @throws DirectionsException A custom exception is thrown to signal an error pertaining to the
+   *     Directions API.
+   */
+  List<String> getDirections(String origin, String destination, List<String> waypoints)
+      throws DirectionsException;
 }
