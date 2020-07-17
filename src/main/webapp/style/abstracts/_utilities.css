@@ -29,7 +29,8 @@
 }
 
 /*
-  Utility to vertically contents of a container
+  Utility to vertically contents of a container.
+  Do not use on text elements directly - use on enclosing element
  */
 .u-vertical-center {
   align-items: center;
