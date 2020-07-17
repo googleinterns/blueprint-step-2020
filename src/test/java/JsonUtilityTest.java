@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,12 +38,8 @@ public class JsonUtilityTest {
   private static class CustomClass {
     String topSecret;
 
-    CustomClass(String topSecret) {
-      this.topSecret = topSecret;
-    }
-
-    public static CustomClass getInstance(String topSecret) {
-      return new CustomClass(topSecret);
+    CustomClass() {
+      this.topSecret = "shhh";
     }
 
     public String revealSecret() {
@@ -57,7 +52,7 @@ public class JsonUtilityTest {
   private static final Map<String, Integer> MAP_OBJECT =
       ImmutableMap.of(
           "One", Integer.valueOf(1), "Two", Integer.valueOf(2), "Three", Integer.valueOf(3));
-  private static final CustomClass CUSTOM_OBJECT = CustomClass.getInstance("shhh");
+  private static final CustomClass CUSTOM_OBJECT = new CustomClass();
 
   private static HttpServletResponse response;
   private static StringWriter stringWriter;
@@ -71,14 +66,6 @@ public class JsonUtilityTest {
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
     Mockito.when(response.getWriter()).thenReturn(printWriter);
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    // Dump contents after each test
-    stringWriter.getBuffer().setLength(0);
-    stringWriter.close();
-    printWriter.close();
   }
 
   @Test
@@ -141,9 +128,8 @@ public class JsonUtilityTest {
     printWriter.flush();
 
     String actualString = stringWriter.toString();
-    Type type = new TypeToken<Map<String, String>>() {}.getType();
-    Map<String, String> actual = gson.fromJson(actualString, type);
+    CustomClass actual = gson.fromJson(actualString, CustomClass.class);
 
-    Assert.assertEquals(CUSTOM_OBJECT.revealSecret(), actual.get("topSecret"));
+    Assert.assertEquals(CUSTOM_OBJECT.revealSecret(), actual.revealSecret());
   }
 }
