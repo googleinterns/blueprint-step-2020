@@ -39,8 +39,8 @@ import org.mockito.Mockito;
  */
 @RunWith(JUnit4.class)
 public final class DirectionsServletTest {
-  private static DirectionsClientFactory directionsClientFactory;
-  private static DirectionsClient directionsClient;
+  private DirectionsClientFactory directionsClientFactory;
+  private DirectionsClient directionsClient;
   private DirectionsServlet servlet;
   private HttpServletRequest request;
   private HttpServletResponse response;

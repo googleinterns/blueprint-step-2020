@@ -18,6 +18,7 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.DirectionsResult;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,31 +43,26 @@ public class DirectionsClientImpl implements DirectionsClient {
   @Override
   public List<String> getDirections(String origin, String destination, List<String> waypoints)
       throws DirectionsException {
-    String[] waypointsArray = waypoints.toArray(new String[0]);
     try {
       DirectionsResult result =
           directionsService
               .origin(origin)
               .destination(destination)
-              .waypoints(waypointsArray)
+              .waypoints(waypoints.toArray(new String[0]))
               .optimizeWaypoints(true)
               .await();
 
       return Arrays.asList(result.routes).stream()
           .map(
-              route -> {
-                return Arrays.asList(route.legs).stream()
-                    .map(
-                        leg -> {
-                          return leg.toString();
-                        })
-                    .collect(Collectors.toList());
-              })
-          .flatMap(leg -> leg.stream())
+              route ->
+                  Arrays.asList(route.legs).stream()
+                      .map(String::valueOf)
+                      .collect(Collectors.toList()))
+          .flatMap(Collection::stream)
           .collect(Collectors.toList());
 
     } catch (ApiException | InterruptedException | IOException e) {
-      throw new DirectionsException("Failed to get directions " + e);
+      throw new DirectionsException("Failed to get directions", e);
     }
   }
 }
