@@ -107,7 +107,7 @@ public final class TasksServletTest {
     printWriter = new PrintWriter(stringWriter);
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
-  
+
   @Ignore
   @Test
   public void noTaskLists() throws IOException, ServletException {

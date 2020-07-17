@@ -23,7 +23,11 @@ public class TasksResponse {
   private int tasksCompletedToday;
   private int tasksOverdue;
 
-  public TasksResponse(List<String> taskListNames, int tasksToComplete, int tasksDueToday, int tasksCompletedToday,
+  public TasksResponse(
+      List<String> taskListNames,
+      int tasksToComplete,
+      int tasksDueToday,
+      int tasksCompletedToday,
       int tasksOverdue) {
     this.taskListNames = taskListNames;
     this.tasksToComplete = tasksToComplete;

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.maps.DirectionsClient;
 import com.google.maps.DirectionsClientFactory;
 import com.google.maps.DirectionsException;
@@ -20,12 +22,11 @@ import com.google.sps.servlets.DirectionsServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.text.StringEscapeUtils;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,28 +47,23 @@ public final class DirectionsServletTest {
   private HttpServletResponse response;
   private StringWriter stringWriter;
   private PrintWriter printWriter;
+  private Gson gson;
 
-  private static final List<String> WINDSOR_TO_MONTREAL_WITH_WAYPOINTS =
+  private static final String API_KEY = "sampleApiKey";
+  private static final List<String> A_TO_B_WITH_WAYPOINTS =
       ImmutableList.of(
-          "[DirectionsLeg: \"Windsor, ON, Canada\" -> \"Waterloo, ON, Canada\" (42.31486680,-83.03656800 -> 43.46430180,-80.52042120), duration=2 hours 58 mins, distance=293 km: 16 steps]",
-          "[DirectionsLeg: \"Waterloo, ON, Canada\" -> \"Markham, ON, Canada\" (43.46430180,-80.52042120 -> 43.85644940,-79.33771690), duration=1 hour 14 mins, distance=123 km: 15 steps]",
-          "[DirectionsLeg: \"Markham, ON, Canada\" -> \"Quebec City, QC, Canada\" (43.85644940,-79.33771690 -> 46.81380600,-71.20822600), duration=7 hours 42 mins, distance=790 km: 30 steps]",
-          "[DirectionsLeg: \"Quebec City, QC, Canada\" -> \"Montreal, QC, Canada\" (46.81380600,-71.20822600 -> 45.50171230,-73.56721840), duration=2 hours 46 mins, distance=253 km: 29 steps]");
-  private static final List<String> MONTREAL_TO_MONTREAL_WITH_WAYPOINTS =
+          "[DirectionsLeg: \"A\" -> \"C\" (42,-83 -> 43,-80), duration=3 hours, distance=2 km: 1 steps]",
+          "[DirectionsLeg: \"C\" -> \"D\" (43,-80 -> 43,-79), duration=1 hour, distance=1 km: 1 steps]",
+          "[DirectionsLeg: \"D\" -> \"B\" (43,-79 -> 46,-71), duration=8 hours, distance=7 km: 3 steps]");
+  private static final List<String> A_TO_A_WITH_WAYPOINTS =
       ImmutableList.of(
-          "[DirectionsLeg: \"Montreal, QC, Canada\" -> \"Kitchener, ON, Canada\" (45.50171230,-73.56721840 -> 43.45184990,-80.49313410), duration=6 hours 10 mins, distance=632 km: 16 steps]",
-          "[DirectionsLeg: \"Kitchener, ON, Canada\" -> \"Waterloo, ON, Canada\" (43.45184990,-80.49313410 -> 43.46430180,-80.52042120), duration=8 mins, distance=3.0 km: 5 steps]",
-          "[DirectionsLeg: \"Waterloo, ON, Canada\" -> \"Windsor, ON, Canada\" (43.46430180,-80.52042120 -> 42.31486680,-83.03656800), duration=2 hours 55 mins, distance=291 km: 18 steps]",
-          "[DirectionsLeg: \"Windsor, ON, Canada\" -> \"Montreal, QC, Canada\" (42.31486680,-83.03656800 -> 45.50171230,-73.56721840), duration=8 hours 42 mins, distance=897 km: 21 steps]");
-  private static final List<String> MONTREAL_TO_WATERLOO_NO_WAYPOINTS =
+          "[DirectionsLeg: \"A\" -> \"B\" (45,-73 -> 43,-80), duration=6 hours, distance=6 km: 1 steps]",
+          "[DirectionsLeg: \"B\" -> \"C\" (43,-80 -> 43,-80), duration=8 mins, distance=3 km: 5 steps]",
+          "[DirectionsLeg: \"C\" -> \"D\" (43,-80 -> 42,-83), duration=3 hours, distance=2 km: 1 steps]",
+          "[DirectionsLeg: \"D\" -> \"A\" (42,-83 -> 45,-73), duration=9 hours, distance=8 km: 2 steps]");
+  private static final List<String> A_TO_B_NO_WAYPOINTS =
       ImmutableList.of(
-          "[DirectionsLeg: \"Montreal, QC, Canada\" -> \"Waterloo, ON, Canada\" (45.50171230,-73.56721840 -> 43.46430180,-80.52042120), duration=6 hours 11 mins, distance=638 km: 22 steps]");
-  private static final String WINDSOR_TO_MONTREAL_WITH_WAYPOINTS_JSON =
-      "[\"[DirectionsLeg: \"Windsor, ON, Canada\" -\u003e \"Waterloo, ON, Canada\" (42.31486680,-83.03656800 -\u003e 43.46430180,-80.52042120), duration\u003d2 hours 58 mins, distance\u003d293 km: 16 steps]\",\"[DirectionsLeg: \"Waterloo, ON, Canada\" -\u003e \"Markham, ON, Canada\" (43.46430180,-80.52042120 -\u003e 43.85644940,-79.33771690), duration\u003d1 hour 14 mins, distance\u003d123 km: 15 steps]\",\"[DirectionsLeg: \"Markham, ON, Canada\" -\u003e \"Quebec City, QC, Canada\" (43.85644940,-79.33771690 -\u003e 46.81380600,-71.20822600), duration\u003d7 hours 42 mins, distance\u003d790 km: 30 steps]\",\"[DirectionsLeg: \"Quebec City, QC, Canada\" -\u003e \"Montreal, QC, Canada\" (46.81380600,-71.20822600 -\u003e 45.50171230,-73.56721840), duration\u003d2 hours 46 mins, distance\u003d253 km: 29 steps]\"]";
-  private static final String MONTREAL_TO_MONTREAL_WITH_WAYPOINTS_JSON =
-      "[\"[DirectionsLeg: \"Montreal, QC, Canada\" -\u003e \"Kitchener, ON, Canada\" (45.50171230,-73.56721840 -\u003e 43.45184990,-80.49313410), duration\u003d6 hours 10 mins, distance\u003d632 km: 16 steps]\",\"[DirectionsLeg: \"Kitchener, ON, Canada\" -\u003e \"Waterloo, ON, Canada\" (43.45184990,-80.49313410 -\u003e 43.46430180,-80.52042120), duration\u003d8 mins, distance\u003d3.0 km: 5 steps]\",\"[DirectionsLeg: \"Waterloo, ON, Canada\" -\u003e \"Windsor, ON, Canada\" (43.46430180,-80.52042120 -\u003e 42.31486680,-83.03656800), duration\u003d2 hours 55 mins, distance\u003d291 km: 18 steps]\",\"[DirectionsLeg: \"Windsor, ON, Canada\" -\u003e \"Montreal, QC, Canada\" (42.31486680,-83.03656800 -\u003e 45.50171230,-73.56721840), duration\u003d8 hours 42 mins, distance\u003d897 km: 21 steps]\"]";
-  private static final String MONTREAL_TO_WATERLOO_NO_WAYPOINTS_JSON =
-      "[\"[DirectionsLeg: \"Montreal, QC, Canada\" -\u003e \"Waterloo, ON, Canada\" (45.50171230,-73.56721840 -\u003e 43.46430180,-80.52042120), duration\u003d6 hours 11 mins, distance\u003d638 km: 22 steps]\"]";
+          "[DirectionsLeg: \"A\" -> \"B\" (45,-73 -> 43,-80), duration=6 hours, distance=6 km: 2 steps]");
 
   @Before
   public void setUp() throws IOException {
@@ -79,59 +75,95 @@ public final class DirectionsServletTest {
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
+    gson = new Gson();
+    /* HOLD
+    Mockito.when(directionsClientFactory.getDirectionsClient(API_KEY))
+        .thenReturn(directionsClient);
+    */
     Mockito.when(directionsClientFactory.getDirectionsClient(Mockito.any()))
         .thenReturn(directionsClient);
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
   @Test
-  public void windsorToMontrealWithWaypoints() throws DirectionsException, ServletException {
+  public void aToBWithWaypoints() throws DirectionsException, ServletException {
     // Get optimized route of travel from Windsor, ON to Montreal, QC with waypoints
     // Markham, ON,
     // Waterloo, ON and Quebec City, QC in between.
     // Should return four legs: Windsor, ON -> Waterloo, ON -> Markham, ON -> Quebec
     // City, QC ->
     // Montreal, QC.
+    /* HOLD
+    Mockito.when(
+            directionsClient.getDirections(
+                "A", "B", Arrays.asList("C", "D")))
+        .thenReturn(A_TO_B_WITH_WAYPOINTS);
+    */
     Mockito.when(
             directionsClient.getDirections(
                 Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(String.class)))
-        .thenReturn(WINDSOR_TO_MONTREAL_WITH_WAYPOINTS);
+        .thenReturn(A_TO_B_WITH_WAYPOINTS);
     servlet.doGet(request, response);
     printWriter.flush();
-    String actual = StringEscapeUtils.unescapeJson(stringWriter.toString());
-    Assert.assertTrue(actual.contains(WINDSOR_TO_MONTREAL_WITH_WAYPOINTS_JSON));
+
+    String actualString = stringWriter.toString();
+    System.out.println("PRINT " + actualString);
+    Type type = new TypeToken<List<String>>() {}.getType();
+    List<String> actual = gson.fromJson(actualString, type);
+
+    Assert.assertEquals(A_TO_B_WITH_WAYPOINTS, actual);
   }
 
   @Test
-  public void montrealToMontrealWithWaypoints() throws DirectionsException, ServletException {
+  public void aToAWithWaypoints() throws DirectionsException, ServletException {
     // Get optimized route of travel from Montreal, QC to Montreal, QC with
     // waypoints Windsor, ON,
     // Waterloo, ON and Kitchener, ON in between.
     // Should return four legs: Montreal, QC -> Kitchener, ON -> Waterloo, ON ->
     // Windsor, ON ->
     // Montreal, QC.
+    /* HOLD
+    Mockito.when(
+            directionsClient.getDirections(
+              "A", "A", Arrays.asList("B", "C", "D")))
+        .thenReturn(A_TO_A_WITH_WAYPOINTS);
+    */
     Mockito.when(
             directionsClient.getDirections(
                 Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(String.class)))
-        .thenReturn(MONTREAL_TO_MONTREAL_WITH_WAYPOINTS);
+        .thenReturn(A_TO_A_WITH_WAYPOINTS);
     servlet.doGet(request, response);
     printWriter.flush();
-    String actual = StringEscapeUtils.unescapeJson(stringWriter.toString());
-    Assert.assertTrue(actual.contains(MONTREAL_TO_MONTREAL_WITH_WAYPOINTS_JSON));
+
+    String actualString = stringWriter.toString();
+    Type type = new TypeToken<List<String>>() {}.getType();
+    List<String> actual = gson.fromJson(actualString, type);
+
+    Assert.assertEquals(A_TO_A_WITH_WAYPOINTS, actual);
   }
 
   @Test
-  public void montrealToWaterlooNoWaypoints() throws DirectionsException, ServletException {
+  public void aToBNoWaypoints() throws DirectionsException, ServletException {
     // Get optimized route of travel from Montreal, QC to Waterloo, ON with no
     // waypoints in between.
     // Should return only one leg from Montreal, QC to Waterloo, ON.
+    /* HOLD
+    Mockito.when(
+            directionsClient.getDirections(
+              "A", "B", Arrays.asList()))
+        .thenReturn(A_TO_B_NO_WAYPOINTS);
+    */
     Mockito.when(
             directionsClient.getDirections(
                 Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(String.class)))
-        .thenReturn(MONTREAL_TO_WATERLOO_NO_WAYPOINTS);
+        .thenReturn(A_TO_B_NO_WAYPOINTS);
     servlet.doGet(request, response);
     printWriter.flush();
-    String actual = StringEscapeUtils.unescapeJson(stringWriter.toString());
-    Assert.assertTrue(actual.contains(MONTREAL_TO_WATERLOO_NO_WAYPOINTS_JSON));
+
+    String actualString = stringWriter.toString();
+    Type type = new TypeToken<List<String>>() {}.getType();
+    List<String> actual = gson.fromJson(actualString, type);
+
+    Assert.assertEquals(A_TO_B_NO_WAYPOINTS, actual);
   }
 }

@@ -24,12 +24,10 @@ import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
 import com.google.sps.model.TasksResponse;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -89,7 +87,8 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     return tasks.size();
   }
 
-  private int getTasksCompletedToday(TasksClient tasksClient, TaskList taskList) throws IOException {
+  private int getTasksCompletedToday(TasksClient tasksClient, TaskList taskList)
+      throws IOException {
     List<Task> tasks = tasksClient.listTasks(taskList);
     // Do some parsing to check if task is completed
     return tasks.size();
@@ -101,7 +100,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     return tasks.size();
   }
 
-    /**
+  /**
    * Returns Tasks from the user's Tasks account
    *
    * @param request Http request from client. Should contain idToken and accessToken
@@ -128,7 +127,9 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     int tasksDueToday = getTasksDueToday(tasksClient, taskList);
     int tasksCompletedToday = getTasksCompletedToday(tasksClient, taskList);
     int tasksOverdue = getTasksOverdue(tasksClient, taskList);
-    TasksResponse tasksResponse = new TasksResponse(taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
+    TasksResponse tasksResponse =
+        new TasksResponse(
+            taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();
