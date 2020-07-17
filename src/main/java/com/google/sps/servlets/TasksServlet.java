@@ -26,6 +26,7 @@ import com.google.sps.model.TasksClientImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -93,5 +94,14 @@ public class TasksServlet extends AuthenticatedHttpServlet {
       tasks.addAll(tasksClient.listTasks(taskList));
     }
     return tasks;
+  }
+
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response, Credential googleCredential) throws IOException, ServletException {
+    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+
+    TaskList taskList = tasksClient.postTaskList("TEST TEST TEST");
+
+    tasksClient.postTask(taskList, "TEST", "TESTNOTES");
   }
 }

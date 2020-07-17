@@ -19,6 +19,7 @@ import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
@@ -58,6 +59,42 @@ public class TasksClientImpl implements TasksClient {
 
     return taskLists != null ? taskLists : new ArrayList<>();
   }
+
+  @Override
+  public TaskList postTaskList(String title) throws IOException {
+    TaskList taskList = new TaskList();
+    taskList.setTitle(title);
+
+    return tasksService.tasklists().insert(taskList).execute();
+  }
+
+  @Override
+  public Task postTask(TaskList parentTaskList, String title, String notes, DateTime dueDate) throws IOException {
+    return postTask(parentTaskList, title, notes, dueDate.toStringRfc3339());
+  }
+
+  @Override
+  public Task postTask(TaskList parentTaskList, String title, String notes) throws IOException {
+    return postTask(parentTaskList, title, notes, "");
+  }
+
+  /**
+   * Posts a task to the user's tasks account
+   * @param parentTaskList tasklist the task belongs to
+   * @param title title of task
+   * @param notes any messages associated with the task
+   * @param timestamp a RFC3339 timestamp
+   * @return task object
+   * @throws IOException if an issue occurs with the TasksService
+   */
+  private Task postTask(TaskList parentTaskList, String title, String notes, String timestamp) throws IOException {
+    Task task = new Task();
+    task.setTitle(title);
+    task.setNotes(notes);
+    task.setDue(timestamp);
+    return tasksService.tasks().insert(parentTaskList.getId(), task).execute();
+  }
+
 
   /** Factory to create a TasksClientImpl instance with given credential */
   public static class Factory implements TasksClientFactory {

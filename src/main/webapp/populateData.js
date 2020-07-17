@@ -87,6 +87,7 @@ function populateTasks() {
           signOut();
         }
       });
+  postTask();
 }
 
 /**
@@ -120,4 +121,10 @@ function populateCalendar() {
           signOut();
         }
       });
+}
+
+function postTask() {
+  const request = new Request('/tasks', {method: 'POST'});
+
+  fetch(request).then(() => console.log('Request complete'));
 }

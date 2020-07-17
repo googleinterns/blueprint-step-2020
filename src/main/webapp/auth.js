@@ -118,7 +118,7 @@ function renderButton() {
   gapi.signin2.render('google-sign-in-btn', {
     'scope': 'https://www.googleapis.com/auth/gmail.readonly ' +
         'https://www.googleapis.com/auth/calendar ' +
-        'https://www.googleapis.com/auth/tasks.readonly',
+        'https://www.googleapis.com/auth/tasks',
     'width': 240,
     'height': 40,
     'longtitle': true,
