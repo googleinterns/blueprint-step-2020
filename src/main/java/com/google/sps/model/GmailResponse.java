@@ -14,158 +14,66 @@
 
 package com.google.sps.model;
 
-import com.google.api.services.gmail.model.Message;
-import com.google.api.services.gmail.model.MessagePartHeader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
 /**
  * Contains the summary gmail information that should be passed to the client, as well as the
- * methods to generate these statistics
+ * methods to generate these statistics. Properties only available through reflective access (i.e.
+ * gson, etc)
  */
 public class GmailResponse {
   private int nDays;
-  private int unreadEmailsFromNDays;
-  private int unreadEmailsFrom3Hours;
-  private int unreadImportantEmailsFromNDays;
-  private String senderOfUnreadEmailsFromNDays;
+  private int mHours;
+  private int unreadEmailsDays;
+  private int unreadEmailsHours;
+  private int unreadImportantEmails;
+  private String sender;
 
-  public GmailResponse(GmailClient gmailClient, int nDays) {
+  /**
+   * Create a GmailResponse instance
+   *
+   * @param nDays number of days relevant statistics are based on
+   * @param mHours number of hours relevant statistics are based on
+   * @param unreadEmailsDays how many unread emails user has from last nDays days
+   * @param unreadEmailsHours how many unread emails user has from last mHours hours
+   * @param unreadImportantEmails how many unread, important emails user has from last nDays days
+   * @param sender who sent the most unread emails from last nDays. Either name (if available) or
+   *     email address (if name not available)
+   */
+  public GmailResponse(
+      int nDays,
+      int mHours,
+      int unreadEmailsDays,
+      int unreadEmailsHours,
+      int unreadImportantEmails,
+      String sender) {
     this.nDays = nDays;
-    // populateNDaysMethods(nDays, gmailClient);
-    setUnreadEmailsFrom3Hours(gmailClient);
-    setUnreadEmailsFromNDays(nDays, gmailClient);
-    setUnreadImportantEmailsFromNDays(nDays, gmailClient);
-    setSenderOfUnreadEmailsFromNDays(nDays, gmailClient);
+    this.mHours = mHours;
+    this.unreadEmailsDays = unreadEmailsDays;
+    this.unreadEmailsHours = unreadEmailsHours;
+    this.unreadImportantEmails = unreadImportantEmails;
+    this.sender = sender;
   }
 
   public int getNDays() {
     return nDays;
   }
 
-  public String getSenderOfUnreadEmailsFromNDays() {
-    return senderOfUnreadEmailsFromNDays;
+  public int getMHours() {
+    return mHours;
   }
 
-  public int getUnreadEmailsFrom3Hours() {
-    return unreadEmailsFrom3Hours;
+  public int getUnreadEmailsDays() {
+    return unreadEmailsDays;
   }
 
-  public int getUnreadEmailsFromNDays() {
-    return unreadEmailsFromNDays;
+  public int getUnreadEmailsHours() {
+    return unreadEmailsHours;
   }
 
-  public int getUnreadImportantEmailsFromNDays() {
-    return unreadImportantEmailsFromNDays;
+  public int getUnreadImportantEmails() {
+    return unreadImportantEmails;
   }
 
-  private void setUnreadEmailsFromNDays(int nDays, GmailClient gmailClient) {
-    // Uses the stored n days
-    String searchQuery = GmailClient.emailQueryString(nDays, "d", true, false, "");
-    try {
-      unreadEmailsFromNDays = gmailClient.listUserMessages(searchQuery).size();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private void setUnreadEmailsFrom3Hours(GmailClient gmailClient) {
-    String searchQuery = GmailClient.emailQueryString(3, "h", true, false, "");
-    try {
-      unreadEmailsFrom3Hours = gmailClient.listUserMessages(searchQuery).size();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private void setUnreadImportantEmailsFromNDays(int nDays, GmailClient gmailClient) {
-    String searchQuery = GmailClient.emailQueryString(nDays, "d", true, true, "");
-    try {
-      unreadImportantEmailsFromNDays = gmailClient.listUserMessages(searchQuery).size();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private void setSenderOfUnreadEmailsFromNDays(int nDays, GmailClient gmailClient) {
-    String searchQuery = GmailClient.emailQueryString(nDays, "d", true, false, "");
-    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.METADATA;
-
-    List<Message> unreadEmails;
-
-    try {
-      unreadEmails =
-          gmailClient.listUserMessages(searchQuery).stream()
-              .map(
-                  (Message m) -> {
-                    try {
-                      return gmailClient.getUserMessage(m.getId(), messageFormat);
-                    } catch (IOException e) {
-                      throw new RuntimeException(e);
-                    }
-                  })
-              .collect(Collectors.toList());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    if (unreadEmails.isEmpty()) {
-      senderOfUnreadEmailsFromNDays = "";
-      return;
-    }
-
-    HashMap<String, Integer> senders = new HashMap<>();
-
-    unreadEmails.forEach(
-        (Message m) -> {
-          List<MessagePartHeader> senderList = m.getPayload().getHeaders();
-
-          // senderList.forEach((me) -> System.out.println(me.getName() + " " + me.getValue()));
-
-          senderList =
-              senderList.stream()
-                  .filter((MessagePartHeader header) -> header.getName().equals("From"))
-                  .collect(Collectors.toList());
-
-          senderList.forEach((me) -> System.out.println(me.getName() + ": " + me.getValue()));
-
-          String sender = senderList.get(0).getValue();
-
-          senders.put(sender, senders.get(sender) != null ? senders.get(sender) + 1 : 1);
-        });
-
-    String sender = senders.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
-
-    // From headers look one of two ways:
-    // Sample Sender <sampleemail@sample.com>
-    // OR
-    // <sampleemail@sample.com> (if name is not available)
-    // If a name is available, this should be extracted. Otherwise, extract the email.
-    // If no emails were unread, return null.
-
-    if (sender.charAt(0) == '<') {
-      senderOfUnreadEmailsFromNDays = sender.substring(1, sender.length() - 1);
-    } else {
-      senderOfUnreadEmailsFromNDays = sender.split("<")[0].trim();
-    }
-
-    System.out.println(senderOfUnreadEmailsFromNDays);
-  }
-
-  private void populateNDaysMethods(int nDays, GmailClient gmailClient) {
-    List<CompletableFuture<Void>> threads = new ArrayList<>();
-    threads.add(CompletableFuture.runAsync(() -> setUnreadEmailsFromNDays(nDays, gmailClient)));
-    threads.add(
-        CompletableFuture.runAsync(() -> setUnreadImportantEmailsFromNDays(nDays, gmailClient)));
-    threads.add(
-        CompletableFuture.runAsync(() -> setSenderOfUnreadEmailsFromNDays(nDays, gmailClient)));
-    threads.add(CompletableFuture.runAsync(() -> setUnreadEmailsFrom3Hours(gmailClient)));
-
-    threads.forEach(CompletableFuture::join);
+  public String getSender() {
+    return sender;
   }
 }

@@ -23,16 +23,17 @@
 function populateGmail() {
   // Get containers for all gmail fields
   const nDaysContainer = document.querySelector('#gmailNDays');
+  const mHoursContainer = document.querySelector('#gmailMHours');
   const unreadEmailsContainer =
-      document.querySelector('#gmailUnreadEmails');
+      document.querySelector('#gmailUnreadEmailsDays');
   const unreadEmailsThreeHrsContainer =
-      document.querySelector('#gmailUnreadEmailsThreeHrs');
+      document.querySelector('#gmailUnreadEmailsHours');
   const importantEmailsContainer =
-      document.querySelector('#gmailImportantEmails');
-  const senderContainer =
-      document.querySelector('#gmailSender');
+      document.querySelector('#gmailUnreadImportantEmails');
   const senderInitialContainer =
       document.querySelector('#gmailSenderInitial');
+  const senderContainer =
+      document.querySelector('#gmailSender');
 
   // Get GmailResponse object that reflects user's gmail account
   // Should contain a field for each datapoint in the Gmail panel
@@ -47,17 +48,19 @@ function populateGmail() {
       .then((gmailResponse) => {
         nDaysContainer.innerText =
             gmailResponse['nDays'];
+        nDaysContainer.innerText =
+            gmailResponse['mHours'];
         unreadEmailsContainer.innerText =
-            gmailResponse['unreadEmailsFromNDays'];
+            gmailResponse['unreadEmailsDays'];
         unreadEmailsThreeHrsContainer.innerText =
-            gmailResponse['unreadEmailsFrom3Hours'];
+            gmailResponse['unreadEmailsHours'];
         importantEmailsContainer.innerText =
-            gmailResponse['unreadImportantEmailsFromNDays'];
-        if (parseInt(gmailResponse['unreadEmailsFromNDays']) !== 0) {
+            gmailResponse['unreadImportantEmails'];
+        if (parseInt(gmailResponse['unreadEmailsDays']) !== 0) {
           senderContainer.innerText =
-              gmailResponse['senderOfUnreadEmailsFromNDays'];
+              gmailResponse['sender'];
           senderInitialContainer.innerText =
-              gmailResponse['senderOfUnreadEmailsFromNDays'][0].toUpperCase();
+              gmailResponse['sender'][0].toUpperCase();
         } else {
           senderContainer.innerText = 'N/A';
           senderInitialContainer.innerText = '-';

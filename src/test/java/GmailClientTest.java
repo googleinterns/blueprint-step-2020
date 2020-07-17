@@ -141,13 +141,14 @@ public final class GmailClientTest {
   @Test
   public void getQueryStringCombined() {
     // Should return query matching all specified rules
+    // trailing spaces on sub-queries do not matter for this method, so they will not be considered
     String multipleFilterQuery =
         GmailClient.emailQueryString(
             ONE_UNIT_OF_TIME, DAYS_UNIT, RETURN_UNREAD_ONLY, RETURN_IMPORTANT_ONLY, SAMPLE_EMAIL);
 
-    Assert.assertTrue(multipleFilterQuery.contains(ONE_DAY_QUERY));
-    Assert.assertTrue(multipleFilterQuery.contains(UNREAD_EMAILS_QUERY));
-    Assert.assertTrue(multipleFilterQuery.contains(IMPORTANT_EMAILS_QUERY));
-    Assert.assertTrue(multipleFilterQuery.contains(FROM_EMAIL_QUERY));
+    Assert.assertTrue(multipleFilterQuery.contains(ONE_DAY_QUERY.trim()));
+    Assert.assertTrue(multipleFilterQuery.contains(UNREAD_EMAILS_QUERY.trim()));
+    Assert.assertTrue(multipleFilterQuery.contains(IMPORTANT_EMAILS_QUERY.trim()));
+    Assert.assertTrue(multipleFilterQuery.contains(FROM_EMAIL_QUERY.trim()));
   }
 }

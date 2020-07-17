@@ -91,7 +91,7 @@ public interface GmailClient {
     queryString += fromEmailQuery(from);
 
     // Return multi-part query
-    return queryString;
+    return queryString.trim();
   }
 
   /**

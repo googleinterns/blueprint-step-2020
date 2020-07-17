@@ -17,15 +17,14 @@ import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
-import com.google.common.reflect.TypeToken;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
+import com.google.sps.model.GmailResponse;
 import com.google.sps.servlets.GmailServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Type;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /**
@@ -54,7 +54,6 @@ public final class GmailServletTest {
   private PrintWriter printWriter;
 
   private static final Gson gson = new Gson();
-  private static final Type LIST_OF_MESSAGES_TYPE = new TypeToken<List<Message>>() {}.getType();
 
   private static final boolean AUTHENTICATION_VERIFIED = true;
   private static final String ID_TOKEN_KEY = "idToken";
@@ -76,70 +75,71 @@ public final class GmailServletTest {
   private static final String SENDER_ONE_NAME = "Sender_1";
   private static final String SENDER_ONE_EMAIL = "senderOne@sender.com";
   private static final String SENDER_TWO_EMAIL = "senderTwo@sender.com";
-  private static final String SENDER_ONE =
+  private static final String SENDER_WITH_NAME =
       String.format("%s <%s>", SENDER_ONE_NAME, SENDER_ONE_EMAIL);
-  private static final String SENDER_TWO = String.format("<%s>", SENDER_TWO_EMAIL);
-  private static final List<Message> NO_MESSAGES = ImmutableList.of();
-  private static final List<Message> THREE_MESSAGES_SENDER_WITH_NAME =
-      ImmutableList.of(
-          new Message()
-              .setId(MESSAGE_ID_ONE)
-              .setPayload(
-                  new MessagePart()
-                      .setHeaders(
-                          Collections.singletonList(
-                              new MessagePartHeader().setName("From").setValue(SENDER_ONE)))),
-          new Message()
-              .setId(MESSAGE_ID_TWO)
-              .setPayload(
-                  new MessagePart()
-                      .setHeaders(
-                          Collections.singletonList(
-                              new MessagePartHeader().setName("From").setValue(SENDER_ONE)))),
-          new Message()
-              .setId(MESSAGE_ID_THREE)
-              .setPayload(
-                  new MessagePart()
-                      .setHeaders(
-                          Collections.singletonList(
-                              new MessagePartHeader().setName("From").setValue(SENDER_TWO)))));
-  private static final List<Message> THREE_MESSAGES_SENDER_WITHOUT_NAME =
-      ImmutableList.of(
-          new Message()
-              .setId(MESSAGE_ID_ONE)
-              .setPayload(
-                  new MessagePart()
-                      .setHeaders(
-                          Collections.singletonList(
-                              new MessagePartHeader().setName("From").setValue(SENDER_ONE)))),
-          new Message()
-              .setId(MESSAGE_ID_TWO)
-              .setPayload(
-                  new MessagePart()
-                      .setHeaders(
-                          Collections.singletonList(
-                              new MessagePartHeader().setName("From").setValue(SENDER_TWO)))),
-          new Message()
-              .setId(MESSAGE_ID_THREE)
-              .setPayload(
-                  new MessagePart()
-                      .setHeaders(
-                          Collections.singletonList(
-                              new MessagePartHeader().setName("From").setValue(SENDER_TWO)))));
+  private static final String SENDER_WITHOUT_NAME = String.format("<%s>", SENDER_TWO_EMAIL);
 
+  private static final String DEFAULT_SENDER = "";
   private static final int DEFAULT_N_DAYS = 7;
-  private static final String THREE_MESSAGES_JSON_SENDER_WITH_NAME =
-      String.format(
-          "{\"nDays\":%d,\"unreadEmailsFromNDays\":3,\"unreadEmailsFrom3Hours\":3,\"unreadImportantEmailsFromNDays\":3,\"senderOfUnreadEmailsFromNDays\":\"%s\"}",
-          DEFAULT_N_DAYS, SENDER_ONE_NAME);
-  private static final String THREE_MESSAGES_JSON_SENDER_WITHOUT_NAME =
-      String.format(
-          "{\"nDays\":%d,\"unreadEmailsFromNDays\":3,\"unreadEmailsFrom3Hours\":3,\"unreadImportantEmailsFromNDays\":3,\"senderOfUnreadEmailsFromNDays\":\"%s\"}",
-          DEFAULT_N_DAYS, SENDER_TWO_EMAIL);
-  private static final String NO_MESSAGES_JSON =
-      String.format(
-          "{\"nDays\":%d,\"unreadEmailsFromNDays\":0,\"unreadEmailsFrom3Hours\":0,\"unreadImportantEmailsFromNDays\":0,\"senderOfUnreadEmailsFromNDays\":\"\"}",
-          DEFAULT_N_DAYS);
+  private static final int DEFAULT_M_HOURS = 3;
+
+  private static final String UNREAD_EMAIL_DAYS_QUERY = String.format("newer_than:%dd is:unread", DEFAULT_N_DAYS);
+  private static final String UNREAD_EMAIL_HOURS_QUERY = String.format("newer_than:%dh is:unread", DEFAULT_M_HOURS);
+  private static final String IMPORTANT_QUERY = String.format("newer_than:%dd is:unread is:important", DEFAULT_N_DAYS);
+
+  private static final List<Message> NO_MESSAGES = ImmutableList.of();
+  private static final List<Message> THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME =
+      ImmutableList.of(
+          new Message()
+              .setId(MESSAGE_ID_ONE)
+              .setPayload(
+                  new MessagePart()
+                      .setHeaders(
+                          Collections.singletonList(
+                              new MessagePartHeader().setName("From").setValue(SENDER_WITH_NAME)))),
+          new Message()
+              .setId(MESSAGE_ID_TWO)
+              .setPayload(
+                  new MessagePart()
+                      .setHeaders(
+                          Collections.singletonList(
+                              new MessagePartHeader().setName("From").setValue(SENDER_WITH_NAME)))),
+          new Message()
+              .setId(MESSAGE_ID_THREE)
+              .setPayload(
+                  new MessagePart()
+                      .setHeaders(
+                          Collections.singletonList(
+                              new MessagePartHeader()
+                                  .setName("From")
+                                  .setValue(SENDER_WITHOUT_NAME)))));
+  private static final List<Message> THREE_MESSAGES_MAJORITY_SENDER_WITHOUT_NAME =
+      ImmutableList.of(
+          new Message()
+              .setId(MESSAGE_ID_ONE)
+              .setPayload(
+                  new MessagePart()
+                      .setHeaders(
+                          Collections.singletonList(
+                              new MessagePartHeader().setName("From").setValue(SENDER_WITH_NAME)))),
+          new Message()
+              .setId(MESSAGE_ID_TWO)
+              .setPayload(
+                  new MessagePart()
+                      .setHeaders(
+                          Collections.singletonList(
+                              new MessagePartHeader()
+                                  .setName("From")
+                                  .setValue(SENDER_WITHOUT_NAME)))),
+          new Message()
+              .setId(MESSAGE_ID_THREE)
+              .setPayload(
+                  new MessagePart()
+                      .setHeaders(
+                          Collections.singletonList(
+                              new MessagePartHeader()
+                                  .setName("From")
+                                  .setValue(SENDER_WITHOUT_NAME)))));
 
   @Before
   public void setUp() throws IOException, GeneralSecurityException {
@@ -164,40 +164,158 @@ public final class GmailServletTest {
   }
 
   @Test
-  public void noMessagesPresent() throws IOException, ServletException {
-    Mockito.when(gmailClient.listUserMessages(DEFAULT_QUERY_STRING)).thenReturn(NO_MESSAGES);
+  public void checkDefaultNDays() throws IOException, ServletException {
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(NO_MESSAGES_JSON));
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(DEFAULT_N_DAYS, gmailResponse.getNDays());
   }
 
   @Test
-  public void someMessagesPresentSenderHasName() throws IOException, ServletException {
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
-        .thenReturn(THREE_MESSAGES_SENDER_WITH_NAME);
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_ONE), Mockito.any()))
-        .thenReturn(THREE_MESSAGES_SENDER_WITH_NAME.get(0));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_TWO), Mockito.any()))
-        .thenReturn(THREE_MESSAGES_SENDER_WITH_NAME.get(1));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_THREE), Mockito.any()))
-        .thenReturn(THREE_MESSAGES_SENDER_WITH_NAME.get(2));
+  public void checkDefaultMHours() throws IOException, ServletException {
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(THREE_MESSAGES_JSON_SENDER_WITH_NAME));
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(DEFAULT_M_HOURS, gmailResponse.getMHours());
   }
 
   @Test
-  public void someMessagesPresentSenderNoName() throws IOException, ServletException {
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
-        .thenReturn(THREE_MESSAGES_SENDER_WITHOUT_NAME);
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_ONE), Mockito.any()))
-        .thenReturn(THREE_MESSAGES_SENDER_WITHOUT_NAME.get(0));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_TWO), Mockito.any()))
-        .thenReturn(THREE_MESSAGES_SENDER_WITHOUT_NAME.get(1));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_THREE), Mockito.any()))
-        .thenReturn(THREE_MESSAGES_SENDER_WITHOUT_NAME.get(2));
+  public void checkDefaultUnreadEmailsDays() throws IOException, ServletException {
+    // For all queries, return no messages. Unread emails days should have 0 length
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(THREE_MESSAGES_JSON_SENDER_WITHOUT_NAME));
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(0, gmailResponse.getUnreadEmailsDays());
+  }
+
+  @Test
+  public void checkDefaultUnreadEmailsHours() throws IOException, ServletException {
+    // For all queries, return no messages. Unread emails hours should have 0 length
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(0, gmailResponse.getUnreadEmailsHours());
+  }
+
+  @Test
+  public void checkDefaultUnreadImportantEmails() throws IOException, ServletException {
+    // For all queries, return no messages. Unread important emails should have 0 length
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(0, gmailResponse.getUnreadImportantEmails());
+  }
+
+  @Test
+  public void checkDefaultSender() throws IOException, ServletException {
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(DEFAULT_SENDER, gmailResponse.getSender());
+  }
+
+  @Test
+  public void checkSomeUnreadEmailsDays() throws IOException, ServletException {
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_DAYS_QUERY))).thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_HOURS_QUERY))).thenReturn(NO_MESSAGES);
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(IMPORTANT_QUERY))).thenReturn(NO_MESSAGES);
+
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_ONE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(0));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_TWO), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(1));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_THREE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(2));
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.size(), gmailResponse.getUnreadEmailsDays());
+  }
+
+  @Test
+  public void checkSomeUnreadEmailsHours() throws IOException, ServletException{
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_DAYS_QUERY))).thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_HOURS_QUERY))).thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(IMPORTANT_QUERY))).thenReturn(NO_MESSAGES);
+
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_ONE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(0));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_TWO), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(1));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_THREE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(2));
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.size(), gmailResponse.getUnreadEmailsHours());
+  }
+
+  @Test
+  public void checkSomeUnreadImportantEmails() throws IOException, ServletException{
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_DAYS_QUERY))).thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_HOURS_QUERY))).thenReturn(NO_MESSAGES);
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(IMPORTANT_QUERY))).thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
+
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_ONE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(0));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_TWO), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(1));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_THREE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(2));
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.size(), gmailResponse.getUnreadImportantEmails());
+  }
+
+  @Test
+  public void checkSenderWithNamePresentInHeader() throws IOException, ServletException {
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
+
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_ONE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(0));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_TWO), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(1));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_THREE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME.get(2));
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(SENDER_ONE_NAME, gmailResponse.getSender());
+  }
+
+  @Test
+  public void checkSenderWithoutNamePresentInHeader() throws IOException, ServletException {
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
+
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_ONE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITHOUT_NAME.get(0));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_TWO), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITHOUT_NAME.get(1));
+    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGE_ID_THREE), Mockito.any()))
+        .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITHOUT_NAME.get(2));
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    Assert.assertEquals(SENDER_TWO_EMAIL, gmailResponse.getSender());
   }
 }
