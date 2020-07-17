@@ -82,16 +82,17 @@ public interface GmailClient {
    */
   static String emailQueryString(
       int emailAge, String emailAgeUnits, boolean unreadOnly, boolean isImportant, String from) {
-    String queryString = "";
+    StringBuilder stringBuilder = new StringBuilder();
 
     // Add query components
-    queryString += emailAgeQuery(emailAge, emailAgeUnits);
-    queryString += unreadEmailQuery(unreadOnly);
-    queryString += isImportantQuery(isImportant);
-    queryString += fromEmailQuery(from);
+    stringBuilder
+        .append(emailAgeQuery(emailAge, emailAgeUnits))
+        .append(unreadEmailQuery(unreadOnly))
+        .append(isImportantQuery(isImportant))
+        .append(fromEmailQuery(from));
 
     // Return multi-part query
-    return queryString.trim();
+    return stringBuilder.toString();
   }
 
   /**
