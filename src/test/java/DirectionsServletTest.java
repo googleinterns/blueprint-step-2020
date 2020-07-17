@@ -84,14 +84,6 @@ public final class DirectionsServletTest {
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
-  @After
-  public void tearDown() throws IOException {
-    // Dump contents after each test
-    stringWriter.getBuffer().setLength(0);
-    stringWriter.close();
-    printWriter.close();
-  }
-
   @Test
   public void windsorToMontrealWithWaypoints() throws DirectionsException, ServletException {
     // Get optimized route of travel from Windsor, ON to Montreal, QC with waypoints
