@@ -29,15 +29,6 @@
 }
 
 /*
-  Utility to vertically contents of a container.
-  Do not use on text elements directly - use on enclosing element
- */
-.u-vertical-center {
-  align-items: center;
-  display: flex;
-}
-
-/*
   Adds border to panel in color of Gmail logo.
   Overrides other non-important border settings.
  */

@@ -31,7 +31,7 @@
   <div id="google-sign-in-btn"></div>
 </div>
 <!-- Contains features (gmail, tasks, calendar, etc). Hidden when user not authenticated -->
-<!-- TODO: Fix issues with u-vertical-center (Issue #85) -->
+<!-- TODO: Fix issues with (Issue #85) -->
 <div hidden class="feature-container">
   <a class="u-align-with-first-panel" href="#" onclick="signOut()">Sign out</a>
   <!-- Contains at-a-glance information about user's services -->
@@ -41,7 +41,7 @@
       <!-- Gmail container -->
       <div class="panel u-border-mail">
         <div class="panel__header">
-          <div class="panel__content-entry u-remove-top-margin u-vertical-center">
+          <div class="panel__content-entry u-remove-top-margin">
             <a class="panel__content-entry-link" target="_blank" href="https://www.gmail.com">
               <img class="panel__logo" alt="mail-logo" src="assets/mail.png">
             </a>
@@ -49,21 +49,21 @@
           </div>
           <p class="panel__section-subheading">From the last <span id="gmailNDays"></span> days:
           <div class="panel__content">
-            <div class="panel__content-entry u-vertical-center">
+            <div class="panel__content-entry">
               <div class="panel__rounded-number u-background-mail">
                 <p class="panel__text-data-point u-text-white" id="gmailUnreadEmailsDays">
               </div>
               <p class="panel__text-data-point">Unread Emails:
             </div>
-            <div class="panel__content-entry u-vertical-center">
+            <div class="panel__content-entry">
               <img class="panel__content-icon" alt="clock-icon" src="assets/clock.png">
               <p class="panel__text-large"><span id="gmailUnreadEmailsHours"></span> from the last <span id="gmailMHours"></span> hours
             </div>
-            <div class="panel__content-entry u-vertical-center">
+            <div class="panel__content-entry">
               <img class="panel__content-icon" alt="flag-icon" src="assets/flag.png">
               <p class="panel__text-large"><span id="gmailUnreadImportantEmails"></span> marked important
             </div>
-            <div class="panel__content-entry u-vertical-center">
+            <div class="panel__content-entry">
               <div class="panel__round-letter">
                 <p class="panel__text-data-point u-text-white" id="gmailSenderInitial">
               </div>
@@ -75,7 +75,7 @@
       <!-- Tasks container -->
       <div class="panel u-border-tasks">
         <div class="panel__header">
-          <div class="panel__content-entry u-remove-top-margin u-vertical-center">
+          <div class="panel__content-entry u-remove-top-margin">
             <a class="panel__content-entry-link" target="_blank" href="https://calendar.google.com/calendar/b/0/r?opentasks=1">
               <img class="panel__logo" alt="tasks-logo" src="assets/tasks.png">
             </a>
@@ -83,21 +83,21 @@
           </div>
           <p class="panel__section-subheading">Selected Tasks:
           <div class="panel__content">
-            <div class="panel__content-entry  u-vertical-center">
+            <div class="panel__content-entry ">
               <div class="panel__rounded-number u-background-tasks">
                 <p class="panel__text-data-point u-text-white">15
               </div>
               <p class="panel__text-data-point">Tasks to complete
             </div>
-            <div class="panel__content-entry u-vertical-center">
+            <div class="panel__content-entry">
               <img class="panel__content-icon" alt="clipboard-icon" src="assets/clipboard.png">
               <p class="panel__text-large">4 tasks due today
             </div>
-            <div class="panel__content-entry u-vertical-center">
+            <div class="panel__content-entry">
               <img class="panel__content-icon" alt="checkmark-icon" src="assets/checkmark.png">
               <p class="panel__text-large">2 tasks completed today
             </div>
-            <div class="panel__content-entry u-vertical-center">
+            <div class="panel__content-entry">
               <img class="panel__content-icon" alt="exclamation-icon" src="assets/exclamation.png">
               <p class="panel__text-large">1 task overdue
             </div>
@@ -109,7 +109,7 @@
       <!-- Calendar container -->
       <div class="panel u-border-calendar">
         <div class="panel__header">
-          <div class="panel__content-entry u-remove-top-margin u-vertical-center">
+          <div class="panel__content-entry u-remove-top-margin">
             <a class="panel__content-entry-link" target="_blank" href="https://calendar.google.com/calendar/b/0/r">
               <img class="panel__logo" alt="calendar-logo" src="assets/calendar.png">
             </a>
