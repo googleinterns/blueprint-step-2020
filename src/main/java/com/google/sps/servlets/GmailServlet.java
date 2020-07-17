@@ -117,7 +117,6 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    */
   private int getUnreadEmailCountDays(int nDays, GmailClient gmailClient) throws IOException {
     String searchQuery = GmailClient.emailQueryString(nDays, "d", true, false, "");
-    System.out.println(searchQuery);
     return gmailClient.listUserMessages(searchQuery).size();
   }
 
@@ -131,7 +130,6 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    */
   private int getUnreadEmailCountHours(int mHours, GmailClient gmailClient) throws IOException {
     String searchQuery = GmailClient.emailQueryString(mHours, "h", true, false, "");
-    System.out.println(searchQuery);
     return gmailClient.listUserMessages(searchQuery).size();
   }
 
@@ -145,7 +143,6 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    */
   private int getImportantUnreadEmailCount(int nDays, GmailClient gmailClient) throws IOException {
     String searchQuery = GmailClient.emailQueryString(nDays, "d", true, true, "");
-    System.out.println(searchQuery);
     return gmailClient.listUserMessages(searchQuery).size();
   }
 

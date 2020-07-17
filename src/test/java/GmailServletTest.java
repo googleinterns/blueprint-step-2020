@@ -81,6 +81,9 @@ public final class GmailServletTest {
   private static final String DEFAULT_SENDER = "";
   private static final int DEFAULT_N_DAYS = 7;
   private static final int DEFAULT_M_HOURS = 3;
+  private static final int NEGATIVE_N_DAYS = -1;
+  private static final int NEGATIVE_M_HOURS = -1;
+  private static final int OUT_OF_BOUNDS_M_HOURS = 24;
 
   private static final String UNREAD_EMAIL_DAYS_QUERY =
       String.format("newer_than:%dd is:unread", DEFAULT_N_DAYS);
@@ -158,10 +161,6 @@ public final class GmailServletTest {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
-    Mockito.when(request.getParameter(Mockito.eq("nDays")))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter(Mockito.eq("mHours")))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
 
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
@@ -170,7 +169,81 @@ public final class GmailServletTest {
   }
 
   @Test
+  public void noNDaysParameter() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays"))).thenReturn(null);
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+  }
+
+  @Test
+  public void noMHoursParameter() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours"))).thenReturn(null);
+
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+  }
+
+  @Test
+  public void negativeNDaysParameter() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(NEGATIVE_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+  }
+
+  @Test
+  public void negativeMHoursParameter() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(NEGATIVE_M_HOURS));
+
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+  }
+
+  @Test
+  public void outOfBoundsMHoursParameter() throws IOException, ServletException {
+    // mHours must be <= 23
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(OUT_OF_BOUNDS_M_HOURS));
+
+    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
+
+    servlet.doGet(request, response);
+    printWriter.flush();
+    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+  }
+
+  @Test
   public void checkDefaultNDays() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
@@ -181,6 +254,11 @@ public final class GmailServletTest {
 
   @Test
   public void checkDefaultMHours() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
@@ -192,6 +270,11 @@ public final class GmailServletTest {
   @Test
   public void checkDefaultUnreadEmailsDays() throws IOException, ServletException {
     // For all queries, return no messages. Unread emails days should have 0 length
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
@@ -203,6 +286,11 @@ public final class GmailServletTest {
   @Test
   public void checkDefaultUnreadEmailsHours() throws IOException, ServletException {
     // For all queries, return no messages. Unread emails hours should have 0 length
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
@@ -214,6 +302,11 @@ public final class GmailServletTest {
   @Test
   public void checkDefaultUnreadImportantEmails() throws IOException, ServletException {
     // For all queries, return no messages. Unread important emails should have 0 length
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
@@ -224,6 +317,11 @@ public final class GmailServletTest {
 
   @Test
   public void checkDefaultSender() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
@@ -234,6 +332,11 @@ public final class GmailServletTest {
 
   @Test
   public void checkSomeUnreadEmailsDays() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_DAYS_QUERY)))
         .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_HOURS_QUERY)))
@@ -256,6 +359,11 @@ public final class GmailServletTest {
 
   @Test
   public void checkSomeUnreadEmailsHours() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_DAYS_QUERY)))
         .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_HOURS_QUERY)))
@@ -278,6 +386,11 @@ public final class GmailServletTest {
 
   @Test
   public void checkSomeUnreadImportantEmails() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_DAYS_QUERY)))
         .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_HOURS_QUERY)))
@@ -301,6 +414,11 @@ public final class GmailServletTest {
 
   @Test
   public void checkSenderWithNamePresentInHeader() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
         .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
 
@@ -319,6 +437,11 @@ public final class GmailServletTest {
 
   @Test
   public void checkSenderWithoutNamePresentInHeader() throws IOException, ServletException {
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
         .thenReturn(THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME);
 
