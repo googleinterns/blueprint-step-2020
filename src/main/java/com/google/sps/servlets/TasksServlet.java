@@ -23,9 +23,13 @@ import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
+import com.google.sps.model.TasksResponse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,6 +57,51 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   /**
+   * Get the names of the tasks in all of the user's tasklists
+   *
+   * @param tasksClient either a mock TaskClient or a taskClient with a valid credential
+   * @return List of tasks from user's account
+   * @throws IOException if an issue occurs with the tasksService
+   */
+  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
+    List<TaskList> taskLists = tasksClient.listTaskLists();
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      tasks.addAll(tasksClient.listTasks(taskList));
+    }
+    return tasks;
+  }
+
+  private List<String> getTaskListTitles(TasksClient tasksClient) throws IOException {
+    List<TaskList> taskLists = tasksClient.listTaskLists();
+    return taskLists.stream().map(taskList -> taskList.getTitle()).collect(Collectors.toList());
+  }
+
+  private int getTasksToComplete(TasksClient tasksClient, TaskList taskList) throws IOException {
+    List<Task> tasks = tasksClient.listTasks(taskList);
+    // Do some parsing to check if task is not completed
+    return tasks.size();
+  }
+
+  private int getTasksDueToday(TasksClient tasksClient, TaskList taskList) throws IOException {
+    List<Task> tasks = tasksClient.listTasks(taskList);
+    // Do some parsing to check if task is due today
+    return tasks.size();
+  }
+
+  private int getTasksCompletedToday(TasksClient tasksClient, TaskList taskList) throws IOException {
+    List<Task> tasks = tasksClient.listTasks(taskList);
+    // Do some parsing to check if task is completed
+    return tasks.size();
+  }
+
+  private int getTasksOverdue(TasksClient tasksClient, TaskList taskList) throws IOException {
+    List<Task> tasks = tasksClient.listTasks(taskList);
+    // Do some parsing to check if task is completed
+    return tasks.size();
+  }
+
+    /**
    * Returns Tasks from the user's Tasks account
    *
    * @param request Http request from client. Should contain idToken and accessToken
@@ -69,29 +118,23 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     // Get tasks from Google Tasks
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
-    List<Task> tasks = getTasks(tasksClient);
+    // List<Task> tasks = getTasks(tasksClient);
+    List<TaskList> taskLists = tasksClient.listTaskLists();
+    TaskList taskList = taskLists.get(0);
+
+    // Initialize Tasks Response
+    List<String> taskListTitles = getTaskListTitles(tasksClient);
+    int tasksToComplete = getTasksToComplete(tasksClient, taskList);
+    int tasksDueToday = getTasksDueToday(tasksClient, taskList);
+    int tasksCompletedToday = getTasksCompletedToday(tasksClient, taskList);
+    int tasksOverdue = getTasksOverdue(tasksClient, taskList);
+    TasksResponse tasksResponse = new TasksResponse(taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();
-    String tasksJson = gson.toJson(tasks);
+    String tasksJson = gson.toJson(tasksResponse);
 
     response.setContentType("application/json");
     response.getWriter().println(tasksJson);
-  }
-
-  /**
-   * Get the names of the tasks in all of the user's tasklists
-   *
-   * @param tasksClient either a mock TaskClient or a taskClient with a valid credential
-   * @return List of tasks from user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
-    }
-    return tasks;
   }
 }

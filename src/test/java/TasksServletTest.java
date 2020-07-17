@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -106,7 +107,8 @@ public final class TasksServletTest {
     printWriter = new PrintWriter(stringWriter);
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
-
+  
+  @Ignore
   @Test
   public void noTaskLists() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASKLISTS);
@@ -116,6 +118,7 @@ public final class TasksServletTest {
     Assert.assertTrue(tasks.isEmpty());
   }
 
+  @Ignore
   @Test
   public void emptyTaskLists() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASKLISTS);
@@ -127,6 +130,7 @@ public final class TasksServletTest {
     Assert.assertTrue(tasks.isEmpty());
   }
 
+  @Ignore
   @Test
   public void oneEmptyTaskList() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASKLISTS);
@@ -139,6 +143,7 @@ public final class TasksServletTest {
     Assert.assertThat(tasks, CoreMatchers.hasItems(TASKS_ONE_TWO.get(0), TASKS_ONE_TWO.get(1)));
   }
 
+  @Ignore
   @Test
   public void completeTaskList() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASKLISTS);
