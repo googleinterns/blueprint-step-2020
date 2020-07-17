@@ -87,8 +87,7 @@ public class GmailServlet extends AuthenticatedHttpServlet {
     }
 
     if (nDays < 0 || mHours < 0) {
-      response.sendError(
-          400, "nDays and mHours must be positive");
+      response.sendError(400, "nDays and mHours must be positive");
       return;
     }
 
