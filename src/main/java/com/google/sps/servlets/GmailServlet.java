@@ -62,7 +62,7 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    * emails from last m hours, and the most frequent sender of unread emails in the last n days
    *
    * @param request Http request from the client. Should contain idToken and accessToken, as well as
-   *     integer values for nDays (>0) and mHours (>0, <24)
+   *     integer values for nDays and mHours (both >0)
    * @param response 403 if user is not authenticated, list of messageIds otherwise
    * @param googleCredential valid google credential object (already verified)
    * @throws IOException if an issue arises while processing the request
@@ -86,9 +86,9 @@ public class GmailServlet extends AuthenticatedHttpServlet {
       return;
     }
 
-    if (nDays < 0 || mHours < 0 || mHours > 23) {
+    if (nDays < 0 || mHours < 0) {
       response.sendError(
-          400, "nDays and mHours must be positive, and mHours must be between 0 and 23");
+          400, "nDays and mHours must be positive");
       return;
     }
 

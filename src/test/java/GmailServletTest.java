@@ -60,8 +60,6 @@ public final class GmailServletTest {
   private static final String ACCESS_TOKEN_KEY = "accessToken";
   private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
 
-  private static final String DEFAULT_QUERY_STRING = "";
-
   private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
   private static final Cookie sampleAccessTokenCookie =
       new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
@@ -83,7 +81,6 @@ public final class GmailServletTest {
   private static final int DEFAULT_M_HOURS = 3;
   private static final int NEGATIVE_N_DAYS = -1;
   private static final int NEGATIVE_M_HOURS = -1;
-  private static final int OUT_OF_BOUNDS_M_HOURS = 24;
 
   private static final String UNREAD_EMAIL_DAYS_QUERY =
       String.format("newer_than:%dd is:unread", DEFAULT_N_DAYS);
@@ -214,21 +211,6 @@ public final class GmailServletTest {
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
     Mockito.when(request.getParameter(Mockito.eq("mHours")))
         .thenReturn(String.valueOf(NEGATIVE_M_HOURS));
-
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
-
-    servlet.doGet(request, response);
-    printWriter.flush();
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
-  }
-
-  @Test
-  public void outOfBoundsMHoursParameter() throws IOException, ServletException {
-    // mHours must be <= 23
-    Mockito.when(request.getParameter(Mockito.eq("nDays")))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter(Mockito.eq("mHours")))
-        .thenReturn(String.valueOf(OUT_OF_BOUNDS_M_HOURS));
 
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
