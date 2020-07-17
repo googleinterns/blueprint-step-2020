@@ -158,6 +158,10 @@ public final class GmailServletTest {
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
+    Mockito.when(request.getParameter(Mockito.eq("nDays")))
+        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter(Mockito.eq("mHours")))
+        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
 
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();

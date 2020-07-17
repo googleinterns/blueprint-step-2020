@@ -61,7 +61,8 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    * emails from last n days, number of important unread emails from last n days, number of unread
    * emails from last m hours, and the most frequent sender of unread emails in the last n days
    *
-   * @param request Http request from the client. Should contain idToken and accessToken
+   * @param request Http request from the client. Should contain idToken and accessToken, as well as
+   *     integer values for nDays (>0) and mHours (>0, <24)
    * @param response 403 if user is not authenticated, list of messageIds otherwise
    * @param googleCredential valid google credential object (already verified)
    * @throws IOException if an issue arises while processing the request
@@ -75,9 +76,21 @@ public class GmailServlet extends AuthenticatedHttpServlet {
 
     GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
 
-    // TODO: Accept Query Parameters for days and hours (Issue #83)
-    int nDays = 7;
-    int mHours = 3;
+    int nDays;
+    int mHours;
+    try {
+      nDays = Integer.parseInt(request.getParameter("nDays"));
+      mHours = Integer.parseInt(request.getParameter("mHours"));
+    } catch (NumberFormatException e) {
+      response.sendError(400, "nDays and mHours must be integers");
+      return;
+    }
+
+    if (nDays < 0 || mHours < 0 || mHours > 23) {
+      response.sendError(
+          400, "nDays and mHours must be positive, and mHours must be between 0 and 23");
+      return;
+    }
 
     // TODO: Perform these operations faster (use multithreading, batching, etc) (Issue #84)
     int unreadEmails = getUnreadEmailCountDays(nDays, gmailClient);

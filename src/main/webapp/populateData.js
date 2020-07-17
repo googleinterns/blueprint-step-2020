@@ -37,7 +37,8 @@ function populateGmail() {
 
   // Get GmailResponse object that reflects user's gmail account
   // Should contain a field for each datapoint in the Gmail panel
-  fetch('/gmail')
+  // TODO: Allow user to select query parameters (Issue #83)
+  fetch('/gmail?nDays=7&mHours=3')
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
@@ -48,7 +49,7 @@ function populateGmail() {
       .then((gmailResponse) => {
         nDaysContainer.innerText =
             gmailResponse['nDays'];
-        nDaysContainer.innerText =
+        mHoursContainer.innerText =
             gmailResponse['mHours'];
         unreadEmailsContainer.innerText =
             gmailResponse['unreadEmailsDays'];
