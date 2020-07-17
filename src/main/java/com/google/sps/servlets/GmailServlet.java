@@ -193,12 +193,13 @@ public class GmailServlet extends AuthenticatedHttpServlet {
 
           senders.put(sender, senders.get(sender) != null ? senders.get(sender) + 1 : 1);
         });
-    String sender = senders.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
+    String headerValue =
+        senders.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
 
-    if (sender.charAt(0) == '<') {
-      return sender.substring(1, sender.length() - 1);
+    if (headerValue.charAt(0) == '<') {
+      return headerValue.substring(1, headerValue.length() - 1);
     } else {
-      return sender.split("<")[0].trim();
+      return headerValue.split("<")[0].trim();
     }
   }
 }
