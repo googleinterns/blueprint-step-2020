@@ -40,17 +40,16 @@ import org.mockito.Mockito;
 /** Test Calendar Servlet responds to client with correctly parsed Events. */
 @RunWith(JUnit4.class)
 public final class CalendarServletTest {
-  private AuthenticationVerifier authenticationVerifier;
-  private CalendarClientFactory calendarClientFactory;
-  private CalendarClient calendarClient;
-  private CalendarServlet servlet;
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
-  private final Gson gson = new Gson();
+  private static AuthenticationVerifier authenticationVerifier;
+  private static CalendarClientFactory calendarClientFactory;
+  private static CalendarClient calendarClient;
+  private static CalendarServlet servlet;
+  private static HttpServletRequest request;
+  private static HttpServletResponse response;
+  private static StringWriter stringWriter;
+  private static PrintWriter printWriter;
+  private static final Gson gson = new Gson();
 
-  private static final boolean AUTHENTICATION_VERIFIED = true;
   private static final String ID_TOKEN_KEY = "idToken";
   private static final String ID_TOKEN_VALUE = "sampleId";
   private static final String ACCESS_TOKEN_KEY = "accessToken";
@@ -61,7 +60,6 @@ public final class CalendarServletTest {
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
-  // Events must be returned in order of retrieval - JSON includes tasks in desired order
   private static final String EVENT_SUMMARY_ONE = "test event one";
   private static final String EVENT_SUMMARY_TWO = "test event two";
   private static final String EVENT_ONE_TWO_JSON =
@@ -92,8 +90,7 @@ public final class CalendarServletTest {
 
     Mockito.when(calendarClientFactory.getCalendarClient(Mockito.any())).thenReturn(calendarClient);
     // Authentication will always pass
-    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
+    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString())).thenReturn(true);
 
     request = Mockito.mock(HttpServletRequest.class);
     response = Mockito.mock(HttpServletResponse.class);
@@ -109,47 +106,39 @@ public final class CalendarServletTest {
   public void noCalendarEvent() throws IOException, ServletException {
     // Test case where there are no events in the user's calendar
     Mockito.when(calendarClient.getCalendarEvents()).thenReturn(NO_EVENT);
-    servlet.doGet(request, response);
-    printWriter.flush();
-    String actualString = stringWriter.toString();
-    Type type = new TypeToken<List<Event>>() {}.getType();
-    List<Event> actual = gson.fromJson(actualString, type);
-    Assert.assertEquals(NO_EVENT, actual);
+    checkReturn(NO_EVENT);
   }
 
   @Test
   public void firstTwoEvents() throws IOException, ServletException {
     // Test case where there are two events with defined summaries
+    // Events must be returned in order of retrieval - JSON includes tasks in desired order
     Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_ONE_TWO);
-    servlet.doGet(request, response);
-    printWriter.flush();
-    String actualString = stringWriter.toString();
-    Type type = new TypeToken<List<Event>>() {}.getType();
-    List<Event> actual = gson.fromJson(actualString, type);
-    Assert.assertEquals(EVENT_ONE_TWO, actual);
+    checkReturn(EVENT_ONE_TWO);
   }
 
   @Test
   public void undefinedEvent() throws IOException, ServletException {
     // Test case where there is an event with no summary
     Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_UNDEFINED);
-    servlet.doGet(request, response);
-    printWriter.flush();
-    String actualString = stringWriter.toString();
-    Type type = new TypeToken<List<Event>>() {}.getType();
-    List<Event> actual = gson.fromJson(actualString, type);
-    Assert.assertEquals(EVENT_UNDEFINED, actual);
+    checkReturn(EVENT_UNDEFINED);
   }
 
   @Test
   public void allEvent() throws IOException, ServletException {
     // Test case where there are two defined and an undefined event
+    // Events must be returned in order of retrieval - JSON includes tasks in desired order
     Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_ALL);
+    checkReturn(EVENT_ALL);
+  }
+
+  public void checkReturn(List<Event> EXPECTED_EVENT) throws IOException, ServletException {
+    // Method that handles the once the Calendar Client has been mocked
     servlet.doGet(request, response);
     printWriter.flush();
     String actualString = stringWriter.toString();
     Type type = new TypeToken<List<Event>>() {}.getType();
     List<Event> actual = gson.fromJson(actualString, type);
-    Assert.assertEquals(EVENT_ALL, actual);
+    Assert.assertEquals(EXPECTED_EVENT, actual);
   }
 }
