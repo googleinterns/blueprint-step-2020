@@ -83,11 +83,11 @@ public final class GmailServletTest {
   private static final int NEGATIVE_M_HOURS = -1;
 
   private static final String UNREAD_EMAIL_DAYS_QUERY =
-      String.format("newer_than:%dd is:unread", DEFAULT_N_DAYS);
+      String.format("newer_than:%dd is:unread ", DEFAULT_N_DAYS);
   private static final String UNREAD_EMAIL_HOURS_QUERY =
-      String.format("newer_than:%dh is:unread", DEFAULT_M_HOURS);
+      String.format("newer_than:%dh is:unread ", DEFAULT_M_HOURS);
   private static final String IMPORTANT_QUERY =
-      String.format("newer_than:%dd is:unread is:important", DEFAULT_N_DAYS);
+      String.format("newer_than:%dd is:unread is:important ", DEFAULT_N_DAYS);
 
   private static final List<Message> NO_MESSAGES = ImmutableList.of();
   private static final List<Message> THREE_MESSAGES_MAJORITY_SENDER_WITH_NAME =
