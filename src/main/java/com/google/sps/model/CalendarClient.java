@@ -15,16 +15,25 @@
 package com.google.sps.model;
 
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import java.io.IOException;
 import java.util.List;
 
 /** Interface to handle get requests to the Calendar API. */
 public interface CalendarClient {
   /**
-   * Get the events in a user's calendar.
+   * Get the list of calendars in a user's account.
    *
-   * @return the list of Event from the calendar
+   * @return the list of Calendars from the user's account
    * @throws IOException thrown when an issue occurs
    */
-  List<Event> getCalendarEvents() throws IOException;
+  List<CalendarListEntry> getCalendarList() throws IOException;
+  
+  /**
+   * Get the events in a user's calendar.
+   *
+   * @return the list of Event from a calendar
+   * @throws IOException thrown when an issue occurs
+   */
+  List<Event> getCalendarEvents(CalendarListEntry calendarList) throws IOException;
 }

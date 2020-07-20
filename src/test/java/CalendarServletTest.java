@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.reflect.TypeToken;
@@ -40,14 +41,14 @@ import org.mockito.Mockito;
 /** Test Calendar Servlet responds to client with correctly parsed Events. */
 @RunWith(JUnit4.class)
 public final class CalendarServletTest {
-  private static AuthenticationVerifier authenticationVerifier;
-  private static CalendarClientFactory calendarClientFactory;
-  private static CalendarClient calendarClient;
-  private static CalendarServlet servlet;
-  private static HttpServletRequest request;
-  private static HttpServletResponse response;
-  private static StringWriter stringWriter;
-  private static PrintWriter printWriter;
+  private AuthenticationVerifier authenticationVerifier;
+  private CalendarClientFactory calendarClientFactory;
+  private CalendarClient calendarClient;
+  private CalendarServlet servlet;
+  private HttpServletRequest request;
+  private HttpServletResponse response;
+  private StringWriter stringWriter;
+  private PrintWriter printWriter;
   private static final Gson gson = new Gson();
 
   private static final String ID_TOKEN_KEY = "idToken";
@@ -70,7 +71,17 @@ public final class CalendarServletTest {
           "[{},{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
   private static final String EVENT_UNDEFINED_JSON = "[{}]";
   private static final String EMPTY_JSON = "[]";
+  private static final CalendarListEntry PRIMARY = new CalendarListEntry().setId("primary");
+  private static final CalendarListEntry SECONDARY = new CalendarListEntry().setId("secondary");
+  private static final List<CalendarListEntry> ONE_CALENDAR = ImmutableList.of(PRIMARY);
+  private static final List<CalendarListEntry> TWO_CALENDARS = ImmutableList.of(PRIMARY, SECONDARY);
   private static final List<Event> NO_EVENT = ImmutableList.of();
+  private static final List<Event> EVENT_ONE =
+      ImmutableList.of(
+          new Event().setSummary(EVENT_SUMMARY_ONE));
+  private static final List<Event> EVENT_TWO =
+      ImmutableList.of(
+          new Event().setSummary(EVENT_SUMMARY_TWO));
   private static final List<Event> EVENT_ONE_TWO =
       ImmutableList.of(
           new Event().setSummary(EVENT_SUMMARY_ONE), new Event().setSummary(EVENT_SUMMARY_TWO));
@@ -105,40 +116,49 @@ public final class CalendarServletTest {
   @Test
   public void noCalendarEvent() throws IOException, ServletException {
     // Test case where there are no events in the user's calendar
-    Mockito.when(calendarClient.getCalendarEvents()).thenReturn(NO_EVENT);
-    checkReturn(NO_EVENT);
+    Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
+    Mockito.when(calendarClient.getCalendarEvents(PRIMARY)).thenReturn(NO_EVENT);
+    List<Event> actual = checkReturn();
+    Assert.assertEquals(NO_EVENT, actual);
   }
 
   @Test
-  public void firstTwoEvents() throws IOException, ServletException {
-    // Test case where there are two events with defined summaries
-    // Events must be returned in order of retrieval - JSON includes tasks in desired order
-    Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_ONE_TWO);
-    checkReturn(EVENT_ONE_TWO);
+  public void twoCalendars() throws IOException, ServletException {
+    // Test case where there are two calendars with a defined event in each
+    // Events must be returned in order of retrieval
+    Mockito.when(calendarClient.getCalendarList()).thenReturn(TWO_CALENDARS);
+    Mockito.when(calendarClient.getCalendarEvents(PRIMARY)).thenReturn(EVENT_ONE);
+    Mockito.when(calendarClient.getCalendarEvents(SECONDARY)).thenReturn(EVENT_TWO);
+    List<Event> actual = checkReturn();
+    Assert.assertEquals(EVENT_ONE_TWO, actual);
   }
 
   @Test
   public void undefinedEvent() throws IOException, ServletException {
     // Test case where there is an event with no summary
-    Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_UNDEFINED);
-    checkReturn(EVENT_UNDEFINED);
+    Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
+    Mockito.when(calendarClient.getCalendarEvents(PRIMARY)).thenReturn(EVENT_UNDEFINED);
+    List<Event> actual = checkReturn();
+    Assert.assertEquals(EVENT_UNDEFINED, actual);
   }
 
   @Test
   public void allEvent() throws IOException, ServletException {
     // Test case where there are two defined and an undefined event
     // Events must be returned in order of retrieval - JSON includes tasks in desired order
-    Mockito.when(calendarClient.getCalendarEvents()).thenReturn(EVENT_ALL);
-    checkReturn(EVENT_ALL);
+    Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
+    Mockito.when(calendarClient.getCalendarEvents(PRIMARY)).thenReturn(EVENT_ALL);
+    List<Event> actual = checkReturn();
+    Assert.assertEquals(EVENT_ALL, actual);
   }
 
-  public void checkReturn(List<Event> EXPECTED_EVENT) throws IOException, ServletException {
+  public List<Event> checkReturn() throws IOException, ServletException {
     // Method that handles the once the Calendar Client has been mocked
     servlet.doGet(request, response);
     printWriter.flush();
     String actualString = stringWriter.toString();
     Type type = new TypeToken<List<Event>>() {}.getType();
     List<Event> actual = gson.fromJson(actualString, type);
-    Assert.assertEquals(EXPECTED_EVENT, actual);
+    return actual;
   }
 }

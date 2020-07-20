@@ -20,6 +20,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
@@ -43,9 +44,17 @@ public class CalendarClientImpl implements CalendarClient {
   }
 
   @Override
-  public List<Event> getCalendarEvents() throws IOException {
+  public List<CalendarListEntry> getCalendarList() throws IOException {
+    // returns null if no calendar exists. Convert to empty list for ease.
+    List<CalendarListEntry> calendarList = calendarService.calendarList().list().execute().getItems();
+
+    return calendarList != null ? calendarList : new ArrayList<>();
+  }
+
+  @Override
+  public List<Event> getCalendarEvents(CalendarListEntry calendarList) throws IOException {
     // returns null if no events exist. Convert to empty list for ease.
-    List<Event> events = calendarService.events().list("primary").execute().getItems();
+    List<Event> events = calendarService.events().list(calendarList.getId()).execute().getItems();
 
     return events != null ? events : new ArrayList<>();
   }
