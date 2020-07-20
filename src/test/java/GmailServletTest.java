@@ -32,7 +32,6 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +48,7 @@ public final class GmailServletTest {
   private GmailClient gmailClient;
   private GmailServlet servlet;
   private HttpServletRequest request;
-  private HttpServletResponse response;
+  private HttpServletResponseFake response;
   private StringWriter stringWriter;
   private PrintWriter printWriter;
 
@@ -183,13 +182,8 @@ public final class GmailServletTest {
         .thenReturn(AUTHENTICATION_VERIFIED);
 
     request = Mockito.mock(HttpServletRequest.class);
-    response = Mockito.mock(HttpServletResponse.class);
+    response = new HttpServletResponseFake();
     Mockito.when(request.getCookies()).thenReturn(validCookies);
-
-    // Writer used in get/post requests to capture HTTP response values
-    stringWriter = new StringWriter();
-    printWriter = new PrintWriter(stringWriter);
-    Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
   /**
@@ -232,11 +226,11 @@ public final class GmailServletTest {
    * @throws IOException if a read/write issue occurs while processing the request
    * @throws ServletException if another unexpected issue occurs while processing the request
    */
-  private GmailResponse getGmailResponse(HttpServletRequest request, HttpServletResponse response)
+  private GmailResponse getGmailResponse(
+      HttpServletRequest request, HttpServletResponseFake response)
       throws IOException, ServletException {
     servlet.doGet(request, response);
-    printWriter.flush();
-    return gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    return gson.fromJson(response.getStringWriter().toString(), GmailResponse.class);
   }
 
   @Test
@@ -248,8 +242,7 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
-    printWriter.flush();
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+    Assert.assertEquals(400, response.getStatus());
   }
 
   @Test
@@ -261,8 +254,7 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
-    printWriter.flush();
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+    Assert.assertEquals(400, response.getStatus());
   }
 
   @Test
@@ -275,8 +267,7 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
-    printWriter.flush();
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+    Assert.assertEquals(400, response.getStatus());
   }
 
   @Test
@@ -289,8 +280,7 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
-    printWriter.flush();
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+    Assert.assertEquals(400, response.getStatus());
   }
 
   @Test
@@ -304,8 +294,7 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
     servlet.doGet(request, response);
-    printWriter.flush();
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+    Assert.assertEquals(400, response.getStatus());
   }
 
   @Test
