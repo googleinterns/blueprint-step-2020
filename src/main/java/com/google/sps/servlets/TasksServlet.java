@@ -31,10 +31,13 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -120,23 +123,18 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   private int getTasksOverdue(List<Task> tasks) {
-    // to consider: time is not taken into account in the Tasks API
-    long currentTimeMillis = System.currentTimeMillis();
+    ZoneId zoneId = ZoneId.systemDefault();
+    String zoneOffset = zoneId.getRules().getOffset(Instant.now()).toString();
+    Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
     List<Task> tasksOverdue = new ArrayList();
-    ZoneId zone = ZoneId.systemDefault();
-    // System.out.println("ZONE " + zoneOffset);
     for (Task task : tasks) {
-      String dueDate = task.getDue();
-      if (dueDate != null) {
-        OffsetDateTime offsetDateTime = LocalDateTime.parse(dueDate.replace("Z", "")).atOffset(ZoneOffset.UTC);
-        ZonedDateTime zonedDateTime = offsetDateTime.atZoneSameInstant(zone);
-        System.out.println(zonedDateTime);
-        /*
-        long dateTimeMillis = zonedDateTime.getValue();
-        if (dateTimeMillis < currentTimeMillis) {
+      if (task.getDue() != null) {
+        DateTime dateTime = DateTime.parseRfc3339(task.getDue().replace("Z", zoneOffset));
+        long millis = dateTime.getValue();
+        Instant dueDate = new Date(millis).toInstant().plus(Period.ofDays(1));
+        if (dueDate.isBefore(endOfDay)) {
           tasksOverdue.add(task);
         }
-        */
       }
     }
     return tasksOverdue.size();
