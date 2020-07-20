@@ -66,6 +66,21 @@ public final class GmailServletTest {
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
+  private static final String DEFAULT_SENDER = "";
+  private static final int DEFAULT_N_DAYS = 7;
+  private static final int DEFAULT_M_HOURS = 3;
+  private static final int NEGATIVE_N_DAYS = -1;
+  private static final int NEGATIVE_M_HOURS = -1;
+  private static final long LEAST_RECENT_TIMESTAMP = 12345;
+  private static final long MOST_RECENT_TIMESTAMP = 123456;
+
+  private static final String UNREAD_EMAIL_DAYS_QUERY =
+      GmailClient.emailQueryString(DEFAULT_N_DAYS, "d", true, false, "");
+  private static final String UNREAD_EMAIL_HOURS_QUERY =
+      GmailClient.emailQueryString(DEFAULT_M_HOURS, "h", true, false, "");
+  private static final String IMPORTANT_QUERY =
+      GmailClient.emailQueryString(DEFAULT_N_DAYS, "d", true, true, "");
+
   private static final String MESSAGE_ID_LEAST_RECENT_SENDER_ONE = "leastRecentSenderMessageOne";
   private static final String MESSAGE_ID_LEAST_RECENT_SENDER_TWO = "leastRecentSenderMessageTwo";
   private static final String MESSAGE_ID_MOST_RECENT_SENDER_ONE = "mostRecentSenderMessageOne";
@@ -75,61 +90,65 @@ public final class GmailServletTest {
   private static final String MOST_RECENT_SENDER_EMAIL = "senderTwo@sender.com";
   private static final String LEAST_RECENT_SENDER_WITH_CONTACT_NAME_FROM_HEADER =
       String.format("%s <%s>", LEAST_RECENT_SENDER_NAME, LEAST_RECENT_SENDER_EMAIL);
-  private static final String MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME_FROM_HEADER = String.format("<%s>", MOST_RECENT_SENDER_EMAIL);
+  private static final String MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME_FROM_HEADER =
+      String.format("<%s>", MOST_RECENT_SENDER_EMAIL);
 
-  private static final String DEFAULT_SENDER = "";
-  private static final int DEFAULT_N_DAYS = 7;
-  private static final int DEFAULT_M_HOURS = 3;
-  private static final int NEGATIVE_N_DAYS = -1;
-  private static final int NEGATIVE_M_HOURS = -1;
-  private static final long LEAST_RECENT_TIMESTAMP = 12345;
-  private static final long MOST_RECENT_TIMESTAMP = 123456;
+  private static final MessagePart leastRecentSenderWithContactNamePayload =
+      new MessagePart()
+          .setHeaders(
+              Collections.singletonList(
+                  new MessagePartHeader()
+                      .setName("From")
+                      .setValue(LEAST_RECENT_SENDER_WITH_CONTACT_NAME_FROM_HEADER)));
+  private static final MessagePart mostRecentSenderWithoutContactNamePayload =
+      new MessagePart()
+          .setHeaders(
+              Collections.singletonList(
+                  new MessagePartHeader()
+                      .setName("From")
+                      .setValue(MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME_FROM_HEADER)));
 
-
-  private static final String UNREAD_EMAIL_DAYS_QUERY =
-      GmailClient.emailQueryString(DEFAULT_N_DAYS, "d", true, false, "");
-  private static final String UNREAD_EMAIL_HOURS_QUERY =
-      GmailClient.emailQueryString(DEFAULT_M_HOURS, "h", true, false, "");
-  private static final String IMPORTANT_QUERY =
-      GmailClient.emailQueryString(DEFAULT_N_DAYS, "d", true, true, "");
-
-  private static final MessagePart leastRecentSenderWithContactNamePayload = new MessagePart().setHeaders(
-      Collections.singletonList(
-          new MessagePartHeader().setName("From").setValue(LEAST_RECENT_SENDER_WITH_CONTACT_NAME_FROM_HEADER)
-      )
-  );
-  private static final MessagePart mostRecentSenderWithoutContactNamePayload = new MessagePart().setHeaders(
-      Collections.singletonList(
-          new MessagePartHeader().setName("From").setValue(MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME_FROM_HEADER)
-      )
-  );
-
-  private static final Message leastRecentSenderWithContactNameMessageOne = new Message().setId(MESSAGE_ID_LEAST_RECENT_SENDER_ONE).setInternalDate(LEAST_RECENT_TIMESTAMP).setPayload(leastRecentSenderWithContactNamePayload);
-  private static final Message leastRecentSenderWithContactNameMessageTwo = new Message().setId(MESSAGE_ID_LEAST_RECENT_SENDER_TWO).setInternalDate(LEAST_RECENT_TIMESTAMP).setPayload(leastRecentSenderWithContactNamePayload);
-  private static final Message mostRecentSenderWithoutContactNameMessageOne = new Message().setId(MESSAGE_ID_MOST_RECENT_SENDER_ONE).setInternalDate(MOST_RECENT_TIMESTAMP).setPayload(mostRecentSenderWithoutContactNamePayload);
-  private static final Message mostRecentSenderWithoutContactNameMessageTwo = new Message().setId(MESSAGE_ID_MOST_RECENT_SENDER_TWO).setInternalDate(MOST_RECENT_TIMESTAMP).setPayload(mostRecentSenderWithoutContactNamePayload);
+  private static final Message leastRecentSenderWithContactNameMessageOne =
+      new Message()
+          .setId(MESSAGE_ID_LEAST_RECENT_SENDER_ONE)
+          .setInternalDate(LEAST_RECENT_TIMESTAMP)
+          .setPayload(leastRecentSenderWithContactNamePayload);
+  private static final Message leastRecentSenderWithContactNameMessageTwo =
+      new Message()
+          .setId(MESSAGE_ID_LEAST_RECENT_SENDER_TWO)
+          .setInternalDate(LEAST_RECENT_TIMESTAMP)
+          .setPayload(leastRecentSenderWithContactNamePayload);
+  private static final Message mostRecentSenderWithoutContactNameMessageOne =
+      new Message()
+          .setId(MESSAGE_ID_MOST_RECENT_SENDER_ONE)
+          .setInternalDate(MOST_RECENT_TIMESTAMP)
+          .setPayload(mostRecentSenderWithoutContactNamePayload);
+  private static final Message mostRecentSenderWithoutContactNameMessageTwo =
+      new Message()
+          .setId(MESSAGE_ID_MOST_RECENT_SENDER_TWO)
+          .setInternalDate(MOST_RECENT_TIMESTAMP)
+          .setPayload(mostRecentSenderWithoutContactNamePayload);
 
   private static final List<Message> NO_MESSAGES = ImmutableList.of();
-  private static final List<Message> SOME_MESSAGES = ImmutableList.of(
-      leastRecentSenderWithContactNameMessageOne,
-      mostRecentSenderWithoutContactNameMessageOne
-  );
-  private static final List<Message> MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME = ImmutableList.of(
-      leastRecentSenderWithContactNameMessageOne,
-      leastRecentSenderWithContactNameMessageTwo,
-      mostRecentSenderWithoutContactNameMessageOne
-  );
-  private static final List<Message> MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME = ImmutableList.of(
-      leastRecentSenderWithContactNameMessageOne,
-      mostRecentSenderWithoutContactNameMessageOne,
-      mostRecentSenderWithoutContactNameMessageTwo
-  );
-  private static final List<Message> MESSAGES_EQUAL_SENDER_FREQUENCIES = ImmutableList.of(
-      leastRecentSenderWithContactNameMessageOne,
-      leastRecentSenderWithContactNameMessageTwo,
-      mostRecentSenderWithoutContactNameMessageOne,
-      mostRecentSenderWithoutContactNameMessageTwo
-  );
+  private static final List<Message> SOME_MESSAGES =
+      ImmutableList.of(
+          leastRecentSenderWithContactNameMessageOne, mostRecentSenderWithoutContactNameMessageOne);
+  private static final List<Message> MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME =
+      ImmutableList.of(
+          leastRecentSenderWithContactNameMessageOne,
+          leastRecentSenderWithContactNameMessageTwo,
+          mostRecentSenderWithoutContactNameMessageOne);
+  private static final List<Message> MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME =
+      ImmutableList.of(
+          leastRecentSenderWithContactNameMessageOne,
+          mostRecentSenderWithoutContactNameMessageOne,
+          mostRecentSenderWithoutContactNameMessageTwo);
+  private static final List<Message> MESSAGES_EQUAL_SENDER_FREQUENCIES =
+      ImmutableList.of(
+          leastRecentSenderWithContactNameMessageOne,
+          leastRecentSenderWithContactNameMessageTwo,
+          mostRecentSenderWithoutContactNameMessageOne,
+          mostRecentSenderWithoutContactNameMessageTwo);
 
   @Before
   public void setUp() throws IOException, GeneralSecurityException {
@@ -151,6 +170,22 @@ public final class GmailServletTest {
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
     Mockito.when(response.getWriter()).thenReturn(printWriter);
+  }
+
+  /**
+   * Auxiliary method to get a GmailResponse object from a servlet when using doGet
+   *
+   * @param request Mock HttpRequest
+   * @param response Mock HttpResponse
+   * @return GmailResponse object from doGet method
+   * @throws IOException if a read/write issue occurs while processing the request
+   * @throws ServletException if another unexpected issue occurs while processing the request
+   */
+  private GmailResponse getGmailResponse(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException {
+    servlet.doGet(request, response);
+    printWriter.flush();
+    return gson.fromJson(stringWriter.toString(), GmailResponse.class);
   }
 
   @Test
@@ -216,9 +251,7 @@ public final class GmailServletTest {
 
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(DEFAULT_N_DAYS, gmailResponse.getNDays());
   }
 
@@ -231,14 +264,13 @@ public final class GmailServletTest {
 
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(DEFAULT_M_HOURS, gmailResponse.getMHours());
   }
 
   @Test
-  public void checkDefaultUnreadEmailsFromNDaysCountInResponse() throws IOException, ServletException {
+  public void checkDefaultUnreadEmailsFromNDaysCountInResponse()
+      throws IOException, ServletException {
     // For all queries, return no messages. Unread emails days should have 0 length
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
@@ -247,14 +279,13 @@ public final class GmailServletTest {
 
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(0, gmailResponse.getUnreadEmailsDays());
   }
 
   @Test
-  public void checkDefaultUnreadEmailsFromMHoursCountInResponse() throws IOException, ServletException {
+  public void checkDefaultUnreadEmailsFromMHoursCountInResponse()
+      throws IOException, ServletException {
     // For all queries, return no messages. Unread emails hours should have 0 length
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
@@ -263,14 +294,13 @@ public final class GmailServletTest {
 
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(0, gmailResponse.getUnreadEmailsHours());
   }
 
   @Test
-  public void checkDefaultUnreadImportantEmailsFromNDaysCountInResponse() throws IOException, ServletException {
+  public void checkDefaultUnreadImportantEmailsFromNDaysCountInResponse()
+      throws IOException, ServletException {
     // For all queries, return no messages. Unread important emails should have 0 length
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
@@ -279,9 +309,7 @@ public final class GmailServletTest {
 
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(0, gmailResponse.getUnreadImportantEmails());
   }
 
@@ -294,9 +322,7 @@ public final class GmailServletTest {
 
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(DEFAULT_SENDER, gmailResponse.getSender());
   }
 
@@ -313,16 +339,17 @@ public final class GmailServletTest {
         .thenReturn(NO_MESSAGES);
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(IMPORTANT_QUERY))).thenReturn(NO_MESSAGES);
 
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(SOME_MESSAGES.get(0).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(SOME_MESSAGES.get(0).getId()), Mockito.any()))
         .thenReturn(SOME_MESSAGES.get(0));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(SOME_MESSAGES.get(1).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(SOME_MESSAGES.get(1).getId()), Mockito.any()))
         .thenReturn(SOME_MESSAGES.get(1));
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
-    Assert.assertEquals(
-        SOME_MESSAGES.size(), gmailResponse.getUnreadEmailsDays());
+    GmailResponse gmailResponse = getGmailResponse(request, response);
+    Assert.assertEquals(SOME_MESSAGES.size(), gmailResponse.getUnreadEmailsDays());
   }
 
   @Test
@@ -338,20 +365,22 @@ public final class GmailServletTest {
         .thenReturn(SOME_MESSAGES);
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(IMPORTANT_QUERY))).thenReturn(NO_MESSAGES);
 
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(SOME_MESSAGES.get(0).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(SOME_MESSAGES.get(0).getId()), Mockito.any()))
         .thenReturn(SOME_MESSAGES.get(0));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(SOME_MESSAGES.get(1).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(SOME_MESSAGES.get(1).getId()), Mockito.any()))
         .thenReturn(SOME_MESSAGES.get(1));
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
-    Assert.assertEquals(
-        SOME_MESSAGES.size(), gmailResponse.getUnreadEmailsHours());
+    GmailResponse gmailResponse = getGmailResponse(request, response);
+    Assert.assertEquals(SOME_MESSAGES.size(), gmailResponse.getUnreadEmailsHours());
   }
 
   @Test
-  public void checkUnreadImportantEmailsFromNDaysCountInResponse() throws IOException, ServletException {
+  public void checkUnreadImportantEmailsFromNDaysCountInResponse()
+      throws IOException, ServletException {
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
     Mockito.when(request.getParameter(Mockito.eq("mHours")))
@@ -361,22 +390,25 @@ public final class GmailServletTest {
         .thenReturn(SOME_MESSAGES);
     Mockito.when(gmailClient.listUserMessages(Mockito.eq(UNREAD_EMAIL_HOURS_QUERY)))
         .thenReturn(NO_MESSAGES);
-    Mockito.when(gmailClient.listUserMessages(Mockito.eq(IMPORTANT_QUERY))).thenReturn(SOME_MESSAGES);
+    Mockito.when(gmailClient.listUserMessages(Mockito.eq(IMPORTANT_QUERY)))
+        .thenReturn(SOME_MESSAGES);
 
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(SOME_MESSAGES.get(0).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(SOME_MESSAGES.get(0).getId()), Mockito.any()))
         .thenReturn(SOME_MESSAGES.get(0));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(SOME_MESSAGES.get(1).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(SOME_MESSAGES.get(1).getId()), Mockito.any()))
         .thenReturn(SOME_MESSAGES.get(1));
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
-    Assert.assertEquals(
-        SOME_MESSAGES.size(), gmailResponse.getUnreadImportantEmails());
+    GmailResponse gmailResponse = getGmailResponse(request, response);
+    Assert.assertEquals(SOME_MESSAGES.size(), gmailResponse.getUnreadImportantEmails());
   }
 
   @Test
-  public void getMostFrequentSenderWhenContactNameIsNotPresent() throws IOException, ServletException {
+  public void getMostFrequentSenderWhenContactNameIsNotPresent()
+      throws IOException, ServletException {
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
     Mockito.when(request.getParameter(Mockito.eq("mHours")))
@@ -385,18 +417,27 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
         .thenReturn(MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME);
 
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(0).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(
+                    MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(0).getId()),
+                Mockito.any()))
         .thenReturn(MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(0));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(1).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(
+                    MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(1).getId()),
+                Mockito.any()))
         .thenReturn(MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(1));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(2).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(
+                    MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(2).getId()),
+                Mockito.any()))
         .thenReturn(MESSAGES_MAJORITY_MOST_RECENT_SENDER_WITHOUT_CONTACT_NAME.get(2));
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
-    Assert.assertEquals(
-        MOST_RECENT_SENDER_EMAIL, gmailResponse.getSender());
+    GmailResponse gmailResponse = getGmailResponse(request, response);
+    Assert.assertEquals(MOST_RECENT_SENDER_EMAIL, gmailResponse.getSender());
   }
 
   @Test
@@ -409,27 +450,39 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
         .thenReturn(MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME);
 
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(0).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(
+                    MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(0).getId()),
+                Mockito.any()))
         .thenReturn(MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(0));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(1).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(
+                    MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(1).getId()),
+                Mockito.any()))
         .thenReturn(MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(1));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(2).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(
+                    MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(2).getId()),
+                Mockito.any()))
         .thenReturn(MESSAGES_MAJORITY_LEAST_RECENT_SENDER_WITH_CONTACT_NAME.get(2));
 
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
-    Assert.assertEquals(
-        LEAST_RECENT_SENDER_NAME, gmailResponse.getSender());
+    GmailResponse gmailResponse = getGmailResponse(request, response);
+    Assert.assertEquals(LEAST_RECENT_SENDER_NAME, gmailResponse.getSender());
   }
 
   @Test
-  public void checkSenderEqualFrequenciesPreferMostRecentSender() throws IOException, ServletException {
+  public void checkSenderEqualFrequenciesPreferMostRecentSender()
+      throws IOException, ServletException {
     // This is the case when there is an equal amount of sent messages from two senders
     // (i.e. 2 from sender A, 2 from sender B).
     // The sender who sent the latest/most recent contact should be returned.
-    // NOTE: in the case that the frequencies are tied, and they both sent emails at the exact same time
-    // (which is absurdly rare), the system can return either of the senders (it won't matter to the user).
+    // NOTE: in the case that the frequencies are tied, and they both sent emails at the exact same
+    // time
+    // (which is absurdly rare), the system can return either of the senders (it won't matter to the
+    // user).
     // Thus, that circumstance will not be tested.
 
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
@@ -440,19 +493,25 @@ public final class GmailServletTest {
     Mockito.when(gmailClient.listUserMessages(Mockito.anyString()))
         .thenReturn(MESSAGES_EQUAL_SENDER_FREQUENCIES);
 
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(0).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(0).getId()), Mockito.any()))
         .thenReturn(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(0));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(1).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(1).getId()), Mockito.any()))
         .thenReturn(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(1));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(2).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(2).getId()), Mockito.any()))
         .thenReturn(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(2));
-    Mockito.when(gmailClient.getUserMessage(Mockito.contains(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(3).getId()), Mockito.any()))
+    Mockito.when(
+            gmailClient.getUserMessage(
+                Mockito.contains(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(3).getId()), Mockito.any()))
         .thenReturn(MESSAGES_EQUAL_SENDER_FREQUENCIES.get(3));
 
     // Most recent sender does not have a contact name
-    servlet.doGet(request, response);
-    printWriter.flush();
-    GmailResponse gmailResponse = gson.fromJson(stringWriter.toString(), GmailResponse.class);
+    GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(MOST_RECENT_SENDER_EMAIL, gmailResponse.getSender());
   }
 }
