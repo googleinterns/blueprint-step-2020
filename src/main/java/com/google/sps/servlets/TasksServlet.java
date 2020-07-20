@@ -25,23 +25,16 @@ import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
 import com.google.sps.model.TasksResponse;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.Period;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,13 +61,6 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     this.tasksClientFactory = tasksClientFactory;
   }
 
-  /**
-   * Get the names of the tasks in all of the user's tasklists
-   *
-   * @param tasksClient either a mock TaskClient or a taskClient with a valid credential
-   * @return List of tasks from user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
   private List<Task> getTasks(TasksClient tasksClient) throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
@@ -90,19 +76,17 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   private int getTasksToComplete(List<Task> tasks) {
-    List<Task> tasksCompletedToday = tasks
-    .stream()
-    .filter(task -> task.getHidden() == null)
-    .collect(Collectors.toList());
+    List<Task> tasksCompletedToday =
+        tasks.stream().filter(task -> task.getHidden() == null).collect(Collectors.toList());
     return tasksCompletedToday.size();
   }
 
   private int getTasksDueToday(List<Task> tasks) {
     String today = LocalDate.now().toString();
-    List<Task> tasksDueToday = tasks
-    .stream()
-    .filter(task -> task.getDue() != null && task.getDue().contains(today))
-    .collect(Collectors.toList());
+    List<Task> tasksDueToday =
+        tasks.stream()
+            .filter(task -> task.getDue() != null && task.getDue().contains(today))
+            .collect(Collectors.toList());
     return tasksDueToday.size();
   }
 
@@ -112,7 +96,8 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
     List<Task> tasksCompletedToday = new ArrayList();
     for (Task task : tasks) {
-      if (task.getHidden() != null) { // means task is completed
+      // getHidden is defined for completed tasks
+      if (task.getHidden() != null) {
         Instant completionDateTime = ZonedDateTime.parse(task.getUpdated()).toInstant();
         if (completionDateTime.isAfter(startOfDay) && completionDateTime.isBefore(endOfDay)) {
           tasksCompletedToday.add(task);
@@ -129,6 +114,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     List<Task> tasksOverdue = new ArrayList();
     for (Task task : tasks) {
       if (task.getDue() != null) {
+        // Correct default timezone UTC to system's timezone
         DateTime dateTime = DateTime.parseRfc3339(task.getDue().replace("Z", zoneOffset));
         long millis = dateTime.getValue();
         Instant dueDate = new Date(millis).toInstant().plus(Period.ofDays(1));
@@ -157,10 +143,6 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     // Get tasks from Google Tasks
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
-    // List<Task> tasks = getTasks(tasksClient);
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    // TaskList taskList = taskLists.get(0);
-
     List<Task> tasks = getTasks(tasksClient);
 
     // Initialize Tasks Response
@@ -169,12 +151,9 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     int tasksDueToday = getTasksDueToday(tasks);
     int tasksCompletedToday = getTasksCompletedToday(tasks);
     int tasksOverdue = getTasksOverdue(tasks);
-    TasksResponse tasksResponse = new TasksResponse(taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
-
-    System.out.println("tasksToComplete" + tasksToComplete);
-    System.out.println("tasksDueToday " + tasksDueToday);
-    System.out.println("tasksCompletedToday " + tasksCompletedToday);
-    System.out.println("tasksOverdue " + tasksOverdue);
+    TasksResponse tasksResponse =
+        new TasksResponse(
+            taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();

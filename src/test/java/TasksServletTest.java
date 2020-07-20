@@ -107,7 +107,7 @@ public final class TasksServletTest {
     printWriter = new PrintWriter(stringWriter);
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
-  
+
   @Ignore
   @Test
   public void noTaskLists() throws IOException, ServletException {
@@ -161,4 +161,10 @@ public final class TasksServletTest {
             TASKS_THREE_FOUR.get(0),
             TASKS_THREE_FOUR.get(1)));
   }
+
+  // mock tasksclient
+  // create the following lists of tasks: empty, one of each - to complete, overdue, due today, completed today and one large example with a mixture of all of these
+  // mock listTasks
+  // send get request
+  // get json and decode with ['toComplete'] etc. and compare with example
 }

@@ -16,6 +16,10 @@ package com.google.sps.model;
 
 import java.util.List;
 
+/**
+ * Contains the summary tasks information that should be passed to the client, as well as the
+ * methods to generate these statistics.
+ */
 public class TasksResponse {
   private List<String> taskListNames;
   private int tasksToComplete;
@@ -23,7 +27,21 @@ public class TasksResponse {
   private int tasksCompletedToday;
   private int tasksOverdue;
 
-  public TasksResponse(List<String> taskListNames, int tasksToComplete, int tasksDueToday, int tasksCompletedToday,
+  /**
+   * Create a TasksResponse instance
+   *
+   * @param taskListNames names of all task lists to display in a multiselect dropdown list on the
+   *     client.
+   * @param tasksToComplete number of tasks the user has yet to complete.
+   * @param tasksDueToday number of tasks the user has yet to complete for today.
+   * @param tasksCompletedToday number of tasks the user has marked as complete for today.
+   * @param tasksOverdue number of tasks that have due dates before today.
+   */
+  public TasksResponse(
+      List<String> taskListNames,
+      int tasksToComplete,
+      int tasksDueToday,
+      int tasksCompletedToday,
       int tasksOverdue) {
     this.taskListNames = taskListNames;
     this.tasksToComplete = tasksToComplete;
