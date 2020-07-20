@@ -106,6 +106,34 @@ public class GmailServlet extends AuthenticatedHttpServlet {
     response.getWriter().println(messageJson);
   }
 
+  private static class EmailFrequencyWithDate {
+    private int timesSent;
+    private long mostRecentEmailTimestamp;
+
+    public EmailFrequencyWithDate(long timestamp) {
+      timesSent = 1;
+      this.mostRecentEmailTimestamp = timestamp;
+    }
+
+    public int getTimesSent() {
+      return timesSent;
+    }
+
+    public long getMostRecentEmailTimestamp() {
+      return mostRecentEmailTimestamp;
+    }
+
+    public void updateMostRecentEmailTimestamp(long timestamp) {
+      if (timestamp > mostRecentEmailTimestamp) {
+        this.mostRecentEmailTimestamp = timestamp;
+      }
+    }
+
+    public void incrementTimesSent() {
+      timesSent++;
+    }
+  }
+
   /**
    * Get the amount of unread emails from the last n days in a user's Gmail account
    *
@@ -180,7 +208,25 @@ public class GmailServlet extends AuthenticatedHttpServlet {
     // OR
     // Sample Sender <sampleemail@sample.com>
     // If a name is available, this is extracted. Otherwise, the email is extracted
-    HashMap<String, Integer> senders = new HashMap<>();
+//    HashMap<String, Integer> senders = new HashMap<>();
+//    unreadEmails.forEach(
+//        (Message m) -> {
+//          List<MessagePartHeader> senderList = m.getPayload().getHeaders();
+//          senderList =
+//              senderList.stream()
+//                  .filter((MessagePartHeader header) -> header.getName().equals("From"))
+//                  .collect(Collectors.toList());
+//
+//          String sender = senderList.get(0).getValue();
+//
+//          senders.put(sender, senders.get(sender) != null ? senders.get(sender) + 1 : 1);
+//        });
+//    String headerValue =
+//        senders.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
+
+    // stores the senders paired with 1) how often they sent emails in the last nDays and
+    // 2) what the timestamp was of their most recent email.
+    HashMap<String, EmailFrequencyWithDate> senders = new HashMap<>();
     unreadEmails.forEach(
         (Message m) -> {
           List<MessagePartHeader> senderList = m.getPayload().getHeaders();
@@ -191,10 +237,30 @@ public class GmailServlet extends AuthenticatedHttpServlet {
 
           String sender = senderList.get(0).getValue();
 
-          senders.put(sender, senders.get(sender) != null ? senders.get(sender) + 1 : 1);
+          long timestamp = m.getInternalDate();
+          if (senders.get(sender) == null) {
+            EmailFrequencyWithDate newEmailFrequencyWithDate = new EmailFrequencyWithDate(timestamp);
+            senders.put(sender, newEmailFrequencyWithDate);
+          } else {
+            EmailFrequencyWithDate updatedEmailFrequencyWithDate = senders.get(sender);
+            updatedEmailFrequencyWithDate.incrementTimesSent();
+            updatedEmailFrequencyWithDate.updateMostRecentEmailTimestamp(timestamp);
+            senders.replace(sender, updatedEmailFrequencyWithDate);
+          }
         });
-    String headerValue =
-        senders.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
+
+    String headerValue = senders.entrySet().stream().reduce((a, b) -> {
+      if (a.getValue().getTimesSent() > b.getValue().getTimesSent()) {
+        return a;
+      } else if (b.getValue().getTimesSent() > a.getValue().getTimesSent()) {
+        return b;
+      } else {
+        if (a.getValue().getMostRecentEmailTimestamp() > b.getValue().getMostRecentEmailTimestamp()) {
+          return a;
+        }
+        return b;
+      }
+    }).get().getKey();
 
     if (headerValue.charAt(0) == '<') {
       return headerValue.substring(1, headerValue.length() - 1);
