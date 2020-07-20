@@ -85,6 +85,11 @@ public class GmailServlet extends AuthenticatedHttpServlet {
       return;
     }
 
+    if (mHours > nDays * 24) {
+      response.sendError(400, "mHours must represent less time than nDays");
+      return;
+    }
+
     GmailResponse gmailResponse = new GmailResponse(nDays, mHours, gmailClient);
 
     Gson gson = new Gson();

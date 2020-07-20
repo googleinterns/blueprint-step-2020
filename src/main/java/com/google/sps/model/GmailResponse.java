@@ -15,8 +15,11 @@
 package com.google.sps.model;
 
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
+import com.google.sps.exceptions.GmailMessageFormatException;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,36 +41,20 @@ public class GmailResponse {
    *
    * @param nDays number of days relevant statistics are based on
    * @param mHours number of hours relevant statistics are based on
-   * @param unreadEmailsDays how many unread emails user has from last nDays days
-   * @param unreadEmailsHours how many unread emails user has from last mHours hours
-   * @param unreadImportantEmails how many unread, important emails user has from last nDays days
-   * @param sender who sent the most unread emails from last nDays. Either name (if available) or
-   *     email address (if name not available)
+   * @param gmailClient GmailClient implementation with valid google credential. Will be used to
+   *     compute other statistics for GmailResponse.
    */
-  public GmailResponse(
-      int nDays,
-      int mHours,
-      int unreadEmailsDays,
-      int unreadEmailsHours,
-      int unreadImportantEmails,
-      String sender) {
-    this.nDays = nDays;
-    this.mHours = mHours;
-    this.unreadEmailsDays = unreadEmailsDays;
-    this.unreadEmailsHours = unreadEmailsHours;
-    this.unreadImportantEmails = unreadImportantEmails;
-    this.sender = sender;
-  }
-
   public GmailResponse(int nDays, int mHours, GmailClient gmailClient) throws IOException {
     this.nDays = nDays;
     this.mHours = mHours;
 
     // TODO: Perform these operations faster (use multithreading, batching, etc) (Issue #84)
-    this.unreadEmailsDays = findUnreadEmailCountDays(gmailClient);
-    this.unreadEmailsHours = findUnreadEmailCountHours(gmailClient);
-    this.unreadImportantEmails = findImportantUnreadEmailCount(gmailClient);
-    this.sender = findMostFrequentSender(gmailClient);
+    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.METADATA;
+    List<Message> unreadMessages = getUnreadEmailsFromNDays(gmailClient, messageFormat);
+    this.unreadEmailsDays = unreadMessages.size();
+    this.unreadEmailsHours = findUnreadEmailCountHours(unreadMessages);
+    this.unreadImportantEmails = findImportantUnreadEmailCount(unreadMessages);
+    this.sender = findMostFrequentSender(unreadMessages);
   }
 
   public int getNDays() {
@@ -95,49 +82,87 @@ public class GmailResponse {
   }
 
   /**
-   * Get the amount of unread emails from the last nDays days in a user's Gmail account
+   * Get list of unread emails from last nDays from user's Gmail account
    *
-   * @param gmailClient Gmail service with valid google credential
-   * @return number of unread emails from last nDays days
-   * @throws IOException if an issue occurs with the Gmail Service
+   * @param gmailClient GmailClient implementation with valid google credential
+   * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
+   *     returned
+   * @return List of unread messages from last nDays from user's Gmail account with requested level
+   *     of information
+   * @throws IOException if an issue occurs with the Gmail service
    */
-  private int findUnreadEmailCountDays(GmailClient gmailClient) throws IOException {
+  private List<Message> getUnreadEmailsFromNDays(
+      GmailClient gmailClient, GmailClient.MessageFormat messageFormat) throws IOException {
     String searchQuery = GmailClient.emailQueryString(nDays, "d", true, false, "");
-    return gmailClient.listUserMessages(searchQuery).size();
+    return gmailClient.listUserMessages(searchQuery).stream()
+        .map(
+            (message) -> {
+              try {
+                return gmailClient.getUserMessage(message.getId(), messageFormat);
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            })
+        .collect(Collectors.toList());
   }
 
   /**
-   * Get the amount of unread emails from the last mHours hours in a user's Gmail account
+   * Get the amount of unread emails from the last m hours given a list of user's unread emails from
+   * last nDays. (nDays >= mHours * 24)
    *
-   * @param gmailClient Gmail service with valid google credential
+   * @param unreadEmails a list of Message objects from user's gmail account. Messages must be
+   *     either FULL, METADATA, or MINIMAL MessageFormat
    * @return number of unread emails from last mHours hours
-   * @throws IOException if an issue occurs with the Gmail Service
+   * @throws GmailMessageFormatException if the Message objects do not contain an internalDate (and
+   *     are thus the wrong format)
    */
-  private int findUnreadEmailCountHours(GmailClient gmailClient) throws IOException {
-    String searchQuery = GmailClient.emailQueryString(mHours, "h", true, false, "");
-    return gmailClient.listUserMessages(searchQuery).size();
+  private int findUnreadEmailCountHours(List<Message> unreadEmails)
+      throws GmailMessageFormatException {
+    // This is the oldest an email can be (in milliseconds since epoch) to be within the last mHours
+    long timeCutoff = Instant.now().toEpochMilli() - mHours * 60 * 60 * 1000;
+    return (int)
+        unreadEmails.stream()
+            .filter(
+                (message) -> {
+                  if (message.getInternalDate() != 0) {
+                    return message.getInternalDate() >= timeCutoff;
+                  }
+                  throw new GmailMessageFormatException(
+                      "Messages must be of format MINIMAL, METADATA, or FULL");
+                })
+            .count();
   }
 
   /**
-   * Get the amount of unread, important emails from the last nDays days in a user's Gmail account
+   * Get the amount of unread, important emails from the last nDays given a list of user's unread
+   * emails
    *
-   * @param gmailClient Gmail service with valid google credential
+   * @param unreadEmails a list of Message objects from user's gmail account. Messages must be
+   *     either FULL, METADATA, or MINIMAL MessageFormat
    * @return number of unread, important emails from last nDays days
-   * @throws IOException if an issue occurs with the Gmail Service
    */
-  private int findImportantUnreadEmailCount(GmailClient gmailClient) throws IOException {
-    String searchQuery = GmailClient.emailQueryString(nDays, "d", true, true, "");
-    return gmailClient.listUserMessages(searchQuery).size();
+  private int findImportantUnreadEmailCount(List<Message> unreadEmails) {
+    return (int)
+        unreadEmails.stream()
+            .filter(
+                (message) ->
+                    message.getLabelIds() != null && message.getLabelIds().contains("IMPORTANT"))
+            .count();
   }
 
   /**
    * Get the sender of the most unread emails from the last nDays days in a user's Gmail account
    *
-   * @param gmailClient Gmail service with valid google credential
+   * @param unreadEmails a list of unread emails (with METADATA OR FULL MessageFormat)
    * @return sender of the most unread emails from the last nDays days
-   * @throws IOException if an issue occurs with the Gmail Service
+   * @throws GmailMessageFormatException if the messages do not contain an internal date and/or
+   *     headers (and are thus the wrong format)
    */
-  private String findMostFrequentSender(GmailClient gmailClient) throws IOException {
+  private String findMostFrequentSender(List<Message> unreadEmails)
+      throws GmailMessageFormatException {
+    // This data structure is used in the hashmap, to associate two values (how many times
+    // the sender sent emails in the last nDays, and when their most recent sent email was) with
+    // the sender's email in the hashmap.
     class EmailFrequencyWithDate {
       private int timesSent;
       private long mostRecentEmailTimestamp;
@@ -166,21 +191,7 @@ public class GmailResponse {
       }
     }
 
-    // Get user's messages - if none present, return "" as there is no sender to extract
-    String searchQuery = GmailClient.emailQueryString(nDays, "d", true, false, "");
-    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.METADATA;
-    List<Message> unreadEmails;
-    unreadEmails =
-        gmailClient.listUserMessages(searchQuery).stream()
-            .map(
-                (Message m) -> {
-                  try {
-                    return gmailClient.getUserMessage(m.getId(), messageFormat);
-                  } catch (IOException e) {
-                    throw new RuntimeException(e);
-                  }
-                })
-            .collect(Collectors.toList());
+    // If there are no emails, return "" (the default value for sender)
     if (unreadEmails.isEmpty()) {
       return "";
     }
@@ -194,10 +205,14 @@ public class GmailResponse {
     unreadEmails.forEach(
         (Message m) -> {
           long timestamp = m.getInternalDate();
+          MessagePart messagePayload = m.getPayload();
 
-          List<MessagePartHeader> senderList = m.getPayload().getHeaders();
+          if (messagePayload == null || timestamp == 0) {
+            throw new GmailMessageFormatException("Messages must be of format METADATA or FULL");
+          }
+
           String sender =
-              senderList.stream()
+              messagePayload.getHeaders().stream()
                   .filter((MessagePartHeader header) -> header.getName().equals("From"))
                   .findFirst()
                   .get()
