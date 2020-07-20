@@ -70,22 +70,26 @@ function populateTasks() {
         }
         return response.json();
       })
-      .then((tasksList) => {
+      .then((tasksResponse) => {
         // Convert JSON to string containing all task titles
         // and display it on client
+        document.querySelector('#panel__tasks-to-complete').innerText = tasksResponse['tasksToComplete'];
+        document.querySelector('#panel__tasks-due-today').innerText = tasksResponse['tasksDueToday'];
+        document.querySelector('#panel__tasks-completed-today').innerText = tasksResponse['tasksCompletedToday'];
+        document.querySelector('#panel__tasks-overdue').innerText = tasksResponse['tasksOverdue'];
 /*        if (tasksList.length !== 0) {
           const tasks =
               tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
           tasksContainer.innerText = tasks;
         } else {
           tasksContainer.innerText = 'No tasks found';
-        }
+        }*/
       })
       .catch((e) => {
         console.log(e);
         if (e instanceof AuthenticationError) {
           signOut();
-        }*/
+        }
         console.log(tasksList)
       });
 }

@@ -15,6 +15,7 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
@@ -26,8 +27,10 @@ import com.google.sps.model.TasksClientImpl;
 import com.google.sps.model.TasksResponse;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
@@ -78,27 +81,50 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   private int getTasksToComplete(TasksClient tasksClient, TaskList taskList) throws IOException {
-    List<Task> tasks = tasksClient.listTasks(taskList);
-    // Do some parsing to check if task is not completed
-    return tasks.size();
+    List<Task> tasks = getTasks(tasksClient);
+    List<Task> tasksCompletedToday = tasks
+    .stream()
+    .filter(task -> task.getCompleted() == null)
+    .collect(Collectors.toList());
+    return tasksCompletedToday.size();
   }
 
   private int getTasksDueToday(TasksClient tasksClient, TaskList taskList) throws IOException {
-    List<Task> tasks = tasksClient.listTasks(taskList);
-    // Do some parsing to check if task is due today
-    return tasks.size();
+    List<Task> tasks = getTasks(tasksClient);
+    String today = LocalDate.now().toString();
+    List<Task> tasksDueToday = tasks
+    .stream()
+    .filter(task -> task.getDue() != null && task.getDue().contains(today))
+    .collect(Collectors.toList());
+    return tasksDueToday.size();
   }
 
   private int getTasksCompletedToday(TasksClient tasksClient, TaskList taskList) throws IOException {
-    List<Task> tasks = tasksClient.listTasks(taskList);
-    // Do some parsing to check if task is completed
-    return tasks.size();
+    // this is not working
+    List<Task> tasks = getTasks(tasksClient);
+    List<Task> tasksCompletedToday = tasks
+    .stream()
+    .filter(task -> task.getStatus() == "completed")
+    .collect(Collectors.toList());
+    return tasksCompletedToday.size();
   }
 
   private int getTasksOverdue(TasksClient tasksClient, TaskList taskList) throws IOException {
-    List<Task> tasks = tasksClient.listTasks(taskList);
-    // Do some parsing to check if task is completed
-    return tasks.size();
+    // to consider: time is not taken into account in the Tasks API
+    List<Task> tasks = getTasks(tasksClient);
+    long currentTimeMillis = System.currentTimeMillis();
+    List<Task> tasksOverdue = new ArrayList();
+    for (Task task : tasks) {
+      String dueDate = task.getDue();
+      if (dueDate != null) {
+        DateTime dateTime = DateTime.parseRfc3339(dueDate);
+        long dateTimeMillis = dateTime.getValue();
+        if (dateTimeMillis < currentTimeMillis) {
+          tasksOverdue.add(task);
+        }
+      }
+    }
+    return tasksOverdue.size();
   }
 
     /**
@@ -129,6 +155,11 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     int tasksCompletedToday = getTasksCompletedToday(tasksClient, taskList);
     int tasksOverdue = getTasksOverdue(tasksClient, taskList);
     TasksResponse tasksResponse = new TasksResponse(taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
+
+    System.out.println("tasksToComplete" + tasksToComplete);
+    System.out.println("tasksDueToday " + tasksDueToday);
+    System.out.println("tasksCompletedToday " + tasksCompletedToday);
+    System.out.println("tasksOverdue " + tasksOverdue);
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();
