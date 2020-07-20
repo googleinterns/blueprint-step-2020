@@ -31,9 +31,18 @@ import java.util.stream.Collectors;
 public class GmailResponse {
   private final int nDays;
   private final int mHours;
+
+  // Stores # of unread emails from last n days
   private final int unreadEmailsDays;
+
+  // Stores # of unread emails from last m hours
   private final int unreadEmailsHours;
+
+  // Stores # of important unread emails from last n days
   private final int unreadImportantEmails;
+
+  // Stores the name (or email address if name isn't available) of person who sent the most
+  // unread emails in the last n days.
   private final String sender;
 
   /**
@@ -82,7 +91,7 @@ public class GmailResponse {
   }
 
   /**
-   * Get list of unread emails from last nDays from user's Gmail account
+   * Get list of unread emails from last nDays days from user's Gmail account
    *
    * @param gmailClient GmailClient implementation with valid google credential
    * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
@@ -119,13 +128,13 @@ public class GmailResponse {
   private int findUnreadEmailCountHours(List<Message> unreadEmails)
       throws GmailMessageFormatException {
     // This is the oldest an email can be (in milliseconds since epoch) to be within the last mHours
-    long timeCutoff = Instant.now().toEpochMilli() - mHours * 60 * 60 * 1000;
+    long timeCutoffEpochMs = Instant.now().toEpochMilli() - mHours * 60 * 60 * 1000;
     return (int)
         unreadEmails.stream()
             .filter(
                 (message) -> {
                   if (message.getInternalDate() != 0) {
-                    return message.getInternalDate() >= timeCutoff;
+                    return message.getInternalDate() >= timeCutoffEpochMs;
                   }
                   throw new GmailMessageFormatException(
                       "Messages must be of format MINIMAL, METADATA, or FULL");
@@ -135,7 +144,8 @@ public class GmailResponse {
 
   /**
    * Get the amount of unread, important emails from the last nDays given a list of user's unread
-   * emails
+   * emails. Emails without labelIds are skipped (they may be of the correct format, but there are
+   * no label ids, which results in a null return from google for labelIds)
    *
    * @param unreadEmails a list of Message objects from user's gmail account. Messages must be
    *     either FULL, METADATA, or MINIMAL MessageFormat
@@ -167,6 +177,11 @@ public class GmailResponse {
       private int timesSent;
       private long mostRecentEmailTimestamp;
 
+      /**
+       * Create a new EmailFrequencyWithDate instance
+       *
+       * @param timestamp timestamp of email sent in milliseconds since epoch
+       */
       public EmailFrequencyWithDate(long timestamp) {
         timesSent = 1;
         this.mostRecentEmailTimestamp = timestamp;
@@ -180,6 +195,12 @@ public class GmailResponse {
         return mostRecentEmailTimestamp;
       }
 
+      /**
+       * Updates the mostRecentEmailTimestamp if the passed timestamp is later than the currently
+       * stored one.
+       *
+       * @param timestamp timestamp of email sent in milliseconds since epoch
+       */
       public void updateMostRecentEmailTimestamp(long timestamp) {
         if (timestamp > mostRecentEmailTimestamp) {
           this.mostRecentEmailTimestamp = timestamp;
@@ -233,7 +254,7 @@ public class GmailResponse {
     // Senders cannot be empty, as all emails have a "From" header and
     // there is at least one email in unreadEmails.
     // Identify the sender who sent the most emails. In the case of a tie,
-    // identify the sender who sent an email most recently. In case of another tie
+    // choose the sender who sent an email most recently. In case of another tie
     // (i.e. two senders with same send frequency and same timestamp),
     // return either sender (this case doesn't need to be handled)
     String headerValue =
