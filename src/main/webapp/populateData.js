@@ -102,17 +102,18 @@ function populateCalendar() {
         }
         return response.json();
       })
-      .then((eventList) => {
-        // Convert JSON to string containing all event summaries
-        // and display it on client
-        // Handle case where user has no events to avoid unwanted behaviour
-        if (eventList.length !== 0) {
-          const events =
-              eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
-          calendarContainer.innerText = events;
-        } else {
-          calendarContainer.innerText = 'No events in the calendar';
+      .then((hoursJson) => {
+        // Display the days and the free hours for each one of them
+        let days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+        for (var day = 0; day < 5; day++) {
+          const dayContainer = document.querySelector('#day-'+day);
+          dayContainer.innerText = days[hoursJson.startDay + day];
+          const workContainer = document.querySelector('#work-'+day);
+          workContainer.innerText = convertTime(hoursJson.workHours[day]) + ' (working)';
+          const personalContainer = document.querySelector('#personal-'+day);
+          personalContainer.innerText = convertTime(hoursJson.personalHours[day]) + ' (personal)';
         }
+        console.log(hoursJson);
       })
       .catch((e) => {
         console.log(e);
@@ -120,4 +121,14 @@ function populateCalendar() {
           signOut();
         }
       });
+}
+
+/**
+ * Convert the time in hours and minutes, and concatenate the string to be displayed
+ * @param timeMilli the time in milliseconds that needs to be converted
+ */
+function convertTime(timeMilli) {
+  var hours = Math.floor(timeMilli / (60 * 60 * 1000));
+  var minutes = Math.floor((timeMilli - hours * 60 * 60 * 1000)/(60*1000));
+  return hours + 'h ' + minutes + 'm free';
 }
