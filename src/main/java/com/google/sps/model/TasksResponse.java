@@ -21,11 +21,11 @@ import java.util.List;
  * methods to generate these statistics.
  */
 public final class TasksResponse {
-  private List<String> taskListNames;
-  private int tasksToComplete;
-  private int tasksDueToday;
-  private int tasksCompletedToday;
-  private int tasksOverdue;
+  private final List<String> taskListNames;
+  private final int tasksToComplete;
+  private final int tasksDueToday;
+  private final int tasksCompletedToday;
+  private final int tasksOverdue;
 
   /**
    * Create a TasksResponse instance
