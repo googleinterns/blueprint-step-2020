@@ -26,6 +26,7 @@ import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import com.google.api.client.util.DateTime;
 
 /** Handles basic GET/POST requests to and from the Google Calendar service */
 public class CalendarClientImpl implements CalendarClient {
@@ -57,6 +58,20 @@ public class CalendarClientImpl implements CalendarClient {
     List<Event> events = calendarService.events().list(calendarList.getId()).execute().getItems();
 
     return events != null ? events : new ArrayList<>();
+  }
+
+  @Override
+  public List<Event> getUpcomingEvents(CalendarListEntry calendarList, DateTime timeMin, DateTime timeMax) throws IOException {
+    // returns null if there are no upcoming events in the next week. Convert to empty list for ease.
+    List<Event> events = calendarService.events().list(calendarList.getId()).setTimeMin(timeMin).setTimeMax(timeMax).execute().getItems();
+
+    return events != null ? events : new ArrayList<>();
+  }
+
+  @Override
+  public DateTime getCurrentTime() throws IOException {
+    DateTime now = new DateTime(System.currentTimeMillis());
+    return now;
   }
 
   /** Factory to create a CalendarClientImpl instance with given credential */
