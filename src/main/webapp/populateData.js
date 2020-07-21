@@ -95,7 +95,6 @@ function populateTasks() {
       });
 }
 
-
 /**
  * Populate Calendar container with user's events
  */

@@ -20,7 +20,7 @@ import java.util.List;
  * Contains the summary tasks information that should be passed to the client, as well as the
  * methods to generate these statistics.
  */
-public class TasksResponse {
+public final class TasksResponse {
   private List<String> taskListNames;
   private int tasksToComplete;
   private int tasksDueToday;

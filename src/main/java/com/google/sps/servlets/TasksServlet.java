@@ -75,9 +75,10 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   private int getTasksToComplete(List<Task> tasks) {
-    List<Task> tasksCompletedToday =
+    // getHidden is defined for incomplete tasks
+    List<Task> tasksToComplete =
         tasks.stream().filter(task -> task.getHidden() == null).collect(Collectors.toList());
-    return tasksCompletedToday.size();
+    return tasksToComplete.size();
   }
 
   private int getTasksDueToday(List<Task> tasks) {
