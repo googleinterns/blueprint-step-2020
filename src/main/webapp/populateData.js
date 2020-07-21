@@ -71,17 +71,25 @@ function populateTasks() {
         return response.json();
       })
       .then((tasksResponse) => {
-        document.querySelector('#panel__tasks-to-complete').innerText = tasksResponse['tasksToComplete'];
-        document.querySelector('#panel__tasks-due-today').innerText = tasksResponse['tasksDueToday'] + " due today";
-        document.querySelector('#panel__tasks-completed-today').innerText = tasksResponse['tasksCompletedToday'] + " completed today";
-        document.querySelector('#panel__tasks-overdue').innerText = tasksResponse['tasksOverdue'] + " overdue";
+        document
+            .querySelector('#panel__tasks-to-complete')
+            .innerText = tasksResponse['tasksToComplete'];
+        document
+            .querySelector('#panel__tasks-due-today')
+            .innerText = tasksResponse['tasksDueToday'] + " due today";
+        document
+            .querySelector('#panel__tasks-completed-today')
+            .innerText = tasksResponse['tasksCompletedToday'] + " completed today";
+        document
+            .querySelector('#panel__tasks-overdue')
+            .innerText = tasksResponse['tasksOverdue'] + " overdue";
       })
       .catch((e) => {
         console.log(e);
         if (e instanceof AuthenticationError) {
           signOut();
         }
-        console.log(tasksList)
+        console.log(tasksResponse);
       });
 }
 

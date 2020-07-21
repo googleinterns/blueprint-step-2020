@@ -70,8 +70,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     return tasks;
   }
 
-  private List<String> getTaskListTitles(TasksClient tasksClient) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
+  private List<String> getTaskListTitles(List<TaskList> taskLists) throws IOException {
     return taskLists.stream().map(taskList -> taskList.getTitle()).collect(Collectors.toList());
   }
 
@@ -94,7 +93,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     ZoneId zoneId = ZoneId.systemDefault();
     Instant startOfDay = LocalDate.now(zoneId).atStartOfDay(zoneId).toInstant();
     Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-    List<Task> tasksCompletedToday = new ArrayList();
+    List<Task> tasksCompletedToday = new ArrayList<>();
     for (Task task : tasks) {
       // getHidden is defined for completed tasks
       if (task.getHidden() != null) {
@@ -111,7 +110,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     ZoneId zoneId = ZoneId.systemDefault();
     String zoneOffset = zoneId.getRules().getOffset(Instant.now()).toString();
     Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-    List<Task> tasksOverdue = new ArrayList();
+    List<Task> tasksOverdue = new ArrayList<>();
     for (Task task : tasks) {
       if (task.getDue() != null) {
         // Correct default timezone UTC to system's timezone
@@ -143,10 +142,11 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     // Get tasks from Google Tasks
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+    List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = getTasks(tasksClient);
 
     // Initialize Tasks Response
-    List<String> taskListTitles = getTaskListTitles(tasksClient);
+    List<String> taskListTitles = getTaskListTitles(taskLists);
     int tasksToComplete = getTasksToComplete(tasks);
     int tasksDueToday = getTasksDueToday(tasks);
     int tasksCompletedToday = getTasksCompletedToday(tasks);
