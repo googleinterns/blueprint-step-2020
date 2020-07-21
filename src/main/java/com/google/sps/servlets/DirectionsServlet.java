@@ -14,12 +14,12 @@
 
 package com.google.sps.servlets;
 
-import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.maps.DirectionsClient;
 import com.google.maps.DirectionsClientFactory;
 import com.google.maps.DirectionsClientImpl;
 import com.google.maps.DirectionsException;
+import com.google.sps.utility.AddressUtility;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -59,15 +59,10 @@ public class DirectionsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException {
-    String apiKey = ""; // TODO: Merge ApiKeyProvider to make a request here (Issue #77)
-    String origin =
-        "Montreal, QC"; // TODO: Replace with getOrigin from Tasks upon implementation (Issue #78)
-    String destination =
-        "Montreal, QC"; // TODO: Replace with getDestination from Tasks implementation (Issue #78)
-    List<String> waypoints =
-        ImmutableList.of(
-            "Windsor, ON", "Waterloo, ON", "Kitchener, ON"); // TODO: Replace with getWaypoints from
-    // Tasks implementation (Issue #78)
+    String apiKey = AddressUtility.getApiKey();
+    String origin = AddressUtility.getOrigin();
+    String destination = AddressUtility.getDestination();
+    List<String> waypoints = AddressUtility.getWaypoints();
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
