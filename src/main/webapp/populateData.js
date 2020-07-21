@@ -104,14 +104,16 @@ function populateCalendar() {
       })
       .then((hoursJson) => {
         // Display the days and the free hours for each one of them
-        let days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-        for (var day = 0; day < 5; day++) {
+        const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+        for (let day = 0; day < 5; day++) {
           const dayContainer = document.querySelector('#day-'+day);
           dayContainer.innerText = days[hoursJson.startDay + day];
           const workContainer = document.querySelector('#work-'+day);
-          workContainer.innerText = convertTime(hoursJson.workHours[day]) + ' (working)';
+          workContainer.innerText = 
+              convertTime(hoursJson.workHours[day]) + ' (working)';
           const personalContainer = document.querySelector('#personal-'+day);
-          personalContainer.innerText = convertTime(hoursJson.personalHours[day]) + ' (personal)';
+          personalContainer.innerText = 
+              convertTime(hoursJson.personalHours[day]) + ' (personal)';
         }
         console.log(hoursJson);
       })
@@ -124,11 +126,13 @@ function populateCalendar() {
 }
 
 /**
- * Convert the time in hours and minutes, and concatenate the string to be displayed
- * @param timeMilli the time in milliseconds that needs to be converted
+ * Convert the time in hours and minutes,
+ * and concatenate the string to be displayed
+ * @param {int} timeMilli the time in milliseconds that needs to be converted
+ * @return {String} String representing the converted free time
  */
 function convertTime(timeMilli) {
-  var hours = Math.floor(timeMilli / (60 * 60 * 1000));
-  var minutes = Math.floor((timeMilli - hours * 60 * 60 * 1000)/(60*1000));
+  const hours = Math.floor(timeMilli / (60 * 60 * 1000));
+  const minutes = Math.floor((timeMilli - hours * 60 * 60 * 1000)/(60*1000));
   return hours + 'h ' + minutes + 'm free';
 }

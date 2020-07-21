@@ -19,6 +19,7 @@ import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
@@ -26,7 +27,6 @@ import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import com.google.api.client.util.DateTime;
 
 /** Handles basic GET/POST requests to and from the Google Calendar service */
 public class CalendarClientImpl implements CalendarClient {
@@ -47,7 +47,8 @@ public class CalendarClientImpl implements CalendarClient {
   @Override
   public List<CalendarListEntry> getCalendarList() throws IOException {
     // returns null if no calendar exists. Convert to empty list for ease.
-    List<CalendarListEntry> calendarList = calendarService.calendarList().list().execute().getItems();
+    List<CalendarListEntry> calendarList =
+        calendarService.calendarList().list().execute().getItems();
 
     return calendarList != null ? calendarList : new ArrayList<>();
   }
@@ -61,9 +62,18 @@ public class CalendarClientImpl implements CalendarClient {
   }
 
   @Override
-  public List<Event> getUpcomingEvents(CalendarListEntry calendarList, DateTime timeMin, DateTime timeMax) throws IOException {
-    // returns null if there are no upcoming events in the next week. Convert to empty list for ease.
-    List<Event> events = calendarService.events().list(calendarList.getId()).setTimeMin(timeMin).setTimeMax(timeMax).execute().getItems();
+  public List<Event> getUpcomingEvents(
+      CalendarListEntry calendarList, DateTime timeMin, DateTime timeMax) throws IOException {
+    // returns null if there are no upcoming events in the next week. Convert to empty list for
+    // ease.
+    List<Event> events =
+        calendarService
+            .events()
+            .list(calendarList.getId())
+            .setTimeMin(timeMin)
+            .setTimeMax(timeMax)
+            .execute()
+            .getItems();
 
     return events != null ? events : new ArrayList<>();
   }

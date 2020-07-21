@@ -24,42 +24,45 @@ public final class CalendarClientData {
   private final int[] personalHours;
 
   /**
-   * Initialize the class by calculating the start day. The free hours should be eight hours for
-   * the working hours and sixteen hours for the pesonal time initially. 
+   * Initialize the class by calculating the start day. The free hours should be eight hours for the
+   * working hours and sixteen hours for the pesonal time initially.
    *
-   * @param startTime parameter of type long that gives the Unix epoch time of the start/now. The timezone is UTC
+   * @param startTime parameter of type long that gives the Unix epoch time of the start/now. The
+   *     timezone is UTC
    */
   public CalendarClientData(long startTime) {
     long numMillisecondsDay = 24 * 60 * 60 * 1000;
-    int numDays = (int)Math.floor(startTime / numMillisecondsDay);
+    int numDays = (int) Math.floor(startTime / numMillisecondsDay);
     this.startDay = ((numDays + 3) % 7);
     int eightHours = 8 * 60 * 60 * 1000;
     int sixteenHours = 2 * eightHours;
     this.workHours = new int[] {eightHours, eightHours, eightHours, eightHours, eightHours};
-    this.personalHours = new int[] {sixteenHours, sixteenHours, sixteenHours, sixteenHours, sixteenHours};
+    this.personalHours =
+        new int[] {sixteenHours, sixteenHours, sixteenHours, sixteenHours, sixteenHours};
   }
 
   /**
-   * Substract the event durations from the free time. Whether an event is in the personal or work time is
-   * determined by its start period. The working hours are hard-coded as beign between 10:00 AM and 6:00 PM.
-   * All time periods are in UTC timezone.
+   * Substract the event durations from the free time. Whether an event is in the personal or work
+   * time is determined by its start period. The working hours are hard-coded as beign between 10:00
+   * AM and 6:00 PM. All time periods are in UTC timezone.
    *
-   * @param startTime parameter of type long that gives the Unix epoch time of the start of the event
+   * @param startTime parameter of type long that gives the Unix epoch time of the start of the
+   *     event
    * @param endTime parameter of type long that gives the Unix epoch time of the end of the event
    */
   public void addEvent(long startTime, long endTime) {
     long numMillisecondsDay = 24 * 60 * 60 * 1000;
-    int numDays = (int)Math.floor(startTime / numMillisecondsDay);
+    int numDays = (int) Math.floor(startTime / numMillisecondsDay);
     int beginDay = ((numDays + 3) % 7);
-    int duration = (int)(endTime - startTime);
+    int duration = (int) (endTime - startTime);
     int startHour = (int) (startTime % numMillisecondsDay);
     int workBegin = 10 * 60 * 60 * 1000;
     int workEnd = 18 * 60 * 60 * 1000;
     if (startHour < workBegin || startHour > workEnd) {
-      personalHours[beginDay - startDay] = Math.max(personalHours[beginDay - startDay] - duration, 0); 
-    }
-    else {
-      workHours[beginDay - startDay] = Math.max(workHours[beginDay - startDay] - duration, 0); 
+      personalHours[beginDay - startDay] =
+          Math.max(personalHours[beginDay - startDay] - duration, 0);
+    } else {
+      workHours[beginDay - startDay] = Math.max(workHours[beginDay - startDay] - duration, 0);
     }
   }
 

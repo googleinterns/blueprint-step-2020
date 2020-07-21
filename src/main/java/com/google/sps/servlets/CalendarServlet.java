@@ -15,22 +15,22 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.gson.Gson;
+import com.google.sps.data.CalendarClientData;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.CalendarClient;
 import com.google.sps.model.CalendarClientFactory;
 import com.google.sps.model.CalendarClientImpl;
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.api.client.util.DateTime;
-import com.google.sps.data.CalendarClientData;
 
 /** GET function responds JSON string containing events in user's calendar. */
 @WebServlet("/calendar")
@@ -74,7 +74,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     DateTime timeMax = new DateTime(timeMin.getValue() + fiveDays);
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
 
-    //Initialize the CalendarClientData and update it based on the events period and duration
+    // Initialize the CalendarClientData and update it based on the events period and duration
     long timeMinValue = timeMin.getValue();
     long timeMaxValue = timeMax.getValue();
     CalendarClientData calendarClientData = new CalendarClientData(timeMinValue);
@@ -101,7 +101,8 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
    * @return List of Events from all of the user's calendars
    * @throws IOException if an issue occurs in the method
    */
-  private List<Event> getEvents(CalendarClient calendarClient, DateTime timeMin, DateTime timeMax) throws IOException {
+  private List<Event> getEvents(CalendarClient calendarClient, DateTime timeMin, DateTime timeMax)
+      throws IOException {
     List<CalendarListEntry> calendarList = calendarClient.getCalendarList();
     List<Event> events = new ArrayList<>();
     for (CalendarListEntry calendar : calendarList) {
