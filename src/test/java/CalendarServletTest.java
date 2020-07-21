@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Arrays;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +38,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
+import com.google.sps.data.CalendarClientData;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.EventDateTime;
 
 /** Test Calendar Servlet responds to client with correctly parsed Events. */
 @RunWith(JUnit4.class)
@@ -75,22 +79,23 @@ public final class CalendarServletTest {
   private static final CalendarListEntry SECONDARY = new CalendarListEntry().setId("secondary");
   private static final List<CalendarListEntry> ONE_CALENDAR = ImmutableList.of(PRIMARY);
   private static final List<CalendarListEntry> TWO_CALENDARS = ImmutableList.of(PRIMARY, SECONDARY);
+  private static final DateTime CURRENT_TIME = new DateTime("2020-05-19T09:00:00+00:00");
+  private static final DateTime END_TIME = new DateTime(CURRENT_TIME.getValue() + 5 * 24 * 60 * 60 * 1000);
+  private static final DateTime EVENT_ONE_START = new DateTime("2020-05-19T15:00:00+00:00");
+  private static final DateTime EVENT_ONE_END = new DateTime("2020-05-19T16:00:00+00:00");
+  private static final DateTime EVENT_TWO_START = new DateTime("2020-05-20T06:00:00+00:00");
+  private static final DateTime EVENT_TWO_END = new DateTime("2020-05-20T08:00:00+00:00");
+  private static final EventDateTime startOne = new EventDateTime().setDateTime(EVENT_ONE_START);
+  private static final EventDateTime endOne = new EventDateTime().setDateTime(EVENT_ONE_END);
+  private static final EventDateTime startTwo = new EventDateTime().setDateTime(EVENT_TWO_START);
+  private static final EventDateTime endTwo = new EventDateTime().setDateTime(EVENT_TWO_END);
   private static final List<Event> NO_EVENT = ImmutableList.of();
   private static final List<Event> EVENT_ONE =
       ImmutableList.of(
-          new Event().setSummary(EVENT_SUMMARY_ONE));
+          new Event().setSummary(EVENT_SUMMARY_ONE).setStart(startOne).setEnd(endOne));
   private static final List<Event> EVENT_TWO =
       ImmutableList.of(
-          new Event().setSummary(EVENT_SUMMARY_TWO));
-  private static final List<Event> EVENT_ONE_TWO =
-      ImmutableList.of(
-          new Event().setSummary(EVENT_SUMMARY_ONE), new Event().setSummary(EVENT_SUMMARY_TWO));
-  private static final List<Event> EVENT_UNDEFINED = ImmutableList.of(new Event());
-  private static final List<Event> EVENT_ALL =
-      ImmutableList.of(
-          new Event(),
-          new Event().setSummary(EVENT_SUMMARY_ONE),
-          new Event().setSummary(EVENT_SUMMARY_TWO));
+          new Event().setSummary(EVENT_SUMMARY_TWO).setStart(startTwo).setEnd(endTwo));
 
   @Before
   public void setUp() throws IOException, GeneralSecurityException {
@@ -117,48 +122,40 @@ public final class CalendarServletTest {
   public void noCalendarEvent() throws IOException, ServletException {
     // Test case where there are no events in the user's calendar
     Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
-    Mockito.when(calendarClient.getCalendarEvents(PRIMARY)).thenReturn(NO_EVENT);
-    List<Event> actual = checkReturn();
-    Assert.assertEquals(NO_EVENT, actual);
+    Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME)).thenReturn(NO_EVENT);
+    Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
+    CalendarClientData actual = getServletResponse();
+    int hour = 60 * 60 * 1000;
+    int[] workHours = new int[] {8 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour};
+    int[] personalHours = new int[] {16 * hour, 16 * hour, 16 * hour, 16 * hour, 16 * hour};
+    Assert.assertEquals(1, actual.getStartDay());
+    Assert.assertTrue(Arrays.equals(workHours, actual.getWorkHours()));
+    Assert.assertTrue(Arrays.equals(personalHours, actual.getPersonalHours()));
   }
 
   @Test
   public void twoCalendars() throws IOException, ServletException {
     // Test case where there are two calendars with a defined event in each
-    // Events must be returned in order of retrieval
+    // Event with 1 working hour and event with 2 personal hours. 
     Mockito.when(calendarClient.getCalendarList()).thenReturn(TWO_CALENDARS);
-    Mockito.when(calendarClient.getCalendarEvents(PRIMARY)).thenReturn(EVENT_ONE);
-    Mockito.when(calendarClient.getCalendarEvents(SECONDARY)).thenReturn(EVENT_TWO);
-    List<Event> actual = checkReturn();
-    Assert.assertEquals(EVENT_ONE_TWO, actual);
+    Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME)).thenReturn(EVENT_ONE);
+    Mockito.when(calendarClient.getUpcomingEvents(SECONDARY, CURRENT_TIME, END_TIME)).thenReturn(EVENT_TWO);
+    Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
+    CalendarClientData actual = getServletResponse();
+    int hour = 60 * 60 * 1000;
+    int[] workHours = new int[] {7 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour};
+    int[] personalHours = new int[] {16 * hour, 14 * hour, 16 * hour, 16 * hour, 16 * hour};
+    Assert.assertEquals(1, actual.getStartDay());
+    Assert.assertTrue(Arrays.equals(workHours, actual.getWorkHours()));
+    Assert.assertTrue(Arrays.equals(personalHours, actual.getPersonalHours()));
   }
 
-  @Test
-  public void undefinedEvent() throws IOException, ServletException {
-    // Test case where there is an event with no summary
-    Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
-    Mockito.when(calendarClient.getCalendarEvents(PRIMARY)).thenReturn(EVENT_UNDEFINED);
-    List<Event> actual = checkReturn();
-    Assert.assertEquals(EVENT_UNDEFINED, actual);
-  }
-
-  @Test
-  public void allEvent() throws IOException, ServletException {
-    // Test case where there are two defined and an undefined event
-    // Events must be returned in order of retrieval - JSON includes tasks in desired order
-    Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
-    Mockito.when(calendarClient.getCalendarEvents(PRIMARY)).thenReturn(EVENT_ALL);
-    List<Event> actual = checkReturn();
-    Assert.assertEquals(EVENT_ALL, actual);
-  }
-
-  public List<Event> checkReturn() throws IOException, ServletException {
-    // Method that handles the once the Calendar Client has been mocked
+  private CalendarClientData getServletResponse() throws IOException, ServletException {
+    // Method that handles the request once the Calendar Client has been mocked
     servlet.doGet(request, response);
     printWriter.flush();
     String actualString = stringWriter.toString();
-    Type type = new TypeToken<List<Event>>() {}.getType();
-    List<Event> actual = gson.fromJson(actualString, type);
+    CalendarClientData actual = gson.fromJson(actualString, CalendarClientData.class);
     return actual;
   }
 }
