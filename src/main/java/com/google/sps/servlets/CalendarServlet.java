@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.api.client.util.DateTime;
+import com.google.sps.data.CalendarClientData;
 
 /** GET function responds JSON string containing events in user's calendar. */
 @WebServlet("/calendar")
@@ -53,7 +55,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Returns List of events from the user's calendar
+   * Returns CalendarData string containing the user's free hours, both personal and work hours
    *
    * @param request Http request from the client. Should contain idToken and accessToken
    * @param response 403 if user is not authenticated, or Json string with the user's events
@@ -67,28 +69,43 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
-    List<Event> calendarEvents = getEvents(calendarClient);
+    long fiveDays = 5 * 24 * 60 * 60 * 1000;
+    DateTime timeMin = calendarClient.getCurrentTime();
+    DateTime timeMax = new DateTime(timeMin.getValue() + fiveDays);
+    List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
+
+    //Initialize the CalendarClientData and update it based on the events period and duration
+    long timeMinValue = timeMin.getValue();
+    long timeMaxValue = timeMax.getValue();
+    CalendarClientData calendarClientData = new CalendarClientData(timeMinValue);
+    for (Event event : calendarEvents) {
+      long startValue = Math.max(event.getStart().getDateTime().getValue(), timeMinValue);
+      long endValue = Math.min(event.getEnd().getDateTime().getValue(), timeMaxValue);
+      calendarClientData.addEvent(startValue, endValue);
+    }
 
     // Convert event list to JSON and print to response
     Gson gson = new Gson();
-    String eventJson = gson.toJson(calendarEvents);
+    String hoursJson = gson.toJson(calendarClientData);
 
     response.setContentType("application/json");
-    response.getWriter().println(eventJson);
+    response.getWriter().println(hoursJson);
   }
 
   /**
    * Get the events in the user's calendars
    *
    * @param calendarClient either a mock CalendarClient or a calendarClient with a valid credential
+   * @param timeMin the minimum time to start looking for events
+   * @param timeMax the maximum time to look for events
    * @return List of Events from all of the user's calendars
    * @throws IOException if an issue occurs in the method
    */
-  private List<Event> getEvents(CalendarClient calendarClient) throws IOException {
+  private List<Event> getEvents(CalendarClient calendarClient, DateTime timeMin, DateTime timeMax) throws IOException {
     List<CalendarListEntry> calendarList = calendarClient.getCalendarList();
     List<Event> events = new ArrayList<>();
     for (CalendarListEntry calendar : calendarList) {
-      events.addAll(calendarClient.getCalendarEvents(calendar));
+      events.addAll(calendarClient.getUpcomingEvents(calendar, timeMin, timeMax));
     }
     return events;
   }
