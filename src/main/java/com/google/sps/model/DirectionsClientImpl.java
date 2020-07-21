@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.maps;
+package com.google.sps.model;
 
+import com.google.maps.DirectionsApi;
+import com.google.maps.DirectionsApiRequest;
+import com.google.maps.GeoApiContext;
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.DirectionsResult;
+import com.google.sps.exceptions.DirectionsException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;

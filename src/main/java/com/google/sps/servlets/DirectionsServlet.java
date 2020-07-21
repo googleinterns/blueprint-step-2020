@@ -15,10 +15,10 @@
 package com.google.sps.servlets;
 
 import com.google.gson.Gson;
-import com.google.maps.DirectionsClient;
-import com.google.maps.DirectionsClientFactory;
-import com.google.maps.DirectionsClientImpl;
-import com.google.maps.DirectionsException;
+import com.google.sps.exceptions.DirectionsException;
+import com.google.sps.model.DirectionsClient;
+import com.google.sps.model.DirectionsClientFactory;
+import com.google.sps.model.DirectionsClientImpl;
 import com.google.sps.utility.AddressUtility;
 import java.io.IOException;
 import java.util.List;

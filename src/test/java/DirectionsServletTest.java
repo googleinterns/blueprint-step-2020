@@ -15,9 +15,9 @@
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.maps.DirectionsClient;
-import com.google.maps.DirectionsClientFactory;
-import com.google.maps.DirectionsException;
+import com.google.sps.exceptions.DirectionsException;
+import com.google.sps.model.DirectionsClient;
+import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.servlets.DirectionsServlet;
 import com.google.sps.utility.AddressUtility;
 import java.io.IOException;

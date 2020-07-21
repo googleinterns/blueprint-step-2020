@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.maps;
+package com.google.sps.model;
 
+import com.google.sps.exceptions.DirectionsException;
 import java.util.List;
 
 /**
