@@ -15,8 +15,12 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut, AuthenticationError */
+/* global signOut, AuthenticationError, Task */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
+
+let tasklists = [];
+let tasks = {};
+
 /**
  * Populate Gmail container with user information
  */
@@ -87,7 +91,6 @@ function populateTasks() {
           signOut();
         }
       });
-  postTask();
 }
 
 /**
@@ -123,8 +126,70 @@ function populateCalendar() {
       });
 }
 
-function postTask() {
-  const request = new Request('/tasks', {method: 'POST'});
+/**
+ * Function to test the POST method of tasks.
+ * Will 1) Get all of the tasklists, 2) request a new tasklist be made
+ * with a random name then, 3) add a test task to that tasklist.
+ * Then, the method will populate the response into the "assign" panel
+ */
+function postTaskToSampleList() {
+  fetch('/tasklists')
+      .then((response) => {
+        if (response.status === 403) {
+          throw new AuthenticationError();
+        }
+        return response.json();
+      })
+      .then((response) => {
+        const taskListWithTasks = {};
+        tasklists = response.tasklists;
+        tasks = response.tasks;
 
-  fetch(request).then(() => console.log('Request complete'));
+        console.log(tasklists);
+        console.log(tasks);
+
+        const newTaskListRequest =
+            new Request(
+                '/tasklists?taskListTitle=' + new Date().getTime(),
+                {method: 'POST'}
+            );
+
+        fetch(newTaskListRequest)
+            .then((response) => response.json())
+            .then((taskListObject) => {
+              tasklists.push(taskListObject);
+
+              const taskListId = taskListObject.id;
+              tasks[taskListId] = [];
+
+              console.log(tasklists);
+              console.log(tasks);
+
+              const dateObject = new Date();
+              const currentTime =
+                  dateObject.getTime() - dateObject.getTimezoneOffset()*60*1000;
+              const sampleTask =
+                  new Task(
+                      'test',
+                      'This is a test',
+                      new Date().getDateObjectWithLocalTime()
+                  );
+
+              const sampleTaskJson = JSON.stringify(sampleTask);
+
+              const newTaskRequest =
+                  new Request(
+                      '/tasks?taskListId=' + taskListId,
+                      {method: 'POST', body: sampleTaskJson}
+                  );
+
+              fetch(newTaskRequest)
+                  .then((response) => response.json())
+                  .then((taskObject) => {
+                    tasks[taskListId].push(taskObject);
+                    console.log(tasklists);
+                    console.log(tasks);
+                  });
+            });
+      });
 }

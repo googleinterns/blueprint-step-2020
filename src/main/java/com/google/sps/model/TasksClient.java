@@ -14,16 +14,12 @@
 
 package com.google.sps.model;
 
-import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Contract for trivial get requests from the Tasks API. TODO: Handle POST requests to the Tasks API
- * (Issue #53)
- */
+/** Contract for trivial get requests from the Tasks API. */
 public interface TasksClient {
   /**
    * Get all tasks from a tasklist in a user's Tasks account.
@@ -44,6 +40,7 @@ public interface TasksClient {
 
   /**
    * Add a new task list to user's Tasks account
+   *
    * @param title title of task list
    * @return TaskList entity that matches what was posted
    * @throws IOException if an issue occurs with the TasksService
@@ -52,22 +49,11 @@ public interface TasksClient {
 
   /**
    * Add a new task to a tasklist in a user's tasks account
-   * @param parentTaskList tasklist that the new task will belong to
-   * @param title title of task
-   * @param notes any messages associated with the task.
-   * @param dueDate when the task needs to be completed.
-   * @return Task entity that contains passed information
+   *
+   * @param parentTaskListId id of tasklist that the new task will belong to
+   * @param task task object to be posted to user's tasks account
+   * @return Task object that contains passed information
    * @throws IOException if an issue occurs with the tasksService
    */
-  Task postTask(TaskList parentTaskList, String title, String notes, DateTime dueDate) throws IOException;
-
-  /**
-   * Add a new task to a tasklist in a user's tasks account
-   * @param parentTaskList tasklist that the new task will belong to
-   * @param title title of task
-   * @param notes any messages associated with the task.
-   * @return Task entity that contains passed information
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  Task postTask(TaskList parentTaskList, String title, String notes) throws IOException;
+  Task postTask(String parentTaskListId, Task task) throws IOException;
 }
