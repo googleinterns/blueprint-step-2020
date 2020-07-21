@@ -83,7 +83,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    *
    * @param request Http request sent from client
    * @param response Http response to be sent back to the client
-   * @throws IOException if there is an issue processing the request
+   * @throws IOException if a read/write issue arises while processing the request
    * @throws ServletException if the request cannot be handled due to unexpected errors
    */
   @Override
@@ -109,11 +109,12 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * @param request HTTP request from client
    * @param response Http response to be sent to client
    * @param googleCredential valid, verified google credential object
-   * @throws IOException is there is an issue processing the request
+   * @throws IOException if a read/write issue arises while processing the request
+   * @throws ServletException if the request cannot be handled due to unexpected errors
    */
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException {
+      throws IOException, ServletException {
     response.sendError(400, "GET is not supported");
   }
 
@@ -123,11 +124,12 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
    * @param request HTTP request from client
    * @param response Http response to be sent to client
    * @param googleCredential valid, verified google credential object
-   * @throws IOException is there is an issue processing the request
+   * @throws IOException if a read/write issue arises while processing the request
+   * @throws ServletException if the request cannot be handled due to unexpected errors
    */
   public void doPost(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException {
+      throws IOException, ServletException {
     response.sendError(400, "POST is not supported");
   }
 
