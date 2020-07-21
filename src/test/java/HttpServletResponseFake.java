@@ -29,7 +29,13 @@ public class HttpServletResponseFake implements HttpServletResponse {
   private StringWriter stringWriter = new StringWriter();
   private PrintWriter printWriter = new PrintWriter(stringWriter);
 
+  /**
+   * Get the stringwriter used for writing the response
+   *
+   * @return Stringwriter object
+   */
   public StringWriter getStringWriter() {
+    printWriter.flush();
     return stringWriter;
   }
 
