@@ -73,7 +73,7 @@ function populateTasks() {
       .then((tasksList) => {
         // Convert JSON to string containing all task titles
         // and display it on client
-/*        if (tasksList.length !== 0) {
+        if (tasksList.length !== 0) {
           const tasks =
               tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
           tasksContainer.innerText = tasks;
@@ -85,11 +85,9 @@ function populateTasks() {
         console.log(e);
         if (e instanceof AuthenticationError) {
           signOut();
-        }*/
-        console.log(tasksList)
+        }
       });
 }
-
 
 /**
  * Populate Calendar container with user's events

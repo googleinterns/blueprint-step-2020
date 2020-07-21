@@ -98,7 +98,6 @@ public final class DirectionsServletTest {
     printWriter.flush();
 
     String actualString = stringWriter.toString();
-    System.out.println("PRINT " + actualString);
     Type type = new TypeToken<List<String>>() {}.getType();
     List<String> actual = gson.fromJson(actualString, type);
 
