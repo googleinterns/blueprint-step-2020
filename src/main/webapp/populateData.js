@@ -92,7 +92,6 @@ function populateTasks() {
         if (e instanceof AuthenticationError) {
           signOut();
         }
-        console.log(tasksResponse);
       });
 }
 
