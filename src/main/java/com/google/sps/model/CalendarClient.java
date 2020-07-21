@@ -14,8 +14,8 @@
 
 package com.google.sps.model;
 
-import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.calendar.model.Event;
 import java.io.IOException;
 import java.util.List;
 
@@ -28,7 +28,7 @@ public interface CalendarClient {
    * @throws IOException thrown when an issue occurs
    */
   List<CalendarListEntry> getCalendarList() throws IOException;
-  
+
   /**
    * Get the events in a user's calendar.
    *

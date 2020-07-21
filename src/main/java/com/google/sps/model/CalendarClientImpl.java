@@ -46,7 +46,8 @@ public class CalendarClientImpl implements CalendarClient {
   @Override
   public List<CalendarListEntry> getCalendarList() throws IOException {
     // returns null if no calendar exists. Convert to empty list for ease.
-    List<CalendarListEntry> calendarList = calendarService.calendarList().list().execute().getItems();
+    List<CalendarListEntry> calendarList =
+        calendarService.calendarList().list().execute().getItems();
 
     return calendarList != null ? calendarList : new ArrayList<>();
   }
