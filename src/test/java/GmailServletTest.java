@@ -20,14 +20,17 @@ import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.model.GmailResponseHelper;
 import com.google.sps.servlets.GmailServlet;
+import java.io.StringWriter;
 import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
@@ -40,8 +43,9 @@ public final class GmailServletTest extends GmailTestBase {
   private GmailClient gmailClient;
   private GmailServlet servlet;
   private HttpServletRequest request;
-  private HttpServletResponseFake response;
+  private HttpServletResponse response;
   private GmailResponseHelper gmailResponseHelper;
+  private StringWriter stringWriter;
 
   private static final Gson gson = new Gson();
 
@@ -75,8 +79,13 @@ public final class GmailServletTest extends GmailTestBase {
     Mockito.when(authenticationVerifier.verifyUserToken(ID_TOKEN_VALUE))
         .thenReturn(AUTHENTICATION_VERIFIED);
 
+    stringWriter = new StringWriter();
+
     request = Mockito.mock(HttpServletRequest.class);
-    response = new HttpServletResponseFake();
+    response =
+        Mockito.mock(
+            HttpServletResponse.class,
+            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
     Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
@@ -87,10 +96,10 @@ public final class GmailServletTest extends GmailTestBase {
    * @param response Mock HttpResponse
    * @return GmailResponse object from doGet method
    */
-  private GmailResponse getGmailResponse(
-      HttpServletRequest request, HttpServletResponseFake response) throws Exception {
+  private GmailResponse getGmailResponse(HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
     servlet.doGet(request, response);
-    return gson.fromJson(response.getStringWriter().toString(), GmailResponse.class);
+    return gson.fromJson(stringWriter.toString(), GmailResponse.class);
   }
 
   @Test
