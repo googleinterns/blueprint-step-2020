@@ -20,6 +20,7 @@ import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.model.DirectionsClientImpl;
+import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -38,13 +39,17 @@ public class DirectionsServlet extends HttpServlet {
   private final String destination;
   private final List<String> waypoints;
 
-  /** Construct servlet with default DirectionsClient. */
-  public DirectionsServlet() {
+  /**
+   * Construct servlet with default DirectionsClient.
+   *
+   * @throws IOException
+   */
+  public DirectionsServlet() throws IOException {
     directionsClientFactory = new DirectionsClientImpl.Factory();
-    apiKey = "Fake API Key";
+    apiKey = (new KeyProvider()).getKey("apiKey");
     origin = "Waterloo, ON";
     destination = "Waterloo, ON";
-    waypoints = ImmutableList.of("Montreal, ON");
+    waypoints = ImmutableList.of("Montreal, QC", "Windsor, ON", "Kitchener, ON");
   }
 
   /**

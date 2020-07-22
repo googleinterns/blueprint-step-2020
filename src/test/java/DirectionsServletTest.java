@@ -149,6 +149,7 @@ public final class DirectionsServletTest {
       throws DirectionsException, ServletException, ApiException, InterruptedException,
           IOException {
 
+    // Create fake DirectionsResult to parse
     Distance distance = new Distance();
     distance.humanReadable = "6 km";
     Duration duration = new Duration();
