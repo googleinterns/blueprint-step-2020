@@ -17,7 +17,7 @@
 
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie, isCookiePresent,
-deleteCookie, populateGmail, populateTasks, 
+deleteCookie, populateGmail, populateTasks,
 populateCalendar, populateGo */
 // TODO: Handle CommonJS (Issue #31)
 
