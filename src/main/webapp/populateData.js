@@ -157,12 +157,14 @@ function populateCalendar() {
 
 /**
  * Function to test getting tasklists and adding a new tasklist
- * Will 1) Get all of the tasklists, 2) request a new tasklist be made
- * with a random name then, 3) get the new list of tasklists and log them in
- * the console.
+ * Will 1) request a new tasklist be made with a default name (the current time)
+ * and 2) get the new list of tasklists and log them in the console.
  */
 function postAndGetTasklist() {
-  postNewTaskList()
+  const sampleTitle =
+      new Date().getDateObjectWithLocalTime().getTime().toString();
+
+  postNewTaskList(sampleTitle)
       .then(() => {
         getTaskListsAndTasks()
             .then(() => {
@@ -199,13 +201,11 @@ function getTaskListsAndTasks() {
 /**
  * Post a new tasklist to the server
  *
- * @param {string | number} title title of new tasklist. Defaults to current
- *     time
+ * @param {string} title title of new tasklist.
  * @return {Promise<any>} A promise that is resolved once the tasklist is
  *     posted
  */
-function postNewTaskList(
-    title = new Date().getDateObjectWithLocalTime().getTime()) {
+function postNewTaskList(title) {
   const newTaskListRequest =
       new Request(
           '/tasklists?taskListTitle=' + title,
