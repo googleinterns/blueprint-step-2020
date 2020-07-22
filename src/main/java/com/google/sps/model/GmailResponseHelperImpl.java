@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.utility;
+package com.google.sps.model;
 
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.sps.exceptions.GmailMessageFormatException;
-import com.google.sps.model.GmailClient;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -26,48 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /** Contains business logic to calculate statistics for the GmailResponse */
-public final class GmailResponseUtility {
-  private GmailResponseUtility() {}
-
-  /**
-   * Get list of unread emails from last nDays days from user's Gmail account
-   *
-   * @param gmailClient GmailClient implementation with valid google credential
-   * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
-   *     returned
-   * @return List of unread messages from last nDays from user's Gmail account with requested level
-   *     of information
-   * @throws IOException if an issue occurs with the Gmail service
-   */
-  public static List<Message> getUnreadEmailsFromNDays(
-      GmailClient gmailClient, GmailClient.MessageFormat messageFormat, int nDays)
-      throws IOException {
-    String searchQuery = GmailClient.emailQueryString(nDays, "d", true, false, "");
-    return gmailClient.listUserMessages(searchQuery).stream()
-        .map(
-            (message) -> {
-              try {
-                return gmailClient.getUserMessage(message.getId(), messageFormat);
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-            })
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * Get the amount of emails sent within the last mHours hours given a list of messages
-   *
-   * @param unreadEmailsFromLastNDays a list of Message objects from user's gmail account. Messages
-   *     must be either FULL, METADATA, or MINIMAL MessageFormat
-   * @return number of emails from last mHours hours
-   * @throws GmailMessageFormatException if the Message objects do not contain an internalDate (and
-   *     are thus the wrong format)
-   */
-  public static int countEmailsFromMHours(List<Message> unreadEmailsFromLastNDays, int mHours) {
+public final class GmailResponseHelperImpl implements GmailResponseHelper {
+  @Override
+  public int countEmailsFromMHours(List<Message> unreadEmailsFromLastNDays, int mHours) {
     // This is the oldest an email can be (in milliseconds since epoch) to be within the last mHours
     long timeCutoffEpochMs = Instant.now().toEpochMilli() - TimeUnit.HOURS.toMillis(mHours);
     return (int)
@@ -83,16 +44,8 @@ public final class GmailResponseUtility {
             .count();
   }
 
-  /**
-   * Get the amount of important emails given a list of user's emails. Emails without labelIds are
-   * skipped (they may be of the correct format, but there are no label ids, which results in a null
-   * return from google for labelIds)
-   *
-   * @param unreadEmails a list of Message objects from user's gmail account. Messages must be
-   *     either FULL, METADATA, or MINIMAL MessageFormat
-   * @return number of important emails given list of emails
-   */
-  public static int countImportantEmails(List<Message> unreadEmails) {
+  @Override
+  public int countImportantEmails(List<Message> unreadEmails) {
     return (int)
         unreadEmails.stream()
             .filter(
@@ -101,15 +54,8 @@ public final class GmailResponseUtility {
             .count();
   }
 
-  /**
-   * Get the sender of the most unread emails from the last nDays days in a user's Gmail account
-   *
-   * @param unreadEmails a list of unread emails (with METADATA OR FULL MessageFormat)
-   * @return sender of the most unread emails from the last nDays days. Null if no unread emails.
-   * @throws GmailMessageFormatException if the messages do not contain an internal date and/or
-   *     headers (and are thus the wrong format)
-   */
-  public static Optional<String> findMostFrequentSender(List<Message> unreadEmails) {
+  @Override
+  public Optional<String> findMostFrequentSender(List<Message> unreadEmails) {
     if (unreadEmails.isEmpty()) {
       return Optional.empty();
     }
@@ -138,7 +84,7 @@ public final class GmailResponseUtility {
    *     extracted
    * @return A contact name if available, or an email if it is not
    */
-  private static String parseNameInFromHeader(String fromHeaderValue) {
+  private String parseNameInFromHeader(String fromHeaderValue) {
     return fromHeaderValue.charAt(0) == '<'
         ? fromHeaderValue.substring(1, fromHeaderValue.length() - 1)
         : fromHeaderValue.split("<")[0].trim();
@@ -151,11 +97,11 @@ public final class GmailResponseUtility {
    * @return a HashMap where the keys are the values of the "From" header and the values are the
    *     number of times that sender sent an email (from the list of messages)
    */
-  private static HashMap<String, Integer> mapSendersToFrequencies(List<Message> messages) {
+  private HashMap<String, Integer> mapSendersToFrequencies(List<Message> messages) {
     HashMap<String, Integer> sendersToFrequencies = new HashMap<>();
 
     messages.stream()
-        .map(GmailResponseUtility::extractFromHeader)
+        .map(this::extractFromHeader)
         .forEach(
             (fromHeader) -> {
               String sender = fromHeader.getValue();
@@ -175,7 +121,7 @@ public final class GmailResponseUtility {
    * @return a HashMap where the keys are the values of the "From" header and the values are
    *     timestamps of that sender's most recent email
    */
-  private static HashMap<String, Long> mapSendersToMostRecentEmail(List<Message> messages) {
+  private HashMap<String, Long> mapSendersToMostRecentEmail(List<Message> messages) {
     HashMap<String, Long> sendersToTimestamp = new HashMap<>();
 
     messages.forEach(
@@ -207,7 +153,7 @@ public final class GmailResponseUtility {
    * @throws GmailMessageFormatException if the messages do not contain a from header (and are thus
    *     the wrong format)
    */
-  private static MessagePartHeader extractFromHeader(Message message) {
+  private MessagePartHeader extractFromHeader(Message message) {
     List<MessagePartHeader> headers = message.getPayload().getHeaders();
 
     return headers.stream()
