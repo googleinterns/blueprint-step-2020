@@ -15,9 +15,19 @@
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.DirectionsLeg;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.DirectionsStep;
+import com.google.maps.model.Distance;
+import com.google.maps.model.Duration;
+import com.google.maps.model.GeocodedWaypoint;
+import com.google.maps.model.LatLng;
 import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
+import com.google.sps.model.DirectionsClientImpl;
 import com.google.sps.servlets.DirectionsServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -132,5 +142,47 @@ public final class DirectionsServletTest {
     List<String> actual = gson.fromJson(actualString, type);
 
     Assert.assertEquals(A_TO_B_NO_WAYPOINTS, actual);
+  }
+
+  @Test
+  public void aToBNoWaypointsParseResult()
+      throws DirectionsException, ServletException, ApiException, InterruptedException,
+          IOException {
+
+    Distance distance = new Distance();
+    distance.humanReadable = "6 km";
+    Duration duration = new Duration();
+    duration.humanReadable = "6 hours";
+
+    DirectionsLeg leg = new DirectionsLeg();
+    leg.steps = new DirectionsStep[] {new DirectionsStep(), new DirectionsStep()};
+    leg.distance = distance;
+    leg.duration = duration;
+    leg.startLocation = new LatLng(45, -73);
+    leg.endLocation = new LatLng(43, -80);
+    leg.startAddress = "A";
+    leg.endAddress = "B";
+
+    DirectionsRoute route = new DirectionsRoute();
+    route.legs = new DirectionsLeg[] {leg};
+
+    GeocodedWaypoint[] geocodedWaypoints = {new GeocodedWaypoint(), new GeocodedWaypoint()};
+    DirectionsRoute[] routes = {route};
+    DirectionsResult directionsResult = new DirectionsResult();
+    directionsResult.geocodedWaypoints = geocodedWaypoints;
+    directionsResult.routes = routes;
+
+    List<String> actual = DirectionsClientImpl.parseDirectionsResult(directionsResult);
+
+    // Trailing zeroes in tests omitted by default to reduce clutter
+    List<String> expected =
+        ImmutableList.of(
+            A_TO_B_NO_WAYPOINTS
+                .get(0)
+                .replace(
+                    "(45,-73 -> 43,-80)",
+                    "(45.00000000,-73.00000000 -> 43.00000000,-80.00000000)"));
+
+    Assert.assertEquals(expected, actual);
   }
 }
