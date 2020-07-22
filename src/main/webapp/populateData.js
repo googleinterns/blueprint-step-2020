@@ -158,8 +158,8 @@ function populateCalendar() {
 /**
  * Function to test getting tasklists and adding a new tasklist
  * Will 1) Get all of the tasklists, 2) request a new tasklist be made
- * with a random name then, 3) add a test task to that tasklist.
- * Then, the method will populate the response into the "assign" panel
+ * with a random name then, 3) get the new list of tasklists and log them in
+ * the console.
  */
 function postAndGetTasklist() {
   getTaskListsAndTasks()
