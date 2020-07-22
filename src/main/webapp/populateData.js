@@ -155,7 +155,36 @@ function populateCalendar() {
  * Then, the method will populate the response into the "assign" panel
  */
 function postTaskToSampleList() {
-  fetch('/tasklists')
+  const sampleTask =
+      new Task(
+          'test',
+          'This is a test',
+          new Date().getDateObjectWithLocalTime()
+      );
+
+  getTaskListsAndTasks()
+      .then(() => {
+        postNewTaskList()
+            .then((taskListResponse) => {
+              const taskListId = taskListResponse.id;
+
+              postNewTask(taskListId, sampleTask)
+                  .then(() => {
+                    getTaskListsAndTasks()
+                        .then(() => console.log((tasks)));
+                  });
+            });
+      });
+}
+
+/**
+ * Update the tasks and tasklists lists.
+ *
+ * @return {Promise<any>} A promise that is resolved once the tasks and
+ *     and tasklists arrays are updated, and rejected if there's an error
+ */
+function getTaskListsAndTasks() {
+  return fetch('/tasklists')
       .then((response) => {
         if (response.status === 403) {
           throw new AuthenticationError();
@@ -163,55 +192,62 @@ function postTaskToSampleList() {
         return response.json();
       })
       .then((response) => {
-        const taskListWithTasks = {};
-        tasklists = response.tasklists;
         tasks = response.tasks;
+        tasklists = response.tasklists;
+      });
+}
 
-        console.log(tasklists);
-        console.log(tasks);
+/**
+ * Post a new tasklist to the server
+ *
+ * @param {string | number} title title of new tasklist. Defaults to current
+ *     time
+ * @return {Promise<any>} A promise that is resolved once the tasklist is
+ *     posted
+ */
+function postNewTaskList(
+    title = new Date().getDateObjectWithLocalTime().getTime()) {
+  const newTaskListRequest =
+      new Request(
+          '/tasklists?taskListTitle=' + title,
+          {method: 'POST'}
+      );
 
-        const newTaskListRequest =
-            new Request(
-                '/tasklists?taskListTitle=' + new Date().getTime(),
-                {method: 'POST'}
-            );
+  return fetch(newTaskListRequest)
+      .then((response) => {
+        if (response.status === 403) {
+          throw new AuthenticationError();
+        }
+        return response.json();
+      })
+      .then((taskListObject) => {
+        return taskListObject;
+      });
+}
 
-        fetch(newTaskListRequest)
-            .then((response) => response.json())
-            .then((taskListObject) => {
-              tasklists.push(taskListObject);
+/**
+ * Post a new task to a given tasklist
+ *
+ * @param {string} taskListId the id of the tasklist that the new task should
+ *     belong to
+ * @param {Task} taskObject valid Task object
+ * @return {Promise<any>} A promise that is resolved once the task is
+ *     posted
+ */
+function postNewTask(taskListId, taskObject) {
+  const taskJson = JSON.stringify(taskObject);
 
-              const taskListId = taskListObject.id;
-              tasks[taskListId] = [];
+  const newTaskRequest =
+      new Request(
+          '/tasks?taskListId=' + taskListId,
+          {method: 'POST', body: taskJson}
+      );
 
-              console.log(tasklists);
-              console.log(tasks);
-
-              const dateObject = new Date();
-              const currentTime =
-                  dateObject.getTime() - dateObject.getTimezoneOffset()*60*1000;
-              const sampleTask =
-                  new Task(
-                      'test',
-                      'This is a test',
-                      new Date().getDateObjectWithLocalTime()
-                  );
-
-              const sampleTaskJson = JSON.stringify(sampleTask);
-
-              const newTaskRequest =
-                  new Request(
-                      '/tasks?taskListId=' + taskListId,
-                      {method: 'POST', body: sampleTaskJson}
-                  );
-
-              fetch(newTaskRequest)
-                  .then((response) => response.json())
-                  .then((taskObject) => {
-                    tasks[taskListId].push(taskObject);
-                    console.log(tasklists);
-                    console.log(tasks);
-                  });
-            });
+  return fetch(newTaskRequest)
+      .then((response) => {
+        if (response.status === 403) {
+          throw new AuthenticationError();
+        }
+        return response.json();
       });
 }

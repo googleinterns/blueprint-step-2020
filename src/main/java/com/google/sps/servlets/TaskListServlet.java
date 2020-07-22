@@ -72,23 +72,10 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+
     List<TaskList> taskLists = tasksClient.listTaskLists();
+    HashMap<String, List<Task>> taskListsWithTasks = mapTaskListsToTasks(taskLists, tasksClient);
 
-    // Stores all tasklists with their associated tasks
-    HashMap<String, List<Task>> taskListsWithTasks = new HashMap<>();
-    for (TaskList taskList : taskLists) {
-      taskListsWithTasks.put(taskList.getId(), tasksClient.listTasks(taskList));
-    }
-
-    // JSON response should be in the form of:
-    // {
-    //   tasklists: [array of tasklists],
-    //   tasks: {
-    //            taskListId: [array of tasks],
-    //            taskListId: [array of tasks],
-    //            ...
-    //          }
-    // }
     Gson gson = new Gson();
     JsonObject jsonObject = new JsonObject();
     jsonObject.add("tasklists", gson.toJsonTree(taskLists));
@@ -97,6 +84,23 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
 
     response.setContentType("application/json");
     response.getWriter().println(json);
+  }
+
+  /**
+   * Map taskLists to the tasks they contain
+   *
+   * @param taskLists list of TaskList objects
+   * @param tasksClient TasksClient implementation with valid Google credential
+   * @return HashMap where keys are taskList ids and the values are all the tasks those tasklists contain
+   * @throws IOException if there is an issue with the TasksService
+   */
+  private HashMap<String, List<Task>> mapTaskListsToTasks(List<TaskList> taskLists, TasksClient tasksClient) throws IOException {
+    HashMap<String, List<Task>> taskListsWithTasks = new HashMap<>();
+    for (TaskList taskList : taskLists) {
+      taskListsWithTasks.put(taskList.getId(), tasksClient.listTasks(taskList));
+    }
+
+    return taskListsWithTasks;
   }
 
   /**
