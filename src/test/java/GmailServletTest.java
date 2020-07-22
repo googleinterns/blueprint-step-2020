@@ -28,6 +28,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
+import java.util.Optional;
+
 /**
  * Test Gmail Servlet to ensure response contains correctly parsed messageIds. Assumes
  * AuthenticatedHttpServlet and GmailResponseHelperImplTest is functioning properly (those tests
@@ -39,7 +41,6 @@ public final class GmailServletTest extends GmailTestBase {
   private GmailServlet servlet;
   private HttpServletRequest request;
   private HttpServletResponseFake response;
-
   private GmailResponseHelper gmailResponseHelper;
 
   private static final Gson gson = new Gson();
@@ -66,8 +67,8 @@ public final class GmailServletTest extends GmailTestBase {
     gmailClient = Mockito.mock(GmailClient.class);
     gmailResponseHelper = Mockito.mock(GmailResponseHelper.class);
     servlet = new GmailServlet(authenticationVerifier, gmailClientFactory, gmailResponseHelper);
-
     Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
+
     // Authentication will always pass
     Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
@@ -145,32 +146,38 @@ public final class GmailServletTest extends GmailTestBase {
   }
 
   @Test
-  public void checkDefaultUnreadEmailsNDaysInResponse() throws Exception {
+  public void checkUnreadEmailsFromNDaysInNullCase() throws Exception {
     // no messages returned - unread email count (nDays) should be 0
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
     Mockito.when(request.getParameter(Mockito.eq("mHours")))
         .thenReturn(String.valueOf(DEFAULT_M_HOURS));
 
+    Mockito.when(gmailClient.getUnreadEmailsFromNDays(Mockito.any(), Mockito.eq(DEFAULT_N_DAYS)))
+        .thenReturn(NO_MESSAGES);
+
     GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(0, gmailResponse.getUnreadEmailsDays());
   }
 
   @Test
-  public void checkDefaultSenderInResponse() throws Exception {
-    // For all queries, return no messages. Sender should be the default value in response (not
-    // null)
+  public void checkDefaultSenderInNullCase() throws Exception {
+    // When mostFrequentSender is N/A (in case of no messages), response should be some
+    // default value, not null.
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
     Mockito.when(request.getParameter(Mockito.eq("mHours")))
         .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+
+    Mockito.when(gmailResponseHelper.findMostFrequentSender(Mockito.any()))
+        .thenReturn(Optional.empty());
 
     GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(DEFAULT_SENDER, gmailResponse.getSender());
   }
 
   @Test
-  public void checkUnreadEmailsNDaysInResponse() throws Exception {
+  public void countUnreadEmailsFromNDays() throws Exception {
     // some messages returned - unread email count (nDays) should be message list length
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
         .thenReturn(String.valueOf(DEFAULT_N_DAYS));
@@ -210,7 +217,7 @@ public final class GmailServletTest extends GmailTestBase {
     Mockito.when(gmailResponseHelper.countImportantEmails(Mockito.any()))
         .thenReturn(EXPECTED_IMPORTANT_EMAIL_COUNT);
     Mockito.when(gmailResponseHelper.findMostFrequentSender(Mockito.any()))
-        .thenReturn(java.util.Optional.of(SENDER_ONE_NAME));
+        .thenReturn(Optional.of(SENDER_ONE_NAME));
 
     GmailResponse gmailResponse = getGmailResponse(request, response);
     Assert.assertEquals(EXPECTED_EMAILS_M_HOURS_COUNT, gmailResponse.getUnreadEmailsHours());
