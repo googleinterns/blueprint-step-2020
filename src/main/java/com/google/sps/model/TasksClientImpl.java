@@ -59,6 +59,14 @@ public class TasksClientImpl implements TasksClient {
     return taskLists != null ? taskLists : new ArrayList<>();
   }
 
+  @Override
+  public TaskList postTaskList(String title) throws IOException {
+    TaskList taskList = new TaskList();
+    taskList.setTitle(title);
+
+    return tasksService.tasklists().insert(taskList).execute();
+  }
+
   /** Factory to create a TasksClientImpl instance with given credential */
   public static class Factory implements TasksClientFactory {
     /**

@@ -19,10 +19,7 @@ import com.google.api.services.tasks.model.TaskList;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Contract for trivial get requests from the Tasks API. TODO: Handle POST requests to the Tasks API
- * (Issue #53)
- */
+/** Contract for trivial get requests from the Tasks API. */
 public interface TasksClient {
   /**
    * Get all tasks from a tasklist in a user's Tasks account.
@@ -40,4 +37,13 @@ public interface TasksClient {
    * @throws IOException if an issue occurs with the TasksService
    */
   List<TaskList> listTaskLists() throws IOException;
+
+  /**
+   * Add a new task list to user's Tasks account
+   *
+   * @param title title of task list
+   * @return TaskList entity that matches what was posted
+   * @throws IOException if an issue occurs with the TasksService
+   */
+  TaskList postTaskList(String title) throws IOException;
 }

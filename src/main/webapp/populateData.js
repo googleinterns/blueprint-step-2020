@@ -17,6 +17,12 @@
 /* eslint-disable no-unused-vars */
 /* global signOut, AuthenticationError */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
+
+// Stores the last retrieved copy of the user's tasklists and tasks
+// (mapped by tasklistId)
+let tasklists = [];
+let tasks = {};
+
 /**
  * Populate Gmail container with user information
  */
@@ -146,5 +152,78 @@ function populateCalendar() {
         if (e instanceof AuthenticationError) {
           signOut();
         }
+      });
+}
+
+/**
+ * Function to test getting tasklists and adding a new tasklist
+ * Will 1) Get all of the tasklists, 2) request a new tasklist be made
+ * with a random name then, 3) add a test task to that tasklist.
+ * Then, the method will populate the response into the "assign" panel
+ */
+function postAndGetTasklist() {
+  getTaskListsAndTasks()
+      .then(() => {
+        postNewTaskList()
+            .then(() => {
+              getTaskListsAndTasks()
+                  .then(() => console.log((tasks)));
+            });
+      });
+}
+
+/**
+ * Update the tasks and tasklists lists.
+ *
+ * @return {Promise<any>} A promise that is resolved once the tasks and
+ *     and tasklists arrays are updated, and rejected if there's an error
+ */
+function getTaskListsAndTasks() {
+  return fetch('/tasklists')
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
+        }
+      })
+      .then((response) => {
+        tasks = response.tasks;
+        tasklists = response.tasklists;
+      });
+}
+
+/**
+ * Post a new tasklist to the server
+ *
+ * @param {string | number} title title of new tasklist. Defaults to current
+ *     time
+ * @return {Promise<any>} A promise that is resolved once the tasklist is
+ *     posted
+ */
+function postNewTaskList(
+    title = new Date().getDateObjectWithLocalTime().getTime()) {
+  const newTaskListRequest =
+      new Request(
+          '/tasklists?taskListTitle=' + title,
+          {method: 'POST'}
+      );
+
+  return fetch(newTaskListRequest)
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
+        }
+      })
+      .then((taskListObject) => {
+        return taskListObject;
       });
 }
