@@ -91,10 +91,12 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
    *
    * @param taskLists list of TaskList objects
    * @param tasksClient TasksClient implementation with valid Google credential
-   * @return HashMap where keys are taskList ids and the values are all the tasks those tasklists contain
+   * @return HashMap where keys are taskList ids and the values are all the tasks those tasklists
+   *     contain
    * @throws IOException if there is an issue with the TasksService
    */
-  private HashMap<String, List<Task>> mapTaskListsToTasks(List<TaskList> taskLists, TasksClient tasksClient) throws IOException {
+  private HashMap<String, List<Task>> mapTaskListsToTasks(
+      List<TaskList> taskLists, TasksClient tasksClient) throws IOException {
     HashMap<String, List<Task>> taskListsWithTasks = new HashMap<>();
     for (TaskList taskList : taskLists) {
       taskListsWithTasks.put(taskList.getId(), tasksClient.listTasks(taskList));
