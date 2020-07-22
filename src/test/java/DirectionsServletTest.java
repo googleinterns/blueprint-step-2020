@@ -19,7 +19,6 @@ import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.servlets.DirectionsServlet;
-import com.google.sps.utility.AddressUtility;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -32,17 +31,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * Test Directions Servlet to ensure response contains correctly parsed legs. Assumes all parameters
  * origin, destination and waypoints are valid addresses.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(AddressUtility.class)
+@RunWith(JUnit4.class)
 public final class DirectionsServletTest {
   private DirectionsClientFactory directionsClientFactory;
   private DirectionsClient directionsClient;
@@ -75,7 +71,6 @@ public final class DirectionsServletTest {
     response = Mockito.mock(HttpServletResponse.class);
     directionsClientFactory = Mockito.mock(DirectionsClientFactory.class);
     directionsClient = Mockito.mock(DirectionsClient.class);
-    servlet = new DirectionsServlet(directionsClientFactory);
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
@@ -86,11 +81,10 @@ public final class DirectionsServletTest {
 
   @Test
   public void aToBWithWaypoints() throws DirectionsException, ServletException {
-    PowerMockito.mockStatic(AddressUtility.class);
-    Mockito.when(AddressUtility.getApiKey()).thenReturn(API_KEY);
-    Mockito.when(AddressUtility.getOrigin()).thenReturn("A");
-    Mockito.when(AddressUtility.getDestination()).thenReturn("B");
-    Mockito.when(AddressUtility.getWaypoints()).thenReturn(ImmutableList.of("C", "D"));
+    servlet =
+        new DirectionsServlet(
+            directionsClientFactory, API_KEY, "A", "B", ImmutableList.of("C", "D"));
+
     Mockito.when(directionsClient.getDirections("A", "B", ImmutableList.of("C", "D")))
         .thenReturn(A_TO_B_WITH_WAYPOINTS);
 
@@ -106,11 +100,10 @@ public final class DirectionsServletTest {
 
   @Test
   public void aToAWithWaypoints() throws DirectionsException, ServletException {
-    PowerMockito.mockStatic(AddressUtility.class);
-    Mockito.when(AddressUtility.getApiKey()).thenReturn(API_KEY);
-    Mockito.when(AddressUtility.getOrigin()).thenReturn("A");
-    Mockito.when(AddressUtility.getDestination()).thenReturn("A");
-    Mockito.when(AddressUtility.getWaypoints()).thenReturn(ImmutableList.of("B", "C", "D"));
+    servlet =
+        new DirectionsServlet(
+            directionsClientFactory, API_KEY, "A", "A", ImmutableList.of("B", "C", "D"));
+
     Mockito.when(directionsClient.getDirections("A", "A", ImmutableList.of("B", "C", "D")))
         .thenReturn(A_TO_A_WITH_WAYPOINTS);
 
@@ -126,11 +119,8 @@ public final class DirectionsServletTest {
 
   @Test
   public void aToBNoWaypoints() throws DirectionsException, ServletException {
-    PowerMockito.mockStatic(AddressUtility.class);
-    Mockito.when(AddressUtility.getApiKey()).thenReturn(API_KEY);
-    Mockito.when(AddressUtility.getOrigin()).thenReturn("A");
-    Mockito.when(AddressUtility.getDestination()).thenReturn("B");
-    Mockito.when(AddressUtility.getWaypoints()).thenReturn(ImmutableList.of());
+    servlet = new DirectionsServlet(directionsClientFactory, API_KEY, "A", "B", ImmutableList.of());
+
     Mockito.when(directionsClient.getDirections("A", "B", ImmutableList.of()))
         .thenReturn(A_TO_B_NO_WAYPOINTS);
 

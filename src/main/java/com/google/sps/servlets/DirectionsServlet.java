@@ -14,12 +14,12 @@
 
 package com.google.sps.servlets;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.model.DirectionsClientImpl;
-import com.google.sps.utility.AddressUtility;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -33,10 +33,18 @@ import javax.servlet.http.HttpServletResponse;
 public class DirectionsServlet extends HttpServlet {
 
   private final DirectionsClientFactory directionsClientFactory;
+  private final String apiKey;
+  private final String origin;
+  private final String destination;
+  private final List<String> waypoints;
 
   /** Construct servlet with default DirectionsClient. */
   public DirectionsServlet() {
     directionsClientFactory = new DirectionsClientImpl.Factory();
+    apiKey = "Fake API Key";
+    origin = "Waterloo, ON";
+    destination = "Waterloo, ON";
+    waypoints = ImmutableList.of("Montreal, ON");
   }
 
   /**
@@ -45,8 +53,17 @@ public class DirectionsServlet extends HttpServlet {
    * @param factory A DirectionsClientFactory containing the implementation of
    *     DirectionsClientFactory.
    */
-  public DirectionsServlet(DirectionsClientFactory factory) {
+  public DirectionsServlet(
+      DirectionsClientFactory factory,
+      String fakeApiKey,
+      String fakeOrigin,
+      String fakeDestination,
+      List<String> fakeWaypoints) {
     directionsClientFactory = factory;
+    apiKey = fakeApiKey;
+    origin = fakeOrigin;
+    destination = fakeDestination;
+    waypoints = fakeWaypoints;
   }
 
   /**
@@ -59,10 +76,6 @@ public class DirectionsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException {
-    String apiKey = AddressUtility.getApiKey();
-    String origin = AddressUtility.getOrigin();
-    String destination = AddressUtility.getDestination();
-    List<String> waypoints = AddressUtility.getWaypoints();
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
