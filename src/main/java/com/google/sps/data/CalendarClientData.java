@@ -70,17 +70,17 @@ public final class CalendarClientData {
   }
 
   public int getStartDay() {
-    // Usefull for testing purposes
+    // Useful for testing purposes
     return startDay;
   }
 
   public List<Integer> getWorkHours() {
-    // Usefull for testing purposes
+    // Useful for testing purposes
     return workHours;
   }
 
   public List<Integer> getPersonalHours() {
-    // Usefull for testing purposes
+    // Useful for testing purposes
     return personalHours;
   }
 }

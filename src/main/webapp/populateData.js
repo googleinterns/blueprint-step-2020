@@ -116,7 +116,6 @@ function populateCalendar() {
           personalContainer.innerText =
               convertTime(hoursJson.personalHours[day]) + ' (personal)';
         }
-        console.log(hoursJson);
       })
       .catch((e) => {
         console.log(e);
