@@ -162,12 +162,12 @@ function populateCalendar() {
  * the console.
  */
 function postAndGetTasklist() {
-  getTaskListsAndTasks()
+  postNewTaskList()
       .then(() => {
-        postNewTaskList()
+        getTaskListsAndTasks()
             .then(() => {
-              getTaskListsAndTasks()
-                  .then(() => console.log((tasks)));
+              console.log(tasklists);
+              console.log(tasks);
             });
       });
 }
