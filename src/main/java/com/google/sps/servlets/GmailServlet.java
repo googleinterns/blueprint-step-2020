@@ -15,14 +15,17 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.appengine.repackaged.com.google.gson.Gson;
+import com.google.api.services.gmail.model.Message;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
 import com.google.sps.model.GmailResponse;
+import com.google.sps.utility.GmailResponseUtility;
+import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -90,11 +93,38 @@ public class GmailServlet extends AuthenticatedHttpServlet {
       return;
     }
 
-    GmailResponse gmailResponse = new GmailResponse(nDays, mHours, gmailClient);
+    GmailResponse gmailResponse = generateGmailResponse(nDays, mHours, gmailClient);
+    JsonUtility.sendJson(response, gmailResponse);
+  }
 
-    Gson gson = new Gson();
-    String messageJson = gson.toJson(gmailResponse);
-    response.setContentType("application/json");
-    response.getWriter().println(messageJson);
+  /**
+   * Creates a GmailResponse object
+   *
+   * @param nDays number of days unread emails should be checked for
+   * @param mHours unread emails from the last mHours hours should be used to calculate the
+   *     "unreadEmailsFromMHours" statistic
+   * @param gmailClient GmailClient implementation with valid credential
+   * @return GmailResponse object
+   * @throws IOException if an issue occurs with the Gmail Service while obtaining emails
+   */
+  private GmailResponse generateGmailResponse(int nDays, int mHours, GmailClient gmailClient)
+      throws IOException {
+    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.METADATA;
+
+    List<Message> unreadMessages =
+        GmailResponseUtility.getUnreadEmailsFromNDays(gmailClient, messageFormat, nDays);
+    int unreadEmailsFromNDays = unreadMessages.size();
+    int unreadEmailsFromMHours = GmailResponseUtility.countEmailsFromMHours(unreadMessages, mHours);
+    int unreadImportantEmailsFromNDays = GmailResponseUtility.countImportantEmails(unreadMessages);
+    String mostFrequentSender =
+        GmailResponseUtility.findMostFrequentSender(unreadMessages).orElse("");
+
+    return new GmailResponse(
+        nDays,
+        mHours,
+        unreadEmailsFromNDays,
+        unreadEmailsFromMHours,
+        unreadImportantEmailsFromNDays,
+        mostFrequentSender);
   }
 }

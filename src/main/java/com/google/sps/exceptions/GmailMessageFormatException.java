@@ -22,19 +22,19 @@ public class GmailMessageFormatException extends RuntimeException {
   /**
    * Creates GmailMessageFormatException instance
    *
-   * @param errorMessage reason for throwing error
+   * @param message reason for throwing error
    */
-  public GmailMessageFormatException(String errorMessage) {
-    super(errorMessage);
+  public GmailMessageFormatException(String message) {
+    super(message);
   }
 
   /**
    * Creates GmailMessageFormatException instance
    *
-   * @param errorMessage reason for throwing error
-   * @param exceptionCause initial error that caused the exception
+   * @param message reason for throwing error
+   * @param cause initial error that caused the exception
    */
-  public GmailMessageFormatException(String errorMessage, Exception exceptionCause) {
-    super(errorMessage, exceptionCause);
+  public GmailMessageFormatException(String message, Exception cause) {
+    super(message, cause);
   }
 }

@@ -16,6 +16,7 @@ package com.google.sps.model;
 
 import com.google.api.services.gmail.model.Message;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /** Contract for handling/making GET requests to the Gmail API */
@@ -71,6 +72,7 @@ public interface GmailClient {
 
   /**
    * Creates a query string for Gmail. Use in search to return emails that fit certain restrictions
+   * TODO: Consider using builder pattern for this (Issue #100)
    *
    * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. Set to 0 to
    *     ignore filter
@@ -82,17 +84,15 @@ public interface GmailClient {
    */
   static String emailQueryString(
       int emailAge, String emailAgeUnits, boolean unreadOnly, boolean isImportant, String from) {
-    StringBuilder stringBuilder = new StringBuilder();
-
-    // Add query components
-    stringBuilder
-        .append(emailAgeQuery(emailAge, emailAgeUnits))
-        .append(unreadEmailQuery(unreadOnly))
-        .append(isImportantQuery(isImportant))
-        .append(fromEmailQuery(from));
+    List<String> queries =
+        Arrays.asList(
+            emailAgeQuery(emailAge, emailAgeUnits),
+            unreadEmailQuery(unreadOnly),
+            isImportantQuery(isImportant),
+            fromEmailQuery(from));
 
     // Return multi-part query
-    return stringBuilder.toString();
+    return String.join(" ", queries);
   }
 
   /**
@@ -109,7 +109,7 @@ public interface GmailClient {
   static String emailAgeQuery(int emailAge, String emailAgeUnits) {
     // newer_than:#d where # is an integer will specify to only return emails from last # days
     if (emailAge > 0 && (emailAgeUnits.equals("h") || emailAgeUnits.equals("d"))) {
-      return String.format("newer_than:%d%s ", emailAge, emailAgeUnits);
+      return String.format("newer_than:%d%s", emailAge, emailAgeUnits);
     } else if (emailAge == 0 && emailAgeUnits.isEmpty()) {
       return "";
     }
@@ -127,7 +127,7 @@ public interface GmailClient {
    */
   static String unreadEmailQuery(boolean unreadOnly) {
     // is:unread will return only unread emails
-    return unreadOnly ? "is:unread " : "";
+    return unreadOnly ? "is:unread" : "";
   }
 
   /**
@@ -139,7 +139,7 @@ public interface GmailClient {
    */
   static String fromEmailQuery(String from) {
     // from: <emailAddress> will return only emails from that sender
-    return !from.equals("") ? String.format("from:%s ", from) : "";
+    return !from.equals("") ? String.format("from:%s", from) : "";
   }
 
   /**
@@ -150,6 +150,6 @@ public interface GmailClient {
    *     Trailing space added to string so multiple queries can be concatenated
    */
   static String isImportantQuery(boolean isImportant) {
-    return isImportant ? "is:important " : "";
+    return isImportant ? "is:important" : "";
   }
 }

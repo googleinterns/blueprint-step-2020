@@ -23,12 +23,11 @@ import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.servlets.GmailServlet;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -49,8 +48,6 @@ public final class GmailServletTest {
   private GmailServlet servlet;
   private HttpServletRequest request;
   private HttpServletResponseFake response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
 
   private static final Gson gson = new Gson();
 
@@ -73,9 +70,9 @@ public final class GmailServletTest {
   private static final int NEGATIVE_N_DAYS = -1;
   private static final int NEGATIVE_M_HOURS = -1;
   private static final long N_DAYS_TIMESTAMP =
-      Instant.now().toEpochMilli() - (DEFAULT_N_DAYS - 1) * 24 * 60 * 60 * 1000;
+      Instant.now().toEpochMilli() - TimeUnit.DAYS.toMillis(DEFAULT_N_DAYS - 1);
   private static final long M_HOURS_TIMESTAMP =
-      Instant.now().toEpochMilli() - (DEFAULT_M_HOURS - 1) * 60 * 60 * 1000;
+      Instant.now().toEpochMilli() - TimeUnit.HOURS.toMillis(DEFAULT_M_HOURS - 1);
 
   private static final String UNREAD_EMAIL_DAYS_QUERY =
       GmailClient.emailQueryString(DEFAULT_N_DAYS, "d", true, false, "");
