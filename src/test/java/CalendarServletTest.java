@@ -89,9 +89,11 @@ public final class CalendarServletTest {
   private static final EventDateTime END_TWO = new EventDateTime().setDateTime(EVENT_TWO_END);
   private static final List<Event> NO_EVENT = ImmutableList.of();
   private static final List<Event> EVENT_ONE =
-      ImmutableList.of(new Event().setSummary(EVENT_SUMMARY_ONE).setStart(START_ONE).setEnd(END_ONE));
+      ImmutableList.of(
+          new Event().setSummary(EVENT_SUMMARY_ONE).setStart(START_ONE).setEnd(END_ONE));
   private static final List<Event> EVENT_TWO =
-      ImmutableList.of(new Event().setSummary(EVENT_SUMMARY_TWO).setStart(START_TWO).setEnd(END_TWO));
+      ImmutableList.of(
+          new Event().setSummary(EVENT_SUMMARY_TWO).setStart(START_TWO).setEnd(END_TWO));
   private static final int hour = 60 * 60 * 1000;
 
   @Before
