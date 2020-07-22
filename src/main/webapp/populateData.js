@@ -191,10 +191,14 @@ function postTaskToSampleList() {
 function getTaskListsAndTasks() {
   return fetch('/tasklists')
       .then((response) => {
-        if (response.status === 403) {
-          throw new AuthenticationError();
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
         }
-        return response.json();
       })
       .then((response) => {
         tasks = response.tasks;
@@ -220,10 +224,14 @@ function postNewTaskList(
 
   return fetch(newTaskListRequest)
       .then((response) => {
-        if (response.status === 403) {
-          throw new AuthenticationError();
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
         }
-        return response.json();
       })
       .then((taskListObject) => {
         return taskListObject;
@@ -250,9 +258,13 @@ function postNewTask(taskListId, taskObject) {
 
   return fetch(newTaskRequest)
       .then((response) => {
-        if (response.status === 403) {
-          throw new AuthenticationError();
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
         }
-        return response.json();
       });
 }
