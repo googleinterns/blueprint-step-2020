@@ -18,7 +18,7 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
-import com.google.sps.data.CalendarClientData;
+import com.google.sps.data.CalendarClientData
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.CalendarClient;
 import com.google.sps.model.CalendarClientFactory;
@@ -131,6 +131,7 @@ public final class CalendarServletTest {
     Assert.assertEquals(1, actual.getStartDay());
     Assert.assertTrue(workHours.equals(actual.getWorkHours()));
     Assert.assertTrue(personalHours.equals(actual.getPersonalHours()));
+
   }
 
   @Test

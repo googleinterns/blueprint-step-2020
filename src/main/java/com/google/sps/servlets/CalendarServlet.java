@@ -110,4 +110,20 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     }
     return events;
   }
+
+  /**
+   * Get the events in the user's calendars
+   *
+   * @param calendarClient either a mock CalendarClient or a calendarClient with a valid credential
+   * @return List of Events from all of the user's calendars
+   * @throws IOException if an issue occurs in the method
+   */
+  private List<Event> getEvents(CalendarClient calendarClient) throws IOException {
+    List<CalendarListEntry> calendarList = calendarClient.getCalendarList();
+    List<Event> events = new ArrayList<>();
+    for (CalendarListEntry calendar : calendarList) {
+      events.addAll(calendarClient.getCalendarEvents(calendar));
+    }
+    return events;
+  }
 }
