@@ -180,7 +180,7 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
      * @param entryOne the first entry object
      * @param entryTwo the second entry object
      * @return 1 if entryOne sent the most emails or (if a tie) sent an email most recently. -1 in
-     *     opposite case. 0 if both entires have the same number of sent emails and same timestamp
+     *     opposite case. 0 if both entries have the same number of sent emails and same timestamp
      *     of most recent email (rare - timestamps are in milliseconds)
      */
     @Override
