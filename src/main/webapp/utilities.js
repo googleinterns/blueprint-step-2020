@@ -15,6 +15,7 @@
 // A series of utility functions that will be helpful throughout the front-end
 
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-extend-native */
 
 /**
  * Get cookie's value from document
@@ -77,3 +78,14 @@ function deleteCookie(cookieName) {
   // Will prompt cookie to immediately expire
   document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
 }
+
+/**
+ * Gets a Date object with the time from the user's current time zone.
+ * @return {Date} Date object with local time
+ */
+Date.prototype.getDateObjectWithLocalTime = function() {
+  const dateObject = new Date();
+  const currentTime =
+      dateObject.getTime() - dateObject.getTimezoneOffset()*60*1000;
+  return new Date(currentTime);
+};
