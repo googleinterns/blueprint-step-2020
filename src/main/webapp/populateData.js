@@ -108,10 +108,10 @@ function populateCalendar() {
         for (let day = 0; day < 5; day++) {
           const dayContainer = document.querySelector('#day-'+day);
           dayContainer.innerText = days[hoursJson.startDay + day];
-          const workContainer = document.querySelector('#work-'+day);
+          const workContainer = document.querySelector('#work-day-'+day);
           workContainer.innerText =
               convertTime(hoursJson.workHours[day]) + ' (working)';
-          const personalContainer = document.querySelector('#personal-'+day);
+          const personalContainer = document.querySelector('#personal-day-'+day);
           personalContainer.innerText =
               convertTime(hoursJson.personalHours[day]) + ' (personal)';
         }

@@ -27,8 +27,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -93,6 +92,7 @@ public final class CalendarServletTest {
       ImmutableList.of(new Event().setSummary(EVENT_SUMMARY_ONE).setStart(startOne).setEnd(endOne));
   private static final List<Event> EVENT_TWO =
       ImmutableList.of(new Event().setSummary(EVENT_SUMMARY_TWO).setStart(startTwo).setEnd(endTwo));
+  private static final int hour = 60 * 60 * 1000;
 
   @Before
   public void setUp() throws IOException, GeneralSecurityException {
@@ -124,12 +124,13 @@ public final class CalendarServletTest {
         .thenReturn(NO_EVENT);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
     CalendarClientData actual = getServletResponse();
-    int hour = 60 * 60 * 1000;
-    int[] workHours = new int[] {8 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour};
-    int[] personalHours = new int[] {16 * hour, 16 * hour, 16 * hour, 16 * hour, 16 * hour};
+    List<Integer> workHours =
+        new ArrayList<>(Arrays.asList(8 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour));
+    List<Integer> personalHours =
+        new ArrayList<>(Arrays.asList(16 * hour, 16 * hour, 16 * hour, 16 * hour, 16 * hour));
     Assert.assertEquals(1, actual.getStartDay());
-    Assert.assertTrue(Arrays.equals(workHours, actual.getWorkHours()));
-    Assert.assertTrue(Arrays.equals(personalHours, actual.getPersonalHours()));
+    Assert.assertTrue(workHours.equals(actual.getWorkHours()));
+    Assert.assertTrue(personalHours.equals(actual.getPersonalHours()));
   }
 
   @Test
@@ -143,12 +144,13 @@ public final class CalendarServletTest {
         .thenReturn(EVENT_TWO);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
     CalendarClientData actual = getServletResponse();
-    int hour = 60 * 60 * 1000;
-    int[] workHours = new int[] {7 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour};
-    int[] personalHours = new int[] {16 * hour, 14 * hour, 16 * hour, 16 * hour, 16 * hour};
+    List<Integer> workHours =
+        new ArrayList<>(Arrays.asList(7 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour));
+    List<Integer> personalHours =
+        new ArrayList<>(Arrays.asList(16 * hour, 14 * hour, 16 * hour, 16 * hour, 16 * hour));
     Assert.assertEquals(1, actual.getStartDay());
-    Assert.assertTrue(Arrays.equals(workHours, actual.getWorkHours()));
-    Assert.assertTrue(Arrays.equals(personalHours, actual.getPersonalHours()));
+    Assert.assertTrue(workHours.equals(actual.getWorkHours()));
+    Assert.assertTrue(personalHours.equals(actual.getPersonalHours()));
   }
 
   private CalendarClientData getServletResponse() throws IOException, ServletException {

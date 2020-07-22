@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,10 @@ import java.util.*;
 public final class CalendarClientData {
 
   private final int startDay;
-  private final int[] workHours;
-  private final int[] personalHours;
+  private final List<Integer> workHours;
+  private final List<Integer> personalHours;
+  private final long numMillisecondsDay = 24 * 60 * 60 * 1000;
+  private final int Hour = 60 * 60 * 1000;
 
   /**
    * Initialize the class by calculating the start day. The free hours should be eight hours for the
@@ -31,14 +33,15 @@ public final class CalendarClientData {
    *     timezone is UTC
    */
   public CalendarClientData(long startTime) {
-    long numMillisecondsDay = 24 * 60 * 60 * 1000;
     int numDays = (int) Math.floor(startTime / numMillisecondsDay);
     this.startDay = ((numDays + 3) % 7);
-    int eightHours = 8 * 60 * 60 * 1000;
-    int sixteenHours = 2 * eightHours;
-    this.workHours = new int[] {eightHours, eightHours, eightHours, eightHours, eightHours};
+    int eightHours = 8 * Hour;
+    int sixteenHours = 16 * Hour;
+    this.workHours =
+        new ArrayList<>(Arrays.asList(eightHours, eightHours, eightHours, eightHours, eightHours));
     this.personalHours =
-        new int[] {sixteenHours, sixteenHours, sixteenHours, sixteenHours, sixteenHours};
+        new ArrayList<>(
+            Arrays.asList(sixteenHours, sixteenHours, sixteenHours, sixteenHours, sixteenHours));
   }
 
   /**
@@ -51,30 +54,33 @@ public final class CalendarClientData {
    * @param endTime parameter of type long that gives the Unix epoch time of the end of the event
    */
   public void addEvent(long startTime, long endTime) {
-    long numMillisecondsDay = 24 * 60 * 60 * 1000;
     int numDays = (int) Math.floor(startTime / numMillisecondsDay);
     int beginDay = ((numDays + 3) % 7);
     int duration = (int) (endTime - startTime);
     int startHour = (int) (startTime % numMillisecondsDay);
-    int workBegin = 10 * 60 * 60 * 1000;
-    int workEnd = 18 * 60 * 60 * 1000;
+    int workBegin = 10 * Hour;
+    int workEnd = 18 * Hour;
     if (startHour < workBegin || startHour > workEnd) {
-      personalHours[beginDay - startDay] =
-          Math.max(personalHours[beginDay - startDay] - duration, 0);
+      personalHours.set(
+          beginDay - startDay, Math.max(personalHours.get(beginDay - startDay) - duration, 0));
     } else {
-      workHours[beginDay - startDay] = Math.max(workHours[beginDay - startDay] - duration, 0);
+      workHours.set(
+          beginDay - startDay, Math.max(workHours.get(beginDay - startDay) - duration, 0));
     }
   }
 
   public int getStartDay() {
+    // Usefull for testing purposes
     return startDay;
   }
 
-  public int[] getWorkHours() {
+  public List<Integer> getWorkHours() {
+    // Usefull for testing purposes
     return workHours;
   }
 
-  public int[] getPersonalHours() {
+  public List<Integer> getPersonalHours() {
+    // Usefull for testing purposes
     return personalHours;
   }
 }
