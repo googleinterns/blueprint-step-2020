@@ -39,22 +39,27 @@ function populateGmail() {
   const senderContainer =
       document.querySelector('#gmailSender');
 
+  // TODO: Allow user to select query parameters (Issue #83)
+  const nDays = 7;
+  const mHours = 3;
+
+  nDaysContainer.innerText = nDays;
+  mHoursContainer.innerText = mHours;
+
   // Get GmailResponse object that reflects user's gmail account
   // Should contain a field for each datapoint in the Gmail panel
-  // TODO: Allow user to select query parameters (Issue #83)
-  fetch('/gmail?nDays=7&mHours=3')
+  fetch(`/gmail?nDays=${nDays}&mHours=${mHours}`)
       .then((response) => {
-        // If response is a 403, user is not authenticated
-        if (response.status === 403) {
-          throw new AuthenticationError();
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
         }
-        return response.json();
       })
       .then((gmailResponse) => {
-        nDaysContainer.innerText =
-            gmailResponse['nDays'];
-        mHoursContainer.innerText =
-            gmailResponse['mHours'];
         unreadEmailsContainer.innerText =
             gmailResponse['unreadEmailsDays'];
         unreadEmailsThreeHrsContainer.innerText =

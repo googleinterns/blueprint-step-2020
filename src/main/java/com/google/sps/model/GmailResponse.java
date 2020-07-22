@@ -19,8 +19,6 @@ package com.google.sps.model;
  * methods to generate these statistics.
  */
 public class GmailResponse {
-  private final int nDays;
-  private final int mHours;
   private final int unreadEmailsDays;
   private final int unreadEmailsHours;
   private final int unreadImportantEmails;
@@ -29,8 +27,6 @@ public class GmailResponse {
   /**
    * Create a GmailResponse instance
    *
-   * @param nDays number of days relevant statistics are based on
-   * @param mHours number of hours relevant statistics are based on
    * @param unreadEmailsDays # of unread emails from last n days
    * @param unreadEmailsHours # of unread emails from last m hours
    * @param unreadImportantEmails # of unread emails that are important from last n days
@@ -38,26 +34,11 @@ public class GmailResponse {
    *     most unread emails in the last n days.
    */
   public GmailResponse(
-      int nDays,
-      int mHours,
-      int unreadEmailsDays,
-      int unreadEmailsHours,
-      int unreadImportantEmails,
-      String sender) {
-    this.nDays = nDays;
-    this.mHours = mHours;
+      int unreadEmailsDays, int unreadEmailsHours, int unreadImportantEmails, String sender) {
     this.unreadEmailsDays = unreadEmailsDays;
     this.unreadEmailsHours = unreadEmailsHours;
     this.unreadImportantEmails = unreadImportantEmails;
     this.sender = sender;
-  }
-
-  public int getNDays() {
-    return nDays;
-  }
-
-  public int getMHours() {
-    return mHours;
   }
 
   public int getUnreadEmailsDays() {
