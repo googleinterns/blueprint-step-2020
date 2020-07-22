@@ -96,8 +96,7 @@ public final class GmailServletTest extends GmailTestBase {
   @Test
   public void noNDaysParameter() throws Exception {
     Mockito.when(request.getParameter("nDays")).thenReturn(null);
-    Mockito.when(request.getParameter("mHours"))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(DEFAULT_M_HOURS));
 
     servlet.doGet(request, response);
     Assert.assertEquals(400, response.getStatus());
@@ -105,8 +104,7 @@ public final class GmailServletTest extends GmailTestBase {
 
   @Test
   public void noMHoursParameter() throws Exception {
-    Mockito.when(request.getParameter("nDays"))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_M_HOURS));
     Mockito.when(request.getParameter("mHours")).thenReturn(null);
 
     servlet.doGet(request, response);
@@ -115,10 +113,8 @@ public final class GmailServletTest extends GmailTestBase {
 
   @Test
   public void negativeNDaysParameter() throws Exception {
-    Mockito.when(request.getParameter("nDays"))
-        .thenReturn(String.valueOf(NEGATIVE_N_DAYS));
-    Mockito.when(request.getParameter("mHours"))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(NEGATIVE_N_DAYS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(DEFAULT_M_HOURS));
 
     servlet.doGet(request, response);
     Assert.assertEquals(400, response.getStatus());
@@ -126,10 +122,8 @@ public final class GmailServletTest extends GmailTestBase {
 
   @Test
   public void negativeMHoursParameter() throws Exception {
-    Mockito.when(request.getParameter("nDays"))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter("mHours"))
-        .thenReturn(String.valueOf(NEGATIVE_M_HOURS));
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(NEGATIVE_M_HOURS));
 
     servlet.doGet(request, response);
     Assert.assertEquals(400, response.getStatus());
@@ -138,10 +132,8 @@ public final class GmailServletTest extends GmailTestBase {
   @Test
   public void invalidMHoursParameter() throws Exception {
     // mHours must represent less time than nDays
-    Mockito.when(request.getParameter("nDays"))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter("mHours"))
-        .thenReturn(String.valueOf(INVALID_M_HOURS));
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(INVALID_M_HOURS));
 
     servlet.doGet(request, response);
     Assert.assertEquals(400, response.getStatus());
@@ -150,10 +142,8 @@ public final class GmailServletTest extends GmailTestBase {
   @Test
   public void checkUnreadEmailsFromNDaysInNullCase() throws Exception {
     // no messages returned - unread email count (nDays) should be 0
-    Mockito.when(request.getParameter("nDays"))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter("mHours"))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(DEFAULT_M_HOURS));
 
     Mockito.when(gmailClient.getUnreadEmailsFromNDays(messageFormat, DEFAULT_N_DAYS))
         .thenReturn(NO_MESSAGES);
@@ -184,10 +174,8 @@ public final class GmailServletTest extends GmailTestBase {
   @Test
   public void countUnreadEmailsFromNDays() throws Exception {
     // some messages returned - unread email count (nDays) should be message list length
-    Mockito.when(request.getParameter("nDays"))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter("mHours"))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(DEFAULT_M_HOURS));
 
     Mockito.when(gmailClient.getUnreadEmailsFromNDays(messageFormat, DEFAULT_N_DAYS))
         .thenReturn(SOME_MESSAGES_HALF_WITHIN_M_HOURS);
@@ -211,16 +199,15 @@ public final class GmailServletTest extends GmailTestBase {
     // This does NOT check that the statistics are correctly calculated.
     // This only checks that the statistics from GmailResponseHelper
     // are correctly included in the response
-    Mockito.when(request.getParameter("nDays"))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter("mHours"))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(DEFAULT_M_HOURS));
 
     Mockito.when(gmailClient.getUnreadEmailsFromNDays(messageFormat, DEFAULT_N_DAYS))
         .thenReturn(SOME_MESSAGES_HALF_WITHIN_M_HOURS);
 
     Mockito.when(
-            gmailResponseHelper.countEmailsFromMHours(SOME_MESSAGES_HALF_WITHIN_M_HOURS, DEFAULT_M_HOURS))
+            gmailResponseHelper.countEmailsFromMHours(
+                SOME_MESSAGES_HALF_WITHIN_M_HOURS, DEFAULT_M_HOURS))
         .thenReturn(EXPECTED_EMAILS_M_HOURS_COUNT);
     Mockito.when(gmailResponseHelper.countImportantEmails(SOME_MESSAGES_HALF_WITHIN_M_HOURS))
         .thenReturn(EXPECTED_IMPORTANT_EMAIL_COUNT);
