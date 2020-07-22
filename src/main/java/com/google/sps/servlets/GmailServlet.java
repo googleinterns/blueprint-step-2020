@@ -120,8 +120,6 @@ public class GmailServlet extends AuthenticatedHttpServlet {
         GmailResponseUtility.findMostFrequentSender(unreadMessages).orElse("");
 
     return new GmailResponse(
-        nDays,
-        mHours,
         unreadEmailsFromNDays,
         unreadEmailsFromMHours,
         unreadImportantEmailsFromNDays,

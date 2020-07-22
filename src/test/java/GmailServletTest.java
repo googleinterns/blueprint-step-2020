@@ -155,32 +155,6 @@ public final class GmailServletTest extends GmailTestBase {
   }
 
   @Test
-  public void checkNDaysInResponse() throws IOException, ServletException {
-    Mockito.when(request.getParameter(Mockito.eq("nDays")))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter(Mockito.eq("mHours")))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
-
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
-
-    GmailResponse gmailResponse = getGmailResponse(request, response);
-    Assert.assertEquals(DEFAULT_N_DAYS, gmailResponse.getNDays());
-  }
-
-  @Test
-  public void checkMHoursInResponse() throws IOException, ServletException {
-    Mockito.when(request.getParameter(Mockito.eq("nDays")))
-        .thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter(Mockito.eq("mHours")))
-        .thenReturn(String.valueOf(DEFAULT_M_HOURS));
-
-    Mockito.when(gmailClient.listUserMessages(Mockito.anyString())).thenReturn(NO_MESSAGES);
-
-    GmailResponse gmailResponse = getGmailResponse(request, response);
-    Assert.assertEquals(DEFAULT_M_HOURS, gmailResponse.getMHours());
-  }
-
-  @Test
   public void checkDefaultUnreadEmailsNDaysInResponse() throws IOException, ServletException {
     // no messages returned - unread email count (nDays) should be 0
     Mockito.when(request.getParameter(Mockito.eq("nDays")))
