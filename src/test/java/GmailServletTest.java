@@ -19,6 +19,7 @@ import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.model.GmailResponseHelper;
 import com.google.sps.servlets.GmailServlet;
+import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;
@@ -27,8 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
-
-import java.util.Optional;
 
 /**
  * Test Gmail Servlet to ensure response contains correctly parsed messageIds. Assumes
