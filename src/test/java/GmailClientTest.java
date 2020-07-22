@@ -31,14 +31,6 @@ public final class GmailClientTest {
   private static final int DEFAULT_UNIT_OF_TIME = 0;
   private static final int INVALID_UNIT_OF_TIME = -100;
 
-  // Values to toggle filtering unread vs all emails in email query string
-  private static final Boolean RETURN_UNREAD_ONLY = true;
-  private static final Boolean DEFAULT_UNREAD_FILTER = false;
-
-  // Values to toggle filtering important vs all emails in email query string
-  private static final Boolean RETURN_IMPORTANT_ONLY = true;
-  private static final Boolean DEFAULT_IMPORTANT_FILTER = false;
-
   // Sample emails for email query string
   private static final String SAMPLE_EMAIL = "example@example.com";
   private static final String DEFAULT_EMAIL = "";
@@ -46,12 +38,12 @@ public final class GmailClientTest {
   // Expected email query strings
   private static final String EMPTY_QUERY = "";
   private static final String ONE_DAY_QUERY =
-      String.format("newer_than:%d%s ", ONE_UNIT_OF_TIME, DAYS_UNIT);
+      String.format("newer_than:%d%s", ONE_UNIT_OF_TIME, DAYS_UNIT);
   private static final String ONE_HOUR_QUERY =
-      String.format("newer_than:%d%s ", ONE_UNIT_OF_TIME, HOURS_UNIT);
-  private static final String UNREAD_EMAILS_QUERY = "is:unread ";
-  private static final String IMPORTANT_EMAILS_QUERY = "is:important ";
-  private static final String FROM_EMAIL_QUERY = String.format("from:%s ", SAMPLE_EMAIL);
+      String.format("newer_than:%d%s", ONE_UNIT_OF_TIME, HOURS_UNIT);
+  private static final String UNREAD_EMAILS_QUERY = "is:unread";
+  private static final String IMPORTANT_EMAILS_QUERY = "is:important";
+  private static final String FROM_EMAIL_QUERY = String.format("from:%s", SAMPLE_EMAIL);
 
   @Test
   public void getQueryStringDays() {
@@ -94,7 +86,7 @@ public final class GmailClientTest {
   @Test
   public void getQueryStringUnreadEmail() {
     // Specifying unreadEmails should only be returned should result in a matching query
-    String unreadQuery = GmailClient.unreadEmailQuery(RETURN_UNREAD_ONLY);
+    String unreadQuery = GmailClient.unreadEmailQuery(true);
 
     Assert.assertEquals(unreadQuery, UNREAD_EMAILS_QUERY);
   }
@@ -102,7 +94,7 @@ public final class GmailClientTest {
   @Test
   public void getQueryStringAnyEmail() {
     // Specifying any email can be returned should result in an empty query
-    String anyEmailQuery = GmailClient.unreadEmailQuery(DEFAULT_UNREAD_FILTER);
+    String anyEmailQuery = GmailClient.unreadEmailQuery(false);
 
     Assert.assertEquals(anyEmailQuery, EMPTY_QUERY);
   }
@@ -126,14 +118,14 @@ public final class GmailClientTest {
 
   @Test
   public void getQueryStringImportantEmailsOnly() {
-    String importantQuery = GmailClient.isImportantQuery(RETURN_IMPORTANT_ONLY);
+    String importantQuery = GmailClient.isImportantQuery(true);
 
     Assert.assertEquals(importantQuery, IMPORTANT_EMAILS_QUERY);
   }
 
   @Test
   public void getQueryStringDontFilterForImportantTag() {
-    String noImportantFilterQuery = GmailClient.isImportantQuery(DEFAULT_IMPORTANT_FILTER);
+    String noImportantFilterQuery = GmailClient.isImportantQuery(false);
 
     Assert.assertEquals(noImportantFilterQuery, EMPTY_QUERY);
   }
@@ -143,8 +135,7 @@ public final class GmailClientTest {
     // Should return query matching all specified rules
     // trailing spaces on sub-queries do not matter for this method, so they will not be considered
     String multipleFilterQuery =
-        GmailClient.emailQueryString(
-            ONE_UNIT_OF_TIME, DAYS_UNIT, RETURN_UNREAD_ONLY, RETURN_IMPORTANT_ONLY, SAMPLE_EMAIL);
+        GmailClient.emailQueryString(ONE_UNIT_OF_TIME, DAYS_UNIT, true, true, SAMPLE_EMAIL);
 
     Assert.assertTrue(multipleFilterQuery.contains(ONE_DAY_QUERY.trim()));
     Assert.assertTrue(multipleFilterQuery.contains(UNREAD_EMAILS_QUERY.trim()));

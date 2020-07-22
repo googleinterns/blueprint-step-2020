@@ -16,49 +16,29 @@ package com.google.sps.model;
 
 /**
  * Contains the summary gmail information that should be passed to the client, as well as the
- * methods to generate these statistics. Properties only available through reflective access (i.e.
- * gson, etc)
+ * methods to generate these statistics.
  */
 public class GmailResponse {
-  private int nDays;
-  private int mHours;
-  private int unreadEmailsDays;
-  private int unreadEmailsHours;
-  private int unreadImportantEmails;
-  private String sender;
+  private final int unreadEmailsDays;
+  private final int unreadEmailsHours;
+  private final int unreadImportantEmails;
+  private final String sender;
 
   /**
    * Create a GmailResponse instance
    *
-   * @param nDays number of days relevant statistics are based on
-   * @param mHours number of hours relevant statistics are based on
-   * @param unreadEmailsDays how many unread emails user has from last nDays days
-   * @param unreadEmailsHours how many unread emails user has from last mHours hours
-   * @param unreadImportantEmails how many unread, important emails user has from last nDays days
-   * @param sender who sent the most unread emails from last nDays. Either name (if available) or
-   *     email address (if name not available)
+   * @param unreadEmailsDays # of unread emails from last n days
+   * @param unreadEmailsHours # of unread emails from last m hours
+   * @param unreadImportantEmails # of unread emails that are important from last n days
+   * @param sender Stores the name (or email address if name isn't available) of person who sent the
+   *     most unread emails in the last n days.
    */
   public GmailResponse(
-      int nDays,
-      int mHours,
-      int unreadEmailsDays,
-      int unreadEmailsHours,
-      int unreadImportantEmails,
-      String sender) {
-    this.nDays = nDays;
-    this.mHours = mHours;
+      int unreadEmailsDays, int unreadEmailsHours, int unreadImportantEmails, String sender) {
     this.unreadEmailsDays = unreadEmailsDays;
     this.unreadEmailsHours = unreadEmailsHours;
     this.unreadImportantEmails = unreadImportantEmails;
     this.sender = sender;
-  }
-
-  public int getNDays() {
-    return nDays;
-  }
-
-  public int getMHours() {
-    return mHours;
   }
 
   public int getUnreadEmailsDays() {
