@@ -29,9 +29,53 @@ public class HttpServletResponseFake implements HttpServletResponse {
   private StringWriter stringWriter = new StringWriter();
   private PrintWriter printWriter = new PrintWriter(stringWriter);
 
+  /**
+   * Get the stringwriter used for writing the response
+   *
+   * @return Stringwriter object
+   */
   public StringWriter getStringWriter() {
+    printWriter.flush();
     return stringWriter;
   }
+
+  @Override
+  public String encodeRedirectUrl(String s) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void sendError(int i, String s) {
+    responseCode = i;
+  }
+
+  @Override
+  public void sendError(int i) {
+    responseCode = i;
+  }
+
+  @Override
+  public void setStatus(int i) {
+    responseCode = i;
+  }
+
+  @Override
+  public void setStatus(int i, String s) {
+    responseCode = i;
+  }
+
+  @Override
+  public int getStatus() {
+    return responseCode;
+  }
+
+  @Override
+  public PrintWriter getWriter() {
+    return printWriter;
+  }
+
+  @Override
+  public void setContentType(String s) {}
 
   @Override
   public void addCookie(Cookie cookie) {
@@ -56,21 +100,6 @@ public class HttpServletResponseFake implements HttpServletResponse {
   @Override
   public String encodeUrl(String s) {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public String encodeRedirectUrl(String s) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void sendError(int i, String s) {
-    responseCode = i;
-  }
-
-  @Override
-  public void sendError(int i) {
-    responseCode = i;
   }
 
   @Override
@@ -109,21 +138,6 @@ public class HttpServletResponseFake implements HttpServletResponse {
   }
 
   @Override
-  public void setStatus(int i) {
-    responseCode = i;
-  }
-
-  @Override
-  public void setStatus(int i, String s) {
-    responseCode = i;
-  }
-
-  @Override
-  public int getStatus() {
-    return responseCode;
-  }
-
-  @Override
   public String getHeader(String s) {
     throw new UnsupportedOperationException();
   }
@@ -154,11 +168,6 @@ public class HttpServletResponseFake implements HttpServletResponse {
   }
 
   @Override
-  public PrintWriter getWriter() {
-    return printWriter;
-  }
-
-  @Override
   public void setCharacterEncoding(String s) {
     throw new UnsupportedOperationException();
   }
@@ -172,9 +181,6 @@ public class HttpServletResponseFake implements HttpServletResponse {
   public void setContentLengthLong(long l) {
     throw new UnsupportedOperationException();
   }
-
-  @Override
-  public void setContentType(String s) {}
 
   @Override
   public void setBufferSize(int i) {
