@@ -83,15 +83,15 @@ public final class CalendarServletTest {
   private static final DateTime EVENT_ONE_END = new DateTime("2020-05-19T16:00:00+00:00");
   private static final DateTime EVENT_TWO_START = new DateTime("2020-05-20T06:00:00+00:00");
   private static final DateTime EVENT_TWO_END = new DateTime("2020-05-20T08:00:00+00:00");
-  private static final EventDateTime startOne = new EventDateTime().setDateTime(EVENT_ONE_START);
-  private static final EventDateTime endOne = new EventDateTime().setDateTime(EVENT_ONE_END);
-  private static final EventDateTime startTwo = new EventDateTime().setDateTime(EVENT_TWO_START);
-  private static final EventDateTime endTwo = new EventDateTime().setDateTime(EVENT_TWO_END);
+  private static final EventDateTime START_ONE = new EventDateTime().setDateTime(EVENT_ONE_START);
+  private static final EventDateTime END_ONE = new EventDateTime().setDateTime(EVENT_ONE_END);
+  private static final EventDateTime START_TWO = new EventDateTime().setDateTime(EVENT_TWO_START);
+  private static final EventDateTime END_TWO = new EventDateTime().setDateTime(EVENT_TWO_END);
   private static final List<Event> NO_EVENT = ImmutableList.of();
   private static final List<Event> EVENT_ONE =
-      ImmutableList.of(new Event().setSummary(EVENT_SUMMARY_ONE).setStart(startOne).setEnd(endOne));
+      ImmutableList.of(new Event().setSummary(EVENT_SUMMARY_ONE).setStart(START_ONE).setEnd(END_ONE));
   private static final List<Event> EVENT_TWO =
-      ImmutableList.of(new Event().setSummary(EVENT_SUMMARY_TWO).setStart(startTwo).setEnd(endTwo));
+      ImmutableList.of(new Event().setSummary(EVENT_SUMMARY_TWO).setStart(START_TWO).setEnd(END_TWO));
   private static final int hour = 60 * 60 * 1000;
 
   @Before
