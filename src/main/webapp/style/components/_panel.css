@@ -67,6 +67,7 @@
 }
 
 .panel__content-entry {
+  align-items: center;
   display: flex;
   flex-direction: row;
   margin: var(--panel-content-entry-vertical-margin) 0;

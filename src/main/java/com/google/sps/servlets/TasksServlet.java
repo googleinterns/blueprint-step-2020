@@ -15,6 +15,7 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
@@ -23,9 +24,17 @@ import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
+import com.google.sps.model.TasksResponse;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,6 +61,71 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     this.tasksClientFactory = tasksClientFactory;
   }
 
+  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
+    List<TaskList> taskLists = tasksClient.listTaskLists();
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      tasks.addAll(tasksClient.listTasks(taskList));
+    }
+    return tasks;
+  }
+
+  private List<String> getTaskListTitles(List<TaskList> taskLists) throws IOException {
+    return taskLists.stream().map(taskList -> taskList.getTitle()).collect(Collectors.toList());
+  }
+
+  private int getTasksToComplete(List<Task> tasks) {
+    // getHidden is defined for incomplete tasks
+    List<Task> tasksToComplete =
+        tasks.stream().filter(task -> task.getHidden() == null).collect(Collectors.toList());
+    return tasksToComplete.size();
+  }
+
+  private int getTasksDueToday(List<Task> tasks) {
+    String today = LocalDate.now().toString();
+    List<Task> tasksDueToday =
+        tasks.stream()
+            .filter(task -> task.getDue() != null && task.getDue().contains(today))
+            .collect(Collectors.toList());
+    return tasksDueToday.size();
+  }
+
+  private int getTasksCompletedToday(List<Task> tasks) {
+    ZoneId zoneId = ZoneId.systemDefault();
+    Instant startOfDay = LocalDate.now(zoneId).atStartOfDay(zoneId).toInstant();
+    Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
+    int tasksCompletedToday = 0;
+    for (Task task : tasks) {
+      // getHidden is defined for completed tasks
+      if (task.getHidden() != null) {
+        Instant completionDateTime = ZonedDateTime.parse(task.getUpdated()).toInstant();
+        if (completionDateTime.isAfter(startOfDay) && completionDateTime.isBefore(endOfDay)) {
+          tasksCompletedToday++;
+        }
+      }
+    }
+    return tasksCompletedToday;
+  }
+
+  private int getTasksOverdue(List<Task> tasks) {
+    ZoneId zoneId = ZoneId.systemDefault();
+    String zoneOffset = zoneId.getRules().getOffset(Instant.now()).toString();
+    Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
+    int tasksOverdue = 0;
+    for (Task task : tasks) {
+      if (task.getDue() != null) {
+        // Correct default timezone UTC to system's timezone
+        DateTime dateTime = DateTime.parseRfc3339(task.getDue().replace("Z", zoneOffset));
+        long millis = dateTime.getValue();
+        Instant dueDate = new Date(millis).toInstant().plus(Period.ofDays(1));
+        if (dueDate.isBefore(endOfDay)) {
+          tasksOverdue++;
+        }
+      }
+    }
+    return tasksOverdue;
+  }
+
   /**
    * Returns Tasks from the user's Tasks account
    *
@@ -69,29 +143,24 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     // Get tasks from Google Tasks
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+    List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = getTasks(tasksClient);
+
+    // Initialize Tasks Response
+    List<String> taskListTitles = getTaskListTitles(taskLists);
+    int tasksToComplete = getTasksToComplete(tasks);
+    int tasksDueToday = getTasksDueToday(tasks);
+    int tasksCompletedToday = getTasksCompletedToday(tasks);
+    int tasksOverdue = getTasksOverdue(tasks);
+    TasksResponse tasksResponse =
+        new TasksResponse(
+            taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();
-    String tasksJson = gson.toJson(tasks);
+    String tasksJson = gson.toJson(tasksResponse);
 
     response.setContentType("application/json");
     response.getWriter().println(tasksJson);
-  }
-
-  /**
-   * Get the names of the tasks in all of the user's tasklists
-   *
-   * @param tasksClient either a mock TaskClient or a taskClient with a valid credential
-   * @return List of tasks from user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
-    }
-    return tasks;
   }
 }
