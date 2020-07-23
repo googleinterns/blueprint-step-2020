@@ -94,24 +94,24 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     ZoneId zoneId = ZoneId.systemDefault();
     Instant startOfDay = LocalDate.now(zoneId).atStartOfDay(zoneId).toInstant();
     Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-    List<Task> tasksCompletedToday = new ArrayList<>();
+    int tasksCompletedToday = 0;
     for (Task task : tasks) {
       // getHidden is defined for completed tasks
       if (task.getHidden() != null) {
         Instant completionDateTime = ZonedDateTime.parse(task.getUpdated()).toInstant();
         if (completionDateTime.isAfter(startOfDay) && completionDateTime.isBefore(endOfDay)) {
-          tasksCompletedToday.add(task);
+          tasksCompletedToday++;
         }
       }
     }
-    return tasksCompletedToday.size();
+    return tasksCompletedToday;
   }
 
   private int getTasksOverdue(List<Task> tasks) {
     ZoneId zoneId = ZoneId.systemDefault();
     String zoneOffset = zoneId.getRules().getOffset(Instant.now()).toString();
     Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-    List<Task> tasksOverdue = new ArrayList<>();
+    int tasksOverdue = 0;
     for (Task task : tasks) {
       if (task.getDue() != null) {
         // Correct default timezone UTC to system's timezone
@@ -119,11 +119,11 @@ public class TasksServlet extends AuthenticatedHttpServlet {
         long millis = dateTime.getValue();
         Instant dueDate = new Date(millis).toInstant().plus(Period.ofDays(1));
         if (dueDate.isBefore(endOfDay)) {
-          tasksOverdue.add(task);
+          tasksOverdue++;
         }
       }
     }
-    return tasksOverdue.size();
+    return tasksOverdue;
   }
 
   /**
