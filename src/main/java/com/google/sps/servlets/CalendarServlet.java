@@ -15,12 +15,16 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
-import com.google.appengine.repackaged.com.google.gson.Gson;
+import com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
-import com.google.sps.utility.CalendarUtility;
+import com.google.sps.model.AuthenticationVerifier;
+import com.google.sps.model.CalendarClient;
+import com.google.sps.model.CalendarClientFactory;
+import com.google.sps.model.CalendarClientImpl;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +33,24 @@ import javax.servlet.http.HttpServletResponse;
 /** GET function responds JSON string containing events in user's calendar. */
 @WebServlet("/calendar")
 public class CalendarServlet extends AuthenticatedHttpServlet {
+  private final CalendarClientFactory calendarClientFactory;
+
+  /** Create servlet with default CalendarClient and Authentication Verifier implementations */
+  public CalendarServlet() {
+    calendarClientFactory = new CalendarClientImpl.Factory();
+  }
+
+  /**
+   * Create servlet with explicit implementations of CalendarClient and AuthenticationVerifier
+   *
+   * @param authenticationVerifier implementation of AuthenticationVerifier
+   * @param calendarClientFactory implementation of CalendarClientFactory
+   */
+  public CalendarServlet(
+      AuthenticationVerifier authenticationVerifier, CalendarClientFactory calendarClientFactory) {
+    super(authenticationVerifier);
+    this.calendarClientFactory = calendarClientFactory;
+  }
 
   /**
    * Returns List of events from the user's calendar
@@ -44,8 +66,8 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
-    Calendar calendarService = CalendarUtility.getCalendarService(googleCredential);
-    List<Event> calendarEvents = CalendarUtility.getCalendarEvents(calendarService);
+    CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
+    List<Event> calendarEvents = getEvents(calendarClient);
 
     // Convert event list to JSON and print to response
     Gson gson = new Gson();
@@ -53,5 +75,21 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
 
     response.setContentType("application/json");
     response.getWriter().println(eventJson);
+  }
+
+  /**
+   * Get the events in the user's calendars
+   *
+   * @param calendarClient either a mock CalendarClient or a calendarClient with a valid credential
+   * @return List of Events from all of the user's calendars
+   * @throws IOException if an issue occurs in the method
+   */
+  private List<Event> getEvents(CalendarClient calendarClient) throws IOException {
+    List<CalendarListEntry> calendarList = calendarClient.getCalendarList();
+    List<Event> events = new ArrayList<>();
+    for (CalendarListEntry calendar : calendarList) {
+      events.addAll(calendarClient.getCalendarEvents(calendar));
+    }
+    return events;
   }
 }
