@@ -25,6 +25,7 @@ import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** Handles GET requests from Gmail API */
 public class GmailClientImpl implements GmailClient {
@@ -61,6 +62,22 @@ public class GmailClientImpl implements GmailClient {
             .execute();
 
     return message;
+  }
+
+  @Override
+  public List<Message> getUnreadEmailsFromNDays(GmailClient.MessageFormat messageFormat, int nDays)
+      throws IOException {
+    String searchQuery = GmailClient.emailQueryString(nDays, "d", true, false, "");
+    return listUserMessages(searchQuery).stream()
+        .map(
+            (message) -> {
+              try {
+                return getUserMessage(message.getId(), messageFormat);
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            })
+        .collect(Collectors.toList());
   }
 
   /** Factory to create a GmailClientImpl instance with given credential */

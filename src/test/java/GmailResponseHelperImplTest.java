@@ -12,47 +12,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.sps.utility.GmailResponseUtility;
+import com.google.sps.model.GmailResponseHelper;
+import com.google.sps.model.GmailResponseHelperImpl;
 import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests the GmailResponseUtility and ensures that statistics for the GmailResponse are calculated
- * correctly
+ * Tests the GmailResponseHelperImpl and ensures that statistics for the GmailResponse are
+ * calculated correctly
  */
-public class GmailResponseUtilityTest extends GmailTestBase {
+public class GmailResponseHelperImplTest extends GmailTestBase {
+  private static final GmailResponseHelper gmailResponseHelper = new GmailResponseHelperImpl();
+
+  @Test
+  public void emptyListUnreadEmailsNDays() {
+    int unreadEmailsNDays = gmailResponseHelper.countEmailsFromNDays(NO_MESSAGES);
+    Assert.assertEquals(0, unreadEmailsNDays);
+  }
+
   @Test
   public void emptyListUnreadEmailsMHours() {
     int unreadEmailsMHours =
-        GmailResponseUtility.countEmailsFromMHours(NO_MESSAGES, DEFAULT_M_HOURS);
+        gmailResponseHelper.countEmailsFromMHours(NO_MESSAGES, DEFAULT_M_HOURS);
     Assert.assertEquals(0, unreadEmailsMHours);
   }
 
   @Test
   public void emptyListUnreadImportantEmailsFromNDays() {
-    int unreadImportantEmails = GmailResponseUtility.countImportantEmails(NO_MESSAGES);
+    int unreadImportantEmails = gmailResponseHelper.countImportantEmails(NO_MESSAGES);
     Assert.assertEquals(0, unreadImportantEmails);
   }
 
   @Test
   public void emptyListFindMostFrequentSender() {
-    Optional<String> sender = GmailResponseUtility.findMostFrequentSender(NO_MESSAGES);
+    Optional<String> sender = gmailResponseHelper.findMostFrequentSender(NO_MESSAGES);
     Assert.assertFalse(sender.isPresent());
+  }
+
+  @Test
+  public void calculateUnreadEmailsNDays() {
+    int unreadEmailsNDays =
+        gmailResponseHelper.countEmailsFromNDays(SOME_MESSAGES_HALF_WITHIN_M_HOURS);
+    Assert.assertEquals(SOME_MESSAGES_HALF_WITHIN_M_HOURS.size(), unreadEmailsNDays);
   }
 
   @Test
   public void calculateUnreadEmailsMHours() {
     int unreadEmailsMHours =
-        GmailResponseUtility.countEmailsFromMHours(
+        gmailResponseHelper.countEmailsFromMHours(
             SOME_MESSAGES_HALF_WITHIN_M_HOURS, DEFAULT_M_HOURS);
-    Assert.assertEquals(SOME_MESSAGES_HALF_WITHIN_M_HOURS.size() / 2, unreadEmailsMHours);
+    Assert.assertEquals(SOME_MESSAGES_HALF_WITHIN_M_HOURS.size(), unreadEmailsMHours * 2);
   }
 
   @Test
   public void calculateUnreadImportantEmailsFromNDays() {
     int numberOfImportantEmails =
-        GmailResponseUtility.countImportantEmails(SOME_IMPORTANT_MESSAGES_WITH_ONE_UNIMPORTANT);
+        gmailResponseHelper.countImportantEmails(SOME_IMPORTANT_MESSAGES_WITH_ONE_UNIMPORTANT);
     Assert.assertEquals(
         SOME_IMPORTANT_MESSAGES_WITH_ONE_UNIMPORTANT.size() - 1, numberOfImportantEmails);
   }
@@ -60,7 +76,8 @@ public class GmailResponseUtilityTest extends GmailTestBase {
   @Test
   public void getMostFrequentSenderWhenContactNameIsPresent() {
     String senderName =
-        GmailResponseUtility.findMostFrequentSender(MESSAGES_MAJORITY_SENDER_ONE_WITH_CONTACT_NAME)
+        gmailResponseHelper
+            .findMostFrequentSender(MESSAGES_MAJORITY_SENDER_ONE_WITH_CONTACT_NAME)
             .get();
     Assert.assertEquals(SENDER_ONE_NAME, senderName);
   }
@@ -68,8 +85,8 @@ public class GmailResponseUtilityTest extends GmailTestBase {
   @Test
   public void getMostFrequentSenderWhenOnlyEmailIsPresent() {
     String senderName =
-        GmailResponseUtility.findMostFrequentSender(
-                MESSAGES_MAJORITY_SENDER_ONE_WITHOUT_CONTACT_NAME)
+        gmailResponseHelper
+            .findMostFrequentSender(MESSAGES_MAJORITY_SENDER_ONE_WITHOUT_CONTACT_NAME)
             .get();
     Assert.assertEquals(SENDER_ONE_EMAIL, senderName);
   }
@@ -86,8 +103,8 @@ public class GmailResponseUtilityTest extends GmailTestBase {
     // Thus, that circumstance will not be tested.
 
     String senderName =
-        GmailResponseUtility.findMostFrequentSender(
-                MESSAGES_SPLIT_SENDERS_SENDER_ONE_WITH_CONTACT_NAME_MOST_RECENT)
+        gmailResponseHelper
+            .findMostFrequentSender(MESSAGES_SPLIT_SENDERS_SENDER_ONE_WITH_CONTACT_NAME_MOST_RECENT)
             .get();
     Assert.assertEquals(SENDER_ONE_NAME, senderName);
   }
