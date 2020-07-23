@@ -22,17 +22,20 @@ import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.servlets.TaskListServlet;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
@@ -46,7 +49,8 @@ public final class TaskListServletTest {
   private TasksClient tasksClient;
   private TaskListServlet servlet;
   private HttpServletRequest request;
-  private HttpServletResponseFake response;
+  private HttpServletResponse response;
+  private StringWriter stringWriter;
 
   private static final Gson gson = new Gson();
 
@@ -102,8 +106,13 @@ public final class TaskListServletTest {
     Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
 
+    stringWriter = new StringWriter();
+
     request = Mockito.mock(HttpServletRequest.class);
-    response = new HttpServletResponseFake();
+    response =
+        Mockito.mock(
+            HttpServletResponse.class,
+            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
     Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
@@ -125,7 +134,7 @@ public final class TaskListServletTest {
 
     servlet.doGet(request, response);
 
-    Assert.assertTrue(response.getStringWriter().toString().contains(expectedResponse));
+    Assert.assertTrue(stringWriter.toString().contains(expectedResponse));
   }
 
   @Test
@@ -142,7 +151,7 @@ public final class TaskListServletTest {
 
     servlet.doGet(request, response);
 
-    Assert.assertTrue(response.getStringWriter().toString().contains(expectedResponse));
+    Assert.assertTrue(stringWriter.toString().contains(expectedResponse));
   }
 
   @Test
@@ -164,6 +173,6 @@ public final class TaskListServletTest {
     Mockito.when(tasksClient.postTaskList(VALID_TASKLIST_TITLE)).thenReturn(validTaskList);
 
     servlet.doPost(request, response);
-    Assert.assertTrue(response.getStringWriter().toString().contains(VALID_TASKLIST_JSON));
+    Assert.assertTrue(stringWriter.toString().contains(VALID_TASKLIST_JSON));
   }
 }
