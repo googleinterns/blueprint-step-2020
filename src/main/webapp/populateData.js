@@ -15,7 +15,7 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut, AuthenticationError, Task */
+/* global signOut, AuthenticationError, Task, getDateInLocalTimeZone */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
 // Stores the last retrieved copy of the user's tasklists and tasks
@@ -171,7 +171,7 @@ function populateCalendar() {
  */
 function postAndGetTasklist() {
   const sampleTitle =
-      new Date().getDateObjectWithLocalTime().getTime().toString();
+      getDateInLocalTimeZone().getTime().toString();
 
   postNewTaskList(sampleTitle)
       .then((taskList) => {

@@ -15,7 +15,6 @@
 // A series of utility functions that will be helpful throughout the front-end
 
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-extend-native */
 
 /**
  * Get cookie's value from document
@@ -80,12 +79,14 @@ function deleteCookie(cookieName) {
 }
 
 /**
- * Gets a Date object with the time from the user's current time zone.
- * @return {Date} Date object with local time
+ * Converts a date object in UTC time to a date object in the client's local
+ * time zone. By default, returns a new date object in current time zone.
+ *
+ * @param {Date} dateObject date object in UTC time. Defaults to a date object
+ *     containing current time
+ * @return {Date} date object in client's local time zone.
  */
-Date.prototype.getDateObjectWithLocalTime = function() {
-  const dateObject = new Date();
-  const currentTime =
-      dateObject.getTime() - dateObject.getTimezoneOffset()*60*1000;
-  return new Date(currentTime);
-};
+function getDateInLocalTimeZone(dateObject = new Date()) {
+  const newTime = dateObject.getTime() - dateObject.getTimezoneOffset()*60*1000;
+  return new Date(newTime);
+}

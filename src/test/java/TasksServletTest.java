@@ -16,25 +16,18 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
-import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksServlet;
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,27 +41,12 @@ import org.mockito.Mockito;
  * AuthenticatedHttpServlet is functioning properly (those tests will fail otherwise).
  */
 @RunWith(JUnit4.class)
-public final class TasksServletTest {
-  private AuthenticationVerifier authenticationVerifier;
+public final class TasksServletTest extends AuthenticatedServletTestBase {
   private TasksClientFactory tasksClientFactory;
   private TasksClient tasksClient;
   private TasksServlet servlet;
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
 
   private static final Gson gson = new Gson();
-
-  private static final boolean AUTHENTICATION_VERIFIED = true;
-  private static final String ID_TOKEN_KEY = "idToken";
-  private static final String ID_TOKEN_VALUE = "sampleId";
-  private static final String ACCESS_TOKEN_KEY = "accessToken";
-  private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
-  private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
-  private static final Cookie sampleAccessTokenCookie =
-      new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
-  private static final Cookie[] validCookies =
-      new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
   private static final String TASK_TITLE_ONE = "task one";
   private static final String TASK_TITLE_TWO = "task two";
@@ -126,30 +104,20 @@ public final class TasksServletTest {
       new Task().setTitle(TASK_TITLE_ONE).setNotes(SAMPLE_NOTES).setDue(DUE_DATE);
   private static final String VALID_TASK_JSON = gson.toJson(validTask);
 
+  @Override
   @Before
-  public void setUp() throws IOException, GeneralSecurityException {
-    authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
+  public void setUp() throws Exception {
+    super.setUp();
+
     tasksClientFactory = Mockito.mock(TasksClientFactory.class);
     tasksClient = Mockito.mock(TasksClient.class);
     servlet = new TasksServlet(authenticationVerifier, tasksClientFactory);
 
     Mockito.when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
-    // Authentication will always pass
-    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
-
-    stringWriter = new StringWriter();
-
-    request = Mockito.mock(HttpServletRequest.class);
-    response =
-        Mockito.mock(
-            HttpServletResponse.class,
-            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
-    Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
   @Test
-  public void noTaskLists() throws IOException, ServletException {
+  public void noTaskLists() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASKLISTS);
     servlet.doGet(request, response);
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
@@ -161,7 +129,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void noTasks() throws IOException, ServletException {
+  public void noTasks() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(NO_TASKS);
     servlet.doGet(request, response);
@@ -174,7 +142,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void taskOverdue() throws IOException, ServletException {
+  public void taskOverdue() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_YESTERDAY);
     servlet.doGet(request, response);
@@ -187,7 +155,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void taskDueToday() throws IOException, ServletException {
+  public void taskDueToday() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_TODAY);
     servlet.doGet(request, response);
@@ -200,7 +168,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void taskToComplete() throws IOException, ServletException {
+  public void taskToComplete() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_TOMORROW);
     servlet.doGet(request, response);
@@ -213,7 +181,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void taskCompletedYesterday() throws IOException, ServletException {
+  public void taskCompletedYesterday() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_COMPLETED_YESTERDAY);
     servlet.doGet(request, response);
@@ -226,7 +194,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void taskCompletedToday() throws IOException, ServletException {
+  public void taskCompletedToday() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_COMPLETED_TODAY);
     servlet.doGet(request, response);
@@ -239,7 +207,7 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void allTasks() throws IOException, ServletException {
+  public void allTasks() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(ALL_TASKS);
     servlet.doGet(request, response);
@@ -252,20 +220,20 @@ public final class TasksServletTest {
   }
 
   @Test
-  public void postTaskNullTaskListId() throws IOException, ServletException {
+  public void postTaskNullTaskListId() throws Exception {
     servlet.doPost(request, response);
     Assert.assertEquals(400, response.getStatus());
   }
 
   @Test
-  public void postTaskEmptyTaskListId() throws IOException, ServletException {
+  public void postTaskEmptyTaskListId() throws Exception {
     Mockito.when(request.getParameter("taskListId")).thenReturn("");
     servlet.doPost(request, response);
     Assert.assertEquals(400, response.getStatus());
   }
 
   @Test
-  public void postValidTask() throws IOException, ServletException {
+  public void postValidTask() throws Exception {
     Mockito.when(request.getParameter("taskListId")).thenReturn(TASKLIST_ID_ONE);
     Mockito.when(tasksClient.postTask(TASKLIST_ID_ONE, validTask)).thenReturn(validTask);
 
