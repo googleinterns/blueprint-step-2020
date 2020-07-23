@@ -166,8 +166,21 @@
     <div class="panel-row__content">
       <div class="panel">Assign</div>
       <div class="panel">Plan</div>
-      <div class="panel">Go
-        <div id="go"></div>
+      <div class="panel">
+        <p class="panel__section-heading u-vertical-center">Go
+        <form method="POST" onsubmit="return optimize(origin.value, destination.value, waypoints.value)">
+          <br>
+          <label for="origin">Origin:</label><br>
+          <input type="text" id="origin" name="origin" required><br><br>
+          <label for="destination">Destination:</label><br>
+          <input type="text" id="destination" name="destination" required><br><br>
+          <label for="waypoints">Waypoints (; separated):</label><br>
+          <input type="text" id="waypoints" name="waypoints" required><br><br>
+          <input type="submit" name="display" value="Display"/>
+          <br>
+        </form>
+        <br>
+        <div id="go-container"></div>
       </div>
     </div>
   </article>

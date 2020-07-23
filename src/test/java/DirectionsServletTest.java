@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -89,6 +90,7 @@ public final class DirectionsServletTest {
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
+  @Ignore
   @Test
   public void aToBWithWaypoints() throws DirectionsException, ServletException {
     servlet =
@@ -108,6 +110,7 @@ public final class DirectionsServletTest {
     Assert.assertEquals(A_TO_B_WITH_WAYPOINTS, actual);
   }
 
+  @Ignore
   @Test
   public void aToAWithWaypoints() throws DirectionsException, ServletException {
     servlet =
@@ -127,6 +130,7 @@ public final class DirectionsServletTest {
     Assert.assertEquals(A_TO_A_WITH_WAYPOINTS, actual);
   }
 
+  @Ignore
   @Test
   public void aToBNoWaypoints() throws DirectionsException, ServletException {
     servlet = new DirectionsServlet(directionsClientFactory, API_KEY, "A", "B", ImmutableList.of());

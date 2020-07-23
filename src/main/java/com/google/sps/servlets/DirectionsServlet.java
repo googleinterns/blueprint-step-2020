@@ -22,6 +22,8 @@ import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.model.DirectionsClientImpl;
 import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -81,9 +83,16 @@ public class DirectionsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException {
+    String queryString = request.getQueryString().replace("%20", " ");
+    List<String> splitQueryString = Arrays.asList(queryString.split("&"));
+    String demoOrigin = Arrays.asList(splitQueryString.get(0).split("=")).get(1);
+    String demoDestination = Arrays.asList(splitQueryString.get(1).split("=")).get(1);
+    String demoWaypointsString = Arrays.asList(splitQueryString.get(2).split("=")).get(1);
+    List<String> demoWaypoints = demoWaypointsString == "" ? new ArrayList() : Arrays.asList(demoWaypointsString.split(";")); 
+    
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
-      List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
+      List<String> directions = directionsClient.getDirections(demoOrigin, demoDestination, demoWaypoints);
       Gson gson = new Gson();
       String directionsJson = gson.toJson(directions);
       response.setContentType("application/json");

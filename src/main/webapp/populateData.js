@@ -37,6 +37,7 @@ function populateGmail() {
       .then((emailList) => {
         // Convert JSON to string containing all messageIds
         // and display it on client
+        /*
         if (emailList.length !== 0) {
           const emails =
               emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
@@ -44,6 +45,7 @@ function populateGmail() {
         } else {
           gmailContainer.innerText = 'No emails found';
         }
+        */
       })
       .catch((e) => {
         console.log(e);
@@ -73,13 +75,14 @@ function populateTasks() {
       .then((tasksList) => {
         // Convert JSON to string containing all task titles
         // and display it on client
+        /*
         if (tasksList.length !== 0) {
           const tasks =
               tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
           tasksContainer.innerText = tasks;
         } else {
           tasksContainer.innerText = 'No tasks found';
-        }
+        }*/
       })
       .catch((e) => {
         console.log(e);
@@ -106,6 +109,7 @@ function populateCalendar() {
         // Convert JSON to string containing all event summaries
         // and display it on client
         // Handle case where user has no events to avoid unwanted behaviour
+        /*
         if (eventList.length !== 0) {
           const events =
               eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
@@ -113,6 +117,7 @@ function populateCalendar() {
         } else {
           calendarContainer.innerText = 'No events in the calendar';
         }
+        */
       })
       .catch((e) => {
         console.log(e);
@@ -152,4 +157,24 @@ function populateGo() {
           signOut();
         }
       });
+}
+
+function optimize(origin, destination, waypoints) {
+  fetch('/directions?origin=' + origin + '&destination=' + destination + '&waypoints=' + waypoints)
+    .then(response => response.json())
+    .then(directions => {
+      const goContainer = document.getElementById('go-container');
+      var legText = '';
+      directions.forEach(leg => {
+        var from = leg.split('"')[1];
+        var to = leg.split('"')[3];
+        var duration = leg.split('duration=')[1].split(', ')[0];
+        var distance = leg.split('distance=')[1].replace(':','').replace(']','\n');
+        var legString = duration + ' ' + distance + 'from ' + from + ' to ' + to + '\n';
+        legText += legString;
+      });
+      goContainer.innerText = legText;
+    });
+  // Ensures that the HTML form which calls this function does not redirect
+  return false;
 }
