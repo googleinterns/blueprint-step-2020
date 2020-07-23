@@ -22,7 +22,8 @@ import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
 import com.google.sps.model.GmailResponse;
-import com.google.sps.utility.GmailResponseUtility;
+import com.google.sps.model.GmailResponseHelper;
+import com.google.sps.model.GmailResponseHelperImpl;
 import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.util.List;
@@ -34,11 +35,13 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/gmail")
 public class GmailServlet extends AuthenticatedHttpServlet {
   private final GmailClientFactory gmailClientFactory;
+  private final GmailResponseHelper gmailResponseHelper;
 
   /** Create servlet with default GmailClient and Authentication Verifier implementations */
   public GmailServlet() {
     super();
     gmailClientFactory = new GmailClientImpl.Factory();
+    gmailResponseHelper = new GmailResponseHelperImpl();
   }
 
   /**
@@ -46,11 +49,15 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    *
    * @param authenticationVerifier implementation of AuthenticationVerifier
    * @param gmailClientFactory implementation of GmailClientFactory
+   * @param gmailResponseHelper implementation of GmailClientHelper
    */
   public GmailServlet(
-      AuthenticationVerifier authenticationVerifier, GmailClientFactory gmailClientFactory) {
+      AuthenticationVerifier authenticationVerifier,
+      GmailClientFactory gmailClientFactory,
+      GmailResponseHelper gmailResponseHelper) {
     super(authenticationVerifier);
     this.gmailClientFactory = gmailClientFactory;
+    this.gmailResponseHelper = gmailResponseHelper;
   }
 
   /**
@@ -103,7 +110,7 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    * @param nDays number of days unread emails should be checked for
    * @param mHours unread emails from the last mHours hours should be used to calculate the
    *     "unreadEmailsFromMHours" statistic
-   * @param gmailClient GmailClient implementation with valid credential
+   * @param gmailClient GmailClient implementation
    * @return GmailResponse object
    * @throws IOException if an issue occurs with the Gmail Service while obtaining emails
    */
@@ -111,13 +118,12 @@ public class GmailServlet extends AuthenticatedHttpServlet {
       throws IOException {
     GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.METADATA;
 
-    List<Message> unreadMessages =
-        GmailResponseUtility.getUnreadEmailsFromNDays(gmailClient, messageFormat, nDays);
-    int unreadEmailsFromNDays = unreadMessages.size();
-    int unreadEmailsFromMHours = GmailResponseUtility.countEmailsFromMHours(unreadMessages, mHours);
-    int unreadImportantEmailsFromNDays = GmailResponseUtility.countImportantEmails(unreadMessages);
+    List<Message> unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, nDays);
+    int unreadEmailsFromNDays = gmailResponseHelper.countEmailsFromNDays(unreadMessages);
+    int unreadEmailsFromMHours = gmailResponseHelper.countEmailsFromMHours(unreadMessages, mHours);
+    int unreadImportantEmailsFromNDays = gmailResponseHelper.countImportantEmails(unreadMessages);
     String mostFrequentSender =
-        GmailResponseUtility.findMostFrequentSender(unreadMessages).orElse("");
+        gmailResponseHelper.findMostFrequentSender(unreadMessages).orElse("");
 
     return new GmailResponse(
         unreadEmailsFromNDays,

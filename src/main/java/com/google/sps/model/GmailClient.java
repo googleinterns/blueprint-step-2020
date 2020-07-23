@@ -71,6 +71,19 @@ public interface GmailClient {
   }
 
   /**
+   * Get list of unread emails from last nDays days from user's Gmail account
+   *
+   * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
+   *     returned
+   * @param nDays number of days of emails to return
+   * @return List of unread messages from last nDays from user's Gmail account with requested level
+   *     of information
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  List<Message> getUnreadEmailsFromNDays(GmailClient.MessageFormat messageFormat, int nDays)
+      throws IOException;
+
+  /**
    * Creates a query string for Gmail. Use in search to return emails that fit certain restrictions
    * TODO: Consider using builder pattern for this (Issue #100)
    *
