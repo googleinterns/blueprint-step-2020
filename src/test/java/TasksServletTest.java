@@ -75,14 +75,19 @@ public final class TasksServletTest {
   private static final String TASK_TITLE_FOUR = "task four";
   private static final String TASK_TITLE_FIVE = "task five";
   private static final String TASKLIST_TITLE_ONE = "task list one";
+  private static final String TASKLIST_TITLE_TWO = "task list two";
 
   private static final TaskList TASKLIST_ONE =
       new TaskList().setTitle(TASKLIST_TITLE_ONE).setId("taskListOne");
+  private static final TaskList TASKLIST_TWO =
+      new TaskList().setTitle(TASKLIST_TITLE_TWO).setId("taskListTwo");
 
   private static final List<TaskList> NO_TASKLISTS = ImmutableList.of();
   private static final List<String> NO_TASKLISTS_TITLES = ImmutableList.of();
   private static final List<TaskList> ONE_TASKLIST = ImmutableList.of(TASKLIST_ONE);
+  private static final List<TaskList> TWO_TASKLISTS = ImmutableList.of(TASKLIST_ONE, TASKLIST_TWO);
   private static final List<String> ONE_TASKLIST_TITLES = ImmutableList.of(TASKLIST_TITLE_ONE);
+  private static final List<String> TWO_TASKLISTS_TITLES = ImmutableList.of(TASKLIST_TITLE_ONE, TASKLIST_TITLE_TWO);
 
   private static final DateTimeFormatter FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX").withZone(ZoneId.systemDefault());
@@ -247,5 +252,20 @@ public final class TasksServletTest {
     Assert.assertEquals(1, tasksResponse.getTasksDueToday());
     Assert.assertEquals(1, tasksResponse.getTasksCompletedToday());
     Assert.assertEquals(1, tasksResponse.getTasksOverdue());
+  }
+
+  @Test
+  public void multipleTaskLists() throws IOException, ServletException {
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(TWO_TASKLISTS);
+    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(ALL_TASKS);
+    Mockito.when(tasksClient.listTasks(TASKLIST_TWO)).thenReturn(ALL_TASKS);
+    servlet.doGet(request, response);
+    printWriter.flush();
+    TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+    Assert.assertEquals(TWO_TASKLISTS_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(6, tasksResponse.getTasksToComplete());
+    Assert.assertEquals(2, tasksResponse.getTasksDueToday());
+    Assert.assertEquals(2, tasksResponse.getTasksCompletedToday());
+    Assert.assertEquals(2, tasksResponse.getTasksOverdue());
   }
 }
