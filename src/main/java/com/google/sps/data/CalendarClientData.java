@@ -47,7 +47,8 @@ public final class CalendarClientData {
   /**
    * Substract the event durations from the free time. Whether an event is in the personal or work
    * time is determined by its start period. The working hours are hard-coded as beign between 10:00
-   * AM and 6:00 PM. All time periods are in UTC timezone.
+   * AM and 6:00 PM. All time periods are in UTC timezone. TODO: Refactor the logic of this function
+   * to account for edge cases like multiple events being created at the same time. (Issue #104)
    *
    * @param startTime parameter of type long that gives the Unix epoch time of the start of the
    *     event
