@@ -103,16 +103,22 @@ function populateTasks() {
         }
         return response.json();
       })
-      .then((tasksList) => {
-        // Convert JSON to string containing all task titles
-        // and display it on client
-        if (tasksList.length !== 0) {
-          const tasks =
-              tasksList.map((a) => a.title).reduce((a, b) => a + '\n' + b);
-          tasksContainer.innerText = tasks;
-        } else {
-          tasksContainer.innerText = 'No tasks found';
-        }
+      .then((tasksResponse) => {
+        document
+            .querySelector('#panel__tasks-to-complete')
+            .innerText = tasksResponse['tasksToComplete'];
+        document
+            .querySelector('#panel__tasks-due-today')
+            .innerText = tasksResponse['tasksDueToday'] +
+                            ' due today';
+        document
+            .querySelector('#panel__tasks-completed-today')
+            .innerText = tasksResponse['tasksCompletedToday'] +
+                            ' completed today';
+        document
+            .querySelector('#panel__tasks-overdue')
+            .innerText = tasksResponse['tasksOverdue'] +
+                            ' overdue';
       })
       .catch((e) => {
         console.log(e);
