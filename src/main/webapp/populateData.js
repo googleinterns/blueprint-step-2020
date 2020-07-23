@@ -15,7 +15,7 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut, AuthenticationError */
+/* global signOut, AuthenticationError, Task */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
 // Stores the last retrieved copy of the user's tasklists and tasks
@@ -162,21 +162,66 @@ function populateCalendar() {
 }
 
 /**
- * Function to test getting tasklists and adding a new tasklist
- * Will 1) request a new tasklist be made with a default name (the current time)
- * and 2) get the new list of tasklists and log them in the console.
+ * Function to test getting tasklists, adding a new tasklist, and then getting
+ * a new task.
+ *
+ * Will 1) request a new tasklist be made with a default name then,
+ * 2) add a task to the new tasklist and
+ * 3) get the new list of tasklists and log them in the console.
  */
 function postAndGetTasklist() {
   const sampleTitle =
       new Date().getDateObjectWithLocalTime().getTime().toString();
 
   postNewTaskList(sampleTitle)
-      .then(() => {
-        getTaskListsAndTasks()
+      .then((taskList) => {
+        const sampleTask =
+                  new Task(
+                      'test',
+                      'This is a test',
+                      new Date().getDateObjectWithLocalTime()
+                  );
+        const taskListId = taskList.id;
+
+        postNewTask(taskListId, sampleTask)
             .then(() => {
-              console.log(tasklists);
-              console.log(tasks);
+              getTaskListsAndTasks()
+                  .then(() => {
+                    console.log(tasks);
+                    console.log(tasklists);
+                  });
             });
+      });
+}
+
+/**
+ * Post a new task to a given tasklist
+ *
+ * @param {string} taskListId the id of the tasklist that the new task should
+ *     belong to
+ * @param {Task} taskObject valid Task object
+ * @return {Promise<any>} A promise that is resolved once the task is
+ *     posted
+ */
+function postNewTask(taskListId, taskObject) {
+  const taskJson = JSON.stringify(taskObject);
+
+  const newTaskRequest =
+      new Request(
+          '/tasks?taskListId=' + taskListId,
+          {method: 'POST', body: taskJson}
+      );
+
+  return fetch(newTaskRequest)
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
+        }
       });
 }
 

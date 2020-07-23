@@ -21,8 +21,9 @@ import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksServlet;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
@@ -39,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
@@ -54,7 +56,6 @@ public final class TasksServletTest {
   private HttpServletRequest request;
   private HttpServletResponse response;
   private StringWriter stringWriter;
-  private PrintWriter printWriter;
 
   private static final Gson gson = new Gson();
 
@@ -78,6 +79,9 @@ public final class TasksServletTest {
 
   private static final TaskList TASKLIST_ONE =
       new TaskList().setTitle(TASKLIST_TITLE_ONE).setId("taskListOne");
+
+  private static final String TASKLIST_ID_ONE = "taskListOne";
+  private static final String TASKLIST_ID_TWO = "taskListTwo";
 
   private static final List<TaskList> NO_TASKLISTS = ImmutableList.of();
   private static final List<String> NO_TASKLISTS_TITLES = ImmutableList.of();
@@ -116,6 +120,12 @@ public final class TasksServletTest {
           TASK_COMPLETED_YESTERDAY,
           TASK_COMPLETED_TODAY);
 
+  private static final String SAMPLE_NOTES = "sample notes";
+  private static final String DUE_DATE = "2020-07-20T00:00:00.000Z";
+  private static final Task validTask =
+      new Task().setTitle(TASK_TITLE_ONE).setNotes(SAMPLE_NOTES).setDue(DUE_DATE);
+  private static final String VALID_TASK_JSON = gson.toJson(validTask);
+
   @Before
   public void setUp() throws IOException, GeneralSecurityException {
     authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
@@ -128,21 +138,20 @@ public final class TasksServletTest {
     Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
 
-    request = Mockito.mock(HttpServletRequest.class);
-    response = Mockito.mock(HttpServletResponse.class);
-    Mockito.when(request.getCookies()).thenReturn(validCookies);
-
-    // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
-    printWriter = new PrintWriter(stringWriter);
-    Mockito.when(response.getWriter()).thenReturn(printWriter);
+
+    request = Mockito.mock(HttpServletRequest.class);
+    response =
+        Mockito.mock(
+            HttpServletResponse.class,
+            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
+    Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
   @Test
   public void noTaskLists() throws IOException, ServletException {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASKLISTS);
     servlet.doGet(request, response);
-    printWriter.flush();
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(NO_TASKLISTS_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
@@ -156,7 +165,6 @@ public final class TasksServletTest {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(NO_TASKS);
     servlet.doGet(request, response);
-    printWriter.flush();
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(ONE_TASKLIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
@@ -170,7 +178,6 @@ public final class TasksServletTest {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_YESTERDAY);
     servlet.doGet(request, response);
-    printWriter.flush();
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(ONE_TASKLIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
@@ -184,7 +191,6 @@ public final class TasksServletTest {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_TODAY);
     servlet.doGet(request, response);
-    printWriter.flush();
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(ONE_TASKLIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
@@ -198,7 +204,6 @@ public final class TasksServletTest {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_TOMORROW);
     servlet.doGet(request, response);
-    printWriter.flush();
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(ONE_TASKLIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
@@ -212,7 +217,6 @@ public final class TasksServletTest {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_COMPLETED_YESTERDAY);
     servlet.doGet(request, response);
-    printWriter.flush();
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(ONE_TASKLIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
@@ -226,7 +230,6 @@ public final class TasksServletTest {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_COMPLETED_TODAY);
     servlet.doGet(request, response);
-    printWriter.flush();
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(ONE_TASKLIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
@@ -240,12 +243,42 @@ public final class TasksServletTest {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
     Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(ALL_TASKS);
     servlet.doGet(request, response);
-    printWriter.flush();
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(ONE_TASKLIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(3, tasksResponse.getTasksToComplete());
     Assert.assertEquals(1, tasksResponse.getTasksDueToday());
     Assert.assertEquals(1, tasksResponse.getTasksCompletedToday());
     Assert.assertEquals(1, tasksResponse.getTasksOverdue());
+  }
+
+  @Test
+  public void postTaskNullTaskListId() throws IOException, ServletException {
+    servlet.doPost(request, response);
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postTaskEmptyTaskListId() throws IOException, ServletException {
+    Mockito.when(request.getParameter("taskListId")).thenReturn("");
+    servlet.doPost(request, response);
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postValidTask() throws IOException, ServletException {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASKLIST_ID_ONE);
+    Mockito.when(tasksClient.postTask(TASKLIST_ID_ONE, validTask)).thenReturn(validTask);
+
+    StringReader reader = new StringReader(VALID_TASK_JSON);
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+
+    servlet.doPost(request, response);
+
+    Task postedTask = gson.fromJson(stringWriter.toString(), Task.class);
+
+    Assert.assertEquals(validTask.getTitle(), postedTask.getTitle());
+    Assert.assertEquals(validTask.getNotes(), postedTask.getNotes());
+    Assert.assertEquals(validTask.getDue(), postedTask.getDue());
   }
 }
