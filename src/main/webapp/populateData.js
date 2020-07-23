@@ -179,7 +179,7 @@ function postAndGetTasklist() {
                   new Task(
                       'test',
                       'This is a test',
-                      new Date().getDateObjectWithLocalTime()
+                      new getDateInLocalTimeZone()
                   );
         const taskListId = taskList.id;
 
