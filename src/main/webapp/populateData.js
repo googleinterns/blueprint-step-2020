@@ -21,28 +21,55 @@
  * Populate Gmail container with user information
  */
 function populateGmail() {
-  // Get container for Gmail content
-  const gmailContainer = document.querySelector('#gmail');
+  // Get containers for all gmail fields
+  const nDaysContainer = document.querySelector('#gmailNDays');
+  const mHoursContainer = document.querySelector('#gmailMHours');
+  const unreadEmailsContainer =
+      document.querySelector('#gmailUnreadEmailsDays');
+  const unreadEmailsThreeHrsContainer =
+      document.querySelector('#gmailUnreadEmailsHours');
+  const importantEmailsContainer =
+      document.querySelector('#gmailUnreadImportantEmails');
+  const senderInitialContainer =
+      document.querySelector('#gmailSenderInitial');
+  const senderContainer =
+      document.querySelector('#gmailSender');
 
-  // Get list of messageIds from user's Gmail account
-  // and display them on the screen
-  fetch('/gmail')
+  // TODO: Allow user to select query parameters (Issue #83)
+  const nDays = 7;
+  const mHours = 3;
+
+  nDaysContainer.innerText = nDays;
+  mHoursContainer.innerText = mHours;
+
+  // Get GmailResponse object that reflects user's gmail account
+  // Should contain a field for each datapoint in the Gmail panel
+  fetch(`/gmail?nDays=${nDays}&mHours=${mHours}`)
       .then((response) => {
-        // If response is a 403, user is not authenticated
-        if (response.status === 403) {
-          throw new AuthenticationError();
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
         }
-        return response.json();
       })
-      .then((emailList) => {
-        // Convert JSON to string containing all messageIds
-        // and display it on client
-        if (emailList.length !== 0) {
-          const emails =
-              emailList.map((a) => a.id).reduce((a, b) => a + '\n' + b);
-          gmailContainer.innerText = emails;
+      .then((gmailResponse) => {
+        unreadEmailsContainer.innerText =
+            gmailResponse['unreadEmailsDays'];
+        unreadEmailsThreeHrsContainer.innerText =
+            gmailResponse['unreadEmailsHours'];
+        importantEmailsContainer.innerText =
+            gmailResponse['unreadImportantEmails'];
+        if (parseInt(gmailResponse['unreadEmailsDays']) !== 0) {
+          senderContainer.innerText =
+              gmailResponse['sender'];
+          senderInitialContainer.innerText =
+              gmailResponse['sender'][0].toUpperCase();
         } else {
-          gmailContainer.innerText = 'No emails found';
+          senderContainer.innerText = 'N/A';
+          senderInitialContainer.innerText = '-';
         }
       })
       .catch((e) => {
