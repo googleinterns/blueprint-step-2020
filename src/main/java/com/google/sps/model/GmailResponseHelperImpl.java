@@ -73,6 +73,11 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
     return Optional.of(parseNameInFromHeader(mostFrequentSender));
   }
 
+  @Override
+  public int countEmailsFromNDays(List<Message> unreadEmailsFromLastNDays) {
+    return unreadEmailsFromLastNDays.size();
+  }
+
   /**
    * Gets a sender's contact name or email address.
    *

@@ -119,7 +119,7 @@ public class GmailServlet extends AuthenticatedHttpServlet {
     GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.METADATA;
 
     List<Message> unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, nDays);
-    int unreadEmailsFromNDays = unreadMessages.size();
+    int unreadEmailsFromNDays = gmailResponseHelper.countEmailsFromNDays(unreadMessages);
     int unreadEmailsFromMHours = gmailResponseHelper.countEmailsFromMHours(unreadMessages, mHours);
     int unreadImportantEmailsFromNDays = gmailResponseHelper.countImportantEmails(unreadMessages);
     String mostFrequentSender =

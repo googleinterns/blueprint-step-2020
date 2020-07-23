@@ -21,6 +21,15 @@ import java.util.Optional;
 /** Contains business logic to calculate statistics for the GmailResponse */
 public interface GmailResponseHelper {
   /**
+   * Given a list of unread emails from the last NDays, count how many emails are from the last
+   * NDays. This method does NOT filter the list or check the timestamps of the messages.
+   *
+   * @param unreadEmailsFromLastNDays a list of unread emails from the last NDays
+   * @return number of emails present in unreadEmailsFromLastNDays
+   */
+  int countEmailsFromNDays(List<Message> unreadEmailsFromLastNDays);
+
+  /**
    * Get the amount of emails sent within the last mHours hours given a list of messages
    *
    * @param unreadEmailsFromLastNDays a list of Message objects from user's gmail account. Messages

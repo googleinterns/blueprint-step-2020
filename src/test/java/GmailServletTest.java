@@ -149,19 +149,6 @@ public final class GmailServletTest extends GmailTestBase {
   }
 
   @Test
-  public void checkUnreadEmailsFromNDaysInNullCase() throws Exception {
-    // no messages returned - unread email count (nDays) should be 0
-    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(DEFAULT_M_HOURS));
-
-    Mockito.when(gmailClient.getUnreadEmailsFromNDays(messageFormat, DEFAULT_N_DAYS))
-        .thenReturn(NO_MESSAGES);
-
-    GmailResponse gmailResponse = getGmailResponse(request, response);
-    Assert.assertEquals(0, gmailResponse.getUnreadEmailsDays());
-  }
-
-  @Test
   public void checkDefaultSenderInNullCase() throws Exception {
     // When mostFrequentSender is N/A (in case of no messages), response should be some
     // default value, not null.
@@ -181,29 +168,6 @@ public final class GmailServletTest extends GmailTestBase {
   }
 
   @Test
-  public void countUnreadEmailsFromNDays() throws Exception {
-    // some messages returned - unread email count (nDays) should be message list length
-    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
-    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(DEFAULT_M_HOURS));
-
-    Mockito.when(gmailClient.getUnreadEmailsFromNDays(messageFormat, DEFAULT_N_DAYS))
-        .thenReturn(SOME_MESSAGES_HALF_WITHIN_M_HOURS);
-
-    Mockito.when(
-            gmailClient.getUserMessage(
-                SOME_MESSAGES_HALF_WITHIN_M_HOURS.get(0).getId(), messageFormat))
-        .thenReturn(SOME_MESSAGES_HALF_WITHIN_M_HOURS.get(0));
-    Mockito.when(
-            gmailClient.getUserMessage(
-                SOME_MESSAGES_HALF_WITHIN_M_HOURS.get(1).getId(), messageFormat))
-        .thenReturn(SOME_MESSAGES_HALF_WITHIN_M_HOURS.get(1));
-
-    GmailResponse gmailResponse = getGmailResponse(request, response);
-    Assert.assertEquals(
-        SOME_MESSAGES_HALF_WITHIN_M_HOURS.size(), gmailResponse.getUnreadEmailsDays());
-  }
-
-  @Test
   public void checkResponseParsing() throws Exception {
     // This does NOT check that the statistics are correctly calculated.
     // This only checks that the statistics from GmailResponseHelper
@@ -214,6 +178,8 @@ public final class GmailServletTest extends GmailTestBase {
     Mockito.when(gmailClient.getUnreadEmailsFromNDays(messageFormat, DEFAULT_N_DAYS))
         .thenReturn(SOME_MESSAGES_HALF_WITHIN_M_HOURS);
 
+    Mockito.when(gmailResponseHelper.countEmailsFromNDays(SOME_MESSAGES_HALF_WITHIN_M_HOURS))
+        .thenReturn(SOME_MESSAGES_HALF_WITHIN_M_HOURS.size());
     Mockito.when(
             gmailResponseHelper.countEmailsFromMHours(
                 SOME_MESSAGES_HALF_WITHIN_M_HOURS, DEFAULT_M_HOURS))
@@ -224,6 +190,8 @@ public final class GmailServletTest extends GmailTestBase {
         .thenReturn(Optional.of(SENDER_ONE_NAME));
 
     GmailResponse gmailResponse = getGmailResponse(request, response);
+    Assert.assertEquals(
+        SOME_MESSAGES_HALF_WITHIN_M_HOURS.size(), gmailResponse.getUnreadEmailsDays());
     Assert.assertEquals(EXPECTED_EMAILS_M_HOURS_COUNT, gmailResponse.getUnreadEmailsHours());
     Assert.assertEquals(EXPECTED_IMPORTANT_EMAIL_COUNT, gmailResponse.getUnreadImportantEmails());
     Assert.assertEquals(SENDER_ONE_NAME, gmailResponse.getSender());

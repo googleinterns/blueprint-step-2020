@@ -26,6 +26,12 @@ public class GmailResponseHelperImplTest extends GmailTestBase {
   private static final GmailResponseHelper gmailResponseHelper = new GmailResponseHelperImpl();
 
   @Test
+  public void emptyListUnreadEmailsNDays() {
+    int unreadEmailsNDays = gmailResponseHelper.countEmailsFromNDays(NO_MESSAGES);
+    Assert.assertEquals(0, unreadEmailsNDays);
+  }
+
+  @Test
   public void emptyListUnreadEmailsMHours() {
     int unreadEmailsMHours =
         gmailResponseHelper.countEmailsFromMHours(NO_MESSAGES, DEFAULT_M_HOURS);
@@ -42,6 +48,13 @@ public class GmailResponseHelperImplTest extends GmailTestBase {
   public void emptyListFindMostFrequentSender() {
     Optional<String> sender = gmailResponseHelper.findMostFrequentSender(NO_MESSAGES);
     Assert.assertFalse(sender.isPresent());
+  }
+
+  @Test
+  public void calculateUnreadEmailsNDays() {
+    int unreadEmailsNDays =
+        gmailResponseHelper.countEmailsFromNDays(SOME_MESSAGES_HALF_WITHIN_M_HOURS);
+    Assert.assertEquals(SOME_MESSAGES_HALF_WITHIN_M_HOURS.size(), unreadEmailsNDays);
   }
 
   @Test
