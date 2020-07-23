@@ -107,7 +107,7 @@ function populateCalendar() {
         const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
         for (let day = 0; day < 5; day++) {
           const dayContainer = document.querySelector('#day-'+day);
-          dayContainer.innerText = days[hoursJson.startDay + day];
+          dayContainer.innerText = days[(hoursJson.startDay + day) % 7];
           const workContainer = document.querySelector('#work-day-'+day);
           workContainer.innerText =
               convertTime(hoursJson.workHours[day]) + ' (working)';
