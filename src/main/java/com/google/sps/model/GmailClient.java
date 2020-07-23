@@ -16,6 +16,7 @@ package com.google.sps.model;
 
 import com.google.api.services.gmail.model.Message;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /** Contract for handling/making GET requests to the Gmail API */
@@ -70,27 +71,41 @@ public interface GmailClient {
   }
 
   /**
+   * Get list of unread emails from last nDays days from user's Gmail account
+   *
+   * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
+   *     returned
+   * @param nDays number of days of emails to return
+   * @return List of unread messages from last nDays from user's Gmail account with requested level
+   *     of information
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  List<Message> getUnreadEmailsFromNDays(GmailClient.MessageFormat messageFormat, int nDays)
+      throws IOException;
+
+  /**
    * Creates a query string for Gmail. Use in search to return emails that fit certain restrictions
+   * TODO: Consider using builder pattern for this (Issue #100)
    *
    * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. Set to 0 to
    *     ignore filter
    * @param emailAgeUnits "d" for days, "h" for hours, "" for ignore email
    * @param unreadOnly true if only returning unread emails, false otherwise
+   * @param isImportant true if only returning important emails, false otherwise
    * @param from email address of the sender. "" if not specified
    * @return string to use in gmail (either client or API) to find emails that match criteria
    */
   static String emailQueryString(
-      int emailAge, String emailAgeUnits, boolean unreadOnly, String from) {
-    StringBuilder stringBuilder = new StringBuilder();
-
-    // Add query components
-    stringBuilder
-        .append(emailAgeQuery(emailAge, emailAgeUnits))
-        .append(unreadEmailQuery(unreadOnly))
-        .append(fromEmailQuery(from));
+      int emailAge, String emailAgeUnits, boolean unreadOnly, boolean isImportant, String from) {
+    List<String> queries =
+        Arrays.asList(
+            emailAgeQuery(emailAge, emailAgeUnits),
+            unreadEmailQuery(unreadOnly),
+            isImportantQuery(isImportant),
+            fromEmailQuery(from));
 
     // Return multi-part query
-    return stringBuilder.toString();
+    return String.join(" ", queries);
   }
 
   /**
@@ -107,7 +122,7 @@ public interface GmailClient {
   static String emailAgeQuery(int emailAge, String emailAgeUnits) {
     // newer_than:#d where # is an integer will specify to only return emails from last # days
     if (emailAge > 0 && (emailAgeUnits.equals("h") || emailAgeUnits.equals("d"))) {
-      return String.format("newer_than:%d%s ", emailAge, emailAgeUnits);
+      return String.format("newer_than:%d%s", emailAge, emailAgeUnits);
     } else if (emailAge == 0 && emailAgeUnits.isEmpty()) {
       return "";
     }
@@ -125,7 +140,7 @@ public interface GmailClient {
    */
   static String unreadEmailQuery(boolean unreadOnly) {
     // is:unread will return only unread emails
-    return unreadOnly ? "is:unread " : "";
+    return unreadOnly ? "is:unread" : "";
   }
 
   /**
@@ -137,6 +152,17 @@ public interface GmailClient {
    */
   static String fromEmailQuery(String from) {
     // from: <emailAddress> will return only emails from that sender
-    return !from.equals("") ? String.format("from:%s ", from) : "";
+    return !from.equals("") ? String.format("from:%s", from) : "";
+  }
+
+  /**
+   * Creates Gmail query to find emails marked as important
+   *
+   * @param isImportant true if filtering for important emails, false otherwise
+   * @return string to use in gmail (either client or APi) to find emails that match these criteria
+   *     Trailing space added to string so multiple queries can be concatenated
+   */
+  static String isImportantQuery(boolean isImportant) {
+    return isImportant ? "is:important" : "";
   }
 }
