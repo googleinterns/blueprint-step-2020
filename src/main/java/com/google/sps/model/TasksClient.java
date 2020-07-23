@@ -28,7 +28,7 @@ public interface TasksClient {
    * Get all tasks from a tasklist in a user's Tasks account.
    *
    * @param taskList TaskList object that contains the desired tasks
-   * @return List of all tasks in the tasklist
+   * @return List of all tasks including hidden/completed tasks in the tasklist
    * @throws IOException if an issue occurs with the TasksService
    */
   List<Task> listTasks(TaskList taskList) throws IOException;

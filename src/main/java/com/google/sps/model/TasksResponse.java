@@ -69,4 +69,23 @@ public final class TasksResponse {
   public int getTasksOverdue() {
     return tasksOverdue;
   }
+
+  @Override
+  public boolean equals(final Object object) {
+    if (object == null || object.getClass() != getClass()) {
+      return false;
+    }
+
+    if (object == this) {
+      return true;
+    }
+
+    TasksResponse other = (TasksResponse) object;
+
+    return (this.taskListNames == other.getTaskListNames()
+        && this.tasksToComplete == other.getTasksToComplete()
+        && this.tasksDueToday == other.getTasksDueToday()
+        && this.tasksCompletedToday == other.getTasksCompletedToday()
+        && this.tasksOverdue == other.getTasksOverdue());
+  }
 }
