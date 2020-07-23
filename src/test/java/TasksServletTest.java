@@ -20,7 +20,6 @@ import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksServlet;
-
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.time.Instant;
@@ -33,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
