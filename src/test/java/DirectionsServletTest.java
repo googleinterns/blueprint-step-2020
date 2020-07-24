@@ -15,16 +15,13 @@
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.servlets.DirectionsServlet;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.util.List;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
