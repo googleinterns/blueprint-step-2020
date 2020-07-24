@@ -47,22 +47,23 @@ public final class TaskListServletTest extends AuthenticatedServletTestBase {
   private static final String TASK_TITLE_THREE = "task three";
   private static final String TASK_TITLE_FOUR = "task four";
 
-  private static final String TASKLIST_ID_ONE = "taskListOne";
-  private static final String TASKLIST_ID_TWO = "taskListTwo";
+  private static final String TASK_LIST_ID_ONE = "taskListOne";
+  private static final String TASK_LIST_ID_TWO = "taskListTwo";
 
-  private static final TaskList TASKLIST_ONE = new TaskList().setId(TASKLIST_ID_ONE);
-  private static final TaskList TASKLIST_TWO = new TaskList().setId(TASKLIST_ID_TWO);
-  private static final List<TaskList> NO_TASKLISTS = ImmutableList.of();
-  private static final List<TaskList> SOME_TASKLISTS = ImmutableList.of(TASKLIST_ONE, TASKLIST_TWO);
+  private static final TaskList TASK_LIST_ONE = new TaskList().setId(TASK_LIST_ID_ONE);
+  private static final TaskList TASK_LIST_TWO = new TaskList().setId(TASK_LIST_ID_TWO);
+  private static final List<TaskList> NO_TASK_LISTS = ImmutableList.of();
+  private static final List<TaskList> SOME_TASK_LISTS =
+      ImmutableList.of(TASK_LIST_ONE, TASK_LIST_TWO);
 
   private static final List<Task> TASKS_ONE_TWO =
       ImmutableList.of(new Task().setTitle(TASK_TITLE_ONE), new Task().setTitle(TASK_TITLE_TWO));
   private static final List<Task> TASKS_THREE_FOUR =
       ImmutableList.of(new Task().setTitle(TASK_TITLE_THREE), new Task().setTitle(TASK_TITLE_FOUR));
 
-  private static final String VALID_TASKLIST_TITLE = "sampleTaskListName";
-  private static final TaskList validTaskList = new TaskList().setTitle(VALID_TASKLIST_TITLE);
-  private static final String VALID_TASKLIST_JSON = gson.toJson(validTaskList);
+  private static final String VALID_TASK_LIST_TITLE = "sampleTaskListName";
+  private static final TaskList validTaskList = new TaskList().setTitle(VALID_TASK_LIST_TITLE);
+  private static final String VALID_TASK_LIST_JSON = gson.toJson(validTaskList);
 
   @Override
   @Before
@@ -77,16 +78,16 @@ public final class TaskListServletTest extends AuthenticatedServletTestBase {
 
   @Test
   public void getTasklists() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASKLISTS);
-    Mockito.when(tasksClient.listTasks(SOME_TASKLISTS.get(0))).thenReturn(TASKS_ONE_TWO);
-    Mockito.when(tasksClient.listTasks(SOME_TASKLISTS.get(1))).thenReturn(TASKS_THREE_FOUR);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASK_LISTS);
+    Mockito.when(tasksClient.listTasks(SOME_TASK_LISTS.get(0))).thenReturn(TASKS_ONE_TWO);
+    Mockito.when(tasksClient.listTasks(SOME_TASK_LISTS.get(1))).thenReturn(TASKS_THREE_FOUR);
 
     HashMap<String, List<Task>> tasksWithTaskLists = new HashMap<>();
-    tasksWithTaskLists.put(SOME_TASKLISTS.get(0).getId(), TASKS_ONE_TWO);
-    tasksWithTaskLists.put(SOME_TASKLISTS.get(1).getId(), TASKS_THREE_FOUR);
+    tasksWithTaskLists.put(SOME_TASK_LISTS.get(0).getId(), TASKS_ONE_TWO);
+    tasksWithTaskLists.put(SOME_TASK_LISTS.get(1).getId(), TASKS_THREE_FOUR);
 
     JsonObject expectedResponseObject = new JsonObject();
-    expectedResponseObject.add("tasklists", gson.toJsonTree(SOME_TASKLISTS));
+    expectedResponseObject.add("taskLists", gson.toJsonTree(SOME_TASK_LISTS));
     expectedResponseObject.add("tasks", gson.toJsonTree(tasksWithTaskLists));
 
     String expectedResponse = gson.toJson(expectedResponseObject);
@@ -98,12 +99,12 @@ public final class TaskListServletTest extends AuthenticatedServletTestBase {
 
   @Test
   public void getTasklistsEmpty() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASKLISTS);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASK_LISTS);
 
     HashMap<String, List<Task>> emptyTasksWithTaskLists = new HashMap<>();
 
     JsonObject expectedResponseObject = new JsonObject();
-    expectedResponseObject.add("tasklists", gson.toJsonTree(NO_TASKLISTS));
+    expectedResponseObject.add("taskLists", gson.toJsonTree(NO_TASK_LISTS));
     expectedResponseObject.add("tasks", gson.toJsonTree(emptyTasksWithTaskLists));
 
     String expectedResponse = gson.toJson(expectedResponseObject);
@@ -128,10 +129,10 @@ public final class TaskListServletTest extends AuthenticatedServletTestBase {
 
   @Test
   public void postTasklist() throws Exception {
-    Mockito.when(request.getParameter("taskListTitle")).thenReturn(VALID_TASKLIST_TITLE);
-    Mockito.when(tasksClient.postTaskList(VALID_TASKLIST_TITLE)).thenReturn(validTaskList);
+    Mockito.when(request.getParameter("taskListTitle")).thenReturn(VALID_TASK_LIST_TITLE);
+    Mockito.when(tasksClient.postTaskList(VALID_TASK_LIST_TITLE)).thenReturn(validTaskList);
 
     servlet.doPost(request, response);
-    Assert.assertTrue(stringWriter.toString().contains(VALID_TASKLIST_JSON));
+    Assert.assertTrue(stringWriter.toString().contains(VALID_TASK_LIST_JSON));
   }
 }

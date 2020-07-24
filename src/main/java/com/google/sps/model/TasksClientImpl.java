@@ -55,7 +55,7 @@ public class TasksClientImpl implements TasksClient {
 
   @Override
   public List<TaskList> listTaskLists() throws IOException {
-    // returns null if no tasklists exist. Convert to empty list for ease.
+    // returns null if no taskLists exist. Convert to empty list for ease.
     List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
 
     return taskLists != null ? taskLists : new ArrayList<>();
