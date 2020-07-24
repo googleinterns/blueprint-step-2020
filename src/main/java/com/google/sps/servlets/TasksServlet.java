@@ -18,13 +18,13 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
-import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
 import com.google.sps.model.TasksResponse;
+import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -156,11 +156,6 @@ public class TasksServlet extends AuthenticatedHttpServlet {
         new TasksResponse(
             taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
 
-    // Convert tasks to JSON and print to response
-    Gson gson = new Gson();
-    String tasksJson = gson.toJson(tasksResponse);
-
-    response.setContentType("application/json");
-    response.getWriter().println(tasksJson);
+    JsonUtility.sendJson(response, tasksResponse);
   }
 }
