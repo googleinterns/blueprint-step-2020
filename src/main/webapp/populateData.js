@@ -169,7 +169,7 @@ function populateCalendar() {
  * 2) add a task to the new taskList and
  * 3) get the new list of taskLists and log them in the console.
  */
-function postAndGetTasklist() {
+function postAndGetTaskList() {
   const sampleTitle =
       getDateInLocalTimeZone().getTime().toString();
 

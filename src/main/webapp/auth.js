@@ -18,7 +18,7 @@
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie, isCookiePresent,
 deleteCookie, populateGmail, populateTasks, populateCalendar,
-postAndGetTasklist */
+postAndGetTaskList */
 // TODO: Handle CommonJS (Issue #31)
 
 /**
@@ -60,7 +60,7 @@ function handleAuthenticationState() {
     populateGmail();
     populateTasks();
     populateCalendar();
-    postAndGetTasklist();
+    postAndGetTaskList();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
