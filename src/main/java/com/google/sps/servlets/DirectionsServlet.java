@@ -15,11 +15,11 @@
 package com.google.sps.servlets;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.Gson;
 import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.model.DirectionsClientImpl;
+import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
 import java.util.List;
@@ -84,10 +84,7 @@ public class DirectionsServlet extends HttpServlet {
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
-      Gson gson = new Gson();
-      String directionsJson = gson.toJson(directions);
-      response.setContentType("application/json");
-      response.getWriter().println(directionsJson);
+      JsonUtility.sendJson(response, directions);
     } catch (DirectionsException | IOException e) {
       throw new ServletException(e);
     }

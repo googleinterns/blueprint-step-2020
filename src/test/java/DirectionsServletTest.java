@@ -15,19 +15,9 @@
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.maps.errors.ApiException;
-import com.google.maps.model.DirectionsLeg;
-import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.DirectionsStep;
-import com.google.maps.model.Distance;
-import com.google.maps.model.Duration;
-import com.google.maps.model.GeocodedWaypoint;
-import com.google.maps.model.LatLng;
 import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
-import com.google.sps.model.DirectionsClientImpl;
 import com.google.sps.servlets.DirectionsServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
@@ -76,21 +67,24 @@ public final class DirectionsServletTest {
           "[DirectionsLeg: \"A\" -> \"B\" (45,-73 -> 43,-80), duration=6 hours, distance=6 km: 2 steps]");
 
   @Before
-  public void setUp() throws IOException {
-    request = Mockito.mock(HttpServletRequest.class);
-    response = Mockito.mock(HttpServletResponse.class);
+  public void setUp() throws Exception {
     directionsClientFactory = Mockito.mock(DirectionsClientFactory.class);
     directionsClient = Mockito.mock(DirectionsClient.class);
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter);
+    request = Mockito.mock(HttpServletRequest.class);
+    response =
+        Mockito.mock(
+            HttpServletResponse.class,
+            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
     gson = new Gson();
     Mockito.when(directionsClientFactory.getDirectionsClient(API_KEY)).thenReturn(directionsClient);
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
   @Test
-  public void aToBWithWaypoints() throws DirectionsException, ServletException {
+  public void aToBWithWaypoints() throws Exception {
     servlet =
         new DirectionsServlet(
             directionsClientFactory, API_KEY, "A", "B", ImmutableList.of("C", "D"));
@@ -99,7 +93,6 @@ public final class DirectionsServletTest {
         .thenReturn(A_TO_B_WITH_WAYPOINTS);
 
     servlet.doGet(request, response);
-    printWriter.flush();
 
     String actualString = stringWriter.toString();
     Type type = new TypeToken<List<String>>() {}.getType();
@@ -109,7 +102,7 @@ public final class DirectionsServletTest {
   }
 
   @Test
-  public void aToAWithWaypoints() throws DirectionsException, ServletException {
+  public void aToAWithWaypoints() throws Exception {
     servlet =
         new DirectionsServlet(
             directionsClientFactory, API_KEY, "A", "A", ImmutableList.of("B", "C", "D"));
@@ -118,7 +111,6 @@ public final class DirectionsServletTest {
         .thenReturn(A_TO_A_WITH_WAYPOINTS);
 
     servlet.doGet(request, response);
-    printWriter.flush();
 
     String actualString = stringWriter.toString();
     Type type = new TypeToken<List<String>>() {}.getType();
@@ -128,62 +120,18 @@ public final class DirectionsServletTest {
   }
 
   @Test
-  public void aToBNoWaypoints() throws DirectionsException, ServletException {
+  public void aToBNoWaypoints() throws Exception {
     servlet = new DirectionsServlet(directionsClientFactory, API_KEY, "A", "B", ImmutableList.of());
 
     Mockito.when(directionsClient.getDirections("A", "B", ImmutableList.of()))
         .thenReturn(A_TO_B_NO_WAYPOINTS);
 
     servlet.doGet(request, response);
-    printWriter.flush();
 
     String actualString = stringWriter.toString();
     Type type = new TypeToken<List<String>>() {}.getType();
     List<String> actual = gson.fromJson(actualString, type);
 
     Assert.assertEquals(A_TO_B_NO_WAYPOINTS, actual);
-  }
-
-  @Test
-  public void aToBNoWaypointsParseResult()
-      throws DirectionsException, ServletException, ApiException, InterruptedException,
-          IOException {
-
-    // Create fake DirectionsResult to parse
-    Distance distance = new Distance();
-    distance.humanReadable = "6 km";
-    Duration duration = new Duration();
-    duration.humanReadable = "6 hours";
-
-    DirectionsLeg leg = new DirectionsLeg();
-    leg.steps = new DirectionsStep[] {new DirectionsStep(), new DirectionsStep()};
-    leg.distance = distance;
-    leg.duration = duration;
-    leg.startLocation = new LatLng(45, -73);
-    leg.endLocation = new LatLng(43, -80);
-    leg.startAddress = "A";
-    leg.endAddress = "B";
-
-    DirectionsRoute route = new DirectionsRoute();
-    route.legs = new DirectionsLeg[] {leg};
-
-    GeocodedWaypoint[] geocodedWaypoints = {new GeocodedWaypoint(), new GeocodedWaypoint()};
-    DirectionsRoute[] routes = {route};
-    DirectionsResult directionsResult = new DirectionsResult();
-    directionsResult.geocodedWaypoints = geocodedWaypoints;
-    directionsResult.routes = routes;
-
-    List<String> actual = DirectionsClientImpl.parseDirectionsResult(directionsResult);
-
-    // Trailing zeroes in tests omitted by default to reduce clutter
-    List<String> expected =
-        ImmutableList.of(
-            A_TO_B_NO_WAYPOINTS
-                .get(0)
-                .replace(
-                    "(45,-73 -> 43,-80)",
-                    "(45.00000000,-73.00000000 -> 43.00000000,-80.00000000)"));
-
-    Assert.assertEquals(expected, actual);
   }
 }

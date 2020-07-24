@@ -45,7 +45,7 @@ public class DirectionsClientImpl implements DirectionsClient {
   }
 
   /**
-   * Converts DirectionsResult into a List<String>
+   * Converts DirectionsResult into a List<String> Scope of method is public for testing purposes
    *
    * @param result The DirectionsResult object to convert into a List<String>
    */
