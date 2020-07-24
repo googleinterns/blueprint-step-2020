@@ -90,7 +90,6 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     ZoneId zoneId = ZoneId.systemDefault();
     Instant startOfDay = LocalDate.now(zoneId).atStartOfDay(zoneId).toInstant();
     Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-
     // getHidden is defined for completed tasks
     return tasks.stream()
         .filter(task -> task.getHidden() != null)
