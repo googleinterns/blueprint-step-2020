@@ -25,10 +25,10 @@ import lombok.Builder;
 @Builder
 public final class TasksResponse {
   @Builder.Default List<String> taskListTitles = ImmutableList.of("");
-  @Builder.Default int tasksToComplete = 0;
-  @Builder.Default int tasksDueToday = 0;
-  @Builder.Default int tasksCompletedToday = 0;
-  @Builder.Default int tasksOverdue = 0;
+  @Builder.Default long tasksToCompleteCount = 0;
+  @Builder.Default long tasksDueTodayCount = 0;
+  @Builder.Default long tasksCompletedTodayCount = 0;
+  @Builder.Default long tasksOverdueCount = 0;
 
   @Override
   public boolean equals(final Object object) {
@@ -43,9 +43,9 @@ public final class TasksResponse {
     TasksResponse other = (TasksResponse) object;
 
     return ((this.taskListTitles).equals(other.taskListTitles)
-        && this.tasksToComplete == other.tasksToComplete
-        && this.tasksDueToday == other.tasksDueToday
-        && this.tasksCompletedToday == other.tasksCompletedToday
-        && this.tasksOverdue == other.tasksOverdue);
+        && this.tasksToCompleteCount == other.tasksToCompleteCount
+        && this.tasksDueTodayCount == other.tasksDueTodayCount
+        && this.tasksCompletedTodayCount == other.tasksCompletedTodayCount
+        && this.tasksOverdueCount == other.tasksOverdueCount);
   }
 }
