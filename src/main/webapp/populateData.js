@@ -166,7 +166,7 @@ function populateCalendar() {
  * Will 1) request a new taskList be made with a default name (the current time)
  * and 2) get the new list of taskLists and log them in the console.
  */
-function postAndGetTasklist() {
+function postAndGetTaskList() {
   const sampleTitle =
       getDateInLocalTimeZone().getTime().toString();
 
