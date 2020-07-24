@@ -50,7 +50,6 @@ public final class ClientIDServletTest extends ServletTestBase {
   public void responseContainsClientId() throws Exception {
     servlet.doGet(request, response);
     printWriter.flush();
-    System.out.println("PWD " + System.getProperty("user.dir"));
     Assert.assertTrue(stringWriter.toString().contains(AuthenticationVerifier.getClientId()));
   }
 }
