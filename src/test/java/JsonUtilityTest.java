@@ -112,11 +112,11 @@ public class JsonUtilityTest {
   @Test
   public void sendNullToResponse() throws Exception {
     // Sends null to response as json.
-    // Response should contain only a newline character as a result of println.
+    // Response should contain only null and a newline character as a result of println.
     JsonUtility.sendJson(response, null);
     printWriter.flush();
 
-    Assert.assertEquals("\n", stringWriter.toString());
+    Assert.assertEquals("null\n", stringWriter.toString());
   }
 
   @Test
