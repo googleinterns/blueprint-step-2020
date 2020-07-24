@@ -14,46 +14,18 @@
 
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.servlets.ClientIDServlet;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
 
 /** Test Client ID Servlet to ensure response contains a defined OAuth 2.0 client ID */
 @RunWith(JUnit4.class)
-public final class ClientIDServletTest {
+public final class ClientIDServletTest extends ServletTestBase {
   private static final ClientIDServlet servlet = new ClientIDServlet();
 
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
-
-  @Before
-  public void setUp() throws IOException {
-    request = Mockito.mock(HttpServletRequest.class);
-    response = Mockito.mock(HttpServletResponse.class);
-
-    stringWriter = new StringWriter();
-    printWriter = new PrintWriter(stringWriter);
-    Mockito.when(response.getWriter()).thenReturn(printWriter);
-  }
-
   @Test
-  public void responseContainsClientId() throws IOException {
+  public void responseContainsClientId() throws Exception {
     servlet.doGet(request, response);
     printWriter.flush();
     System.out.println("PWD " + System.getProperty("user.dir"));

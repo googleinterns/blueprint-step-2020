@@ -77,3 +77,16 @@ function deleteCookie(cookieName) {
   // Will prompt cookie to immediately expire
   document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
 }
+
+/**
+ * Converts a date object in UTC time to a date object in the client's local
+ * time zone. By default, returns a new date object in current time zone.
+ *
+ * @param {Date} dateObject date object in UTC time. Defaults to a date object
+ *     containing current time
+ * @return {Date} date object in client's local time zone.
+ */
+function getDateInLocalTimeZone(dateObject = new Date()) {
+  const newTime = dateObject.getTime() - dateObject.getTimezoneOffset()*60*1000;
+  return new Date(newTime);
+}
