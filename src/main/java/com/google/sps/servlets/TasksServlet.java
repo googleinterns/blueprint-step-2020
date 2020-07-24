@@ -93,11 +93,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
             taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
 
     // Convert tasks to JSON and print to response
-    Gson gson = new Gson();
-    String tasksJson = gson.toJson(tasksResponse);
-
-    response.setContentType("application/json");
-    response.getWriter().println(tasksJson);
+    JsonUtility.sendJson(response, tasksResponse);
   }
 
   /**
