@@ -14,11 +14,17 @@
 
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.servlets.ClientIDServlet;
+
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +56,7 @@ public final class ClientIDServletTest {
   public void responseContainsClientId() throws IOException {
     servlet.doGet(request, response);
     printWriter.flush();
+    System.out.println("PWD " + System.getProperty("user.dir"));
     Assert.assertTrue(stringWriter.toString().contains(AuthenticationVerifier.getClientId()));
   }
 }
