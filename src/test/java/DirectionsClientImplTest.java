@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import com.google.common.collect.ImmutableList;
-import com.google.maps.errors.ApiException;
 import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
@@ -22,11 +21,8 @@ import com.google.maps.model.Distance;
 import com.google.maps.model.Duration;
 import com.google.maps.model.GeocodedWaypoint;
 import com.google.maps.model.LatLng;
-import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.DirectionsClientImpl;
-import java.io.IOException;
 import java.util.List;
-import javax.servlet.ServletException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,9 +40,7 @@ public class DirectionsClientImplTest {
           "[DirectionsLeg: \"A\" -> \"B\" (45,-73 -> 43,-80), duration=6 hours, distance=6 km: 2 steps]");
 
   @Test
-  public void aToBNoWaypoints()
-      throws DirectionsException, ServletException, ApiException, InterruptedException,
-          IOException {
+  public void aToBNoWaypoints() throws Exception {
 
     // Create fake DirectionsResult to parse
     Distance distance = new Distance();
