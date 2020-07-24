@@ -12,14 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.appengine.repackaged.com.google.gson.Gson;
+import com.google.common.collect.ImmutableList;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClient.MessageFormat;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.model.GmailResponseHelper;
 import com.google.sps.servlets.GmailServlet;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
@@ -35,7 +43,7 @@ import org.mockito.Mockito;
  * will fail otherwise).
  */
 @RunWith(JUnit4.class)
-public final class GmailServletTest extends AuthenticatedServletTestBase implements GmailTestBase {
+public final class GmailServletTest extends AuthenticatedServletTestBase {
   private GmailClient gmailClient;
   private GmailServlet servlet;
   private GmailResponseHelper gmailResponseHelper;
@@ -46,6 +54,52 @@ public final class GmailServletTest extends AuthenticatedServletTestBase impleme
   private static final int EXPECTED_EMAILS_M_HOURS_COUNT = 2;
 
   private static final GmailClient.MessageFormat messageFormat = MessageFormat.METADATA;
+
+  String DEFAULT_SENDER = "";
+  int DEFAULT_N_DAYS = 7;
+  int DEFAULT_M_HOURS = 3;
+  int INVALID_M_HOURS = DEFAULT_N_DAYS * 24 + 1;
+  int NEGATIVE_N_DAYS = -1;
+  int NEGATIVE_M_HOURS = -1;
+  long N_DAYS_TIMESTAMP = Instant.now().toEpochMilli() - TimeUnit.DAYS.toMillis(DEFAULT_N_DAYS - 1);
+  long M_HOURS_TIMESTAMP =
+      Instant.now().toEpochMilli() - TimeUnit.HOURS.toMillis(DEFAULT_M_HOURS - 1);
+
+  String SENDER_ONE_NAME = "Sender_1";
+  String SENDER_TWO_NAME = "Sender_2";
+  String SENDER_TWO_EMAIL = "senderTwo@sender.com";
+
+  MessagePart SENDER_TWO_WITH_CONTACT_NAME_PAYLOAD =
+      generateMessagePayload(SENDER_TWO_EMAIL, SENDER_TWO_NAME);
+
+  List<Message> NO_MESSAGES = ImmutableList.of();
+  List<Message> SOME_MESSAGES_HALF_WITHIN_M_HOURS =
+      ImmutableList.of(
+          new Message()
+              .setId("messageFour")
+              .setInternalDate(N_DAYS_TIMESTAMP)
+              .setPayload(SENDER_TWO_WITH_CONTACT_NAME_PAYLOAD),
+          new Message()
+              .setId("messageFive")
+              .setInternalDate(M_HOURS_TIMESTAMP)
+              .setPayload(SENDER_TWO_WITH_CONTACT_NAME_PAYLOAD));
+
+  /**
+   * Auxiliary method to get a Message payload (with a "From" header) given a sender's email. From
+   * header in the form of: "From": "SenderName <email@email.com>"
+   *
+   * @param email the sender's email
+   * @param contactName the name of the sender
+   * @return a MessagePart instance that can be used as the payload of a Message
+   */
+  static MessagePart generateMessagePayload(String email, String contactName) {
+    return new MessagePart()
+        .setHeaders(
+            Collections.singletonList(
+                new MessagePartHeader()
+                    .setName("From")
+                    .setValue(String.format("%s <%s>", contactName, email))));
+  }
 
   @Override
   @Before
