@@ -22,6 +22,7 @@ import com.google.sps.model.TasksClientFactory;
 import com.google.sps.servlets.TaskListServlet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,10 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-/**
- * Test that the Tasks Servlet responds to the client with correctly parsed Task names. Assumes
- * AuthenticatedHttpServlet is functioning properly (those tests will fail otherwise).
- */
+/** Test that the Tasks Servlet responds to the client with correctly parsed Task names. */
 @RunWith(JUnit4.class)
 public final class TaskListServletTest extends AuthenticatedServletTestBase {
   private TasksClientFactory tasksClientFactory;
@@ -82,7 +80,7 @@ public final class TaskListServletTest extends AuthenticatedServletTestBase {
     Mockito.when(tasksClient.listTasks(SOME_TASK_LISTS.get(0))).thenReturn(TASKS_ONE_TWO);
     Mockito.when(tasksClient.listTasks(SOME_TASK_LISTS.get(1))).thenReturn(TASKS_THREE_FOUR);
 
-    HashMap<String, List<Task>> tasksWithTaskLists = new HashMap<>();
+    Map<String, List<Task>> tasksWithTaskLists = new HashMap<>();
     tasksWithTaskLists.put(SOME_TASK_LISTS.get(0).getId(), TASKS_ONE_TWO);
     tasksWithTaskLists.put(SOME_TASK_LISTS.get(1).getId(), TASKS_THREE_FOUR);
 
@@ -101,7 +99,7 @@ public final class TaskListServletTest extends AuthenticatedServletTestBase {
   public void getTasklistsEmpty() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASK_LISTS);
 
-    HashMap<String, List<Task>> emptyTasksWithTaskLists = new HashMap<>();
+    Map<String, List<Task>> emptyTasksWithTaskLists = new HashMap<>();
 
     JsonObject expectedResponseObject = new JsonObject();
     expectedResponseObject.add("taskLists", gson.toJsonTree(NO_TASK_LISTS));

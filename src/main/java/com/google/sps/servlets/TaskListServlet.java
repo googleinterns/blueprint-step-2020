@@ -28,6 +28,7 @@ import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -74,7 +75,7 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
 
     List<TaskList> taskLists = tasksClient.listTaskLists();
-    HashMap<String, List<Task>> taskListsWithTasks = mapTaskListsToTasks(taskLists, tasksClient);
+    Map<String, List<Task>> taskListsWithTasks = mapTaskListsToTasks(taskLists, tasksClient);
 
     // Cannot use JsonUtility since gson needs to know the object is a JsonObject, not just a
     // generic object.
@@ -93,13 +94,13 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
    *
    * @param taskLists list of TaskList objects
    * @param tasksClient TasksClient implementation with valid Google credential
-   * @return HashMap where keys are taskList ids and the values are all the tasks those taskLists
+   * @return Map where keys are taskList ids and the values are all the tasks those taskLists
    *     contain
    * @throws IOException if there is an issue with the TasksService
    */
-  private HashMap<String, List<Task>> mapTaskListsToTasks(
+  private Map<String, List<Task>> mapTaskListsToTasks(
       List<TaskList> taskLists, TasksClient tasksClient) throws IOException {
-    HashMap<String, List<Task>> taskListsWithTasks = new HashMap<>();
+    Map<String, List<Task>> taskListsWithTasks = new HashMap<>();
     for (TaskList taskList : taskLists) {
       taskListsWithTasks.put(taskList.getId(), tasksClient.listTasks(taskList));
     }
