@@ -17,7 +17,8 @@
 
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie, isCookiePresent,
-deleteCookie, populateGmail, populateTasks, populateCalendar */
+deleteCookie, populateGmail, populateTasks,
+populateCalendar, populateGo */
 // TODO: Handle CommonJS (Issue #31)
 
 /**
@@ -59,6 +60,9 @@ function handleAuthenticationState() {
     populateGmail();
     populateTasks();
     populateCalendar();
+
+    // Populate magic feature panels at the bottom of the dashboard
+    populateGo();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
