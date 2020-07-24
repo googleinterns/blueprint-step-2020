@@ -12,17 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.appengine.repackaged.com.google.gson.Gson;
-import com.google.sps.model.AuthenticationVerifier;
+import com.google.common.collect.ImmutableList;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClient.MessageFormat;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.model.GmailResponseHelper;
 import com.google.sps.servlets.GmailServlet;
-import java.io.StringWriter;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import javax.servlet.http.Cookie;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
@@ -30,7 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
@@ -39,54 +43,73 @@ import org.mockito.Mockito;
  * will fail otherwise).
  */
 @RunWith(JUnit4.class)
-public final class GmailServletTest extends GmailTestBase {
+public final class GmailServletTest extends AuthenticatedServletTestBase {
   private GmailClient gmailClient;
   private GmailServlet servlet;
-  private HttpServletRequest request;
-  private HttpServletResponse response;
   private GmailResponseHelper gmailResponseHelper;
-  private StringWriter stringWriter;
 
   private static final Gson gson = new Gson();
-
-  private static final boolean AUTHENTICATION_VERIFIED = true;
-  private static final String ID_TOKEN_KEY = "idToken";
-  private static final String ID_TOKEN_VALUE = "sampleId";
-  private static final String ACCESS_TOKEN_KEY = "accessToken";
-  private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
-
-  private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
-  private static final Cookie sampleAccessTokenCookie =
-      new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
-  private static final Cookie[] validCookies =
-      new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
   private static final int EXPECTED_IMPORTANT_EMAIL_COUNT = 2;
   private static final int EXPECTED_EMAILS_M_HOURS_COUNT = 2;
 
   private static final GmailClient.MessageFormat messageFormat = MessageFormat.METADATA;
 
+  String DEFAULT_SENDER = "";
+  int DEFAULT_N_DAYS = 7;
+  int DEFAULT_M_HOURS = 3;
+  int INVALID_M_HOURS = DEFAULT_N_DAYS * 24 + 1;
+  int NEGATIVE_N_DAYS = -1;
+  int NEGATIVE_M_HOURS = -1;
+  long N_DAYS_TIMESTAMP = Instant.now().toEpochMilli() - TimeUnit.DAYS.toMillis(DEFAULT_N_DAYS - 1);
+  long M_HOURS_TIMESTAMP =
+      Instant.now().toEpochMilli() - TimeUnit.HOURS.toMillis(DEFAULT_M_HOURS - 1);
+
+  String SENDER_ONE_NAME = "Sender_1";
+  String SENDER_TWO_NAME = "Sender_2";
+  String SENDER_TWO_EMAIL = "senderTwo@sender.com";
+
+  MessagePart SENDER_TWO_WITH_CONTACT_NAME_PAYLOAD =
+      generateMessagePayload(SENDER_TWO_EMAIL, SENDER_TWO_NAME);
+
+  List<Message> NO_MESSAGES = ImmutableList.of();
+  List<Message> SOME_MESSAGES_HALF_WITHIN_M_HOURS =
+      ImmutableList.of(
+          new Message()
+              .setId("messageFour")
+              .setInternalDate(N_DAYS_TIMESTAMP)
+              .setPayload(SENDER_TWO_WITH_CONTACT_NAME_PAYLOAD),
+          new Message()
+              .setId("messageFive")
+              .setInternalDate(M_HOURS_TIMESTAMP)
+              .setPayload(SENDER_TWO_WITH_CONTACT_NAME_PAYLOAD));
+
+  /**
+   * Auxiliary method to get a Message payload (with a "From" header) given a sender's email. From
+   * header in the form of: "From": "SenderName <email@email.com>"
+   *
+   * @param email the sender's email
+   * @param contactName the name of the sender
+   * @return a MessagePart instance that can be used as the payload of a Message
+   */
+  static MessagePart generateMessagePayload(String email, String contactName) {
+    return new MessagePart()
+        .setHeaders(
+            Collections.singletonList(
+                new MessagePartHeader()
+                    .setName("From")
+                    .setValue(String.format("%s <%s>", contactName, email))));
+  }
+
+  @Override
   @Before
   public void setUp() throws Exception {
-    AuthenticationVerifier authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
+    super.setUp();
     GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
     gmailClient = Mockito.mock(GmailClient.class);
     gmailResponseHelper = Mockito.mock(GmailResponseHelper.class);
     servlet = new GmailServlet(authenticationVerifier, gmailClientFactory, gmailResponseHelper);
     Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
-
-    // Authentication will always pass
-    Mockito.when(authenticationVerifier.verifyUserToken(ID_TOKEN_VALUE))
-        .thenReturn(AUTHENTICATION_VERIFIED);
-
-    stringWriter = new StringWriter();
-
-    request = Mockito.mock(HttpServletRequest.class);
-    response =
-        Mockito.mock(
-            HttpServletResponse.class,
-            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
-    Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
   /**

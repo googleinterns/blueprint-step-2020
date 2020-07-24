@@ -24,7 +24,6 @@ import org.junit.runners.JUnit4;
 /** Test GmailClient static functions */
 @RunWith(JUnit4.class)
 public final class GmailClientTest {
-
   // Units of time for email query string
   private static final String DAYS_UNIT = "d";
   private static final String HOURS_UNIT = "h";
