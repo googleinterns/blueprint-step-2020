@@ -143,11 +143,11 @@ function populateCalendar() {
           dayContainer.innerText = days[(hoursJson.startDay + day) % 7];
           const workContainer = document.querySelector('#work-day-'+day);
           workContainer.innerText =
-              convertTime(hoursJson.workHours[day]) + ' (working)';
+              convertTime(hoursJson.workHoursPerDay[day]) + ' (working)';
           const personalContainer =
               document.querySelector('#personal-day-'+day);
           personalContainer.innerText =
-              convertTime(hoursJson.personalHours[day]) + ' (personal)';
+              convertTime(hoursJson.personalHoursPerDay[day]) + ' (personal)';
         }
       })
       .catch((e) => {

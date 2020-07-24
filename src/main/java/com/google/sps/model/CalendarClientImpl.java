@@ -80,8 +80,7 @@ public class CalendarClientImpl implements CalendarClient {
 
   @Override
   public DateTime getCurrentTime() throws IOException {
-    DateTime now = new DateTime(System.currentTimeMillis());
-    return now;
+    return new DateTime(System.currentTimeMillis());
   }
 
   /** Factory to create a CalendarClientImpl instance with given credential */

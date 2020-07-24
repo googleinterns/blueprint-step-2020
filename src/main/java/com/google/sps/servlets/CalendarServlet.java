@@ -18,16 +18,17 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
-import com.google.gson.Gson;
-import com.google.sps.data.CalendarClientData;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.CalendarClient;
 import com.google.sps.model.CalendarClientFactory;
 import com.google.sps.model.CalendarClientImpl;
+import com.google.sps.utility.FreeTimeUtility;
+import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,7 +70,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
-    long fiveDays = 5 * 24 * 60 * 60 * 1000;
+    long fiveDays = TimeUnit.DAYS.toMillis(5);
     DateTime timeMin = calendarClient.getCurrentTime();
     DateTime timeMax = new DateTime(timeMin.getValue() + fiveDays);
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
@@ -77,19 +78,15 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     // Initialize the CalendarClientData and update it based on the events period and duration
     long timeMinValue = timeMin.getValue();
     long timeMaxValue = timeMax.getValue();
-    CalendarClientData calendarClientData = new CalendarClientData(timeMinValue);
+    FreeTimeUtility freeTimeUtility = new FreeTimeUtility(timeMinValue);
     for (Event event : calendarEvents) {
       long startValue = Math.max(event.getStart().getDateTime().getValue(), timeMinValue);
       long endValue = Math.min(event.getEnd().getDateTime().getValue(), timeMaxValue);
-      calendarClientData.addEvent(startValue, endValue);
+      freeTimeUtility.addEvent(startValue, endValue);
     }
 
     // Convert event list to JSON and print to response
-    Gson gson = new Gson();
-    String hoursJson = gson.toJson(calendarClientData);
-
-    response.setContentType("application/json");
-    response.getWriter().println(hoursJson);
+    JsonUtility.sendJson(response, freeTimeUtility.getCalendarDataResponse());
   }
 
   /**
