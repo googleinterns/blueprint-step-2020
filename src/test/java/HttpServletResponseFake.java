@@ -21,22 +21,10 @@ public class HttpServletResponseFake {
   private int responseCode = 200;
 
   // Used for storing and returning the passed JSON response
-  private final StringWriter stringWriter;
   private final PrintWriter printWriter;
 
   public HttpServletResponseFake(StringWriter stringWriter) {
-    this.stringWriter = stringWriter;
-    this.printWriter = new PrintWriter(stringWriter);
-  }
-
-  /**
-   * Get the stringwriter used for writing the response
-   *
-   * @return Stringwriter object
-   */
-  public StringWriter getStringWriter() {
-    printWriter.flush();
-    return stringWriter;
+    this.printWriter = new PrintWriter(stringWriter, true);
   }
 
   public void sendError(int i, String s) {
