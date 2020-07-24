@@ -153,8 +153,13 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     int tasksCompletedToday = getTasksCompletedToday(tasks);
     int tasksOverdue = getTasksOverdue(tasks);
     TasksResponse tasksResponse =
-        new TasksResponse(
-            taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
+        TasksResponse.builder()
+            .taskListTitles(taskListTitles)
+            .tasksToComplete(tasksToComplete)
+            .tasksDueToday(tasksDueToday)
+            .tasksCompletedToday(tasksCompletedToday)
+            .tasksOverdue(tasksOverdue)
+            .build();
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();

@@ -121,23 +121,77 @@ public final class TasksServletTest {
           TASK_COMPLETED_TODAY);
 
   private static final TasksResponse NO_TASKLISTS_RESPONSE =
-      new TasksResponse(NO_TASKLISTS_TITLES, 0, 0, 0, 0);
+      TasksResponse.builder()
+          .taskListTitles(NO_TASKLISTS_TITLES)
+          .tasksToComplete(0)
+          .tasksDueToday(0)
+          .tasksCompletedToday(0)
+          .tasksOverdue(0)
+          .build();
   private static final TasksResponse NO_TASKS_RESPONSE =
-      new TasksResponse(ONE_TASKLIST_TITLES, 0, 0, 0, 0);
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASKLIST_TITLES)
+          .tasksToComplete(0)
+          .tasksDueToday(0)
+          .tasksCompletedToday(0)
+          .tasksOverdue(0)
+          .build();
   private static final TasksResponse TASKS_DUE_YESTERDAY_RESPONSE =
-      new TasksResponse(ONE_TASKLIST_TITLES, 1, 0, 0, 1);
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASKLIST_TITLES)
+          .tasksToComplete(1)
+          .tasksDueToday(0)
+          .tasksCompletedToday(0)
+          .tasksOverdue(1)
+          .build();
   private static final TasksResponse TASKS_DUE_TODAY_RESPONSE =
-      new TasksResponse(ONE_TASKLIST_TITLES, 1, 1, 0, 0);
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASKLIST_TITLES)
+          .tasksToComplete(1)
+          .tasksDueToday(1)
+          .tasksCompletedToday(0)
+          .tasksOverdue(0)
+          .build();
   private static final TasksResponse TASKS_DUE_TOMORROW_RESPONSE =
-      new TasksResponse(ONE_TASKLIST_TITLES, 1, 0, 0, 0);
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASKLIST_TITLES)
+          .tasksToComplete(1)
+          .tasksDueToday(0)
+          .tasksCompletedToday(0)
+          .tasksOverdue(0)
+          .build();
   private static final TasksResponse TASKS_COMPLETED_YESTERDAY_RESPONSE =
-      new TasksResponse(ONE_TASKLIST_TITLES, 0, 0, 0, 0);
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASKLIST_TITLES)
+          .tasksToComplete(0)
+          .tasksDueToday(0)
+          .tasksCompletedToday(0)
+          .tasksOverdue(0)
+          .build();
   private static final TasksResponse TASKS_COMPLETED_TODAY_RESPONSE =
-      new TasksResponse(ONE_TASKLIST_TITLES, 0, 0, 1, 0);
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASKLIST_TITLES)
+          .tasksToComplete(0)
+          .tasksDueToday(0)
+          .tasksCompletedToday(1)
+          .tasksOverdue(0)
+          .build();
   private static final TasksResponse ALL_TASKS_RESPONSE =
-      new TasksResponse(ONE_TASKLIST_TITLES, 3, 1, 1, 1);
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASKLIST_TITLES)
+          .tasksToComplete(3)
+          .tasksDueToday(1)
+          .tasksCompletedToday(1)
+          .tasksOverdue(1)
+          .build();
   private static final TasksResponse MULTIPLE_TASKLISTS_RESPONSE =
-      new TasksResponse(TWO_TASKLISTS_TITLES, 6, 2, 2, 2);
+      TasksResponse.builder()
+          .taskListTitles(TWO_TASKLISTS_TITLES)
+          .tasksToComplete(6)
+          .tasksDueToday(2)
+          .tasksCompletedToday(2)
+          .tasksOverdue(2)
+          .build();
 
   @Before
   public void setUp() throws Exception {

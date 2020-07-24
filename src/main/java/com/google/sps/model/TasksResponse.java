@@ -14,61 +14,21 @@
 
 package com.google.sps.model;
 
+import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
 import java.util.List;
+import lombok.Builder;
 
 /**
  * Contains the summary tasks information that should be passed to the client, as well as the
  * methods to generate these statistics.
  */
+@Builder
 public final class TasksResponse {
-  private final List<String> taskListNames;
-  private final int tasksToComplete;
-  private final int tasksDueToday;
-  private final int tasksCompletedToday;
-  private final int tasksOverdue;
-
-  /**
-   * Create a TasksResponse instance
-   *
-   * @param taskListNames names of all task lists to display in a multiselect dropdown list on the
-   *     client.
-   * @param tasksToComplete number of tasks the user has yet to complete.
-   * @param tasksDueToday number of tasks the user has yet to complete for today.
-   * @param tasksCompletedToday number of tasks the user has marked as complete for today.
-   * @param tasksOverdue number of tasks that have due dates before today.
-   */
-  public TasksResponse(
-      List<String> taskListNames,
-      int tasksToComplete,
-      int tasksDueToday,
-      int tasksCompletedToday,
-      int tasksOverdue) {
-    this.taskListNames = taskListNames;
-    this.tasksToComplete = tasksToComplete;
-    this.tasksDueToday = tasksDueToday;
-    this.tasksCompletedToday = tasksCompletedToday;
-    this.tasksOverdue = tasksOverdue;
-  }
-
-  public List<String> getTaskListNames() {
-    return taskListNames;
-  }
-
-  public int getTasksToComplete() {
-    return tasksToComplete;
-  }
-
-  public int getTasksDueToday() {
-    return tasksDueToday;
-  }
-
-  public int getTasksCompletedToday() {
-    return tasksCompletedToday;
-  }
-
-  public int getTasksOverdue() {
-    return tasksOverdue;
-  }
+  @Builder.Default private final List<String> taskListTitles = ImmutableList.of("");
+  @Builder.Default private final int tasksToComplete = 0;
+  @Builder.Default private final int tasksDueToday = 0;
+  @Builder.Default private final int tasksCompletedToday = 0;
+  @Builder.Default private final int tasksOverdue = 0;
 
   @Override
   public boolean equals(final Object object) {
@@ -82,10 +42,10 @@ public final class TasksResponse {
 
     TasksResponse other = (TasksResponse) object;
 
-    return ((this.taskListNames).equals(other.getTaskListNames())
-        && this.tasksToComplete == other.getTasksToComplete()
-        && this.tasksDueToday == other.getTasksDueToday()
-        && this.tasksCompletedToday == other.getTasksCompletedToday()
-        && this.tasksOverdue == other.getTasksOverdue());
+    return ((this.taskListTitles).equals(other.taskListTitles)
+        && this.tasksToComplete == other.tasksToComplete
+        && this.tasksDueToday == other.tasksDueToday
+        && this.tasksCompletedToday == other.tasksCompletedToday
+        && this.tasksOverdue == other.tasksOverdue);
   }
 }
