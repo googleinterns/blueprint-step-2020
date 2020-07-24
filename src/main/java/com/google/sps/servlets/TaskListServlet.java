@@ -76,6 +76,8 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     HashMap<String, List<Task>> taskListsWithTasks = mapTaskListsToTasks(taskLists, tasksClient);
 
+    // Cannot use JsonUtility since gson needs to know the object is a JsonObject, not just a
+    // generic object.
     Gson gson = new Gson();
     JsonObject jsonObject = new JsonObject();
     jsonObject.add("tasklists", gson.toJsonTree(taskLists));
