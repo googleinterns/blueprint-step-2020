@@ -149,7 +149,7 @@ public final class GmailClientTest {
   public void getQueryStringSomeSubjectWords() {
     String subjectLineQuery = GmailClient.wordsInSubjectLineQuery(SOME_SUBJECT_LINE_WORDS);
 
-    // Query should be in the form of "subject:(wordOne wordTwo wordThree etc)"
+    // Query should be in the form of "subject:(wordOne OR wordTwo OR wordThree etc)"
     // The order of the words in the brackets does not matter.
     String actualSubjectLineQueryPrefix =
         subjectLineQuery.substring(0, subjectLineQuery.indexOf(':') + 1);
@@ -157,7 +157,7 @@ public final class GmailClientTest {
         Arrays.asList(
             subjectLineQuery
                 .substring(subjectLineQuery.indexOf('(') + 1, subjectLineQuery.indexOf(')'))
-                .split(" "));
+                .split(" OR "));
 
     Assert.assertEquals(SUBJECT_LINE_QUERY_PREFIX, actualSubjectLineQueryPrefix);
     Assert.assertEquals(SOME_SUBJECT_LINE_WORDS, actualSubjectLineWords);
@@ -166,6 +166,7 @@ public final class GmailClientTest {
   @Test
   public void combineQueriesNonePresent() {
     String combinedQuery = GmailClient.combineSearchQueries();
+
     Assert.assertEquals(EMPTY_QUERY, combinedQuery);
   }
 

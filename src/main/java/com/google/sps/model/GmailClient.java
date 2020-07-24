@@ -150,10 +150,11 @@ public interface GmailClient {
   /**
    * Creates Gmail query to find emails with the passed word in the subject line
    *
-   * @param words words to check subject line for
+   * @param words words to check subject line for. Multi-word phrases should be surrounded in double
+   *     quotes (e.g. "Three Word Phrase" vs. OneWordPhrase)
    * @return query string to use in gmail to find emails that contain the words
    */
   static String wordsInSubjectLineQuery(List<String> words) {
-    return !words.isEmpty() ? String.format("subject:(%s)", String.join(" ", words)) : "";
+    return !words.isEmpty() ? String.format("subject:(%s)", String.join(" OR ", words)) : "";
   }
 }
