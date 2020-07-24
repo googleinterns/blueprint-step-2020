@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Servlet to handle posting a new tasklist */
-@WebServlet("/tasklists")
+@WebServlet("/taskLists")
 public class TaskListServlet extends AuthenticatedHttpServlet {
   private final TasksClientFactory tasksClientFactory;
 
@@ -59,8 +59,8 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
    * Request to get all taskLists with their associated tasks
    *
    * @param request HTTP request from client.
-   * @param response Http response to be sent to client. Contains a list of tasklists as well as a
-   *     list of tasks mapped to their parent tasklist id.
+   * @param response Http response to be sent to client. Contains a list of taskLists as well as a
+   *     list of tasks mapped to their parent taskList id.
    * @param googleCredential valid, verified google credential object
    * @throws IOException if there's an issue with the tasks service
    */
@@ -80,7 +80,7 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
     // generic object.
     Gson gson = new Gson();
     JsonObject jsonObject = new JsonObject();
-    jsonObject.add("tasklists", gson.toJsonTree(taskLists));
+    jsonObject.add("taskLists", gson.toJsonTree(taskLists));
     jsonObject.add("tasks", gson.toJsonTree(taskListsWithTasks));
     String json = gson.toJson(jsonObject);
 
@@ -93,7 +93,7 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
    *
    * @param taskLists list of TaskList objects
    * @param tasksClient TasksClient implementation with valid Google credential
-   * @return HashMap where keys are taskList ids and the values are all the tasks those tasklists
+   * @return HashMap where keys are taskList ids and the values are all the tasks those taskLists
    *     contain
    * @throws IOException if there is an issue with the TasksService
    */
@@ -108,7 +108,7 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Request to create a new tasklist in the user's Google Tasks account
+   * Request to create a new taskList in the user's Google Tasks account
    *
    * @param request HTTP request from client. Must contain a taskListName
    * @param response Http response to be sent to client. Will contain new TaskList object

@@ -18,9 +18,9 @@
 /* global signOut, AuthenticationError, getDateInLocalTimeZone */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
-// Stores the last retrieved copy of the user's tasklists and tasks
-// (mapped by tasklistId)
-let tasklists = [];
+// Stores the last retrieved copy of the user's taskLists and tasks
+// (mapped by taskListId)
+let taskLists = [];
 let tasks = {};
 
 /**
@@ -162,9 +162,9 @@ function populateCalendar() {
 }
 
 /**
- * Function to test getting tasklists and adding a new tasklist
- * Will 1) request a new tasklist be made with a default name (the current time)
- * and 2) get the new list of tasklists and log them in the console.
+ * Function to test getting taskLists and adding a new taskList
+ * Will 1) request a new taskList be made with a default name (the current time)
+ * and 2) get the new list of taskLists and log them in the console.
  */
 function postAndGetTasklist() {
   const sampleTitle =
@@ -174,20 +174,20 @@ function postAndGetTasklist() {
       .then(() => {
         getTaskListsAndTasks()
             .then(() => {
-              console.log(tasklists);
+              console.log(taskLists);
               console.log(tasks);
             });
       });
 }
 
 /**
- * Update the tasks and tasklists lists.
+ * Update the tasks and taskLists lists.
  *
  * @return {Promise<any>} A promise that is resolved once the tasks and
- *     and tasklists arrays are updated, and rejected if there's an error
+ *     and taskLists arrays are updated, and rejected if there's an error
  */
 function getTaskListsAndTasks() {
-  return fetch('/tasklists')
+  return fetch('/taskLists')
       .then((response) => {
         switch (response.status) {
           case 200:
@@ -200,21 +200,21 @@ function getTaskListsAndTasks() {
       })
       .then((response) => {
         tasks = response.tasks;
-        tasklists = response.tasklists;
+        taskLists = response.taskLists;
       });
 }
 
 /**
- * Post a new tasklist to the server
+ * Post a new taskList to the server
  *
- * @param {string} title title of new tasklist.
- * @return {Promise<any>} A promise that is resolved once the tasklist is
+ * @param {string} title title of new taskList.
+ * @return {Promise<any>} A promise that is resolved once the taskList is
  *     posted
  */
 function postNewTaskList(title) {
   const newTaskListRequest =
       new Request(
-          '/tasklists?taskListTitle=' + title,
+          '/taskLists?taskListTitle=' + title,
           {method: 'POST'}
       );
 
