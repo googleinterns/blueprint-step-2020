@@ -30,10 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-/**
- * Test that the Tasks Servlet responds to the client with correctly parsed Task names. Assumes
- * AuthenticatedHttpServlet is functioning properly (those tests will fail otherwise).
- */
+/** Test that the Tasks Servlet responds to the client with correctly parsed Task names. */
 @RunWith(JUnit4.class)
 public final class TaskListServletTest extends AuthenticatedServletTestBase {
   private TasksClientFactory tasksClientFactory;
