@@ -82,7 +82,7 @@ public final class TasksResponse {
 
     TasksResponse other = (TasksResponse) object;
 
-    return (this.taskListNames == other.getTaskListNames()
+    return ((this.taskListNames).equals(other.getTaskListNames())
         && this.tasksToComplete == other.getTasksToComplete()
         && this.tasksDueToday == other.getTasksDueToday()
         && this.tasksCompletedToday == other.getTasksCompletedToday()
