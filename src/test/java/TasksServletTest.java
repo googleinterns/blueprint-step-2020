@@ -57,7 +57,6 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
       new TaskList().setTitle(TASK_LIST_TITLE_ONE).setId("taskListOne");
 
   private static final String TASK_LIST_ID_ONE = "taskListOne";
-  private static final String TASK_LIST_ID_TWO = "taskListTwo";
 
   private static final List<TaskList> NO_TASK_LISTS = ImmutableList.of();
   private static final List<String> NO_TASK_LISTS_TITLES = ImmutableList.of();

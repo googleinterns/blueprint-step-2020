@@ -165,8 +165,8 @@ function populateCalendar() {
  * Function to test getting taskLists, adding a new taskList, and then getting
  * a new task.
  *
- * Will 1) request a new taskList be made with a default name then,
- * 2) add a task to the new taskList and
+ * Will 1) request a new taskList be made with a default name (current time)
+ * then, 2) add a task to the new taskList and
  * 3) get the new list of taskLists and log them in the console.
  */
 function postAndGetTaskList() {
