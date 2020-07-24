@@ -50,6 +50,6 @@ public final class ClientIDServletTest {
   public void responseContainsClientId() throws IOException {
     servlet.doGet(request, response);
     printWriter.flush();
-    Assert.assertTrue(stringWriter.toString().contains(AuthenticationVerifier.CLIENT_ID));
+    Assert.assertTrue(stringWriter.toString().contains(AuthenticationVerifier.getClientId()));
   }
 }
