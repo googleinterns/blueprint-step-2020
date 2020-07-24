@@ -24,11 +24,11 @@ import lombok.Builder;
  */
 @Builder
 public final class TasksResponse {
-  @Builder.Default private final List<String> taskListTitles = ImmutableList.of("");
-  @Builder.Default private final int tasksToComplete = 0;
-  @Builder.Default private final int tasksDueToday = 0;
-  @Builder.Default private final int tasksCompletedToday = 0;
-  @Builder.Default private final int tasksOverdue = 0;
+  @Builder.Default List<String> taskListTitles = ImmutableList.of("");
+  @Builder.Default int tasksToComplete = 0;
+  @Builder.Default int tasksDueToday = 0;
+  @Builder.Default int tasksCompletedToday = 0;
+  @Builder.Default int tasksOverdue = 0;
 
   @Override
   public boolean equals(final Object object) {
