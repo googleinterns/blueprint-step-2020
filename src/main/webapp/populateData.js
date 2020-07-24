@@ -233,3 +233,36 @@ function postNewTaskList(title) {
         return taskListObject;
       });
 }
+
+/**
+ * Populate Go container with hardcoded values
+ */
+function populateGo() {
+  const goContainer = document.querySelector('#go');
+
+  fetch('/directions')
+      .then((response) => {
+        // If response is a 403, user is not authenticated
+        if (response.status === 403) {
+          throw new AuthenticationError();
+        }
+        return response.json();
+      })
+      .then((legs) => {
+        // Convert JSON to string containing all legs
+        // and display it on client
+        // Handle case where user has no events to avoid unwanted behaviour
+        if (legs.length !== 0) {
+          goContainer.innerText = legs;
+        } else {
+          goContainer.innerText = 'No direction legs returned';
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
+      });
+}
+
