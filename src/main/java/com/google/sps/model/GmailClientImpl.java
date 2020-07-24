@@ -69,8 +69,38 @@ public class GmailClientImpl implements GmailClient {
       throws IOException {
     String ageQuery = GmailClient.emailAgeQuery(nDays, "d");
     String unreadQuery = GmailClient.unreadEmailQuery(true);
-
     String searchQuery = GmailClient.combineSearchQueries(ageQuery, unreadQuery);
+
+    return listUserMessagesWithFormat(messageFormat, searchQuery);
+  }
+
+  @Override
+  public List<Message> getActionableEmails(
+      GmailClient.MessageFormat messageFormat,
+      List<String> subjectLineWords,
+      boolean unreadOnly,
+      int nDays)
+      throws IOException {
+    String ageQuery = GmailClient.emailAgeQuery(nDays, "d");
+    String unreadQuery = GmailClient.unreadEmailQuery(unreadOnly);
+    String subjectLineQuery = GmailClient.wordsInSubjectLineQuery(subjectLineWords);
+    String searchQuery = GmailClient.combineSearchQueries(ageQuery, unreadQuery, subjectLineQuery);
+
+    return listUserMessagesWithFormat(messageFormat, searchQuery);
+  }
+
+  /**
+   * Lists out messages, but maps each user message to a specific message format
+   *
+   * @param messageFormat GmailClient.MessageFormat setting that specifies how much information from
+   *     each email to retrieve
+   * @param searchQuery search query to filter which results are returned (see:
+   *     https://support.google.com/mail/answer/7190?hl=en)
+   * @return list of messages with requested information
+   * @throws IOException if there is an issue with the GmailService
+   */
+  private List<Message> listUserMessagesWithFormat(
+      GmailClient.MessageFormat messageFormat, String searchQuery) throws IOException {
     return listUserMessages(searchQuery).stream()
         .map(
             (message) -> {

@@ -94,6 +94,24 @@ public interface GmailClient {
       throws IOException;
 
   /**
+   * Get list of actionable emails that meet specified criteria
+   *
+   * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
+   *     returned
+   * @param subjectLineWords list of words that gmail should look for in the subject line
+   * @param unreadOnly true if emails must be unread, false otherwise
+   * @param nDays how many days of emails Gmail should look through.
+   * @return List of messages that match above criteria
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  List<Message> getActionableEmails(
+      GmailClient.MessageFormat messageFormat,
+      List<String> subjectLineWords,
+      boolean unreadOnly,
+      int nDays)
+      throws IOException;
+
+  /**
    * Creates Gmail query for age of emails. Use of months and years not supported as they are out of
    * scope for the application's current purpose (there is no need for it yet)
    *
