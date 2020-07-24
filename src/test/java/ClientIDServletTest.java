@@ -28,7 +28,7 @@ import org.mockito.Mockito;
 
 /** Test Client ID Servlet to ensure response contains a defined OAuth 2.0 client ID */
 @RunWith(JUnit4.class)
-public final class ClientIDServletTest {
+public final class ClientIDServletTest extends ServletTestBase {
   private static final ClientIDServlet servlet = new ClientIDServlet();
 
   private HttpServletRequest request;
@@ -47,7 +47,7 @@ public final class ClientIDServletTest {
   }
 
   @Test
-  public void responseContainsClientId() throws IOException {
+  public void responseContainsClientId() throws Exception {
     servlet.doGet(request, response);
     printWriter.flush();
     System.out.println("PWD " + System.getProperty("user.dir"));
