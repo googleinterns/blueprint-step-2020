@@ -17,7 +17,8 @@
 
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie, isCookiePresent,
-deleteCookie, populateGmail, populateTasks, populateCalendar */
+deleteCookie, populateGmail, populateTasks, populateCalendar,
+postAndGetTaskList, populateGo */
 // TODO: Handle CommonJS (Issue #31)
 
 /**
@@ -59,6 +60,10 @@ function handleAuthenticationState() {
     populateGmail();
     populateTasks();
     populateCalendar();
+    postAndGetTaskList();
+
+    // Populate magic feature panels at the bottom of the dashboard
+    populateGo();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
@@ -118,7 +123,7 @@ function renderButton() {
   gapi.signin2.render('google-sign-in-btn', {
     'scope': 'https://www.googleapis.com/auth/gmail.readonly ' +
         'https://www.googleapis.com/auth/calendar ' +
-        'https://www.googleapis.com/auth/tasks.readonly',
+        'https://www.googleapis.com/auth/tasks',
     'width': 240,
     'height': 40,
     'longtitle': true,

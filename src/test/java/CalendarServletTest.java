@@ -43,26 +43,12 @@ import org.mockito.Mockito;
 
 /** Test Calendar Servlet responds to client with correctly parsed Events. */
 @RunWith(JUnit4.class)
-public final class CalendarServletTest {
-  private AuthenticationVerifier authenticationVerifier;
+public final class CalendarServletTest extends AuthenticatedServletTestBase {
   private CalendarClientFactory calendarClientFactory;
   private CalendarClient calendarClient;
   private CalendarServlet servlet;
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
-  private static final Gson gson = new Gson();
 
-  private static final String ID_TOKEN_KEY = "idToken";
-  private static final String ID_TOKEN_VALUE = "sampleId";
-  private static final String ACCESS_TOKEN_KEY = "accessToken";
-  private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
-  private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
-  private static final Cookie sampleAccessTokenCookie =
-      new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
-  private static final Cookie[] validCookies =
-      new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
+  private static final Gson gson = new Gson();
 
   private static final String EVENT_SUMMARY_ONE = "test event one";
   private static final String EVENT_SUMMARY_TWO = "test event two";
@@ -98,9 +84,10 @@ public final class CalendarServletTest {
           new Event().setSummary(EVENT_SUMMARY_TWO).setStart(START_TWO).setEnd(END_TWO));
   private static final long hour = TimeUnit.HOURS.toMillis(1);
 
+  @Override
   @Before
-  public void setUp() throws IOException, GeneralSecurityException {
-    authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
+  public void setUp() throws Exception {
+    super.setUp();
     calendarClientFactory = Mockito.mock(CalendarClientFactory.class);
     calendarClient = Mockito.mock(CalendarClient.class);
     servlet = new CalendarServlet(authenticationVerifier, calendarClientFactory);
@@ -121,7 +108,7 @@ public final class CalendarServletTest {
   }
 
   @Test
-  public void noCalendarEvent() throws IOException, ServletException {
+  public void noCalendarEvent() throws Exception {
     // Test case where there are no events in the user's calendar
     // The result should be that all hours are free
     Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
@@ -138,7 +125,7 @@ public final class CalendarServletTest {
   }
 
   @Test
-  public void twoCalendars() throws IOException, ServletException {
+  public void twoCalendars() throws Exception {
     // Test case where there are two calendars with a defined event in each
     // Event with 1 working hour and event with 2 personal hours.
     Mockito.when(calendarClient.getCalendarList()).thenReturn(TWO_CALENDARS);
