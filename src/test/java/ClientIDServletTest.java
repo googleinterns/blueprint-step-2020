@@ -31,25 +31,10 @@ import org.mockito.Mockito;
 public final class ClientIDServletTest extends ServletTestBase {
   private static final ClientIDServlet servlet = new ClientIDServlet();
 
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
-
-  @Before
-  public void setUp() throws IOException {
-    request = Mockito.mock(HttpServletRequest.class);
-    response = Mockito.mock(HttpServletResponse.class);
-
-    stringWriter = new StringWriter();
-    printWriter = new PrintWriter(stringWriter);
-    Mockito.when(response.getWriter()).thenReturn(printWriter);
-  }
-
   @Test
   public void responseContainsClientId() throws Exception {
     servlet.doGet(request, response);
-    printWriter.flush();
+    System.out.println("PWD " + System.getProperty("user.dir"));
     Assert.assertTrue(stringWriter.toString().contains(AuthenticationVerifier.getClientId()));
   }
 }
