@@ -16,7 +16,6 @@ package com.google.sps.model;
 
 import com.google.api.services.gmail.model.Message;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 /** Contract for handling/making GET requests to the Gmail API */
@@ -71,6 +70,17 @@ public interface GmailClient {
   }
 
   /**
+   * Given some search queries, combine them into a larger query Will not remove
+   * duplicates/contradictions. TODO: Refactor query creation using the Builder pattern (Issue #100)
+   *
+   * @param queries gmail search queries
+   * @return String with queries space separated for use in Gmail
+   */
+  static String combineSearchQueries(String... queries) {
+    return String.join(" ", queries);
+  }
+
+  /**
    * Get list of unread emails from last nDays days from user's Gmail account
    *
    * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
@@ -84,31 +94,6 @@ public interface GmailClient {
       throws IOException;
 
   /**
-   * Creates a query string for Gmail. Use in search to return emails that fit certain restrictions
-   * TODO: Consider using builder pattern for this (Issue #100)
-   *
-   * @param emailAge emails from the last emailAge [emailAgeUnits] will be returned. Set to 0 to
-   *     ignore filter
-   * @param emailAgeUnits "d" for days, "h" for hours, "" for ignore email
-   * @param unreadOnly true if only returning unread emails, false otherwise
-   * @param isImportant true if only returning important emails, false otherwise
-   * @param from email address of the sender. "" if not specified
-   * @return string to use in gmail (either client or API) to find emails that match criteria
-   */
-  static String emailQueryString(
-      int emailAge, String emailAgeUnits, boolean unreadOnly, boolean isImportant, String from) {
-    List<String> queries =
-        Arrays.asList(
-            emailAgeQuery(emailAge, emailAgeUnits),
-            unreadEmailQuery(unreadOnly),
-            isImportantQuery(isImportant),
-            fromEmailQuery(from));
-
-    // Return multi-part query
-    return String.join(" ", queries);
-  }
-
-  /**
    * Creates Gmail query for age of emails. Use of months and years not supported as they are out of
    * scope for the application's current purpose (there is no need for it yet)
    *
@@ -116,8 +101,7 @@ public interface GmailClient {
    *     ignore filter
    * @param emailAgeUnits "d" for days, "h" for hours, "" for ignore email
    * @return string to use in Gmail (either client or API) to find emails that match these criteria
-   *     or null if either one of the arguments are invalid Trailing space added to properties so
-   *     multiple queries can be concatenated
+   *     or null if either one of the arguments are invalid
    */
   static String emailAgeQuery(int emailAge, String emailAgeUnits) {
     // newer_than:#d where # is an integer will specify to only return emails from last # days
@@ -136,7 +120,6 @@ public interface GmailClient {
    *
    * @param unreadOnly true if only unread emails, false otherwise
    * @return string to use in gmail (either client or API) to find emails that match these criteria
-   *     Trailing space added to properties so multiple queries can be concatenated
    */
   static String unreadEmailQuery(boolean unreadOnly) {
     // is:unread will return only unread emails
@@ -148,7 +131,6 @@ public interface GmailClient {
    *
    * @param from email address of the sender. "" if not specified
    * @return string to use in Gmail (either client or API) to find emails that match these criteria
-   *     Trailing space added to properties so multiple queries can be concatenated
    */
   static String fromEmailQuery(String from) {
     // from: <emailAddress> will return only emails from that sender
@@ -160,9 +142,18 @@ public interface GmailClient {
    *
    * @param isImportant true if filtering for important emails, false otherwise
    * @return string to use in gmail (either client or APi) to find emails that match these criteria
-   *     Trailing space added to string so multiple queries can be concatenated
    */
   static String isImportantQuery(boolean isImportant) {
     return isImportant ? "is:important" : "";
+  }
+
+  /**
+   * Creates Gmail query to find emails with the passed word in the subject line
+   *
+   * @param words words to check subject line for
+   * @return query string to use in gmail to find emails that contain the words
+   */
+  static String wordsInSubjectLineQuery(List<String> words) {
+    return !words.isEmpty() ? String.format("subject:(%s)", String.join(" ", words)) : "";
   }
 }

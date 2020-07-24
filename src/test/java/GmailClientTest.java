@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import com.google.common.collect.ImmutableList;
 import com.google.sps.model.GmailClient;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +47,11 @@ public final class GmailClientTest {
   private static final String UNREAD_EMAILS_QUERY = "is:unread";
   private static final String IMPORTANT_EMAILS_QUERY = "is:important";
   private static final String FROM_EMAIL_QUERY = String.format("from:%s", SAMPLE_EMAIL);
+  private static final String SUBJECT_LINE_QUERY_PREFIX = "subject:";
+
+  private static final List<String> EMPTY_SUBJECT_LINE_WORDS = ImmutableList.of();
+  private static final List<String> SOME_SUBJECT_LINE_WORDS =
+      ImmutableList.of("wordOne", "wordTwo");
 
   @Test
   public void getQueryStringDays() {
@@ -131,15 +139,45 @@ public final class GmailClientTest {
   }
 
   @Test
-  public void getQueryStringCombined() {
-    // Should return query matching all specified rules
-    // trailing spaces on sub-queries do not matter for this method, so they will not be considered
-    String multipleFilterQuery =
-        GmailClient.emailQueryString(ONE_UNIT_OF_TIME, DAYS_UNIT, true, true, SAMPLE_EMAIL);
+  public void getQueryStringNoSubjectWords() {
+    String subjectLineQuery = GmailClient.wordsInSubjectLineQuery(EMPTY_SUBJECT_LINE_WORDS);
 
-    Assert.assertTrue(multipleFilterQuery.contains(ONE_DAY_QUERY));
-    Assert.assertTrue(multipleFilterQuery.contains(UNREAD_EMAILS_QUERY));
-    Assert.assertTrue(multipleFilterQuery.contains(IMPORTANT_EMAILS_QUERY));
-    Assert.assertTrue(multipleFilterQuery.contains(FROM_EMAIL_QUERY));
+    Assert.assertEquals(subjectLineQuery, EMPTY_QUERY);
+  }
+
+  @Test
+  public void getQueryStringSomeSubjectWords() {
+    String subjectLineQuery = GmailClient.wordsInSubjectLineQuery(SOME_SUBJECT_LINE_WORDS);
+
+    // Query should be in the form of "subject:(wordOne wordTwo wordThree etc)"
+    // The order of the words in the brackets does not matter.
+    String actualSubjectLineQueryPrefix =
+        subjectLineQuery.substring(0, subjectLineQuery.indexOf(':') + 1);
+    List<String> actualSubjectLineWords =
+        Arrays.asList(
+            subjectLineQuery
+                .substring(subjectLineQuery.indexOf('(') + 1, subjectLineQuery.indexOf(')'))
+                .split(" "));
+
+    Assert.assertEquals(SUBJECT_LINE_QUERY_PREFIX, actualSubjectLineQueryPrefix);
+    Assert.assertEquals(SOME_SUBJECT_LINE_WORDS, actualSubjectLineWords);
+  }
+
+  @Test
+  public void combineQueriesNonePresent() {
+    String combinedQuery = GmailClient.combineSearchQueries();
+    Assert.assertEquals(EMPTY_QUERY, combinedQuery);
+  }
+
+  @Test
+  public void combineQueriesSomePresent() {
+    String combinedQuery =
+        GmailClient.combineSearchQueries(
+            ONE_DAY_QUERY, UNREAD_EMAILS_QUERY, IMPORTANT_EMAILS_QUERY);
+    List<String> queries = Arrays.asList(combinedQuery.split(" "));
+
+    Assert.assertTrue(queries.contains(ONE_DAY_QUERY));
+    Assert.assertTrue(queries.contains(UNREAD_EMAILS_QUERY));
+    Assert.assertTrue(queries.contains(IMPORTANT_EMAILS_QUERY));
   }
 }

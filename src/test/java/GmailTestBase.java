@@ -16,7 +16,6 @@ import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.common.collect.ImmutableList;
-import com.google.sps.model.GmailClient;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -37,9 +36,6 @@ public abstract class GmailTestBase {
       Instant.now().toEpochMilli() - TimeUnit.DAYS.toMillis(DEFAULT_N_DAYS - 1);
   protected static final long M_HOURS_TIMESTAMP =
       Instant.now().toEpochMilli() - TimeUnit.HOURS.toMillis(DEFAULT_M_HOURS - 1);
-
-  protected static final String UNREAD_EMAIL_DAYS_QUERY =
-      GmailClient.emailQueryString(DEFAULT_N_DAYS, "d", true, false, "");
 
   protected static final String SENDER_ONE_NAME = "Sender_1";
   protected static final String SENDER_ONE_EMAIL = "senderOne@sender.com";
