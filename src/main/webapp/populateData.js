@@ -176,8 +176,8 @@ function convertTime(timeMilli) {
   return hours + 'h ' + minutes + 'm free';
 }
 
-/*
- * Function to test getting taskLists and adding a new taskList
+/**
+ * Function to test getting taskLists and adding a new taskList.
  * Will 1) request a new taskList be made with a default name (the current time)
  * and 2) get the new list of taskLists and log them in the console.
  */
