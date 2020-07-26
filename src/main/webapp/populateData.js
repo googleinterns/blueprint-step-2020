@@ -98,8 +98,8 @@ function populateTasks() {
   if (options.length == 0) {
     fetchFrom = '/tasks';
   } else {
-    let selectedOptions = [];
-    options.forEach(option => {
+    const selectedOptions = [];
+    options.forEach((option) => {
       if (option.selected) {
         selectedOptions.push(option.value);
       }
@@ -117,9 +117,9 @@ function populateTasks() {
       })
       .then((tasksResponse) => {
         const taskListNames = tasksResponse['taskListNames'];
-        let select = document.querySelector('#panel__task-list-select');
+        const select = document.querySelector('#panel__task-list-select');
         taskListNames.forEach((taskListName) => {
-          let option = document.createElement('option');
+          const option = document.createElement('option');
           option.value = taskListName;
           option.innerText = taskListName;
           select.append(option);
