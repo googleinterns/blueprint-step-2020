@@ -90,15 +90,15 @@ function populateGmail() {
  * Populate Tasks container with user information
  */
 function populateTasks() {
-  var fetchFrom;
-  var select = document.querySelector('#panel__task-list-select');
+  let fetchFrom;
+  const select = document.querySelector('#panel__task-list-select');
   // Cast from HTMLOptionsCollection to Array
-  var options = Array.apply(null, select.options);
+  const options = Array(...select.options);
 
   if (options.length == 0) {
     fetchFrom = '/tasks';
   } else {
-    var selectedOptions = [];
+    let selectedOptions = [];
     options.forEach(option => {
       if (option.selected) {
         selectedOptions.push(option.value);
@@ -116,10 +116,10 @@ function populateTasks() {
         return response.json();
       })
       .then((tasksResponse) => {
-        var taskListNames  = tasksResponse['taskListNames'];
-        var select = document.querySelector('#panel__task-list-select');
-        taskListNames.forEach(taskListName => {
-          var option = document.createElement('option');
+        const taskListNames = tasksResponse['taskListNames'];
+        let select = document.querySelector('#panel__task-list-select');
+        taskListNames.forEach((taskListName) => {
+          let option = document.createElement('option');
           option.value = taskListName;
           option.innerText = taskListName;
           select.append(option);

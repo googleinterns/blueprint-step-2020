@@ -29,11 +29,7 @@ public final class KeyProvider {
 
   /** Constructor to create instance with file linked to default path. */
   public KeyProvider() {
-    if (System.getProperty("user.dir").contains("target")) {
-      this.file = new File("../classes/KEYS.json");
-    } else {
-      this.file = new File("src/main/resources/KEYS.json");
-    }
+    this.file = new File("src/main/resources/KEYS.json");
   }
 
   /**

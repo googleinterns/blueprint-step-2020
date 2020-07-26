@@ -62,7 +62,8 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     this.tasksClientFactory = tasksClientFactory;
   }
 
-  private List<Task> getTasks(TasksClient tasksClient, List<String> taskListTitles) throws IOException {
+  private List<Task> getTasks(TasksClient tasksClient, List<String> taskListTitles)
+      throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
     for (TaskList taskList : taskLists) {
@@ -156,7 +157,8 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     if (queryString == null) {
       tasks = getTasks(tasksClient, allTaskListTitles);
     } else {
-      List<String> selectedTaskListTitles = Arrays.asList(Arrays.asList(queryString.split("=")).get(1).split(","));
+      List<String> selectedTaskListTitles =
+          Arrays.asList(Arrays.asList(queryString.split("=")).get(1).split(","));
       tasks = getTasks(tasksClient, selectedTaskListTitles);
     }
 
@@ -166,7 +168,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     int tasksOverdue = getTasksOverdue(tasks);
     TasksResponse tasksResponse =
         new TasksResponse(
-          allTaskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
+            allTaskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();
