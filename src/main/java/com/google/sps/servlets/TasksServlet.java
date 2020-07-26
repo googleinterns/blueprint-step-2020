@@ -32,6 +32,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,11 +62,13 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     this.tasksClientFactory = tasksClientFactory;
   }
 
-  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
+  private List<Task> getTasks(TasksClient tasksClient, List<String> taskListTitles) throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
     for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
+      if (taskListTitles.contains(taskList.getTitle())) {
+        tasks.addAll(tasksClient.listTasks(taskList));
+      }
     }
     return tasks;
   }
@@ -141,20 +144,29 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
-    // Get tasks from Google Tasks
+    // Get task lists from Google Tasks
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = getTasks(tasksClient);
+    List<TaskList> allTaskLists = tasksClient.listTaskLists();
 
     // Initialize Tasks Response
-    List<String> taskListTitles = getTaskListTitles(taskLists);
+    List<String> allTaskListTitles = getTaskListTitles(allTaskLists);
+    List<Task> tasks;
+
+    String queryString = request.getQueryString();
+    if (queryString == null) {
+      tasks = getTasks(tasksClient, allTaskListTitles);
+    } else {
+      List<String> selectedTaskListTitles = Arrays.asList(Arrays.asList(queryString.split("=")).get(1).split(","));
+      tasks = getTasks(tasksClient, selectedTaskListTitles);
+    }
+
     int tasksToComplete = getTasksToComplete(tasks);
     int tasksDueToday = getTasksDueToday(tasks);
     int tasksCompletedToday = getTasksCompletedToday(tasks);
     int tasksOverdue = getTasksOverdue(tasks);
     TasksResponse tasksResponse =
         new TasksResponse(
-            taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
+          allTaskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
 
     // Convert tasks to JSON and print to response
     Gson gson = new Gson();

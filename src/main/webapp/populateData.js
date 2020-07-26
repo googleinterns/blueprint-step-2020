@@ -90,12 +90,24 @@ function populateGmail() {
  * Populate Tasks container with user information
  */
 function populateTasks() {
-  // Get Container for Tasks content
-  const tasksContainer = document.querySelector('#tasks');
+  var fetchFrom;
+  var select = document.querySelector('#panel__task-list-select');
+  // Cast from HTMLOptionsCollection to Array
+  var options = Array.apply(null, select.options);
 
-  // Get list of tasks from user's Tasks account
-  // and display the task titles from all task lists on the screen
-  fetch('/tasks')
+  if (options.length == 0) {
+    fetchFrom = '/tasks';
+  } else {
+    var selectedOptions = [];
+    options.forEach(option => {
+      if (option.selected) {
+        selectedOptions.push(option.value);
+      }
+    });
+    fetchFrom = '/tasks?selected=' + selectedOptions.join();
+  }
+
+  fetch(fetchFrom)
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
@@ -104,6 +116,14 @@ function populateTasks() {
         return response.json();
       })
       .then((tasksResponse) => {
+        var taskListNames  = tasksResponse['taskListNames'];
+        var select = document.querySelector('#panel__task-list-select');
+        taskListNames.forEach(taskListName => {
+          var option = document.createElement('option');
+          option.value = taskListName;
+          option.innerText = taskListName;
+          select.append(option);
+        });
         document
             .querySelector('#panel__tasks-to-complete')
             .innerText = tasksResponse['tasksToComplete'];
@@ -265,4 +285,3 @@ function populateGo() {
         }
       });
 }
-

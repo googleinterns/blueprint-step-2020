@@ -60,7 +60,7 @@ function handleAuthenticationState() {
     populateGmail();
     populateTasks();
     populateCalendar();
-    postAndGetTaskList();
+    // postAndGetTaskList();
 
     // Populate magic feature panels at the bottom of the dashboard
     populateGo();
@@ -96,7 +96,8 @@ function onSignIn(googleUser) {
   // or when the browser is closed
   addCookie('accessToken', accessToken, expiryUtcTime);
 
-  handleAuthenticationState();
+  // TODO: Confirm that this is a double call
+  //handleAuthenticationState();
 }
 
 /**
