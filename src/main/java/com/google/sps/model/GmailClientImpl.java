@@ -77,13 +77,13 @@ public class GmailClientImpl implements GmailClient {
   @Override
   public List<Message> getActionableEmails(
       GmailClient.MessageFormat messageFormat,
-      List<String> subjectLineWords,
+      List<String> subjectLinePhrases,
       boolean unreadOnly,
       int nDays)
       throws IOException {
     String ageQuery = GmailClient.emailAgeQuery(nDays, "d");
     String unreadQuery = GmailClient.unreadEmailQuery(unreadOnly);
-    String subjectLineQuery = GmailClient.wordsInSubjectLineQuery(subjectLineWords);
+    String subjectLineQuery = GmailClient.oneOfPhrasesInSubjectLineQuery(subjectLinePhrases);
     String searchQuery = GmailClient.combineSearchQueries(ageQuery, unreadQuery, subjectLineQuery);
 
     return listUserMessagesWithFormat(messageFormat, searchQuery);

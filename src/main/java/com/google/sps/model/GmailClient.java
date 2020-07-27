@@ -101,7 +101,8 @@ public interface GmailClient {
    *
    * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
    *     returned
-   * @param subjectLineWords list of words that gmail should look for in the subject line
+   * @param subjectLinePhrases list of words that gmail should look for in the subject line. Emails
+   *     will be returned as long as one of the passed phrases are present.
    * @param unreadOnly true if emails must be unread, false otherwise
    * @param nDays how many days of emails Gmail should look through.
    * @return List of messages that match above criteria
@@ -109,7 +110,7 @@ public interface GmailClient {
    */
   List<Message> getActionableEmails(
       GmailClient.MessageFormat messageFormat,
-      List<String> subjectLineWords,
+      List<String> subjectLinePhrases,
       boolean unreadOnly,
       int nDays)
       throws IOException;
