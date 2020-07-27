@@ -24,8 +24,9 @@ import com.google.sps.model.GmailClientImpl;
 import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,23 +34,40 @@ import javax.servlet.http.HttpServletResponse;
  * Servlet to get actionable emails from user's gmail account, as defined by specific words in an
  * email's subject line. Used by "Assign" panel on client.
  */
+@WebServlet("/gmail-actionable-emails")
 public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
   private GmailClientFactory gmailClientFactory;
 
+  /** Create new servlet instance (called by java during HttpRequest handling */
   public GmailActionableEmailsServlet() {
     gmailClientFactory = new GmailClientImpl.Factory();
   }
 
+  /**
+   * Create new servlet instance (used for testing)
+   *
+   * @param authenticationVerifier implementation of AuthenticationVerifier interface
+   * @param gmailClientFactory implementation of GmailClientFactory interface
+   */
   public GmailActionableEmailsServlet(
       AuthenticationVerifier authenticationVerifier, GmailClientFactory gmailClientFactory) {
     super(authenticationVerifier);
     this.gmailClientFactory = gmailClientFactory;
   }
 
+  /**
+   * Retrieve the actionable emails from a user's gmail account, given a list of words/phrases to
+   * search for in the subject line.
+   *
+   * @param request HTTP request from client
+   * @param response Http response to be sent to client
+   * @param googleCredential valid, verified google credential object
+   * @throws IOException If a read/write issue arises while processing the request
+   */
   @Override
   public void doGet(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException, ServletException {
+      throws IOException {
     GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
 
     List<String> subjectLineWords;
@@ -99,7 +117,7 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
    *
    * @param request HttpServletRequest containing parameter with above format
    * @param parameter name of the request parameter
-   * @return parsed list of request parameter values
+   * @return parsed list of request parameter values. Empty list if parameter is empty
    */
   private List<String> getListFromQueryString(HttpServletRequest request, String parameter)
       throws IllegalArgumentException {
@@ -108,6 +126,8 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
       throw new IllegalArgumentException(parameter + " parameter is not present in request");
     }
 
-    return Arrays.asList(listAsString.split(","));
+    return !listAsString.isEmpty()
+        ? Arrays.asList(listAsString.split(","))
+        : Collections.emptyList();
   }
 }
