@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -89,10 +88,11 @@ public class GoServlet extends AuthenticatedHttpServlet {
    * @throws ServletException
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws ServletException {
     assert googleCredential != null
-    : "Null credentials (i.e. unauthenticated requests) should already be handled";
+        : "Null credentials (i.e. unauthenticated requests) should already be handled";
     // get relevant tasks using task titles
     // get descriptions of relevant tasks
     // parse for locations from descriptions
