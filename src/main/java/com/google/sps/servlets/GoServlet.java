@@ -15,16 +15,28 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.services.tasks.model.Task;
+import com.google.api.services.tasks.model.TaskList;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.model.DirectionsClientImpl;
+import com.google.sps.model.TasksClient;
+import com.google.sps.model.TasksClientFactory;
+import com.google.sps.model.TasksClientImpl;
 import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +48,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
 
   private final DirectionsClientFactory directionsClientFactory;
   // private final PlacesClientFactory placesClientFactory;
-  // private final TasksClientFactory tasksClientFactory;
+  private final TasksClientFactory tasksClientFactory;
   private final String apiKey;
   private final String origin;
   private final String destination;
@@ -50,7 +62,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
   public GoServlet() throws IOException {
     directionsClientFactory = new DirectionsClientImpl.Factory();
     // placesClientFactory = new PlacesClientImpl.Factory();
-    // tasksClientFactory = new TasksClientImpl.Factory();
+    tasksClientFactory = new TasksClientImpl.Factory();
     apiKey = (new KeyProvider()).getKey("apiKey");
     origin = "Waterloo, ON";
     destination = "Waterloo, ON";
@@ -66,36 +78,69 @@ public class GoServlet extends AuthenticatedHttpServlet {
   public GoServlet(
       DirectionsClientFactory directionsClientFactory,
       // PlacesClientFactory placesClientFactory,
-      // TasksClientFactory tasksClientFactory,
+      TasksClientFactory tasksClientFactory,
       String fakeApiKey,
       String fakeOrigin,
       String fakeDestination,
       List<String> fakeWaypoints) {
     this.directionsClientFactory = directionsClientFactory;
     // this.placesClientFactory = placesClientFactory;
-    // this.tasksClientFactory = tasksClientFactory;
+    this.tasksClientFactory = tasksClientFactory;
     apiKey = fakeApiKey;
     origin = fakeOrigin;
     destination = fakeDestination;
     waypoints = fakeWaypoints;
   }
 
+  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
+    List<TaskList> taskLists = tasksClient.listTaskLists();
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      tasks.addAll(tasksClient.listTasks(taskList));
+    }
+    return tasks;
+  }
+
+  private List<String> getLocations(List<Task> tasks) {
+    return tasks
+      .stream()
+      .map(task -> task.getNotes())
+      .filter(notes -> notes != null)
+      .map(notes -> getLocation(notes))
+      .collect(Collectors.toList());
+  }
+
+  private String getLocation(String taskNotes) {
+    // taskNotes = ... [Location: ... ] ...
+    String regex = "^.*[Location: ](.*?)\\].*$";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(taskNotes);
+    if (matcher.find()) {                                                
+      return matcher.group(1);
+    }
+    return "No location found";
+  }
+
   /**
    * Returns the most optimal order of travel between addresses.
    *
-   * @param request HTTP request from the client.
+   * @param request  HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws ServletException
+   * @throws IOException
    */
   @Override
-  public void doGet(
-      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws ServletException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws ServletException, IOException {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
-    // get relevant tasks using task titles
+    // Get all tasks from user's tasks account TODO: Get relevant tasks using task titles
+    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+    List<Task> tasks = getTasks(tasksClient);
+
     // get descriptions of relevant tasks
     // parse for locations from descriptions
+    List<String> allLocations = getLocations(tasks);
 
     // split waypoints into exact addresses and generic locations by looking for the presence of ","
     // for every exact address, generic location is sent to Places to obtain the closest match
