@@ -22,7 +22,7 @@ import org.junit.Test;
  * Tests the GmailResponseHelperImpl and ensures that statistics for the GmailResponse are
  * calculated correctly
  */
-public class GmailResponseHelperImplTest extends GmailTestBase {
+public class GmailResponseHelperImplTest implements GmailTestBase {
   private static final GmailResponseHelper gmailResponseHelper = new GmailResponseHelperImpl();
 
   @Test

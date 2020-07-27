@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.sps.utility.JsonUtility;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
@@ -60,7 +59,7 @@ public class JsonUtilityTest {
   private final Gson gson = new Gson();
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() throws Exception {
     // Mock servlet response writer
     response = Mockito.mock(HttpServletResponse.class);
     stringWriter = new StringWriter();
@@ -69,7 +68,7 @@ public class JsonUtilityTest {
   }
 
   @Test
-  public void sendStringToResponse() throws IOException {
+  public void sendStringToResponse() throws Exception {
     // Sends an object of type String to response as json.
     // Response should have the same contents as String object.
     JsonUtility.sendJson(response, STRING_OBJECT);
@@ -81,7 +80,7 @@ public class JsonUtilityTest {
   }
 
   @Test
-  public void sendListToResponse() throws IOException {
+  public void sendListToResponse() throws Exception {
     // Sends an object of type List to response as json.
     // Response should have the same contents as List object.
     JsonUtility.sendJson(response, LIST_OBJECT);
@@ -95,7 +94,7 @@ public class JsonUtilityTest {
   }
 
   @Test
-  public void sendMapToResponse() throws IOException {
+  public void sendMapToResponse() throws Exception {
     // Sends an object of type Map to response as json.
     // Response should have the same contents as Map object.
     JsonUtility.sendJson(response, MAP_OBJECT);
@@ -111,7 +110,7 @@ public class JsonUtilityTest {
   }
 
   @Test
-  public void sendNullToResponse() throws IOException {
+  public void sendNullToResponse() throws Exception {
     // Sends null to response as json.
     // Response should contain only null and a newline character as a result of println.
     JsonUtility.sendJson(response, null);
@@ -121,7 +120,7 @@ public class JsonUtilityTest {
   }
 
   @Test
-  public void sendCustomClassToResponse() throws IOException {
+  public void sendCustomClassToResponse() throws Exception {
     // Sends an object of type CustomClass to response as json.
     // Response should have the same contents as CustomClass object.
     JsonUtility.sendJson(response, CUSTOM_OBJECT);
