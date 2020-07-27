@@ -123,6 +123,17 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     Gson gson = new Gson();
     Task taskToPost = gson.fromJson(request.getReader(), Task.class);
 
+    // Check if passed task is present and valid
+    if (taskToPost == null || taskToPost.isEmpty()) {
+      response.sendError(400, "Task body must be non-empty");
+      return;
+    } else if (!(taskToPost.containsKey("title")
+        || taskToPost.containsKey("notes")
+        || taskToPost.containsKey("due"))) {
+      response.sendError(400, "Task invalid. Task must contain at least one of: title, notes, due");
+      return;
+    }
+
     try {
       JsonUtility.sendJson(response, tasksClient.postTask(taskListId, taskToPost));
     } catch (IOException e) {
