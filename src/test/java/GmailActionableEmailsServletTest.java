@@ -48,7 +48,7 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   int DEFAULT_N_DAYS = 7;
   int NEGATIVE_N_DAYS = -1;
 
-  List<Message> SOME_MESSAGES_HALF_WITHIN_M_HOURS =
+  List<Message> SOME_MESSAGES =
       ImmutableList.of(new Message().setId("messageFour"), new Message().setId("messageFive"));
 
   /**
@@ -161,18 +161,19 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
     Mockito.when(request.getParameter("unreadOnly")).thenReturn(String.valueOf(true));
     Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
 
+    // List passed to getActionableEmails should be words from query string
+    // parsed by comma separator
     List<String> listOfSubjectWords = Arrays.asList(SUBJECT_LINE_WORDS_STRING.split(","));
 
     Mockito.when(
             gmailClient.getActionableEmails(
                 messageFormat, listOfSubjectWords, true, DEFAULT_N_DAYS))
-        .thenReturn(SOME_MESSAGES_HALF_WITHIN_M_HOURS);
+        .thenReturn(SOME_MESSAGES);
 
     servlet.doGet(request, response);
-
     Type type = new TypeToken<List<Message>>() {}.getType();
     List<Message> actual = gson.fromJson(stringWriter.toString(), type);
 
-    Assert.assertEquals(SOME_MESSAGES_HALF_WITHIN_M_HOURS, actual);
+    Assert.assertEquals(SOME_MESSAGES, actual);
   }
 }
