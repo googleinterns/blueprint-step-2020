@@ -260,6 +260,23 @@ function postNewTaskList(title) {
 function populateGo() {
   const goContainer = document.querySelector('#go');
 
+  let fetchFrom;
+  const select = document.querySelector('#panel__go-select');
+  // Cast from HTMLOptionsCollection to Array
+  const options = Array(...select.options);
+
+  if (options.length == 0) {
+    fetchFrom = '/directions';
+  } else {
+    const selectedOptions = [];
+    options.forEach((option) => {
+      if (option.selected) {
+        selectedOptions.push(option.value);
+      }
+    });
+    fetchFrom = '/directions?selected=' + selectedOptions.join();
+  }
+
   fetch('/directions')
       .then((response) => {
         // If response is a 403, user is not authenticated

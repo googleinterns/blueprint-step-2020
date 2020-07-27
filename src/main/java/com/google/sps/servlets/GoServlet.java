@@ -14,15 +14,26 @@
 
 package com.google.sps.servlets;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.services.tasks.model.Task;
+import com.google.api.services.tasks.model.TaskList;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.exceptions.DirectionsException;
+import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.model.DirectionsClientImpl;
+import com.google.sps.model.TasksClient;
+import com.google.sps.model.TasksClientFactory;
+import com.google.sps.model.TasksClientImpl;
 import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -30,10 +41,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Serves key information from optimizing between addresses. */
-@WebServlet("/directions")
-public class DirectionsServlet extends HttpServlet {
+@WebServlet("/go")
+public class GoServlet extends AuthenticatedHttpServlet {
 
   private final DirectionsClientFactory directionsClientFactory;
+  private final TasksClientFactory tasksClientFactory;
   private final String apiKey;
   private final String origin;
   private final String destination;
@@ -44,8 +56,9 @@ public class DirectionsServlet extends HttpServlet {
    *
    * @throws IOException
    */
-  public DirectionsServlet() throws IOException {
+  public GoServlet() throws IOException {
     directionsClientFactory = new DirectionsClientImpl.Factory();
+    tasksClientFactory = new TasksClientImpl.Factory();
     apiKey = (new KeyProvider()).getKey("apiKey");
     origin = "Waterloo, ON";
     destination = "Waterloo, ON";
@@ -58,29 +71,78 @@ public class DirectionsServlet extends HttpServlet {
    * @param factory A DirectionsClientFactory containing the implementation of
    *     DirectionsClientFactory.
    */
-  public DirectionsServlet(
-      DirectionsClientFactory factory,
+  public GoServlet(
+      DirectionsClientFactory directionsClientFactory,
+      TasksClientFactory tasksClientFactory,
       String fakeApiKey,
       String fakeOrigin,
       String fakeDestination,
       List<String> fakeWaypoints) {
-    directionsClientFactory = factory;
+    this.directionsClientFactory = directionsClientFactory;
+    this.tasksClientFactory = tasksClientFactory;
     apiKey = fakeApiKey;
     origin = fakeOrigin;
     destination = fakeDestination;
     waypoints = fakeWaypoints;
   }
 
+  private List<Task> getTasks(TasksClient tasksClient, List<String> taskListTitles)
+      throws IOException {
+    List<TaskList> taskLists = tasksClient.listTaskLists();
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      if (taskListTitles.contains(taskList.getTitle())) {
+        tasks.addAll(tasksClient.listTasks(taskList));
+      }
+    }
+    return tasks;
+  }
+
+  private List<String> getTaskListTitles(List<TaskList> taskLists) throws IOException {
+    return taskLists.stream().map(taskList -> taskList.getTitle()).collect(Collectors.toList());
+  }
+
+  /*
+  private List<String> getTaskDescriptions(List<Task> tasks) {
+    // get task descriptions
+  }
+  */
+
   /**
    * Returns the most optimal order of travel between addresses.
    *
-   * @param request HTTP request from the client.
+   * @param request  HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws ServletException
+   * @throws IOException
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws ServletException, IOException {
+    assert googleCredential != null
+    : "Null credentials (i.e. unauthenticated requests) should already be handled";
+
+    // Get task lists from Google Tasks
+    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+    List<TaskList> allTaskLists = tasksClient.listTaskLists();
+
+    // Initialize Tasks Response
+    List<String> allTaskListTitles = getTaskListTitles(allTaskLists);
+    List<Task> tasks;
+
+    String queryString = request.getQueryString();
+    if (queryString == null) {
+      tasks = getTasks(tasksClient, allTaskListTitles);
+    } else {
+      List<String> selectedTaskListTitles =
+          Arrays.asList(Arrays.asList(queryString.split("=")).get(1).split(","));
+      tasks = getTasks(tasksClient, selectedTaskListTitles);
+    }
+
+    // List<String> taskDescriptions = getTaskDescriptions(tasks);
+    // List<String> taskAddresses = getAddresses(taskDescriptions);
+
+    // logic to get task descriptions with task list names
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
