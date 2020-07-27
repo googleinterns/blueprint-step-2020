@@ -27,6 +27,7 @@ import com.google.sps.model.GmailResponseHelperImpl;
 import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +67,7 @@ public class GmailServlet extends AuthenticatedHttpServlet {
    * emails from last m hours, and the most frequent sender of unread emails in the last n days
    *
    * @param request Http request from the client. Should contain idToken and accessToken, as well as
-   *     integer values for nDays and mHours (both >0)
+   *     integer values for nDays and mHours (both > 0)
    * @param response 403 if user is not authenticated, list of messageIds otherwise
    * @param googleCredential valid google credential object (already verified)
    * @throws IOException if an issue arises while processing the request
@@ -90,12 +91,12 @@ public class GmailServlet extends AuthenticatedHttpServlet {
       return;
     }
 
-    if (nDays < 0 || mHours < 0) {
+    if (nDays <= 0 || mHours <= 0) {
       response.sendError(400, "nDays and mHours must be positive");
       return;
     }
 
-    if (mHours > nDays * 24) {
+    if (mHours > TimeUnit.DAYS.toHours(nDays)) {
       response.sendError(400, "mHours must represent less time than nDays");
       return;
     }
