@@ -16,6 +16,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.sps.model.GmailClient;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +52,7 @@ public final class GmailClientTest {
 
   private static final List<String> EMPTY_SUBJECT_LINE_WORDS = ImmutableList.of();
   private static final List<String> SOME_SUBJECT_LINE_WORDS =
-      ImmutableList.of("wordOne", "wordTwo");
+      ImmutableList.of("\"phrase One\"", "wordTwo");
 
   @Test
   public void getQueryStringDays() {
@@ -148,7 +150,7 @@ public final class GmailClientTest {
   public void getQueryStringSomeSubjectWords() {
     String subjectLineQuery = GmailClient.wordsInSubjectLineQuery(SOME_SUBJECT_LINE_WORDS);
 
-    // Query should be in the form of "subject:(wordOne OR wordTwo OR wordThree etc)"
+    // Query should be in the form of "subject:("wordOne" OR "wordTwo" OR "wordThree")"
     // The order of the words in the brackets does not matter.
     String actualSubjectLineQueryPrefix =
         subjectLineQuery.substring(0, subjectLineQuery.indexOf(':') + 1);
@@ -158,8 +160,16 @@ public final class GmailClientTest {
                 .substring(subjectLineQuery.indexOf('(') + 1, subjectLineQuery.indexOf(')'))
                 .split(" OR "));
 
+    // Expected words should be the same as the input, with quotes surrounding each word (if not
+    // already present)
+    // Ex: "WordOne", wordTwo -> "WordOne", "wordTwo"
+    List<String> expectedSubjectLineWords =
+        SOME_SUBJECT_LINE_WORDS.stream()
+            .map((word) -> String.format("\"%s\"", StringUtils.strip(word, "\"")))
+            .collect(Collectors.toList());
+
     Assert.assertEquals(SUBJECT_LINE_QUERY_PREFIX, actualSubjectLineQueryPrefix);
-    Assert.assertEquals(SOME_SUBJECT_LINE_WORDS, actualSubjectLineWords);
+    Assert.assertEquals(expectedSubjectLineWords, actualSubjectLineWords);
   }
 
   @Test
