@@ -13,16 +13,13 @@
 // limitations under the License.
 
 import com.google.appengine.repackaged.com.google.gson.Gson;
-import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClient.MessageFormat;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.model.GmailResponseHelper;
 import com.google.sps.servlets.GmailServlet;
-import java.io.StringWriter;
 import java.util.Optional;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
@@ -30,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
@@ -39,54 +35,27 @@ import org.mockito.Mockito;
  * will fail otherwise).
  */
 @RunWith(JUnit4.class)
-public final class GmailServletTest extends GmailTestBase {
+public final class GmailServletTest extends AuthenticatedServletTestBase implements GmailTestBase {
   private GmailClient gmailClient;
   private GmailServlet servlet;
-  private HttpServletRequest request;
-  private HttpServletResponse response;
   private GmailResponseHelper gmailResponseHelper;
-  private StringWriter stringWriter;
 
   private static final Gson gson = new Gson();
-
-  private static final boolean AUTHENTICATION_VERIFIED = true;
-  private static final String ID_TOKEN_KEY = "idToken";
-  private static final String ID_TOKEN_VALUE = "sampleId";
-  private static final String ACCESS_TOKEN_KEY = "accessToken";
-  private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
-
-  private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
-  private static final Cookie sampleAccessTokenCookie =
-      new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
-  private static final Cookie[] validCookies =
-      new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
   private static final int EXPECTED_IMPORTANT_EMAIL_COUNT = 2;
   private static final int EXPECTED_EMAILS_M_HOURS_COUNT = 2;
 
   private static final GmailClient.MessageFormat messageFormat = MessageFormat.METADATA;
 
+  @Override
   @Before
   public void setUp() throws Exception {
-    AuthenticationVerifier authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
+    super.setUp();
     GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
     gmailClient = Mockito.mock(GmailClient.class);
     gmailResponseHelper = Mockito.mock(GmailResponseHelper.class);
     servlet = new GmailServlet(authenticationVerifier, gmailClientFactory, gmailResponseHelper);
     Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
-
-    // Authentication will always pass
-    Mockito.when(authenticationVerifier.verifyUserToken(ID_TOKEN_VALUE))
-        .thenReturn(AUTHENTICATION_VERIFIED);
-
-    stringWriter = new StringWriter();
-
-    request = Mockito.mock(HttpServletRequest.class);
-    response =
-        Mockito.mock(
-            HttpServletResponse.class,
-            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
-    Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
   /**

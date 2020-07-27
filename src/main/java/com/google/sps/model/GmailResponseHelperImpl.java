@@ -60,7 +60,7 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
       return Optional.empty();
     }
 
-    HashMap<String, Integer> sendersToEmailFrequency = mapSendersToFrequencies(unreadEmails);
+    Map<String, Integer> sendersToEmailFrequency = mapSendersToFrequencies(unreadEmails);
     SortByFrequencyThenTimestamp senderComparator =
         new SortByFrequencyThenTimestamp(mapSendersToMostRecentEmail(unreadEmails));
 
@@ -99,11 +99,11 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
    * Associate the senders of emails with how often they sent emails within a given list.
    *
    * @param messages a list of Gmail Messages objects. Must be METADATA or FULL format
-   * @return a HashMap where the keys are the values of the "From" header and the values are the
-   *     number of times that sender sent an email (from the list of messages)
+   * @return a Map where the keys are the values of the "From" header and the values are the number
+   *     of times that sender sent an email (from the list of messages)
    */
-  private HashMap<String, Integer> mapSendersToFrequencies(List<Message> messages) {
-    HashMap<String, Integer> sendersToFrequencies = new HashMap<>();
+  private Map<String, Integer> mapSendersToFrequencies(List<Message> messages) {
+    Map<String, Integer> sendersToFrequencies = new HashMap<>();
 
     messages.stream()
         .map(this::extractFromHeader)
@@ -123,11 +123,11 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
    * list
    *
    * @param messages a list of Gmail Messages objects. Must be MINIMAL, METADATA or FULL format
-   * @return a HashMap where the keys are the values of the "From" header and the values are
-   *     timestamps of that sender's most recent email
+   * @return a Map where the keys are the values of the "From" header and the values are timestamps
+   *     of that sender's most recent email
    */
-  private HashMap<String, Long> mapSendersToMostRecentEmail(List<Message> messages) {
-    HashMap<String, Long> sendersToTimestamp = new HashMap<>();
+  private Map<String, Long> mapSendersToMostRecentEmail(List<Message> messages) {
+    Map<String, Long> sendersToTimestamp = new HashMap<>();
 
     messages.forEach(
         (message) -> {
@@ -171,9 +171,9 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
   /** Private comparator class to compare entries of sender hashmaps */
   private static class SortByFrequencyThenTimestamp
       implements Comparator<Map.Entry<String, Integer>> {
-    private final HashMap<String, Long> sendersToMostRecentEmailTimestamp;
+    private final Map<String, Long> sendersToMostRecentEmailTimestamp;
 
-    public SortByFrequencyThenTimestamp(HashMap<String, Long> sendersToMostRecentEmailTimestamp) {
+    public SortByFrequencyThenTimestamp(Map<String, Long> sendersToMostRecentEmailTimestamp) {
       this.sendersToMostRecentEmailTimestamp = sendersToMostRecentEmailTimestamp;
     }
 

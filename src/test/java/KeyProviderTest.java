@@ -15,7 +15,6 @@
 import com.google.sps.utility.KeyProvider;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -30,7 +29,7 @@ public class KeyProviderTest {
   private static final File file = new File("src/main/resources/TEST_KEYS.json");
 
   @BeforeClass
-  public static void setUp() throws IOException {
+  public static void setUp() throws Exception {
     // Creates a new file in src/main/resources and writes json content to the file.
     file.getParentFile().mkdirs();
     file.createNewFile();
@@ -46,14 +45,14 @@ public class KeyProviderTest {
   }
 
   @Test
-  public void getSampleKeyValue() throws IOException {
+  public void getSampleKeyValue() throws Exception {
     // Gets the value of sampleKey which is in src/main/resources/TEST_KEYS.json.
     String actual = (new KeyProvider(file)).getKey("sampleKey");
     Assert.assertEquals("sampleValue", actual);
   }
 
   @Test
-  public void getCapitalisedSampleKeyValue() throws IOException {
+  public void getCapitalisedSampleKeyValue() throws Exception {
     // Gets the value of SAMPLEKEY which is not in src/main/resources/TEST_KEYS.json since keys are
     // case sensitive.
     String actual = (new KeyProvider(file)).getKey("SAMPLEKEY");
@@ -61,7 +60,7 @@ public class KeyProviderTest {
   }
 
   @Test
-  public void getInvalidKeyValue() throws IOException {
+  public void getInvalidKeyValue() throws Exception {
     // Gets the value of an invalid key which is not in src/main/resources/TEST_KEYS.json.
     String actual = (new KeyProvider(file)).getKey("invalidKey");
     Assert.assertNull(actual);
