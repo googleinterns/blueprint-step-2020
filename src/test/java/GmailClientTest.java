@@ -16,8 +16,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.sps.model.GmailClient;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,9 +48,13 @@ public final class GmailClientTest {
   private static final String FROM_EMAIL_QUERY = String.format("from:%s", SAMPLE_EMAIL);
   private static final String SUBJECT_LINE_QUERY_PREFIX = "subject:";
 
-  private static final List<String> EMPTY_SUBJECT_LINE_WORDS = ImmutableList.of();
-  private static final List<String> SOME_SUBJECT_LINE_WORDS =
-      ImmutableList.of("\"phrase One\"", "wordTwo");
+  private static final List<String> EMPTY_SUBJECT_LINE_PHRASES = ImmutableList.of();
+  private static final List<String> SUBJECT_LINE_PHRASES_WITH_QUOTES =
+      ImmutableList.of("\"phrase one\"", "\"phrase two\"");
+  private static final List<String> SUBJECT_LINE_PHRASES_WITHOUT_QUOTES =
+      ImmutableList.of("phrase one", "phrase two");
+  private static final String SUBJECT_LINE_PHRASES_QUERY =
+      "subject:(\"phrase one\" OR \"phrase two\")";
 
   @Test
   public void getQueryStringDays() {
@@ -140,36 +142,31 @@ public final class GmailClientTest {
   }
 
   @Test
-  public void getQueryStringNoSubjectWords() {
-    String subjectLineQuery = GmailClient.wordsInSubjectLineQuery(EMPTY_SUBJECT_LINE_WORDS);
+  public void getQueryStringEmptySubjectPhrases() {
+    String subjectLineQuery =
+        GmailClient.oneOfPhrasesInSubjectLineQuery(EMPTY_SUBJECT_LINE_PHRASES);
 
     Assert.assertEquals(subjectLineQuery, EMPTY_QUERY);
   }
 
   @Test
-  public void getQueryStringSomeSubjectWords() {
-    String subjectLineQuery = GmailClient.wordsInSubjectLineQuery(SOME_SUBJECT_LINE_WORDS);
+  public void getQueryStringSomeSubjectWordsWithoutQuotes() {
+    // quotes should be added to each word in the query
+    // assumes that the order of the passed queries is preserved (will fail otherwise)
+    String subjectLineQuery =
+        GmailClient.oneOfPhrasesInSubjectLineQuery(SUBJECT_LINE_PHRASES_WITHOUT_QUOTES);
 
-    // Query should be in the form of "subject:("wordOne" OR "wordTwo" OR "wordThree")"
-    // The order of the words in the brackets does not matter.
-    String actualSubjectLineQueryPrefix =
-        subjectLineQuery.substring(0, subjectLineQuery.indexOf(':') + 1);
-    List<String> actualSubjectLineWords =
-        Arrays.asList(
-            subjectLineQuery
-                .substring(subjectLineQuery.indexOf('(') + 1, subjectLineQuery.indexOf(')'))
-                .split(" OR "));
+    Assert.assertEquals(SUBJECT_LINE_PHRASES_QUERY, subjectLineQuery);
+  }
 
-    // Expected words should be the same as the input, with quotes surrounding each word (if not
-    // already present)
-    // Ex: "WordOne", wordTwo -> "WordOne", "wordTwo"
-    List<String> expectedSubjectLineWords =
-        SOME_SUBJECT_LINE_WORDS.stream()
-            .map((word) -> String.format("\"%s\"", StringUtils.strip(word, "\"")))
-            .collect(Collectors.toList());
+  @Test
+  public void getQueryStringSomeSubjectWordsWithQuotes() {
+    // quotes should NOT be added to each word in the query, since they are already present.
+    // assumes that the order of the passed queries is preserved (will fail otherwise)
+    String subjectLineQuery =
+        GmailClient.oneOfPhrasesInSubjectLineQuery(SUBJECT_LINE_PHRASES_WITH_QUOTES);
 
-    Assert.assertEquals(SUBJECT_LINE_QUERY_PREFIX, actualSubjectLineQueryPrefix);
-    Assert.assertEquals(expectedSubjectLineWords, actualSubjectLineWords);
+    Assert.assertEquals(SUBJECT_LINE_PHRASES_QUERY, subjectLineQuery);
   }
 
   @Test
