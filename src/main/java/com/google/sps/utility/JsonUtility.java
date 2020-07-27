@@ -25,10 +25,11 @@ public final class JsonUtility {
   private JsonUtility() {}
 
   /**
-   * Sends data to a HTTP Servlet Response.
+   * Sends data to a HTTP Servlet Response. TODO: overload method to access JsonObject objects
+   * (Issue #107)
    *
    * @param response HTTP Servlet Response that data is sent to.
-   * @param object Contains the data that is to be sent.
+   * @param object Contains the data that is to be sent. JsonObject instances behave unexpectedly.
    * @throws IOException
    */
   public static void sendJson(HttpServletResponse response, Object object) throws IOException {
