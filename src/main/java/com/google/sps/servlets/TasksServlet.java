@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -109,7 +108,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   @Override
   public void doPost(
       HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException, ServletException {
+      throws IOException {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
