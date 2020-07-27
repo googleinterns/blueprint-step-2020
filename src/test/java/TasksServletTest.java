@@ -16,10 +16,13 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
+import com.google.sps.model.GmailResponse;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksServlet;
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -53,6 +56,8 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
 
   private static final TaskList TASK_LIST_ONE =
       new TaskList().setTitle(TASK_LIST_TITLE_ONE).setId("taskListOne");
+
+  private static final String TASK_LIST_ID_ONE = "taskListOne";
 
   private static final List<TaskList> NO_TASK_LISTS = ImmutableList.of();
   private static final List<String> NO_TASK_LISTS_TITLES = ImmutableList.of();
@@ -91,6 +96,15 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           TASK_COMPLETED_YESTERDAY,
           TASK_COMPLETED_TODAY);
 
+  private static final String SAMPLE_NOTES = "sample notes";
+  private static final String DUE_DATE = "2020-07-20T00:00:00.000Z";
+  private static final Task validTask =
+      new Task().setTitle(TASK_TITLE_ONE).setNotes(SAMPLE_NOTES).setDue(DUE_DATE);
+  private static final String VALID_TASK_JSON = gson.toJson(validTask);
+
+  private static final String EMPTY_JSON = "{}";
+  private static final String INVALID_TASK_JSON = gson.toJson(new GmailResponse(0, 0, 0, ""));
+
   @Override
   @Before
   public void setUp() throws Exception {
@@ -110,6 +124,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+
     Assert.assertEquals(NO_TASK_LISTS_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
@@ -124,6 +139,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+
     Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
@@ -138,6 +154,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+
     Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
@@ -152,6 +169,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+
     Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
     Assert.assertEquals(1, tasksResponse.getTasksDueToday());
@@ -166,6 +184,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+
     Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
@@ -180,6 +199,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+
     Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
@@ -194,6 +214,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+
     Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
@@ -208,10 +229,77 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+
     Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
     Assert.assertEquals(3, tasksResponse.getTasksToComplete());
     Assert.assertEquals(1, tasksResponse.getTasksDueToday());
     Assert.assertEquals(1, tasksResponse.getTasksCompletedToday());
     Assert.assertEquals(1, tasksResponse.getTasksOverdue());
+  }
+
+  @Test
+  public void postTaskNullTaskListId() throws Exception {
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postTaskEmptyTaskListId() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn("");
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postBodyEmpty() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASK_LIST_ID_ONE);
+
+    StringReader reader = new StringReader("");
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postEmptyTask() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASK_LIST_ID_ONE);
+
+    StringReader reader = new StringReader(EMPTY_JSON);
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postInvalidTask() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASK_LIST_ID_ONE);
+
+    StringReader reader = new StringReader(INVALID_TASK_JSON);
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postValidTask() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASK_LIST_ID_ONE);
+    Mockito.when(tasksClient.postTask(TASK_LIST_ID_ONE, validTask)).thenReturn(validTask);
+
+    StringReader reader = new StringReader(VALID_TASK_JSON);
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+    servlet.doPost(request, response);
+
+    Task postedTask = gson.fromJson(stringWriter.toString(), Task.class);
+
+    Assert.assertEquals(validTask, postedTask);
   }
 }
