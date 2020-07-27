@@ -14,15 +14,9 @@
 
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.security.GeneralSecurityException;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,7 +24,7 @@ import org.mockito.Mockito;
 
 /** Tests the AuthenticatedHttpServlet abstract class */
 @RunWith(JUnit4.class)
-public class AuthenticatedHttpServletTest {
+public class AuthenticatedHttpServletTest extends ServletTestBase {
   // Mock abstract servlet with real constructor and real methods
   private static final AuthenticationVerifier authVerifier =
       Mockito.mock(AuthenticationVerifier.class);
@@ -40,9 +34,6 @@ public class AuthenticatedHttpServletTest {
           Mockito.withSettings()
               .useConstructor(authVerifier)
               .defaultAnswer(Mockito.CALLS_REAL_METHODS));
-
-  private HttpServletRequest request;
-  private HttpServletResponse response;
 
   private static final Boolean AUTHENTICATION_VERIFIED = true;
   private static final Boolean AUTHENTICATION_NOT_VERIFIED = false;
@@ -62,34 +53,22 @@ public class AuthenticatedHttpServletTest {
   private static final Cookie[] validCookies =
       new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
 
-  @Before
-  public void setUp() throws IOException {
-    request = Mockito.mock(HttpServletRequest.class);
-    response = Mockito.mock(HttpServletResponse.class);
-
-    // Writer used in get/post requests to capture HTTP response values
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter printWriter = new PrintWriter(stringWriter);
-    Mockito.when(response.getWriter()).thenReturn(printWriter);
-  }
-
   @Test
-  public void getRequestNoTokens() throws IOException, ServletException {
+  public void getRequestNoTokens() throws Exception {
     Mockito.when(request.getCookies()).thenReturn(noCookies);
     servlet.doGet(request, response);
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
+    Assert.assertEquals(403, response.getStatus());
   }
 
   @Test
-  public void getRequestNoIdTokens() throws IOException, ServletException {
+  public void getRequestNoIdTokens() throws Exception {
     Mockito.when(request.getCookies()).thenReturn(noIdTokenCookies);
     servlet.doGet(request, response);
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
+    Assert.assertEquals(403, response.getStatus());
   }
 
   @Test(expected = ServletException.class)
-  public void getRequestFakeIdToken()
-      throws GeneralSecurityException, IOException, ServletException {
+  public void getRequestFakeIdToken() throws Exception {
     // If a fake (or empty, which is fake) idToken is present, ServletException should be thrown.
     // This is not an expected path, and indicates malicious behaviour.
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
@@ -99,44 +78,41 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void getRequestNoAccessToken()
-      throws GeneralSecurityException, IOException, ServletException {
+  public void getRequestNoAccessToken() throws Exception {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(noAccessTokenCookies);
     servlet.doGet(request, response);
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
+    Assert.assertEquals(403, response.getStatus());
   }
 
   @Test
-  public void getRequestProperAuthentication()
-      throws GeneralSecurityException, IOException, ServletException {
+  public void getRequestProperAuthentication() throws Exception {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
     servlet.doGet(request, response);
     // doGet's default implementation should return a 400 error to client to indicate request not
     // supported.
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+    Assert.assertEquals(400, response.getStatus());
   }
 
   @Test
-  public void postRequestNoTokens() throws IOException, ServletException {
+  public void postRequestNoTokens() throws Exception {
     Mockito.when(request.getCookies()).thenReturn(noCookies);
     servlet.doPost(request, response);
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
+    Assert.assertEquals(403, response.getStatus());
   }
 
   @Test
-  public void postRequestNoIdTokens() throws IOException, ServletException {
+  public void postRequestNoIdTokens() throws Exception {
     Mockito.when(request.getCookies()).thenReturn(noIdTokenCookies);
     servlet.doPost(request, response);
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
+    Assert.assertEquals(403, response.getStatus());
   }
 
   @Test(expected = ServletException.class)
-  public void postRequestFakeIdToken()
-      throws GeneralSecurityException, IOException, ServletException {
+  public void postRequestFakeIdToken() throws Exception {
     // If a fake (or empty, which is fake) idToken is present, ServletException should be thrown.
     // This is not an expected path, and indicates malicious behaviour.
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
@@ -146,24 +122,22 @@ public class AuthenticatedHttpServletTest {
   }
 
   @Test
-  public void postRequestNoAccessToken()
-      throws GeneralSecurityException, IOException, ServletException {
+  public void postRequestNoAccessToken() throws Exception {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(noAccessTokenCookies);
     servlet.doPost(request, response);
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(403), Mockito.anyString());
+    Assert.assertEquals(403, response.getStatus());
   }
 
   @Test
-  public void postRequestProperAuthentication()
-      throws GeneralSecurityException, IOException, ServletException {
+  public void postRequestProperAuthentication() throws Exception {
     Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
         .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(request.getCookies()).thenReturn(validCookies);
     servlet.doPost(request, response);
     // doPost's default implementation should return a 400 error to client to indicate request not
     // supported.
-    Mockito.verify(response, Mockito.times(1)).sendError(Mockito.eq(400), Mockito.anyString());
+    Assert.assertEquals(400, response.getStatus());
   }
 }
