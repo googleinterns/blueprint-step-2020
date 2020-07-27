@@ -163,6 +163,24 @@ public final class GmailServletTest extends AuthenticatedServletTestBase {
   }
 
   @Test
+  public void zeroNDaysParameter() throws Exception {
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(0));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(0));
+
+    servlet.doGet(request, response);
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void zeroMHoursParameter() throws Exception {
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(0));
+
+    servlet.doGet(request, response);
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
   public void invalidMHoursParameter() throws Exception {
     // mHours must represent less time than nDays
     Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
