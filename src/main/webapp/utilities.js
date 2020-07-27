@@ -90,3 +90,23 @@ function getDateInLocalTimeZone(dateObject = new Date()) {
   const newTime = dateObject.getTime() - dateObject.getTimezoneOffset()*60*1000;
   return new Date(newTime);
 }
+
+/**
+ * Given a list of words, encode them for a query string with commas separating
+ * the values.
+ *
+ * @param {string[]} listOfValues list of words that should be encoded
+ * @param {boolean} surroundWithQuotes true if words should be surrounded with
+ *     quotes, false if the words can be encoded as is
+ * @returns {string} the value for a query parameter, with each value seperated
+ *     by a comma.
+ */
+function encodeListForUrl(listOfValues, surroundWithQuotes) {
+  return listOfValues.map((value) => {
+    if (surroundWithQuotes) {
+      // Will add quotes, if not already present
+      value = `"${value.replace(/^"(.*)"$/, '$1')}"`;
+    }
+    return encodeURI(value);
+  }).reduce((a,b) => a + "," + b);
+}

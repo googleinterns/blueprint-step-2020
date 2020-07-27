@@ -15,7 +15,7 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut, AuthenticationError, getDateInLocalTimeZone */
+/* global signOut, AuthenticationError, getDateInLocalTimeZone, encodeListForUrl */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
 // Stores the last retrieved copy of the user's taskLists and tasks
@@ -266,3 +266,15 @@ function populateGo() {
       });
 }
 
+/**
+ *
+ *
+ * @param {string[]} listOfPhrases
+ * @param {boolean} unreadOnly
+ * @param {number} nDays
+ */
+function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
+  const listOfPhrasesString = encodeListForUrl(listOfPhrases, true);
+  const unreadOnlyString = unreadOnly.toString();
+  const nDaysString = Math.round(nDays).toString();
+}
