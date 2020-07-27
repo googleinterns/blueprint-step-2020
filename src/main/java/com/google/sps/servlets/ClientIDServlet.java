@@ -16,7 +16,6 @@ package com.google.sps.servlets;
 
 import com.google.appengine.repackaged.com.google.gson.JsonObject;
 import com.google.sps.model.AuthenticationVerifier;
-import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -26,6 +25,16 @@ import javax.servlet.http.HttpServletResponse;
 /** Serves the OAuth 2.0 Client ID */
 @WebServlet("/client-id")
 public class ClientIDServlet extends HttpServlet {
+  private final String clientId;
+
+  public ClientIDServlet() throws IOException {
+    clientId = AuthenticationVerifier.getClientId();
+  }
+
+  public ClientIDServlet(String clientId) {
+    this.clientId = clientId;
+  }
+
   /**
    * Return the OAuth 2.0 Client ID to the client
    *
@@ -35,9 +44,11 @@ public class ClientIDServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // Cannot use JsonUtility since response needs to be a JsonObject, not just a generic object.
     JsonObject clientIdJson = new JsonObject();
-    clientIdJson.addProperty("client-id", AuthenticationVerifier.getClientId());
+    clientIdJson.addProperty("client-id", clientId);
 
-    JsonUtility.sendJson(response, clientIdJson);
+    response.setContentType("application/json");
+    response.getWriter().println(clientIdJson);
   }
 }
