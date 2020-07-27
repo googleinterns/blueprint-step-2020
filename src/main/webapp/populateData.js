@@ -290,8 +290,11 @@ function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
 
   return fetch(queryString)
       .then((response) => {
+        console.log(response);
         if (response.status === 403) {
           throw new AuthenticationError();
         }
+
+        return response.json();
       }).then((responseObject) => console.log(responseObject));
 }
