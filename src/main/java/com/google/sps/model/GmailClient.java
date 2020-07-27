@@ -17,6 +17,8 @@ package com.google.sps.model;
 import com.google.api.services.gmail.model.Message;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 /** Contract for handling/making GET requests to the Gmail API */
 public interface GmailClient {
@@ -150,11 +152,20 @@ public interface GmailClient {
   /**
    * Creates Gmail query to find emails with the passed word in the subject line
    *
-   * @param words words to check subject line for. Multi-word phrases should be surrounded in double
-   *     quotes (e.g. "Three Word Phrase" vs. OneWordPhrase)
+   * @param words words to check subject line for.
    * @return query string to use in gmail to find emails that contain the words
    */
   static String wordsInSubjectLineQuery(List<String> words) {
-    return !words.isEmpty() ? String.format("subject:(%s)", String.join(" OR ", words)) : "";
+    if (words.isEmpty()) {
+      return "";
+    }
+
+    // Surround each word with double quotes (""), if they are not already there
+    words =
+        words.stream()
+            .map((word) -> String.format("\"%s\"", StringUtils.strip(word, "\"")))
+            .collect(Collectors.toList());
+
+    return String.format("subject:(%s)", String.join(" OR ", words));
   }
 }
