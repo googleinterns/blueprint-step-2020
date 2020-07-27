@@ -15,7 +15,8 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut, AuthenticationError, getDateInLocalTimeZone, encodeListForUrl */
+/* global signOut, AuthenticationError, getDateInLocalTimeZone,
+encodeListForUrl */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
 // Stores the last retrieved copy of the user's taskLists and tasks
@@ -267,14 +268,30 @@ function populateGo() {
 }
 
 /**
+ * Get actionable emails from server. Used for assign panel
  *
- *
- * @param {string[]} listOfPhrases
- * @param {boolean} unreadOnly
- * @param {number} nDays
+ * @param {string[]} listOfPhrases list of words/phrases that the subject line
+ *     of user's emails should be queried for
+ * @param {boolean} unreadOnly true if only unread emails should be returned,
+ *     false otherwise
+ * @param {number} nDays number of days to check unread emails for.
+ *     Should be an integer > 0
+ * @return {Promise<void>} returns promise that prints actionable emails to
+ *     client
  */
 function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
   const listOfPhrasesString = encodeListForUrl(listOfPhrases, true);
   const unreadOnlyString = unreadOnly.toString();
-  const nDaysString = Math.round(nDays).toString();
+  const nDaysString = nDays.toString();
+
+  const queryString =
+      `/gmail-actionable-emails?subjectLineWords=${listOfPhrasesString}` +
+      `&unreadOnly=${unreadOnlyString}&nDays=${nDaysString}`;
+
+  return fetch(queryString)
+      .then((response) => {
+        if (response.status === 403) {
+          throw new AuthenticationError();
+        }
+      }).then((responseObject) => console.log(responseObject));
 }

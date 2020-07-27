@@ -18,7 +18,7 @@
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie, isCookiePresent,
 deleteCookie, populateGmail, populateTasks, populateCalendar,
-postAndGetTaskList, populateGo */
+postAndGetTaskList, populateGo, fetchActionableEmails */
 // TODO: Handle CommonJS (Issue #31)
 
 /**
@@ -61,6 +61,7 @@ function handleAuthenticationState() {
     populateTasks();
     populateCalendar();
     postAndGetTaskList();
+    fetchActionableEmails(['Action Required', 'Action Requested'], true, 7);
 
     // Populate magic feature panels at the bottom of the dashboard
     populateGo();
