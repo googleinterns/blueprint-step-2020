@@ -268,6 +268,28 @@ function populateGo() {
 }
 
 /**
+ * Set up the assign panel. For now, this just prints the response
+ * from the server for /gmail-actionable-emails
+ */
+function setUpAssign() {
+  const assignContent = document.querySelector('#assign');
+
+  const subjectLineWords = ['Action Required', 'Action Requested'];
+  fetchActionableEmails(subjectLineWords, true, 7)
+      .then((response) => {
+        assignContent.innerText = response
+            .map((obj) => obj.snippet)
+            .reduce((a, b) => a + '\n' + b);
+      })
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
+      });
+}
+
+/**
  * Get actionable emails from server. Used for assign panel
  *
  * @param {string[]} listOfPhrases list of words/phrases that the subject line
@@ -276,8 +298,10 @@ function populateGo() {
  *     false otherwise
  * @param {number} nDays number of days to check unread emails for.
  *     Should be an integer > 0
- * @return {Promise<void>} returns promise that prints actionable emails to
- *     client
+ * @return {Promise<Object>} returns promise that returns the JSON response
+ *     from client. Should be list of Gmail Message Objects. Will throw
+ *     AuthenticationError in the case of a 403, or generic Error in
+ *     case of other error code
  */
 function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
   const listOfPhrasesString = encodeListForUrl(listOfPhrases, true);
@@ -290,11 +314,13 @@ function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
 
   return fetch(queryString)
       .then((response) => {
-        console.log(response);
-        if (response.status === 403) {
-          throw new AuthenticationError();
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
         }
-
-        return response.json();
-      }).then((responseObject) => console.log(responseObject));
+      });
 }
