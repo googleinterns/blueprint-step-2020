@@ -55,25 +55,26 @@ public final class GmailServletTest extends AuthenticatedServletTestBase {
 
   private static final GmailClient.MessageFormat messageFormat = MessageFormat.METADATA;
 
-  String DEFAULT_SENDER = "";
-  int DEFAULT_N_DAYS = 7;
-  int DEFAULT_M_HOURS = 3;
-  int INVALID_M_HOURS = DEFAULT_N_DAYS * 24 + 1;
-  int NEGATIVE_N_DAYS = -1;
-  int NEGATIVE_M_HOURS = -1;
-  long N_DAYS_TIMESTAMP = Instant.now().toEpochMilli() - TimeUnit.DAYS.toMillis(DEFAULT_N_DAYS - 1);
-  long M_HOURS_TIMESTAMP =
+  private static final String DEFAULT_SENDER = "";
+  private static final int DEFAULT_N_DAYS = 7;
+  private static final int DEFAULT_M_HOURS = 3;
+  private static final int INVALID_M_HOURS = DEFAULT_N_DAYS * 24 + 1;
+  private static final int NEGATIVE_N_DAYS = -1;
+  private static final int NEGATIVE_M_HOURS = -1;
+  private static final long N_DAYS_TIMESTAMP =
+      Instant.now().toEpochMilli() - TimeUnit.DAYS.toMillis(DEFAULT_N_DAYS - 1);
+  private static final long M_HOURS_TIMESTAMP =
       Instant.now().toEpochMilli() - TimeUnit.HOURS.toMillis(DEFAULT_M_HOURS - 1);
 
-  String SENDER_ONE_NAME = "Sender_1";
-  String SENDER_TWO_NAME = "Sender_2";
-  String SENDER_TWO_EMAIL = "senderTwo@sender.com";
+  private static final String SENDER_ONE_NAME = "Sender_1";
+  private static final String SENDER_TWO_NAME = "Sender_2";
+  private static final String SENDER_TWO_EMAIL = "senderTwo@sender.com";
 
-  MessagePart SENDER_TWO_WITH_CONTACT_NAME_PAYLOAD =
+  private static final MessagePart SENDER_TWO_WITH_CONTACT_NAME_PAYLOAD =
       generateMessagePayload(SENDER_TWO_EMAIL, SENDER_TWO_NAME);
 
-  List<Message> NO_MESSAGES = ImmutableList.of();
-  List<Message> SOME_MESSAGES_HALF_WITHIN_M_HOURS =
+  private static final List<Message> NO_MESSAGES = ImmutableList.of();
+  private static final List<Message> SOME_MESSAGES_HALF_WITHIN_M_HOURS =
       ImmutableList.of(
           new Message()
               .setId("messageFour")
@@ -156,6 +157,24 @@ public final class GmailServletTest extends AuthenticatedServletTestBase {
   public void negativeMHoursParameter() throws Exception {
     Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
     Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(NEGATIVE_M_HOURS));
+
+    servlet.doGet(request, response);
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void zeroNDaysParameter() throws Exception {
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(0));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(0));
+
+    servlet.doGet(request, response);
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void zeroMHoursParameter() throws Exception {
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(request.getParameter("mHours")).thenReturn(String.valueOf(0));
 
     servlet.doGet(request, response);
     Assert.assertEquals(400, response.getStatus());

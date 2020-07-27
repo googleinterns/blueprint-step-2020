@@ -70,15 +70,15 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
       throws IOException {
     GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
 
-    List<String> subjectLineWords;
+    List<String> subjectLinePhrases;
     try {
-      subjectLineWords = getListFromQueryString(request, "subjectLineWords");
+      subjectLinePhrases = getListFromQueryString(request, "subjectLinePhrases");
     } catch (IllegalArgumentException e) {
-      response.sendError(400, "subjectLineWords must be present in request");
+      response.sendError(400, "subjectLinePhrases must be present in request");
       return;
     }
-    if (subjectLineWords.isEmpty()) {
-      response.sendError(400, "subjectLineWords must be non-empty");
+    if (subjectLinePhrases.isEmpty()) {
+      response.sendError(400, "subjectLinePhrases must be non-empty");
       return;
     }
 
@@ -107,7 +107,7 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
 
     List<Message> actionableEmails =
         gmailClient.getActionableEmails(
-            GmailClient.MessageFormat.FULL, subjectLineWords, unreadOnly, nDays);
+            GmailClient.MessageFormat.FULL, subjectLinePhrases, unreadOnly, nDays);
     JsonUtility.sendJson(response, actionableEmails);
   }
 

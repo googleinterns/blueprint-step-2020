@@ -72,8 +72,9 @@ public interface GmailClient {
   }
 
   /**
-   * Given some search queries, combine them into a larger query Will not remove
-   * duplicates/contradictions. TODO: Refactor query creation using the Builder pattern (Issue #100)
+   * Given some search queries, combine them into a larger query. Will not remove
+   * duplicates/contradictions. Will behave as if all search queries are concatenated with AND
+   * operators. TODO: Refactor query creation using the Builder pattern (Issue #100)
    *
    * @param queries gmail search queries
    * @return String with queries space separated for use in Gmail
@@ -100,7 +101,8 @@ public interface GmailClient {
    *
    * @param messageFormat GmailClient.MessageFormat setting to control how much of each message is
    *     returned
-   * @param subjectLineWords list of words that gmail should look for in the subject line
+   * @param subjectLinePhrases list of words that gmail should look for in the subject line. Emails
+   *     will be returned as long as one of the passed phrases are present.
    * @param unreadOnly true if emails must be unread, false otherwise
    * @param nDays how many days of emails Gmail should look through.
    * @return List of messages that match above criteria
@@ -108,7 +110,7 @@ public interface GmailClient {
    */
   List<Message> getActionableEmails(
       GmailClient.MessageFormat messageFormat,
-      List<String> subjectLineWords,
+      List<String> subjectLinePhrases,
       boolean unreadOnly,
       int nDays)
       throws IOException;
@@ -168,22 +170,23 @@ public interface GmailClient {
   }
 
   /**
-   * Creates Gmail query to find emails with the passed word in the subject line
+   * Creates Gmail query to find emails with at least one of the passed phrases in the subject line.
+   * Phrases will automatically be surrounded with double quotes, if they are not already present.
    *
-   * @param words words to check subject line for.
-   * @return query string to use in gmail to find emails that contain the words
+   * @param phrases phrases to check subject line for.
+   * @return query string to use in gmail to find emails that contain at least one of the passed
+   *     phrases.
    */
-  static String wordsInSubjectLineQuery(List<String> words) {
-    if (words.isEmpty()) {
+  static String oneOfPhrasesInSubjectLineQuery(List<String> phrases) {
+    if (phrases.isEmpty()) {
       return "";
     }
 
-    // Surround each word with double quotes (""), if they are not already there
-    words =
-        words.stream()
-            .map((word) -> String.format("\"%s\"", StringUtils.strip(word, "\"")))
+    phrases =
+        phrases.stream()
+            .map((phrase) -> String.format("\"%s\"", StringUtils.strip(phrase, "\"")))
             .collect(Collectors.toList());
 
-    return String.format("subject:(%s)", String.join(" OR ", words));
+    return String.format("subject:(%s)", String.join(" OR ", phrases));
   }
 }
