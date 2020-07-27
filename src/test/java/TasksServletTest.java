@@ -120,7 +120,6 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
   @Test
   public void noTaskLists() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASK_LISTS);
-
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
