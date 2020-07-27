@@ -30,13 +30,10 @@ import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -101,21 +98,26 @@ public class GoServlet extends AuthenticatedHttpServlet {
     return tasks;
   }
 
-  private List<String> getLocations(List<Task> tasks) {
-    return tasks
-      .stream()
-      .map(task -> task.getNotes())
-      .filter(notes -> notes != null)
-      .map(notes -> getLocation(notes))
-      .collect(Collectors.toList());
+  /**
+   * Parses for locations in Tasks. Scope is public for testing purposes.
+   *
+   * @param tasks List of tasks to parse locations from.
+   * @return List of locations, "No location found" if none found in Task.
+   */
+  public List<String> getLocations(List<Task> tasks) {
+    return tasks.stream()
+        .map(task -> task.getNotes())
+        .filter(notes -> notes != null)
+        .map(notes -> getLocation(notes))
+        .collect(Collectors.toList());
   }
 
   private String getLocation(String taskNotes) {
     // taskNotes = ... [Location: ... ] ...
-    String regex = "^.*[Location: ](.*?)\\].*$";
+    String regex = "\\[Location: (.*?)\\]";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(taskNotes);
-    if (matcher.find()) {                                                
+    if (matcher.find()) {
       return matcher.group(1);
     }
     return "No location found";
@@ -124,13 +126,14 @@ public class GoServlet extends AuthenticatedHttpServlet {
   /**
    * Returns the most optimal order of travel between addresses.
    *
-   * @param request  HTTP request from the client.
+   * @param request HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws ServletException
    * @throws IOException
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws ServletException, IOException {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";

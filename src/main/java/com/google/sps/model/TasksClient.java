@@ -40,7 +40,7 @@ public interface TasksClient {
 
   /**
    * Get all task lists in a user's Tasks account with the specified task list titles
-   * 
+   *
    * @return List of task lists with any of the given task list titles
    * @throws IOException if an issue occurs with the TasksService
    */

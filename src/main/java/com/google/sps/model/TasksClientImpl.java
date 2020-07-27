@@ -67,10 +67,9 @@ public class TasksClientImpl implements TasksClient {
     // returns null if no taskLists exist. Convert to empty list for ease.
     List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
     taskLists = taskLists != null ? taskLists : new ArrayList<>();
-    taskLists
-      .stream()
-      .filter(taskList -> taskListTitles.contains(taskList.getTitle()))
-      .collect(Collectors.toList());
+    taskLists.stream()
+        .filter(taskList -> taskListTitles.contains(taskList.getTitle()))
+        .collect(Collectors.toList());
     return taskLists;
   }
 
