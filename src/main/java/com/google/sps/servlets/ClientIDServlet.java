@@ -27,10 +27,20 @@ import javax.servlet.http.HttpServletResponse;
 public class ClientIDServlet extends HttpServlet {
   private final String clientId;
 
+  /**
+   * Constructor which obtains Client ID from AuthenticationVerifier
+   *
+   * @throws IOException
+   */
   public ClientIDServlet() throws IOException {
     clientId = AuthenticationVerifier.getClientId();
   }
 
+  /**
+   * Constructor where the Client ID is input via a parameter.
+   *
+   * @param clientId String representing a Client ID
+   */
   public ClientIDServlet(String clientId) {
     this.clientId = clientId;
   }
