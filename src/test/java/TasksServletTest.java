@@ -16,20 +16,20 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
+import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksServlet;
-import java.io.StringWriter;
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
@@ -46,6 +46,7 @@ import org.mockito.Mockito;
  */
 @RunWith(JUnit4.class)
 public final class TasksServletTest extends AuthenticatedServletTestBase {
+  private AuthenticationVerifier authenticationVerifier;
   private TasksClientFactory tasksClientFactory;
   private TasksClient tasksClient;
   private TasksServlet servlet;
@@ -68,9 +69,12 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
   private static final TaskList TASK_LIST_TWO =
       new TaskList().setTitle(TASK_LIST_TITLE_TWO).setId("taskListTwo");
 
+  private static final String TASK_LIST_ID_ONE = "taskListOne";
+
   private static final List<TaskList> NO_TASK_LISTS = ImmutableList.of();
   private static final List<TaskList> ONE_TASK_LIST = ImmutableList.of(TASK_LIST_ONE);
-  private static final List<TaskList> TWO_TASK_LISTS = ImmutableList.of(TASK_LIST_ONE, TASK_LIST_TWO);
+  private static final List<TaskList> TWO_TASK_LISTS =
+      ImmutableList.of(TASK_LIST_ONE, TASK_LIST_TWO);
   private static final List<String> NO_TASK_LISTS_TITLES = ImmutableList.of();
   private static final List<String> ONE_TASK_LIST_TITLES = ImmutableList.of(TASK_LIST_TITLE_ONE);
   private static final List<String> TWO_TASK_LISTS_TITLES =
@@ -108,82 +112,6 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           TASK_COMPLETED_YESTERDAY,
           TASK_COMPLETED_TODAY);
 
-  private static final TasksResponse NO_TASK_LISTS_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(NO_TASKLISTS_TITLES)
-          .tasksToCompleteCount(0)
-          .tasksDueTodayCount(0)
-          .tasksCompletedTodayCount(0)
-          .tasksOverdueCount(0)
-          .build();
-  private static final TasksResponse NO_TASKS_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(ONE_TASKLIST_TITLES)
-          .tasksToCompleteCount(0)
-          .tasksDueTodayCount(0)
-          .tasksCompletedTodayCount(0)
-          .tasksOverdueCount(0)
-          .build();
-  private static final TasksResponse TASKS_DUE_YESTERDAY_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(ONE_TASKLIST_TITLES)
-          .tasksToCompleteCount(1)
-          .tasksDueTodayCount(0)
-          .tasksCompletedTodayCount(0)
-          .tasksOverdueCount(1)
-          .build();
-  private static final TasksResponse TASKS_DUE_TODAY_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(ONE_TASKLIST_TITLES)
-          .tasksToCompleteCount(1)
-          .tasksDueTodayCount(1)
-          .tasksCompletedTodayCount(0)
-          .tasksOverdueCount(0)
-          .build();
-  private static final TasksResponse TASKS_DUE_TOMORROW_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(ONE_TASKLIST_TITLES)
-          .tasksToCompleteCount(1)
-          .tasksDueTodayCount(0)
-          .tasksCompletedTodayCount(0)
-          .tasksOverdueCount(0)
-          .build();
-  private static final TasksResponse TASKS_COMPLETED_YESTERDAY_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(ONE_TASKLIST_TITLES)
-          .tasksToCompleteCount(0)
-          .tasksDueTodayCount(0)
-          .tasksCompletedTodayCount(0)
-          .tasksOverdueCount(0)
-          .build();
-  private static final TasksResponse TASKS_COMPLETED_TODAY_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(ONE_TASKLIST_TITLES)
-          .tasksToCompleteCount(0)
-          .tasksDueTodayCount(0)
-          .tasksCompletedTodayCount(1)
-          .tasksOverdueCount(0)
-          .build();
-  private static final TasksResponse ALL_TASKS_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(ONE_TASKLIST_TITLES)
-          .tasksToCompleteCount(3)
-          .tasksDueTodayCount(1)
-          .tasksCompletedTodayCount(1)
-          .tasksOverdueCount(1)
-          .build();
-  private static final TasksResponse MULTIPLE_TASK_LISTS_RESPONSE =
-      TasksResponse.builder()
-          .taskListTitles(TWO_TASKLISTS_TITLES)
-          .tasksToCompleteCount(6)
-          .tasksDueTodayCount(2)
-          .tasksCompletedTodayCount(2)
-          .tasksOverdueCount(2)
-          .build();
-
-  @Before
-  public void setUp() throws Exception {
-    authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
   private static final String SAMPLE_NOTES = "sample notes";
   private static final String DUE_DATE = "2020-07-20T00:00:00.000Z";
   private static final Task validTask =
@@ -193,11 +121,85 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
   private static final String EMPTY_JSON = "{}";
   private static final String INVALID_TASK_JSON = gson.toJson(new GmailResponse(0, 0, 0, ""));
 
+  private static final TasksResponse NO_TASK_LISTS_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(NO_TASK_LISTS_TITLES)
+          .tasksToCompleteCount(0)
+          .tasksDueTodayCount(0)
+          .tasksCompletedTodayCount(0)
+          .tasksOverdueCount(0)
+          .build();
+  private static final TasksResponse NO_TASKS_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .tasksToCompleteCount(0)
+          .tasksDueTodayCount(0)
+          .tasksCompletedTodayCount(0)
+          .tasksOverdueCount(0)
+          .build();
+  private static final TasksResponse TASKS_DUE_YESTERDAY_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .tasksToCompleteCount(1)
+          .tasksDueTodayCount(0)
+          .tasksCompletedTodayCount(0)
+          .tasksOverdueCount(1)
+          .build();
+  private static final TasksResponse TASKS_DUE_TODAY_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .tasksToCompleteCount(1)
+          .tasksDueTodayCount(1)
+          .tasksCompletedTodayCount(0)
+          .tasksOverdueCount(0)
+          .build();
+  private static final TasksResponse TASKS_DUE_TOMORROW_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .tasksToCompleteCount(1)
+          .tasksDueTodayCount(0)
+          .tasksCompletedTodayCount(0)
+          .tasksOverdueCount(0)
+          .build();
+  private static final TasksResponse TASKS_COMPLETED_YESTERDAY_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .tasksToCompleteCount(0)
+          .tasksDueTodayCount(0)
+          .tasksCompletedTodayCount(0)
+          .tasksOverdueCount(0)
+          .build();
+  private static final TasksResponse TASKS_COMPLETED_TODAY_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .tasksToCompleteCount(0)
+          .tasksDueTodayCount(0)
+          .tasksCompletedTodayCount(1)
+          .tasksOverdueCount(0)
+          .build();
+  private static final TasksResponse ALL_TASKS_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .tasksToCompleteCount(3)
+          .tasksDueTodayCount(1)
+          .tasksCompletedTodayCount(1)
+          .tasksOverdueCount(1)
+          .build();
+  private static final TasksResponse MULTIPLE_TASK_LISTS_RESPONSE =
+      TasksResponse.builder()
+          .taskListTitles(TWO_TASK_LISTS_TITLES)
+          .tasksToCompleteCount(6)
+          .tasksDueTodayCount(2)
+          .tasksCompletedTodayCount(2)
+          .tasksOverdueCount(2)
+          .build();
+
   @Override
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    
+
+    authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
     tasksClientFactory = Mockito.mock(TasksClientFactory.class);
     tasksClient = Mockito.mock(TasksClient.class);
     servlet = new TasksServlet(authenticationVerifier, tasksClientFactory);
