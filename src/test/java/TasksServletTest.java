@@ -216,7 +216,6 @@ public final class TasksServletTest {
             AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
 
     Mockito.when(request.getCookies()).thenReturn(validCookies);
-    Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
   @Test
