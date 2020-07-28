@@ -22,11 +22,12 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class ClientIDServletTest extends ServletTestBase {
 
-  private static final ClientIDServlet servlet = new ClientIDServlet("sampleValue");
+  private static final String CLIENT_ID = "sampleValue";
+  private static final ClientIDServlet servlet = new ClientIDServlet(CLIENT_ID);
 
   @Test
   public void responseContainsClientId() throws Exception {
     servlet.doGet(request, response);
-    Assert.assertTrue(stringWriter.toString().contains("sampleValue"));
+    Assert.assertTrue(stringWriter.toString().contains(CLIENT_ID));
   }
 }

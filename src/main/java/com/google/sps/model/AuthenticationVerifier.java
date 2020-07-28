@@ -25,7 +25,7 @@ public interface AuthenticationVerifier {
    *
    * @return String representing Client ID value defined in Secret Manager
    */
-  public static String getClientId() throws IOException {
+  static String getClientId() throws IOException {
     return (new KeyProvider()).getKey("clientId");
   }
   /**
