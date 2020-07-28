@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="utilities.js"></script>
 <script src="populateData.js"></script>
+<script src="task.js"></script>
 <script src="auth.js"></script>
 <!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
 <script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
@@ -90,15 +91,15 @@
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="clipboard-icon" src="assets/clipboard.png">
-              <p id="panel__tasks-due-today" class="panel__text-large u-vertical-center">4 due today
+              <p id="panel__tasks-due-today" class="panel__text-large">4 due today
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="checkmark-icon" src="assets/checkmark.png">
-              <p id="panel__tasks-completed-today" class="panel__text-large u-vertical-center">2 completed today
+              <p id="panel__tasks-completed-today" class="panel__text-large">2 completed today
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="exclamation-icon" src="assets/exclamation.png">
-              <p id="panel__tasks-overdue" class="panel__text-large u-vertical-center">1 overdue
+              <p id="panel__tasks-overdue" class="panel__text-large">1 overdue
             </div>
           </div>
         </div>

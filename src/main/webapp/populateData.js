@@ -15,8 +15,14 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut, AuthenticationError */
+/* global signOut, AuthenticationError, Task, getDateInLocalTimeZone */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
+
+// Stores the last retrieved copy of the user's taskLists and tasks
+// (mapped by taskListId)
+let taskLists = [];
+let tasks = {};
+
 /**
  * Populate Gmail container with user information
  */
@@ -156,6 +162,124 @@ function populateCalendar() {
 }
 
 /**
+ * Function to test getting taskLists, adding a new taskList, and then getting
+ * a new task.
+ *
+ * Will 1) request a new taskList be made with a default name (current time)
+ * then, 2) add a task to the new taskList and
+ * 3) get the new list of taskLists and log them in the console.
+ */
+function postAndGetTaskList() {
+  const sampleTitle =
+      getDateInLocalTimeZone().getTime().toString();
+
+  postNewTaskList(sampleTitle)
+      .then((taskList) => {
+        const sampleTask =
+                  new Task(
+                      'test',
+                      'This is a test',
+                      getDateInLocalTimeZone()
+                  );
+        const taskListId = taskList.id;
+
+        postNewTask(taskListId, sampleTask)
+            .then(() => {
+              getTaskListsAndTasks()
+                  .then(() => {
+                    console.log(tasks);
+                    console.log(taskLists);
+                  });
+            });
+      });
+}
+
+/**
+ * Post a new task to a given taskList
+ *
+ * @param {string} taskListId the id of the taskList that the new task should
+ *     belong to
+ * @param {Task} taskObject valid Task object
+ * @return {Promise<any>} A promise that is resolved once the task is
+ *     posted
+ */
+function postNewTask(taskListId, taskObject) {
+  const taskJson = JSON.stringify(taskObject);
+
+  const newTaskRequest =
+      new Request(
+          '/tasks?taskListId=' + taskListId,
+          {method: 'POST', body: taskJson}
+      );
+
+  return fetch(newTaskRequest)
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
+        }
+      });
+}
+
+/**
+ * Update the tasks and taskLists lists.
+ *
+ * @return {Promise<any>} A promise that is resolved once the tasks and
+ *     and taskLists arrays are updated, and rejected if there's an error
+ */
+function getTaskListsAndTasks() {
+  return fetch('/taskLists')
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
+        }
+      })
+      .then((response) => {
+        tasks = response.tasks;
+        taskLists = response.taskLists;
+      });
+}
+
+/**
+ * Post a new taskList to the server
+ *
+ * @param {string} title title of new taskList.
+ * @return {Promise<any>} A promise that is resolved once the taskList is
+ *     posted
+ */
+function postNewTaskList(title) {
+  const newTaskListRequest =
+      new Request(
+          '/taskLists?taskListTitle=' + title,
+          {method: 'POST'}
+      );
+
+  return fetch(newTaskListRequest)
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
+        }
+      })
+      .then((taskListObject) => {
+        return taskListObject;
+      });
+}
+
+/**
  * Populate Go container with hardcoded values
  */
 function populateGo() {
@@ -186,3 +310,4 @@ function populateGo() {
         }
       });
 }
+

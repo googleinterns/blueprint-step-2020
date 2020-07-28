@@ -16,13 +16,14 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
-import com.google.sps.model.AuthenticationVerifier;
+import com.google.sps.model.GmailResponse;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksServlet;
-import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -44,8 +45,7 @@ import org.mockito.Mockito;
  * AuthenticatedHttpServlet is functioning properly (those tests will fail otherwise).
  */
 @RunWith(JUnit4.class)
-public final class TasksServletTest {
-  private AuthenticationVerifier authenticationVerifier;
+public final class TasksServletTest extends AuthenticatedServletTestBase {
   private TasksClientFactory tasksClientFactory;
   private TasksClient tasksClient;
   private TasksServlet servlet;
@@ -55,37 +55,26 @@ public final class TasksServletTest {
 
   private static final Gson gson = new Gson();
 
-  private static final boolean AUTHENTICATION_VERIFIED = true;
-  private static final String ID_TOKEN_KEY = "idToken";
-  private static final String ID_TOKEN_VALUE = "sampleId";
-  private static final String ACCESS_TOKEN_KEY = "accessToken";
-  private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
-  private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
-  private static final Cookie sampleAccessTokenCookie =
-      new Cookie(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE);
-  private static final Cookie[] validCookies =
-      new Cookie[] {sampleIdTokenCookie, sampleAccessTokenCookie};
-
   private static final String TASK_TITLE_ONE = "task one";
   private static final String TASK_TITLE_TWO = "task two";
   private static final String TASK_TITLE_THREE = "task three";
   private static final String TASK_TITLE_FOUR = "task four";
   private static final String TASK_TITLE_FIVE = "task five";
-  private static final String TASKLIST_TITLE_ONE = "task list one";
-  private static final String TASKLIST_TITLE_TWO = "task list two";
+  private static final String TASK_LIST_TITLE_ONE = "task list one";
+  private static final String TASK_LIST_TITLE_TWO = "task list two";
 
-  private static final TaskList TASKLIST_ONE =
-      new TaskList().setTitle(TASKLIST_TITLE_ONE).setId("taskListOne");
-  private static final TaskList TASKLIST_TWO =
-      new TaskList().setTitle(TASKLIST_TITLE_TWO).setId("taskListTwo");
+  private static final TaskList TASK_LIST_ONE =
+      new TaskList().setTitle(TASK_LIST_TITLE_ONE).setId("taskListOne");
+  private static final TaskList TASK_LIST_TWO =
+      new TaskList().setTitle(TASK_LIST_TITLE_TWO).setId("taskListTwo");
 
-  private static final List<TaskList> NO_TASKLISTS = ImmutableList.of();
-  private static final List<String> NO_TASKLISTS_TITLES = ImmutableList.of();
-  private static final List<TaskList> ONE_TASKLIST = ImmutableList.of(TASKLIST_ONE);
-  private static final List<TaskList> TWO_TASKLISTS = ImmutableList.of(TASKLIST_ONE, TASKLIST_TWO);
-  private static final List<String> ONE_TASKLIST_TITLES = ImmutableList.of(TASKLIST_TITLE_ONE);
-  private static final List<String> TWO_TASKLISTS_TITLES =
-      ImmutableList.of(TASKLIST_TITLE_ONE, TASKLIST_TITLE_TWO);
+  private static final List<TaskList> NO_TASK_LISTS = ImmutableList.of();
+  private static final List<TaskList> ONE_TASK_LIST = ImmutableList.of(TASK_LIST_ONE);
+  private static final List<TaskList> TWO_TASK_LISTS = ImmutableList.of(TASK_LIST_ONE, TASK_LIST_TWO);
+  private static final List<String> NO_TASK_LISTS_TITLES = ImmutableList.of();
+  private static final List<String> ONE_TASK_LIST_TITLES = ImmutableList.of(TASK_LIST_TITLE_ONE);
+  private static final List<String> TWO_TASK_LISTS_TITLES =
+      ImmutableList.of(TASK_LIST_TITLE_ONE, TASK_LIST_TITLE_TWO);
 
   private static final DateTimeFormatter FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX").withZone(ZoneId.systemDefault());
@@ -119,7 +108,7 @@ public final class TasksServletTest {
           TASK_COMPLETED_YESTERDAY,
           TASK_COMPLETED_TODAY);
 
-  private static final TasksResponse NO_TASKLISTS_RESPONSE =
+  private static final TasksResponse NO_TASK_LISTS_RESPONSE =
       TasksResponse.builder()
           .taskListTitles(NO_TASKLISTS_TITLES)
           .tasksToCompleteCount(0)
@@ -183,7 +172,7 @@ public final class TasksServletTest {
           .tasksCompletedTodayCount(1)
           .tasksOverdueCount(1)
           .build();
-  private static final TasksResponse MULTIPLE_TASKLISTS_RESPONSE =
+  private static final TasksResponse MULTIPLE_TASK_LISTS_RESPONSE =
       TasksResponse.builder()
           .taskListTitles(TWO_TASKLISTS_TITLES)
           .tasksToCompleteCount(6)
@@ -195,6 +184,20 @@ public final class TasksServletTest {
   @Before
   public void setUp() throws Exception {
     authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
+  private static final String SAMPLE_NOTES = "sample notes";
+  private static final String DUE_DATE = "2020-07-20T00:00:00.000Z";
+  private static final Task validTask =
+      new Task().setTitle(TASK_TITLE_ONE).setNotes(SAMPLE_NOTES).setDue(DUE_DATE);
+  private static final String VALID_TASK_JSON = gson.toJson(validTask);
+
+  private static final String EMPTY_JSON = "{}";
+  private static final String INVALID_TASK_JSON = gson.toJson(new GmailResponse(0, 0, 0, ""));
+
+  @Override
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+    
     tasksClientFactory = Mockito.mock(TasksClientFactory.class);
     tasksClient = Mockito.mock(TasksClient.class);
     servlet = new TasksServlet(authenticationVerifier, tasksClientFactory);
@@ -218,16 +221,16 @@ public final class TasksServletTest {
 
   @Test
   public void noTaskLists() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASKLISTS);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASK_LISTS);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(NO_TASKLISTS_RESPONSE, actual);
+    Assert.assertEquals(NO_TASK_LISTS_RESPONSE, actual);
   }
 
   @Test
   public void noTasks() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
-    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(NO_TASKS);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(NO_TASKS);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(NO_TASKS_RESPONSE, actual);
@@ -235,8 +238,8 @@ public final class TasksServletTest {
 
   @Test
   public void taskOverdue() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
-    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_YESTERDAY);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(TASKS_DUE_YESTERDAY);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(TASKS_DUE_YESTERDAY_RESPONSE, actual);
@@ -244,8 +247,8 @@ public final class TasksServletTest {
 
   @Test
   public void taskDueToday() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
-    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_TODAY);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(TASKS_DUE_TODAY);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(TASKS_DUE_TODAY_RESPONSE, actual);
@@ -253,8 +256,8 @@ public final class TasksServletTest {
 
   @Test
   public void taskToComplete() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
-    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_DUE_TOMORROW);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(TASKS_DUE_TOMORROW);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(TASKS_DUE_TOMORROW_RESPONSE, actual);
@@ -262,8 +265,8 @@ public final class TasksServletTest {
 
   @Test
   public void taskCompletedYesterday() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
-    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_COMPLETED_YESTERDAY);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(TASKS_COMPLETED_YESTERDAY);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(TASKS_COMPLETED_YESTERDAY_RESPONSE, actual);
@@ -271,8 +274,8 @@ public final class TasksServletTest {
 
   @Test
   public void taskCompletedToday() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
-    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(TASKS_COMPLETED_TODAY);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(TASKS_COMPLETED_TODAY);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(TASKS_COMPLETED_TODAY_RESPONSE, actual);
@@ -280,8 +283,8 @@ public final class TasksServletTest {
 
   @Test
   public void allTasks() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASKLIST);
-    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(ALL_TASKS);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
     Assert.assertEquals(ALL_TASKS_RESPONSE, actual);
@@ -289,11 +292,77 @@ public final class TasksServletTest {
 
   @Test
   public void multipleTaskLists() throws Exception {
-    Mockito.when(tasksClient.listTaskLists()).thenReturn(TWO_TASKLISTS);
-    Mockito.when(tasksClient.listTasks(TASKLIST_ONE)).thenReturn(ALL_TASKS);
-    Mockito.when(tasksClient.listTasks(TASKLIST_TWO)).thenReturn(ALL_TASKS);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(TWO_TASK_LISTS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_TWO)).thenReturn(ALL_TASKS);
     servlet.doGet(request, response);
     TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(MULTIPLE_TASKLISTS_RESPONSE, actual);
+    Assert.assertEquals(MULTIPLE_TASK_LISTS_RESPONSE, actual);
+  }
+
+  @Test
+  public void postTaskNullTaskListId() throws Exception {
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postTaskEmptyTaskListId() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn("");
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postBodyEmpty() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASK_LIST_ID_ONE);
+
+    StringReader reader = new StringReader("");
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postEmptyTask() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASK_LIST_ID_ONE);
+
+    StringReader reader = new StringReader(EMPTY_JSON);
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postInvalidTask() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASK_LIST_ID_ONE);
+
+    StringReader reader = new StringReader(INVALID_TASK_JSON);
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+    servlet.doPost(request, response);
+
+    Assert.assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void postValidTask() throws Exception {
+    Mockito.when(request.getParameter("taskListId")).thenReturn(TASK_LIST_ID_ONE);
+    Mockito.when(tasksClient.postTask(TASK_LIST_ID_ONE, validTask)).thenReturn(validTask);
+
+    StringReader reader = new StringReader(VALID_TASK_JSON);
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    Mockito.when(request.getReader()).thenReturn(bufferedReader);
+    servlet.doPost(request, response);
+
+    Task postedTask = gson.fromJson(stringWriter.toString(), Task.class);
+
+    Assert.assertEquals(validTask, postedTask);
   }
 }

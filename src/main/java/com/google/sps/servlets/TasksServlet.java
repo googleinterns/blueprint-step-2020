@@ -25,6 +25,7 @@ import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
 import com.google.sps.model.TasksResponse;
+import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -39,7 +40,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Serves selected information from the User's Tasks Account. TODO: Implement Post (Issue #53) */
+/** Serves selected information from the User's Tasks Account. */
 @WebServlet("/tasks")
 public class TasksServlet extends AuthenticatedHttpServlet {
   private final TasksClientFactory tasksClientFactory;
@@ -61,13 +62,89 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     this.tasksClientFactory = tasksClientFactory;
   }
 
-  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
+  /**
+   * Returns Tasks from the user's Tasks account
+   *
+   * @param request Http request from client. Should contain idToken and accessToken
+   * @param response 403 if user is not authenticated, list of Tasks otherwise
+   * @param googleCredential a valid google credential object (already verified)
+   * @throws IOException if an issue arises while processing the request
+   */
+  @Override
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
+    assert googleCredential != null
+        : "Null credentials (i.e. unauthenticated requests) should already be handled";
+
+    // Get tasks from Google Tasks
+    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
     List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
+    List<Task> tasks = getTasks(tasksClient);
+
+    // Initialize Tasks Response
+    List<String> taskListTitles = getTaskListTitles(taskLists);
+    long tasksToCompleteCount = countTasksToComplete(tasks);
+    long tasksDueTodayCount = countTasksDueToday(tasks);
+    long tasksCompletedTodayCount = countTasksCompletedToday(tasks);
+    long tasksOverdueCount = countTasksOverdue(tasks);
+    TasksResponse tasksResponse =
+        TasksResponse.builder()
+            .taskListTitles(taskListTitles)
+            .tasksToCompleteCount(tasksToCompleteCount)
+            .tasksDueTodayCount(tasksDueTodayCount)
+            .tasksCompletedTodayCount(tasksCompletedTodayCount)
+            .tasksOverdueCount(tasksOverdueCount)
+            .build();
+
+    // Convert tasks to JSON and print to response
+    JsonUtility.sendJson(response, tasksResponse);
+  }
+
+  /**
+   * Add a new task object to a tasklist
+   *
+   * @param request HTTP request from client. Must contain a taskListId. Body must contain a task
+   *     entity (https://developers.google.com/tasks/v1/reference/tasks)
+   * @param response Http response to be sent to client
+   * @param googleCredential valid, verified google credential object
+   * @throws IOException if an issue occurs with the tasksService
+   */
+  @Override
+  public void doPost(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
+    assert googleCredential != null
+        : "Null credentials (i.e. unauthenticated requests) should already be handled";
+    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+
+    String taskListId = request.getParameter("taskListId");
+
+    if (taskListId == null || taskListId.equals("")) {
+      response.sendError(400, "taskListId must be present in request");
+      return;
     }
-    return tasks;
+
+    Gson gson = new Gson();
+    Task taskToPost = gson.fromJson(request.getReader(), Task.class);
+
+    // Check if passed task is present and valid
+    if (taskToPost == null || taskToPost.isEmpty()) {
+      response.sendError(400, "Task body must be non-empty");
+      return;
+    } else if (!(taskToPost.containsKey("title")
+        || taskToPost.containsKey("notes")
+        || taskToPost.containsKey("due"))) {
+      response.sendError(400, "Task invalid. Task must contain at least one of: title, notes, due");
+      return;
+    }
+
+    try {
+      JsonUtility.sendJson(response, tasksClient.postTask(taskListId, taskToPost));
+    } catch (IOException e) {
+      throw new IOException(
+          "There was an issue posting the task. Check the taskListId and try again", e);
+    }
   }
 
   private List<String> getTaskListTitles(List<TaskList> taskLists) throws IOException {
@@ -119,45 +196,18 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Returns Tasks from the user's Tasks account
+   * Get the names of the tasks in all of the user's tasklists
    *
-   * @param request Http request from client. Should contain idToken and accessToken
-   * @param response 403 if user is not authenticated, list of Tasks otherwise
-   * @param googleCredential a valid google credential object (already verified)
-   * @throws IOException if an issue arises while processing the request
+   * @param tasksClient either a mock TaskClient or a taskClient with a valid credential
+   * @return List of tasks from user's account
+   * @throws IOException if an issue occurs with the tasksService
    */
-  @Override
-  public void doGet(
-      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
-      throws IOException {
-    assert googleCredential != null
-        : "Null credentials (i.e. unauthenticated requests) should already be handled";
-
-    // Get tasks from Google Tasks
-    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = getTasks(tasksClient);
-
-    // Initialize Tasks Response
-    List<String> taskListTitles = getTaskListTitles(taskLists);
-    long tasksToCompleteCount = countTasksToComplete(tasks);
-    long tasksDueTodayCount = countTasksDueToday(tasks);
-    long tasksCompletedTodayCount = countTasksCompletedToday(tasks);
-    long tasksOverdueCount = countTasksOverdue(tasks);
-    TasksResponse tasksResponse =
-        TasksResponse.builder()
-            .taskListTitles(taskListTitles)
-            .tasksToCompleteCount(tasksToCompleteCount)
-            .tasksDueTodayCount(tasksDueTodayCount)
-            .tasksCompletedTodayCount(tasksCompletedTodayCount)
-            .tasksOverdueCount(tasksOverdueCount)
-            .build();
-
-    // Convert tasks to JSON and print to response
-    Gson gson = new Gson();
-    String tasksJson = gson.toJson(tasksResponse);
-
-    response.setContentType("application/json");
-    response.getWriter().println(tasksJson);
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      tasks.addAll(tasksClient.listTasks(taskList));
+    }
+    return tasks;
   }
 }
