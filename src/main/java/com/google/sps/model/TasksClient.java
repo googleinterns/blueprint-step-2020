@@ -54,4 +54,14 @@ public interface TasksClient {
    * @throws IOException if an issue occurs with the TasksService
    */
   TaskList postTaskList(String title) throws IOException;
+
+  /**
+   * Add a new task to a tasklist in a user's tasks account
+   *
+   * @param parentTaskListId id of tasklist that the new task will belong to
+   * @param task task object to be posted to user's tasks account
+   * @return Task object that contains passed information
+   * @throws IOException if an issue occurs with the tasksService
+   */
+  Task postTask(String parentTaskListId, Task task) throws IOException;
 }

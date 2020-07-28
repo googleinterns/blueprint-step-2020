@@ -81,6 +81,11 @@ public class TasksClientImpl implements TasksClient {
     return tasksService.tasklists().insert(taskList).execute();
   }
 
+  @Override
+  public Task postTask(String parentTaskListId, Task task) throws IOException {
+    return tasksService.tasks().insert(parentTaskListId, task).execute();
+  }
+
   /** Factory to create a TasksClientImpl instance with given credential */
   public static class Factory implements TasksClientFactory {
     /**
