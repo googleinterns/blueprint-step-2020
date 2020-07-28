@@ -21,21 +21,20 @@ import com.google.sps.exceptions.PlacesException;
 import java.util.List;
 
 /**
- * Contract for sending GET requests to the Google Places API. Implement getPlaces to obtain
- * optimized route from the API.
+ * Contract for sending GET requests to the Google Places API. Implement searchNearby to obtain
+ * formatted addresses of nearby locations satisfying criteria set in the parameters from the API.
  */
 public interface PlacesClient {
   /**
-   * Gets the result of a GET request to the Google Places API.
+   * Sends a GET request to the Google Places API for nearby locations.
    *
-   * @param destination A string representing the destination to get directions to.
-   * @param origin A string representing the origin to get directions from.
-   * @param waypoints A list of string consisting of waypoints to visit between the destination and
-   *     the origin.
-   * @return A string representing the result from a GET request to the Google Places API.
+   * @param location A LatLng with coordinates of the location to search nearby.
+   * @param placeType A PlaceType representing the type of place to look for.
+   * @param rankBy A RankBy representing how to sort results. e.g. distance to location.
+   * @return A list of formatted addresses from the results of the GET request.
    * @throws PlacesException A custom exception is thrown to signal an error pertaining to the
    *     Places API.
    */
-  List<String> getPlaces(LatLng location, PlaceType placeType, RankBy rankBy)
+  List<String> searchNearby(LatLng location, PlaceType placeType, RankBy rankBy)
       throws PlacesException;
 }
