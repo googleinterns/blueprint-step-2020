@@ -35,8 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 public class GoServlet extends AuthenticatedHttpServlet {
 
   private final DirectionsClientFactory directionsClientFactory;
-  // private final PlacesClientFactory placesClientFactory;
-  // private final TasksClientFactory tasksClientFactory;
   private final String apiKey;
   private final String origin;
   private final String destination;
@@ -49,8 +47,6 @@ public class GoServlet extends AuthenticatedHttpServlet {
    */
   public GoServlet() throws IOException {
     directionsClientFactory = new DirectionsClientImpl.Factory();
-    // placesClientFactory = new PlacesClientImpl.Factory();
-    // tasksClientFactory = new TasksClientImpl.Factory();
     apiKey = (new KeyProvider()).getKey("apiKey");
     origin = "Waterloo, ON";
     destination = "Waterloo, ON";
@@ -65,15 +61,11 @@ public class GoServlet extends AuthenticatedHttpServlet {
    */
   public GoServlet(
       DirectionsClientFactory directionsClientFactory,
-      // PlacesClientFactory placesClientFactory,
-      // TasksClientFactory tasksClientFactory,
       String fakeApiKey,
       String fakeOrigin,
       String fakeDestination,
       List<String> fakeWaypoints) {
     this.directionsClientFactory = directionsClientFactory;
-    // this.placesClientFactory = placesClientFactory;
-    // this.tasksClientFactory = tasksClientFactory;
     apiKey = fakeApiKey;
     origin = fakeOrigin;
     destination = fakeDestination;
@@ -93,15 +85,15 @@ public class GoServlet extends AuthenticatedHttpServlet {
       throws ServletException {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
-    // get relevant tasks using task titles
-    // get descriptions of relevant tasks
-    // parse for locations from descriptions
+    // Get relevant tasks using task titles
+    // Get descriptions of relevant tasks
+    // Parse for locations from descriptions
 
-    // split waypoints into exact addresses and generic locations by looking for the presence of ","
-    // for every exact address, generic location is sent to Places to obtain the closest match
+    // Split waypoints into exact addresses and generic locations by looking for the presence of ","
+    // For every exact address, generic location is sent to Places to obtain the closest match
 
-    // create 'route' for every permutation send to Directions
-    // route with shortest travel time is kept at every iteration
+    // Create 'route' for every permutation send to Directions
+    // Route with shortest travel time is kept at every iteration
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
