@@ -52,7 +52,6 @@ public final class TasksServletTest {
   private HttpServletRequest request;
   private HttpServletResponse response;
   private StringWriter stringWriter;
-  private PrintWriter printWriter;
 
   private static final Gson gson = new Gson();
 
@@ -207,7 +206,6 @@ public final class TasksServletTest {
 
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
-    printWriter = new PrintWriter(stringWriter);
 
     request = Mockito.mock(HttpServletRequest.class);
     response =
