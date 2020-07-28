@@ -153,12 +153,11 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     List<String> allTaskListTitles = getTaskListTitles(allTaskLists);
     List<Task> tasks;
 
-    String queryString = request.getQueryString();
-    if (queryString == null) {
+    String selectedParameter = request.getParameter("selected");
+    if (selectedParameter == null) {
       tasks = getTasks(tasksClient, allTaskListTitles);
     } else {
-      List<String> selectedTaskListTitles =
-          Arrays.asList(Arrays.asList(queryString.split("=")).get(1).split(","));
+      List<String> selectedTaskListTitles = Arrays.asList(selectedParameter.split(","));
       tasks = getTasks(tasksClient, selectedTaskListTitles);
     }
 

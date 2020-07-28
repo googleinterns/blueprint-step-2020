@@ -21,7 +21,7 @@ import java.util.List;
  * methods to generate these statistics.
  */
 public final class TasksResponse {
-  private final List<String> taskListNames;
+  private final List<String> allTaskListTitles;
   private final int tasksToComplete;
   private final int tasksDueToday;
   private final int tasksCompletedToday;
@@ -30,28 +30,28 @@ public final class TasksResponse {
   /**
    * Create a TasksResponse instance
    *
-   * @param taskListNames names of all task lists to display in a multiselect dropdown list on the
-   *     client.
+   * @param allTaskListTitles names of all task lists to display in a multiselect dropdown list on
+   *     the client.
    * @param tasksToComplete number of tasks the user has yet to complete.
    * @param tasksDueToday number of tasks the user has yet to complete for today.
    * @param tasksCompletedToday number of tasks the user has marked as complete for today.
    * @param tasksOverdue number of tasks that have due dates before today.
    */
   public TasksResponse(
-      List<String> taskListNames,
+      List<String> allTaskListTitles,
       int tasksToComplete,
       int tasksDueToday,
       int tasksCompletedToday,
       int tasksOverdue) {
-    this.taskListNames = taskListNames;
+    this.allTaskListTitles = allTaskListTitles;
     this.tasksToComplete = tasksToComplete;
     this.tasksDueToday = tasksDueToday;
     this.tasksCompletedToday = tasksCompletedToday;
     this.tasksOverdue = tasksOverdue;
   }
 
-  public List<String> getTaskListNames() {
-    return taskListNames;
+  public List<String> getAllTaskListTitles() {
+    return allTaskListTitles;
   }
 
   public int getTasksToComplete() {
@@ -82,7 +82,7 @@ public final class TasksResponse {
 
     TasksResponse other = (TasksResponse) object;
 
-    return (this.taskListNames == other.getTaskListNames()
+    return (this.allTaskListTitles == other.getAllTaskListTitles()
         && this.tasksToComplete == other.getTasksToComplete()
         && this.tasksDueToday == other.getTasksDueToday()
         && this.tasksCompletedToday == other.getTasksCompletedToday()

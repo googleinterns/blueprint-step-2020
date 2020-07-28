@@ -91,11 +91,11 @@ function populateGmail() {
  */
 function populateTasks() {
   let fetchFrom;
-  const select = document.querySelector('#panel__task-list-select');
+  const select = document.querySelector('#tasks-select');
   // Cast from HTMLOptionsCollection to Array
   const options = Array(...select.options);
 
-  if (options.length == 0) {
+  if (options.length === 0) {
     fetchFrom = '/tasks';
   } else {
     const selectedOptions = [];
@@ -116,27 +116,29 @@ function populateTasks() {
         return response.json();
       })
       .then((tasksResponse) => {
-        const taskListNames = tasksResponse['taskListNames'];
-        const select = document.querySelector('#panel__task-list-select');
-        taskListNames.forEach((taskListName) => {
-          const option = document.createElement('option');
-          option.value = taskListName;
-          option.innerText = taskListName;
-          select.append(option);
-        });
+        if (options.length === 0) {
+          const allTaskListTitles = tasksResponse['allTaskListTitles'];
+          select.innerText = '';
+          allTaskListTitles.forEach((taskListTitle) => {
+            const option = document.createElement('option');
+            option.value = taskListTitle;
+            option.innerText = taskListTitle;
+            select.append(option);
+          });
+        }
         document
-            .querySelector('#panel__tasks-to-complete')
+            .querySelector('#tasks-to-complete')
             .innerText = tasksResponse['tasksToComplete'];
         document
-            .querySelector('#panel__tasks-due-today')
+            .querySelector('#tasks-due-today')
             .innerText = tasksResponse['tasksDueToday'] +
                             ' due today';
         document
-            .querySelector('#panel__tasks-completed-today')
+            .querySelector('#tasks-completed-today')
             .innerText = tasksResponse['tasksCompletedToday'] +
                             ' completed today';
         document
-            .querySelector('#panel__tasks-overdue')
+            .querySelector('#tasks-overdue')
             .innerText = tasksResponse['tasksOverdue'] +
                             ' overdue';
       })

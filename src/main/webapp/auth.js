@@ -96,8 +96,8 @@ function onSignIn(googleUser) {
   // or when the browser is closed
   addCookie('accessToken', accessToken, expiryUtcTime);
 
-  // TODO: Confirm that this is a double call
-  // handleAuthenticationState();
+  // TODO: Double call - if a user is not signed in and tries to log in, they'll get stuck without this (Issue #97)
+  handleAuthenticationState();
 }
 
 /**

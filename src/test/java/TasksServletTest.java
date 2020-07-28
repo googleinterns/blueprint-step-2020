@@ -109,7 +109,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(NO_TASK_LISTS_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(NO_TASK_LISTS_TITLES, tasksResponse.getAllTaskListTitles());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
     Assert.assertEquals(0, tasksResponse.getTasksCompletedToday());
@@ -123,7 +123,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getAllTaskListTitles());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
     Assert.assertEquals(0, tasksResponse.getTasksCompletedToday());
@@ -137,7 +137,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getAllTaskListTitles());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
     Assert.assertEquals(0, tasksResponse.getTasksCompletedToday());
@@ -151,7 +151,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getAllTaskListTitles());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
     Assert.assertEquals(1, tasksResponse.getTasksDueToday());
     Assert.assertEquals(0, tasksResponse.getTasksCompletedToday());
@@ -165,7 +165,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getAllTaskListTitles());
     Assert.assertEquals(1, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
     Assert.assertEquals(0, tasksResponse.getTasksCompletedToday());
@@ -179,7 +179,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getAllTaskListTitles());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
     Assert.assertEquals(0, tasksResponse.getTasksCompletedToday());
@@ -193,7 +193,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getAllTaskListTitles());
     Assert.assertEquals(0, tasksResponse.getTasksToComplete());
     Assert.assertEquals(0, tasksResponse.getTasksDueToday());
     Assert.assertEquals(1, tasksResponse.getTasksCompletedToday());
@@ -207,7 +207,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     servlet.doGet(request, response);
 
     TasksResponse tasksResponse = gson.fromJson(stringWriter.toString(), TasksResponse.class);
-    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getTaskListNames());
+    Assert.assertEquals(ONE_TASK_LIST_TITLES, tasksResponse.getAllTaskListTitles());
     Assert.assertEquals(3, tasksResponse.getTasksToComplete());
     Assert.assertEquals(1, tasksResponse.getTasksDueToday());
     Assert.assertEquals(1, tasksResponse.getTasksCompletedToday());
