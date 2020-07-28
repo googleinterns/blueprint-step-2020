@@ -1,5 +1,7 @@
 import com.google.api.services.tasks.model.Task;
 import com.google.common.collect.ImmutableList;
+import com.google.sps.model.DirectionsClientFactory;
+import com.google.sps.model.TasksClientFactory;
 import com.google.sps.servlets.GoServlet;
 import java.util.List;
 import org.junit.Assert;
@@ -7,11 +9,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 public class GoServletTest extends AuthenticatedServletTestBase {
 
   private GoServlet servlet;
+  private DirectionsClientFactory directionsClientFactory;
+  private TasksClientFactory tasksClientFactory;
 
   private static final Task TASK_WITH_NO_LOCATION = new Task().setNotes("sample notes");
   private static final Task TASK_WITH_ONE_LOCATION =
@@ -44,7 +49,16 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    servlet = new GoServlet();
+    directionsClientFactory = Mockito.mock(DirectionsClientFactory.class);
+    tasksClientFactory = Mockito.mock(TasksClientFactory.class);
+    servlet =
+        new GoServlet(
+            directionsClientFactory,
+            tasksClientFactory,
+            "fakeApiKey",
+            "fakeOrigin",
+            "fakeDestination",
+            ImmutableList.of("fakeWaypoints"));
   }
 
   @Test
