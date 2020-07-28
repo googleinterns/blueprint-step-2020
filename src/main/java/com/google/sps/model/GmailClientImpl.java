@@ -67,7 +67,10 @@ public class GmailClientImpl implements GmailClient {
   @Override
   public List<Message> getUnreadEmailsFromNDays(GmailClient.MessageFormat messageFormat, int nDays)
       throws IOException {
-    String searchQuery = GmailClient.emailQueryString(nDays, "d", true, false, "");
+    String ageQuery = GmailClient.emailAgeQuery(nDays, "d");
+    String unreadQuery = GmailClient.unreadEmailQuery(true);
+
+    String searchQuery = GmailClient.combineSearchQueries(ageQuery, unreadQuery);
     return listUserMessages(searchQuery).stream()
         .map(
             (message) -> {
