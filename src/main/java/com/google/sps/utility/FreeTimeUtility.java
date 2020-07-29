@@ -21,154 +21,122 @@ import java.util.concurrent.TimeUnit;
 /** Class containing the user's free hours. */
 public final class FreeTimeUtility {
 
-  private final long startDay;
-  private final List<Long> workHoursPerDay;
-  private final List<Long> personalHoursPerDay;
-  private final long numMillisecondsDay = TimeUnit.HOURS.toMillis(24);
-  private final long Hour = TimeUnit.HOURS.toMillis(1);
-  private final int UnixEpochDayShift = 3;
-  private final long personalBegin = 7 * Hour;
-  private final long workBegin = 10 * Hour;
-  private final long workEnd = 18 * Hour;
-  private final long personalEnd = 23 * Hour;
+  private final Date startDate;
+  private List<Long> workHoursPerDay;
+  private List<Long> personalHoursPerDay;
+  private List<DatePair> morningFreeInterval;
+  private List<DatePair> workFreeInterval;
+  private List<DatePair> eveningFreeInterval;
+  private static final long HOUR_MILLI = TimeUnit.HOURS.toMillis(1);
+  private static final long DAY_MILLI = TimeUnit.DAYS.toMillis(1);
+  private static final long PERSONAL_BEGIN = 7 * HOUR_MILLI;
+  private static final long WORK_BEGIN = 10 * HOUR_MILLI;
+  private static final long WORK_END = 18 * HOUR_MILLI;
+  private static final long PERSONAL_END = 23 * HOUR_MILLI;
+  private static final int OFFSET = 7;
 
   /**
-   * Initialize the class by calculating the start day. The free hours should be eight hours for the
-   * working hours and for the pesonal time initially. Adjust the free hours on the first day to
-   * account for the fact that there are hours that have already passed
+   * Initialize the class with the start day. The work hours are harrrd-coded between 10 AM and
+   * 6 PM. The rest of the free hours are between 7 AM and 11 PM. 
    *
-   * @param startTime parameter of type long that gives the Unix epoch time of the start/now. The
-   *     timezone is UTC
+   * @param startTime parameter that gives the time of the start/now.
    */
-  public FreeTimeUtility(long startTime) {
-    long numDays = startTime / numMillisecondsDay;
-    this.startDay = (numDays + UnixEpochDayShift) % 7;
-    long eightHours = 8 * Hour;
-    this.workHoursPerDay =
-        Arrays.asList(eightHours, eightHours, eightHours, eightHours, eightHours);
-    this.personalHoursPerDay =
-        Arrays.asList(eightHours, eightHours, eightHours, eightHours, eightHours);
-    setEndDayEvent(0, startTime % numMillisecondsDay);
+  public FreeTimeUtility(Date startDate) {
+    this.startDate = startDate;
+    Date basisDate = new Date(startDate.getYear(), startDate.getMonth(), startDate.getDate(), 0, 0);
+
+    this.morningFreeInterval = new ArrayList<>();
+    this.workFreeInterval = new ArrayList<>();
+    this.eveningFreeInterval = new ArrayList<>();
+
+    for (int day = 0; day< 5; day++) {
+      Date workStart = new Date(basisDate.getTime() + day * DAY_MILLI + WORK_BEGIN);
+      Date workEnd = new Date(basisDate.getTime() + day * DAY_MILLI + WORK_END);
+      Date personalStart = new Date(basisDate.getTime() + day * DAY_MILLI + PERSONAL_BEGIN);
+      Date personalEnd = new Date(basisDate.getTime() + day * DAY_MILLI + PERSONAL_END);
+      morningFreeInterval.add(new DatePair(personalStart, workStart));
+      workFreeInterval.add(new DatePair(workStart, workEnd));
+      eveningFreeInterval.add(new DatePair(workEnd, personalEnd));
+    }
+    addEvent(basisDate, startDate);
   }
 
   /**
-   * Substract the event durations from the free time. The working hours are hard-coded as beign
-   * between 10:00 AM and 6:00 PM. The personal time is between 7:00 AM and 11:00 PM, without
-   * accounting for the work period in there. All time periods are in UTC timezone. TODO: Refactor
-   * the logic of this function to account for edge cases like multiple events being created at the
-   * same time. (Issue #104)
+   * Change the free intervals based on the new event added.
    *
-   * @param startTime parameter of type long that gives the Unix epoch time of the start of the
-   *     event
-   * @param endTime parameter of type long that gives the Unix epoch time of the end of the event
+   * @param evenStart parameter that gives start time.
+   * @param eventEnd parameter that gives end tome of the event
    */
-  public void addEvent(long startTime, long endTime) {
-    long numDaysBegin = startTime / numMillisecondsDay;
-    long numDaysEnd = endTime / numMillisecondsDay;
-    long beginDay = (numDaysBegin + UnixEpochDayShift) % 7;
-    long endDay = (numDaysEnd + UnixEpochDayShift) % 7;
-    long startHour = startTime % numMillisecondsDay;
-    long endHour = endTime % numMillisecondsDay;
-    int indexBegin = (int) (beginDay - startDay);
-    int indexEnd = (int) (endDay - startDay);
-    for (int index = indexBegin; index <= Math.min(5, indexEnd); index++) {
-      if (index == indexBegin && index == indexEnd) {
-        setSameDayEvent(index, startHour, endHour);
-      } else if (index == indexBegin) {
-        setStartDayEvent(index, startHour);
-      } else if (index == indexEnd) {
-        setEndDayEvent(index, endHour);
-      } else {
-        setAllDayEvent(index);
+  public void addEvent(Date eventStart, Date eventEnd) {
+    this.morningFreeInterval = updateInterval(this.morningFreeInterval, eventStart, eventEnd);
+    this.workFreeInterval = updateInterval(this.workFreeInterval, eventStart, eventEnd);
+    this.eveningFreeInterval = updateInterval(this.eveningFreeInterval, eventStart, eventEnd);
+  }
+
+  /**
+   * Method to update the free intervals in a particular list of intervals.
+   *
+   * @param freeTime the list of intervals to update.
+   * @param eventStart the start time of the new event
+   * @param eventEnd the end time of the new event
+   * @return the new list of intervals
+   */
+  private List<DatePair> updateInterval(List<DatePair> freeTime, Date eventStart, Date eventEnd) {
+    List<DatePair> updatedTime = new ArrayList<>();
+    for (DatePair interval: freeTime) {
+      if (interval.getKey().before(eventStart) && interval.getValue().after(eventEnd)) {
+        updatedTime.add(new DatePair(interval.getKey(), eventStart));
+        updatedTime.add(new DatePair(eventEnd, interval.getValue()));
+      }
+      else if (interval.getKey().before(eventStart) && interval.getValue().after(eventStart)) {
+        updatedTime.add(new DatePair(interval.getKey(), eventStart));
+      }
+      else if (interval.getKey().before(eventEnd) && interval.getValue().after(eventEnd)) {
+        updatedTime.add(new DatePair(eventEnd, interval.getValue()));
+      }
+      else if (!(eventStart.before(interval.getKey()) && eventEnd.after(interval.getValue()))) {
+        updatedTime.add(interval);
       }
     }
+    return updatedTime;
   }
 
-  private void setSameDayEvent(int index, long startHour, long endHour) {
-    if (startHour < personalBegin && endHour >= personalEnd) {
-      // Case where we have an all day event
-      setAllDayEvent(index);
-    } else if (startHour < personalBegin && endHour < personalEnd) {
-      // Case where the event starts before the personal time
-      setEndDayEvent(index, endHour);
-    } else if (startHour >= personalBegin && endHour >= personalEnd) {
-      // Case where the event ends after the personal time
-      setStartDayEvent(index, startHour);
-    } else {
-      // Case where the entire event is within the personal and work time
-      long morningStart = Math.min(workBegin, startHour);
-      long morningEnd = Math.min(workBegin, endHour);
-      long eveningStart = Math.max(workEnd, startHour);
-      long eveningEnd = Math.max(workEnd, endHour);
-      long duration = endHour - startHour;
-      long personalDuration = (morningEnd - morningStart) + (eveningEnd - eveningStart);
-      long workDuration = duration - personalDuration;
-      personalHoursPerDay.set(
-          index, Math.max(personalHoursPerDay.get(index) - personalDuration, 0));
-      workHoursPerDay.set(index, Math.max(workHoursPerDay.get(index) - workDuration, 0));
+  /**
+   * Method to calculate the free time for each day based on the free intervals.
+   */
+  private void updateFreeTime() {
+    long zero = 0;
+    this.workHoursPerDay = Arrays.asList(zero, zero, zero, zero, zero);
+    this.personalHoursPerDay = Arrays.asList(zero, zero, zero, zero, zero);
+    this.workHoursPerDay = updateHoursPerDay(this.workHoursPerDay, this.workFreeInterval);
+    this.personalHoursPerDay = updateHoursPerDay(this.personalHoursPerDay, this.morningFreeInterval);
+    this.personalHoursPerDay = updateHoursPerDay(this.personalHoursPerDay, this.eveningFreeInterval);
+  }
+
+  /**
+   * Method to update the free time on a particular list of free time based on a particular 
+   * list of intervals
+   *
+   * @param hoursPerDay the list of free time in milliseconds to update.
+   * @param freeInterval the list of free intervals
+   * @return the updated list of free time
+   */
+  private List<Long> updateHoursPerDay(List<Long> hoursPerDay, List<DatePair> freeInterval) {
+    for (DatePair interval: freeInterval) {
+      int index = interval.getKey().getDay() - this.startDate.getDay();
+      index = index < 0 ? index + OFFSET : index;
+      hoursPerDay.set(index, hoursPerDay.get(index) + interval.getValue().getTime() - interval.getKey().getTime());
     }
+    return hoursPerDay;
   }
 
-  private void setAllDayEvent(int index) {
-    personalHoursPerDay.set(index, (long) 0);
-    workHoursPerDay.set(index, (long) 0);
-  }
-
-  private void setStartDayEvent(int index, long startHour) {
-    if (startHour < personalBegin) {
-      // This case is similar as an all day event
-      setAllDayEvent(index);
-    } else if (startHour < workBegin) {
-      // This means only a portion of the morning personal time is free
-      long morningDuration = workBegin - startHour;
-      long eveningDuration = 5 * Hour;
-      long personalDuration = morningDuration + eveningDuration;
-      workHoursPerDay.set(index, (long) 0);
-      personalHoursPerDay.set(
-          index, Math.max(personalHoursPerDay.get(index) - personalDuration, 0));
-    } else if (startHour < workEnd) {
-      // Case where part of the work hours and the morning personal time are free
-      long workDuration = workEnd - startHour;
-      long personalDuration = 5 * Hour;
-      workHoursPerDay.set(index, Math.max(workHoursPerDay.get(index) - workDuration, 0));
-      personalHoursPerDay.set(
-          index, Math.max(personalHoursPerDay.get(index) - personalDuration, 0));
-    } else if (startHour < personalEnd) {
-      // Case where only part of the personal hours in the evening are occupied
-      long personalDuration = personalEnd - startHour;
-      personalHoursPerDay.set(
-          index, Math.max(personalHoursPerDay.get(index) - personalDuration, 0));
-    }
-  }
-
-  private void setEndDayEvent(int index, long endHour) {
-    if (endHour >= personalEnd) {
-      // This case is similar to an all day event
-      setAllDayEvent(index);
-    } else if (endHour >= workEnd) {
-      // The entire day is occupied except for a portion of the evening
-      long morningDuration = 3 * Hour;
-      long eveningDuration = endHour - workEnd;
-      long personalDuration = morningDuration + eveningDuration;
-      workHoursPerDay.set(index, (long) 0);
-      personalHoursPerDay.set(
-          index, Math.max(personalHoursPerDay.get(index) - personalDuration, 0));
-    } else if (endHour >= workBegin) {
-      // The morning and part of the work hours are occupied
-      long personalDuration = 3 * Hour;
-      long workDuration = endHour - workBegin;
-      workHoursPerDay.set(index, Math.max(workHoursPerDay.get(index) - workDuration, 0));
-      personalHoursPerDay.set(
-          index, Math.max(personalHoursPerDay.get(index) - personalDuration, 0));
-    } else if (endHour >= personalBegin) {
-      // Only part of the morning is occupied
-      long personalDuration = endHour - personalBegin;
-      personalHoursPerDay.set(
-          index, Math.max(personalHoursPerDay.get(index) - personalDuration, 0));
-    }
-  }
-
+  /**
+   * Method to create and return the calendar data response.
+   *
+   * @return the calendar data response to be sent as servlet response
+   */
   public CalendarDataResponse getCalendarDataResponse() {
-    return new CalendarDataResponse(this.startDay, this.workHoursPerDay, this.personalHoursPerDay);
-  }
+    updateFreeTime();
+    return new CalendarDataResponse(this.startDate.getDay()-1, this.workHoursPerDay, this.personalHoursPerDay);
+   }
 }
