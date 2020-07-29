@@ -34,6 +34,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
 
   private static final String PREFIX = "Location";
 
+  private static final Task TASK_WITH_NO_NOTES = new Task();
   private static final Task TASK_WITH_NO_LOCATION = new Task().setNotes("sample notes");
   private static final Task TASK_WITH_ONE_LOCATION =
       new Task().setNotes("sample notes [Location: Google Kitchener] more sample notes");
@@ -44,6 +45,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   private static final Task TASK_WITH_EMPTY_LOCATION = new Task().setNotes("[Location: ]");
 
   private static final List<Task> NO_TASKS = ImmutableList.of();
+  private static final List<Task> TASKS_WITH_NO_NOTES = ImmutableList.of(TASK_WITH_NO_NOTES);
   private static final List<Task> TASKS_WITH_NO_LOCATION = ImmutableList.of(TASK_WITH_NO_LOCATION);
   private static final List<Task> TASKS_WITH_ONE_LOCATION =
       ImmutableList.of(TASK_WITH_ONE_LOCATION);
@@ -55,6 +57,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
       ImmutableList.of(TASK_WITH_EMPTY_LOCATION);
   private static final List<Task> ALL_TASKS =
       ImmutableList.of(
+          TASK_WITH_NO_NOTES,
           TASK_WITH_NO_LOCATION,
           TASK_WITH_ONE_LOCATION,
           TASK_WITH_TWO_LOCATIONS,
@@ -80,21 +83,27 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   @Test
   public void getLocationNoTasks() {
     // Obtain locations in the the task notes of no tasks.
-    Assert.assertEquals(servlet.getLocations(PREFIX, NO_TASKS), ImmutableList.of());
+    Assert.assertEquals(ImmutableList.of(), servlet.getLocations(PREFIX, NO_TASKS));
+  }
+
+  @Test
+  public void getLocationNoNotes() {
+    // Obtain location in the task notes of one task with no notes defined.
+    Assert.assertEquals(ImmutableList.of(), servlet.getLocations(PREFIX, TASKS_WITH_NO_NOTES));
   }
 
   @Test
   public void getNoLocation() {
     // Obtain location in the task notes of one task with no location.
-    Assert.assertEquals(servlet.getLocations(PREFIX, TASKS_WITH_NO_LOCATION), ImmutableList.of());
+    Assert.assertEquals(ImmutableList.of(), servlet.getLocations(PREFIX, TASKS_WITH_NO_LOCATION));
   }
 
   @Test
   public void getOneLocation() {
     // Obtain location in the task notes of one task with one location.
     Assert.assertEquals(
-        servlet.getLocations(PREFIX, TASKS_WITH_ONE_LOCATION),
-        ImmutableList.of("Google Kitchener"));
+        ImmutableList.of("Google Kitchener"),
+        servlet.getLocations(PREFIX, TASKS_WITH_ONE_LOCATION));
   }
 
   @Test
@@ -102,8 +111,8 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     // Obtain location in the task notes of one task with two locations. Second location, Google
     // Montreal, is ignored.
     Assert.assertEquals(
-        servlet.getLocations(PREFIX, TASKS_WITH_TWO_LOCATIONS),
-        ImmutableList.of("Google Kitchener"));
+        ImmutableList.of("Google Kitchener"),
+        servlet.getLocations(PREFIX, TASKS_WITH_TWO_LOCATIONS));
   }
 
   @Test
@@ -111,8 +120,8 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     // Obtain location in the task notes of one task with one location enclosed with () instead of
     // [].
     Assert.assertEquals(
-        servlet.getLocations(PREFIX, TASKS_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY),
-        ImmutableList.of());
+        ImmutableList.of(),
+        servlet.getLocations(PREFIX, TASKS_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY));
   }
 
   @Test
@@ -120,7 +129,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     // Obtain location in the task notes of one task with one location with [Location: ] tag but
     // nothing inside of it.
     Assert.assertEquals(
-        servlet.getLocations(PREFIX, TASKS_WITH_EMPTY_LOCATION), ImmutableList.of(""));
+        ImmutableList.of(""), servlet.getLocations(PREFIX, TASKS_WITH_EMPTY_LOCATION));
   }
 
   @Test
@@ -128,7 +137,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     // Obtain location in the task notes of five tasks each with either one, empty or no location as
     // noted in the individual tests above.
     Assert.assertEquals(
-        servlet.getLocations(PREFIX, ALL_TASKS),
-        ImmutableList.of("Google Kitchener", "Google Kitchener", ""));
+        ImmutableList.of("Google Kitchener", "Google Kitchener", ""),
+        servlet.getLocations(PREFIX, ALL_TASKS));
   }
 }

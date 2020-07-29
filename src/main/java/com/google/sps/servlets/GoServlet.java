@@ -31,6 +31,7 @@ import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -105,9 +106,9 @@ public class GoServlet extends AuthenticatedHttpServlet {
   public List<String> getLocations(String prefix, List<Task> tasks) {
     return tasks.stream()
         .map(task -> task.getNotes())
-        .filter(notes -> notes != null)
+        .filter(Objects::nonNull)
         .map(notes -> getLocation(prefix, notes))
-        .filter(place -> place != "No " + prefix)
+        .filter(place -> !place.equals("No " + prefix))
         .collect(Collectors.toList());
   }
 
