@@ -112,7 +112,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
   }
 
   private String getLocation(String prefix, String taskNotes) {
-    // taskNotes = ... [${prefix}: ... ] ...
+    // taskNotes = ... [prefix: ... ] ...
     String regex = "\\[" + prefix + ": (.*?)\\]";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(taskNotes);

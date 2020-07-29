@@ -86,9 +86,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   @Test
   public void getNoLocation() {
     // Obtain location in the task notes of one task with no location.
-    Assert.assertEquals(
-        servlet.getLocations(PREFIX, TASKS_WITH_NO_LOCATION),
-        ImmutableList.of("No location found"));
+    Assert.assertEquals(servlet.getLocations(PREFIX, TASKS_WITH_NO_LOCATION), ImmutableList.of());
   }
 
   @Test
@@ -114,7 +112,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     // [].
     Assert.assertEquals(
         servlet.getLocations(PREFIX, TASKS_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY),
-        ImmutableList.of("No location found"));
+        ImmutableList.of());
   }
 
   @Test
@@ -131,7 +129,6 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     // noted in the individual tests above.
     Assert.assertEquals(
         servlet.getLocations(PREFIX, ALL_TASKS),
-        ImmutableList.of(
-            "No location found", "Google Kitchener", "Google Kitchener", "No location found", ""));
+        ImmutableList.of("Google Kitchener", "Google Kitchener", ""));
   }
 }
