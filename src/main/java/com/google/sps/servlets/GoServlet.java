@@ -97,7 +97,8 @@ public class GoServlet extends AuthenticatedHttpServlet {
   /**
    * Parses for locations in Tasks. Scope is public for testing purposes.
    *
-   * @param prefix String which represents the prefix wrapped in square brackets to look for. (e.g. Location if looking for [Location: ])
+   * @param prefix String which represents the prefix wrapped in square brackets to look for. (e.g.
+   *     Location if looking for [Location: ])
    * @param tasks List of tasks to parse for locations from.
    * @return List of strings representing the locations.
    */
