@@ -56,16 +56,16 @@ function handleAuthenticationState() {
     signInButton.setAttribute('hidden', '');
     featureContainer.removeAttribute('hidden');
 
-    // Populate information panels at top of dashboard
-    populateGmail();
-    populateTasks();
-    populateCalendar();
+    // Populate information panels at top of dashboard asynchronously
+    new Promise(() => populateGmail());
+    new Promise(() => populateTasks());
+    new Promise(() => populateCalendar());
     // TEMPORARY: Commenting this out since it adds tasks to user's
     // Tasks account on every run.
     // postAndGetTaskList();
 
     // Populate magic feature panels at the bottom of the dashboard
-    populateGo();
+    new Promise(() => populateGo());
   } else {
     // User is not logged in.
     // Show sign in button, hide features
