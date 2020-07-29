@@ -89,8 +89,8 @@ public class GoServlet extends AuthenticatedHttpServlet {
     // Get descriptions of relevant tasks
     // Parse for locations from descriptions
 
-    // Split waypoints into exact addresses and generic locations by looking for the presence of ","
-    // For every exact address, generic location is sent to Places to obtain the closest match
+    // Split waypoints into exact addresses and generic locations
+    // For every exact address, every generic location is sent to Places to obtain the closest match
 
     // Create 'route' for every permutation send to Directions
     // Route with shortest travel time is kept at every iteration
