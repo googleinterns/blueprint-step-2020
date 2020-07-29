@@ -19,18 +19,27 @@
   First word of name directly correlates to variable type (e.g. color or font) or specific component (e.g. panel)
  */
 :root {
+  --button-border-width: .2rem;
+  --button-gradient-angle: 45deg;
+  --button-height: 4rem;
   --color-assign: #b31412;
-  --color-black: black;
   --color-background-dark: #f5f5f5;
   --color-background-light: white;
+  --color-black: black;
+  --color-button-dark-black: #101010;
+  --color-button-dark-white: #d0d0d0;
+  --color-button-light-black: #2f2f2f;
+  --color-button-light-white: #efefef;
   --color-calendar: #508ff8;
   --color-dark-blue: #185abc;
   --color-dark-green: #137333;
   --color-dark-red: #b31412;
   --color-dark-yellow: #ea8600;
-  --color-mail: #d44638;
+  --color-green: #34a853;
   --color-header-heading: #4788c6;
+  --color-mail: #d44638;
   --color-panel: #fbfbfb;
+  --color-red: #ea4335;
   --color-shadow: rgba(0, 0, 0, .3);
   --color-tasks: #f7c01a;
   --color-white: white;
@@ -62,4 +71,5 @@
   --panel-margin-vertical: 2rem;
   --panel-rounded-number-border-radius: calc(var(--panel-icon-width) / 10);
   --panel-width: 50rem;
+  --play-icon-right-offset: .3rem;
 }
