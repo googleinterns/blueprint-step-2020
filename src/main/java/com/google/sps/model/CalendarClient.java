@@ -14,10 +14,10 @@
 
 package com.google.sps.model;
 
-import java.util.Date;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /** Interface to handle get requests to the Calendar API. */

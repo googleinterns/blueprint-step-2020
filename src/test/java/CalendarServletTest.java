@@ -62,16 +62,19 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
   private static final List<CalendarListEntry> ONE_CALENDAR = ImmutableList.of(PRIMARY);
   private static final List<CalendarListEntry> TWO_CALENDARS = ImmutableList.of(PRIMARY, SECONDARY);
   private static final Date CURRENT_TIME = new Date(2020 - OFFSET_YEAR, 4, 19, 9, 0);
-  private static final Date END_TIME =
-      new Date(CURRENT_TIME.getTime() + TimeUnit.DAYS.toMillis(5));
-  private static final DateTime EVENT_ONE_START = new DateTime("2020-05-19T15:00:00-04:00");
-  private static final DateTime EVENT_ONE_END = new DateTime("2020-05-19T16:00:00-04:00");
-  private static final DateTime EVENT_TWO_START = new DateTime("2020-05-20T06:00:00-04:00");
-  private static final DateTime EVENT_TWO_END = new DateTime("2020-05-20T08:00:00-04:00");
-  private static final EventDateTime START_ONE = new EventDateTime().setDateTime(EVENT_ONE_START);
-  private static final EventDateTime END_ONE = new EventDateTime().setDateTime(EVENT_ONE_END);
-  private static final EventDateTime START_TWO = new EventDateTime().setDateTime(EVENT_TWO_START);
-  private static final EventDateTime END_TWO = new EventDateTime().setDateTime(EVENT_TWO_END);
+  private static final Date END_TIME = new Date(CURRENT_TIME.getTime() + TimeUnit.DAYS.toMillis(5));
+  private static final Date EVENT_ONE_START = new Date(2020 - OFFSET_YEAR, 4, 19, 15, 0);
+  private static final Date EVENT_ONE_END = new Date(2020 - OFFSET_YEAR, 4, 19, 16, 0);
+  private static final Date EVENT_TWO_START = new Date(2020 - OFFSET_YEAR, 4, 20, 6, 0);
+  private static final Date EVENT_TWO_END = new Date(2020 - OFFSET_YEAR, 4, 20, 8, 0);
+  private static final EventDateTime START_ONE =
+      new EventDateTime().setDateTime(new DateTime(EVENT_ONE_START));
+  private static final EventDateTime END_ONE =
+      new EventDateTime().setDateTime(new DateTime(EVENT_ONE_END));
+  private static final EventDateTime START_TWO =
+      new EventDateTime().setDateTime(new DateTime(EVENT_TWO_START));
+  private static final EventDateTime END_TWO =
+      new EventDateTime().setDateTime(new DateTime(EVENT_TWO_END));
   private static final List<Event> NO_EVENT = ImmutableList.of();
   private static final List<Event> EVENT_ONE =
       ImmutableList.of(

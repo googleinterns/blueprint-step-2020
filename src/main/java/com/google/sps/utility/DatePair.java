@@ -32,7 +32,7 @@ public final class DatePair {
     this.key = key;
     this.value = value;
   }
-  
+
   public Date getKey() {
     return this.key;
   }

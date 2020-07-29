@@ -15,7 +15,6 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.sps.model.AuthenticatedHttpServlet;
@@ -27,12 +26,12 @@ import com.google.sps.utility.FreeTimeUtility;
 import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 
 /** GET function responds JSON string containing events in user's calendar. */
 @WebServlet("/calendar")
@@ -75,7 +74,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     Date timeMin = calendarClient.getCurrentTime();
     Date timeMax = new Date(timeMin.getTime() + fiveDaysInMillis);
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
-    
+
     FreeTimeUtility freeTimeUtility = new FreeTimeUtility(timeMin);
     for (Event event : calendarEvents) {
       Date eventStart = new Date(event.getStart().getDateTime().getValue());

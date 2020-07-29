@@ -36,8 +36,8 @@ public final class FreeTimeUtility {
   private static final int OFFSET = 7;
 
   /**
-   * Initialize the class with the start day. The work hours are harrrd-coded between 10 AM and
-   * 6 PM. The rest of the free hours are between 7 AM and 11 PM. 
+   * Initialize the class with the start day. The work hours are harrrd-coded between 10 AM and 6
+   * PM. The rest of the free hours are between 7 AM and 11 PM.
    *
    * @param startTime parameter that gives the time of the start/now.
    */
@@ -49,7 +49,7 @@ public final class FreeTimeUtility {
     this.workFreeInterval = new ArrayList<>();
     this.eveningFreeInterval = new ArrayList<>();
 
-    for (int day = 0; day< 5; day++) {
+    for (int day = 0; day < 5; day++) {
       Date workStart = new Date(basisDate.getTime() + day * DAY_MILLI + WORK_BEGIN);
       Date workEnd = new Date(basisDate.getTime() + day * DAY_MILLI + WORK_END);
       Date personalStart = new Date(basisDate.getTime() + day * DAY_MILLI + PERSONAL_BEGIN);
@@ -83,49 +83,48 @@ public final class FreeTimeUtility {
    */
   private List<DatePair> updateInterval(List<DatePair> freeTime, Date eventStart, Date eventEnd) {
     List<DatePair> updatedTime = new ArrayList<>();
-    for (DatePair interval: freeTime) {
+    for (DatePair interval : freeTime) {
       if (interval.getKey().before(eventStart) && interval.getValue().after(eventEnd)) {
         updatedTime.add(new DatePair(interval.getKey(), eventStart));
         updatedTime.add(new DatePair(eventEnd, interval.getValue()));
-      }
-      else if (interval.getKey().before(eventStart) && interval.getValue().after(eventStart)) {
+      } else if (interval.getKey().before(eventStart) && interval.getValue().after(eventStart)) {
         updatedTime.add(new DatePair(interval.getKey(), eventStart));
-      }
-      else if (interval.getKey().before(eventEnd) && interval.getValue().after(eventEnd)) {
+      } else if (interval.getKey().before(eventEnd) && interval.getValue().after(eventEnd)) {
         updatedTime.add(new DatePair(eventEnd, interval.getValue()));
-      }
-      else if (!(eventStart.before(interval.getKey()) && eventEnd.after(interval.getValue()))) {
+      } else if (!(eventStart.before(interval.getKey()) && eventEnd.after(interval.getValue()))) {
         updatedTime.add(interval);
       }
     }
     return updatedTime;
   }
 
-  /**
-   * Method to calculate the free time for each day based on the free intervals.
-   */
+  /** Method to calculate the free time for each day based on the free intervals. */
   private void updateFreeTime() {
     long zero = 0;
     this.workHoursPerDay = Arrays.asList(zero, zero, zero, zero, zero);
     this.personalHoursPerDay = Arrays.asList(zero, zero, zero, zero, zero);
     this.workHoursPerDay = updateHoursPerDay(this.workHoursPerDay, this.workFreeInterval);
-    this.personalHoursPerDay = updateHoursPerDay(this.personalHoursPerDay, this.morningFreeInterval);
-    this.personalHoursPerDay = updateHoursPerDay(this.personalHoursPerDay, this.eveningFreeInterval);
+    this.personalHoursPerDay =
+        updateHoursPerDay(this.personalHoursPerDay, this.morningFreeInterval);
+    this.personalHoursPerDay =
+        updateHoursPerDay(this.personalHoursPerDay, this.eveningFreeInterval);
   }
 
   /**
-   * Method to update the free time on a particular list of free time based on a particular 
-   * list of intervals
+   * Method to update the free time on a particular list of free time based on a particular list of
+   * intervals
    *
    * @param hoursPerDay the list of free time in milliseconds to update.
    * @param freeInterval the list of free intervals
    * @return the updated list of free time
    */
   private List<Long> updateHoursPerDay(List<Long> hoursPerDay, List<DatePair> freeInterval) {
-    for (DatePair interval: freeInterval) {
+    for (DatePair interval : freeInterval) {
       int index = interval.getKey().getDay() - this.startDate.getDay();
       index = index < 0 ? index + OFFSET : index;
-      hoursPerDay.set(index, hoursPerDay.get(index) + interval.getValue().getTime() - interval.getKey().getTime());
+      hoursPerDay.set(
+          index,
+          hoursPerDay.get(index) + interval.getValue().getTime() - interval.getKey().getTime());
     }
     return hoursPerDay;
   }
@@ -137,6 +136,7 @@ public final class FreeTimeUtility {
    */
   public CalendarDataResponse getCalendarDataResponse() {
     updateFreeTime();
-    return new CalendarDataResponse(this.startDate.getDay()-1, this.workHoursPerDay, this.personalHoursPerDay);
-   }
+    return new CalendarDataResponse(
+        this.startDate.getDay() - 1, this.workHoursPerDay, this.personalHoursPerDay);
+  }
 }
