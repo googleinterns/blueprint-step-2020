@@ -26,7 +26,7 @@ let tasks = {};
 /**
  * Populate Gmail container with user information
  */
-function populateGmail() {
+async function populateGmail() {
   // Get containers for all gmail fields
   const nDaysContainer = document.querySelector('#gmailNDays');
   const mHoursContainer = document.querySelector('#gmailMHours');
@@ -89,7 +89,7 @@ function populateGmail() {
 /**
  * Populate Tasks container with user information
  */
-function populateTasks() {
+async function populateTasks() {
   // Get Container for Tasks content
   const tasksContainer = document.querySelector('#tasks');
 
@@ -131,7 +131,7 @@ function populateTasks() {
 /**
  * Populate Calendar container with user's events
  */
-function populateCalendar() {
+async function populateCalendar() {
   const calendarContainer = document.querySelector('#calendar');
   fetch('/calendar')
       .then((response) => {
@@ -169,7 +169,7 @@ function populateCalendar() {
  * then, 2) add a task to the new taskList and
  * 3) get the new list of taskLists and log them in the console.
  */
-function postAndGetTaskList() {
+async function postAndGetTaskList() {
   const sampleTitle =
       getDateInLocalTimeZone().getTime().toString();
 
@@ -209,7 +209,10 @@ function postNewTask(taskListId, taskObject) {
   const newTaskRequest =
       new Request(
           '/tasks?taskListId=' + taskListId,
-          {method: 'POST', body: taskJson}
+          {
+            method: 'POST',
+            body: taskJson,
+          }
       );
 
   return fetch(newTaskRequest)
@@ -260,7 +263,9 @@ function postNewTaskList(title) {
   const newTaskListRequest =
       new Request(
           '/taskLists?taskListTitle=' + title,
-          {method: 'POST'}
+          {
+            method: 'POST',
+          }
       );
 
   return fetch(newTaskListRequest)
@@ -282,7 +287,7 @@ function postNewTaskList(title) {
 /**
  * Populate Go container with hardcoded values
  */
-function populateGo() {
+async function populateGo() {
   const goContainer = document.querySelector('#go');
 
   fetch('/directions')
