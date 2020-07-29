@@ -123,6 +123,11 @@ public class GoServlet extends AuthenticatedHttpServlet {
     return "No " + prefix;
   }
 
+  public List<String> getWaypoints(String origin, String destination, List<String> exactAddressWaypoints, List<String> searchNearbyWaypoints) {
+    // Insert optimization algorithm here
+    return ImmutableList.of();
+  }
+
   /**
    * Returns the most optimal order of travel between addresses.
    *
