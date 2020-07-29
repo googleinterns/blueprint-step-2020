@@ -15,7 +15,7 @@
 import com.google.common.collect.ImmutableList;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
-import com.google.sps.model.PlacesClientImpl;
+import com.google.sps.model.PlacesClient;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class PlacesClientImplTest {
   public void noPlaceResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {};
-    List<String> actual = PlacesClientImpl.getFormattedAddresses(response);
+    List<String> actual = PlacesClient.getFormattedAddresses(response);
     Assert.assertEquals(ImmutableList.of(), actual);
   }
 
@@ -61,7 +61,7 @@ public class PlacesClientImplTest {
   public void onePlaceResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {googleKitchener};
-    List<String> actual = PlacesClientImpl.getFormattedAddresses(response);
+    List<String> actual = PlacesClient.getFormattedAddresses(response);
     Assert.assertEquals(ImmutableList.of(GOOGLE_KITCHENER_FORMATTED_ADDRESS), actual);
   }
 
@@ -69,7 +69,7 @@ public class PlacesClientImplTest {
   public void multiplePlacesResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {googleKitchener, googleMontreal};
-    List<String> actual = PlacesClientImpl.getFormattedAddresses(response);
+    List<String> actual = PlacesClient.getFormattedAddresses(response);
     Assert.assertEquals(
         ImmutableList.of(GOOGLE_KITCHENER_FORMATTED_ADDRESS, GOOGLE_MONTREAL_FORMATTED_ADDRESS),
         actual);

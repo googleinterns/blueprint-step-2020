@@ -14,11 +14,23 @@
 
 package com.google.sps.exceptions;
 
+/** Exception to be thrown when an issue occurs with the Google Places API */
 public class PlacesException extends Exception {
+  /**
+   * Constructor to create a PlaceException with the given message
+   *
+   * @param message String to display on console when exception is thrown
+   */
   public PlacesException(String message) {
     super(message);
   }
 
+  /**
+   * Constructor to create a PlaceException with the given message and cause
+   *
+   * @param message String to display on console when exception is thrown
+   * @param cause Throwable to display on console when exception is thrown
+   */
   public PlacesException(String message, Throwable cause) {
     super(message, cause);
   }

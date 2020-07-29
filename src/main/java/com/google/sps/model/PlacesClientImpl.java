@@ -23,9 +23,7 @@ import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.RankBy;
 import com.google.sps.exceptions.PlacesException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /** Handles GET requests to the Google Places API */
 public class PlacesClientImpl implements PlacesClient {
@@ -45,25 +43,13 @@ public class PlacesClientImpl implements PlacesClient {
     }
   }
 
-  /**
-   * Gets all formatted addresses from given response. Scope of method is public for testing
-   * purposes.
-   *
-   * @param result The PlacesSeachResponse object to get formatted addresses from
-   */
-  public static List<String> getFormattedAddresses(PlacesSearchResponse response) {
-    return Arrays.asList(response.results).stream()
-        .map(result -> result.formattedAddress)
-        .collect(Collectors.toList());
-  }
-
   @Override
   public List<String> searchNearby(LatLng location, PlaceType placeType, RankBy rankBy)
       throws PlacesException {
     try {
       PlacesSearchResponse response =
           placesService.location(location).type(placeType).rankby(rankBy).await();
-      return getFormattedAddresses(response);
+      return PlacesClient.getFormattedAddresses(response);
     } catch (ApiException | InterruptedException | IOException e) {
       throw new PlacesException("Failed to get directions", e);
     }
