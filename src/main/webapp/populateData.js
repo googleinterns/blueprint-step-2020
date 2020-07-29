@@ -104,7 +104,7 @@ function populateTasks() {
         selectedOptions.push(option.value);
       }
     });
-    fetchFrom = '/tasks?selected=' + selectedOptions.join();
+    fetchFrom = '/tasks?taskLists=' + selectedOptions.join();
   }
 
   fetch(fetchFrom)

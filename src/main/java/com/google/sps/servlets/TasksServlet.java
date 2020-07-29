@@ -33,6 +33,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,11 +80,21 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     // Get tasks from Google Tasks
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = getTasks(tasksClient);
+    List<TaskList> allTaskLists = tasksClient.listTaskLists();
 
     // Initialize Tasks Response
-    List<String> taskListTitles = getTaskListTitles(taskLists);
+    List<String> allTaskListTitles = getTaskListTitles(allTaskLists);
+    List<Task> tasks;
+
+    String taskLists = request.getParameter("taskLists");
+    if (taskLists == null) {
+      tasks = getTasks(tasksClient, allTaskListTitles);
+    } else {
+      List<String> selectedTaskListTitles = Arrays.asList(taskLists.split(","));
+      tasks = getTasks(tasksClient, selectedTaskListTitles);
+    }
+
+    List<String> taskListTitles = allTaskListTitles;
     long tasksToCompleteCount = countTasksToComplete(tasks);
     long tasksDueTodayCount = countTasksDueToday(tasks);
     long tasksCompletedTodayCount = countTasksCompletedToday(tasks);
@@ -196,17 +207,21 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Get the names of the tasks in all of the user's tasklists
+   * Get the tasks in the user's task lists with the given task list titles
    *
-   * @param tasksClient either a mock TaskClient or a taskClient with a valid credential
-   * @return List of tasks from user's account
+   * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
+   * @param taskListTitles List of task list titles which tasks should be obtained from
+   * @return List of tasks from specified task lists in user's account
    * @throws IOException if an issue occurs with the tasksService
    */
-  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
+  private List<Task> getTasks(TasksClient tasksClient, List<String> taskListTitles)
+      throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
     for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
+      if (taskListTitles.contains(taskList.getTitle())) {
+        tasks.addAll(tasksClient.listTasks(taskList));
+      }
     }
     return tasks;
   }
