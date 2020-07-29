@@ -97,26 +97,28 @@ public class GoServlet extends AuthenticatedHttpServlet {
   /**
    * Parses for locations in Tasks. Scope is public for testing purposes.
    *
-   * @param tasks List of tasks to parse locations from.
-   * @return List of locations, "No location found" if none found in Task.
+   * @param prefix String which represents the prefix wrapped in square brackets to look for. (e.g. Location if looking for [Location: ])
+   * @param tasks List of tasks to parse for locations from.
+   * @return List of strings representing the locations.
    */
-  public List<String> getLocations(List<Task> tasks) {
+  public List<String> getLocations(String prefix, List<Task> tasks) {
     return tasks.stream()
         .map(task -> task.getNotes())
         .filter(notes -> notes != null)
-        .map(notes -> getLocation(notes))
+        .map(notes -> getLocation(prefix, notes))
+        .filter(place -> place != "No " + prefix)
         .collect(Collectors.toList());
   }
 
-  private String getLocation(String taskNotes) {
-    // taskNotes = ... [Location: ... ] ...
-    String regex = "\\[Location: (.*?)\\]";
+  private String getLocation(String prefix, String taskNotes) {
+    // taskNotes = ... [${prefix}: ... ] ...
+    String regex = "\\[" + prefix + ": (.*?)\\]";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(taskNotes);
     if (matcher.find()) {
       return matcher.group(1);
     }
-    return "No location found";
+    return "No " + prefix;
   }
 
   /**
@@ -139,7 +141,8 @@ public class GoServlet extends AuthenticatedHttpServlet {
 
     // Get descriptions of relevant tasks
     // Parse for locations from descriptions
-    List<String> allLocations = getLocations(tasks);
+    List<String> allGenericPlaces = getLocations("Search", tasks);
+    List<String> allAddresses = getLocations("Address", tasks);
 
     // Split waypoints into exact addresses and generic locations by looking for the presence of ","
     // For every exact address, generic location is sent to Places to obtain the closest match
