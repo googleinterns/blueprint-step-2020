@@ -84,13 +84,18 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     // Initialize Tasks Response
     List<String> taskListTitles = getTaskListTitles(taskLists);
-    int tasksToComplete = getTasksToComplete(tasks);
-    int tasksDueToday = getTasksDueToday(tasks);
-    int tasksCompletedToday = getTasksCompletedToday(tasks);
-    int tasksOverdue = getTasksOverdue(tasks);
+    long tasksToCompleteCount = countTasksToComplete(tasks);
+    long tasksDueTodayCount = countTasksDueToday(tasks);
+    long tasksCompletedTodayCount = countTasksCompletedToday(tasks);
+    long tasksOverdueCount = countTasksOverdue(tasks);
     TasksResponse tasksResponse =
-        new TasksResponse(
-            taskListTitles, tasksToComplete, tasksDueToday, tasksCompletedToday, tasksOverdue);
+        TasksResponse.builder()
+            .taskListTitles(taskListTitles)
+            .tasksToCompleteCount(tasksToCompleteCount)
+            .tasksDueTodayCount(tasksDueTodayCount)
+            .tasksCompletedTodayCount(tasksCompletedTodayCount)
+            .tasksOverdueCount(tasksOverdueCount)
+            .build();
 
     // Convert tasks to JSON and print to response
     JsonUtility.sendJson(response, tasksResponse);
@@ -146,56 +151,48 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     return taskLists.stream().map(taskList -> taskList.getTitle()).collect(Collectors.toList());
   }
 
-  private int getTasksToComplete(List<Task> tasks) {
+  private long countTasksToComplete(List<Task> tasks) {
     // getHidden is defined for incomplete tasks
-    List<Task> tasksToComplete =
-        tasks.stream().filter(task -> task.getHidden() == null).collect(Collectors.toList());
-    return tasksToComplete.size();
+    return tasks.stream().filter(task -> task.getHidden() == null).count();
   }
 
-  private int getTasksDueToday(List<Task> tasks) {
+  private long countTasksDueToday(List<Task> tasks) {
     String today = LocalDate.now().toString();
-    List<Task> tasksDueToday =
-        tasks.stream()
-            .filter(task -> task.getDue() != null && task.getDue().contains(today))
-            .collect(Collectors.toList());
-    return tasksDueToday.size();
+    return tasks.stream()
+        .filter(task -> task.getDue() != null && task.getDue().contains(today))
+        .count();
   }
 
-  private int getTasksCompletedToday(List<Task> tasks) {
+  private long countTasksCompletedToday(List<Task> tasks) {
     ZoneId zoneId = ZoneId.systemDefault();
     Instant startOfDay = LocalDate.now(zoneId).atStartOfDay(zoneId).toInstant();
     Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-    int tasksCompletedToday = 0;
-    for (Task task : tasks) {
-      // getHidden is defined for completed tasks
-      if (task.getHidden() != null) {
-        Instant completionDateTime = ZonedDateTime.parse(task.getUpdated()).toInstant();
-        if (completionDateTime.isAfter(startOfDay) && completionDateTime.isBefore(endOfDay)) {
-          tasksCompletedToday++;
-        }
-      }
-    }
-    return tasksCompletedToday;
+    // getHidden is defined for completed tasks
+    return tasks.stream()
+        .filter(task -> task.getHidden() != null)
+        .filter(
+            task -> {
+              Instant completionDateTime = ZonedDateTime.parse(task.getUpdated()).toInstant();
+              return completionDateTime.isAfter(startOfDay)
+                  && completionDateTime.isBefore(endOfDay);
+            })
+        .count();
   }
 
-  private int getTasksOverdue(List<Task> tasks) {
+  private long countTasksOverdue(List<Task> tasks) {
     ZoneId zoneId = ZoneId.systemDefault();
     String zoneOffset = zoneId.getRules().getOffset(Instant.now()).toString();
     Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-    int tasksOverdue = 0;
-    for (Task task : tasks) {
-      if (task.getDue() != null) {
-        // Correct default timezone UTC to system's timezone
-        DateTime dateTime = DateTime.parseRfc3339(task.getDue().replace("Z", zoneOffset));
-        long millis = dateTime.getValue();
-        Instant dueDate = new Date(millis).toInstant().plus(Period.ofDays(1));
-        if (dueDate.isBefore(endOfDay)) {
-          tasksOverdue++;
-        }
-      }
-    }
-    return tasksOverdue;
+    return tasks.stream()
+        .filter(task -> task.getDue() != null)
+        .filter(
+            task -> {
+              DateTime dateTime = DateTime.parseRfc3339(task.getDue().replace("Z", zoneOffset));
+              long millis = dateTime.getValue();
+              Instant dueDate = new Date(millis).toInstant().plus(Period.ofDays(1));
+              return dueDate.isBefore(endOfDay);
+            })
+        .count();
   }
 
   /**
