@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 /** GET function responds JSON string containing events in user's calendar. */
 @WebServlet("/calendar")
@@ -70,19 +71,22 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
-    long fiveDays = TimeUnit.DAYS.toMillis(5);
-    DateTime timeMin = calendarClient.getCurrentTime();
-    DateTime timeMax = new DateTime(timeMin.getValue() + fiveDays);
+    long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
+    Date timeMin = calendarClient.getCurrentTime();
+    Date timeMax = new Date(timeMin.getTime() + fiveDaysInMillis);
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
-
-    // Initialize the CalendarClientData and update it based on the events period and duration
-    long timeMinValue = timeMin.getValue();
-    long timeMaxValue = timeMax.getValue();
-    FreeTimeUtility freeTimeUtility = new FreeTimeUtility(timeMinValue);
+    
+    FreeTimeUtility freeTimeUtility = new FreeTimeUtility(timeMin);
     for (Event event : calendarEvents) {
-      long startValue = Math.max(event.getStart().getDateTime().getValue(), timeMinValue);
-      long endValue = Math.min(event.getEnd().getDateTime().getValue(), timeMaxValue);
-      freeTimeUtility.addEvent(startValue, endValue);
+      Date eventStart = new Date(event.getStart().getDateTime().getValue());
+      Date eventEnd = new Date(event.getEnd().getDateTime().getValue());
+      if (eventStart.before(timeMin)) {
+        eventStart = timeMin;
+      }
+      if (eventEnd.after(timeMax)) {
+        eventEnd = timeMax;
+      }
+      freeTimeUtility.addEvent(eventStart, eventEnd);
     }
 
     // Convert event list to JSON and print to response
@@ -98,7 +102,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
    * @return List of Events from all of the user's calendars
    * @throws IOException if an issue occurs in the method
    */
-  private List<Event> getEvents(CalendarClient calendarClient, DateTime timeMin, DateTime timeMax)
+  private List<Event> getEvents(CalendarClient calendarClient, Date timeMin, Date timeMax)
       throws IOException {
     List<CalendarListEntry> calendarList = calendarClient.getCalendarList();
     List<Event> events = new ArrayList<>();
