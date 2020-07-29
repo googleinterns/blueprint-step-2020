@@ -48,6 +48,7 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
 
   private static final String EVENT_SUMMARY_ONE = "test event one";
   private static final String EVENT_SUMMARY_TWO = "test event two";
+  private static final int OFFSET_YEAR = 1900;
   private static final String EVENT_ONE_TWO_JSON =
       String.format(
           "[{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
@@ -60,13 +61,13 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
   private static final CalendarListEntry SECONDARY = new CalendarListEntry().setId("secondary");
   private static final List<CalendarListEntry> ONE_CALENDAR = ImmutableList.of(PRIMARY);
   private static final List<CalendarListEntry> TWO_CALENDARS = ImmutableList.of(PRIMARY, SECONDARY);
-  private static final DateTime CURRENT_TIME = new DateTime("2020-05-19T09:00:00+00:00");
-  private static final DateTime END_TIME =
-      new DateTime(CURRENT_TIME.getValue() + TimeUnit.DAYS.toMillis(5));
-  private static final DateTime EVENT_ONE_START = new DateTime("2020-05-19T15:00:00+00:00");
-  private static final DateTime EVENT_ONE_END = new DateTime("2020-05-19T16:00:00+00:00");
-  private static final DateTime EVENT_TWO_START = new DateTime("2020-05-20T06:00:00+00:00");
-  private static final DateTime EVENT_TWO_END = new DateTime("2020-05-20T08:00:00+00:00");
+  private static final Date CURRENT_TIME = new Date(2020 - OFFSET_YEAR, 4, 19, 9, 0);
+  private static final Date END_TIME =
+      new Date(CURRENT_TIME.getTime() + TimeUnit.DAYS.toMillis(5));
+  private static final DateTime EVENT_ONE_START = new DateTime("2020-05-19T15:00:00-04:00");
+  private static final DateTime EVENT_ONE_END = new DateTime("2020-05-19T16:00:00-04:00");
+  private static final DateTime EVENT_TWO_START = new DateTime("2020-05-20T06:00:00-04:00");
+  private static final DateTime EVENT_TWO_END = new DateTime("2020-05-20T08:00:00-04:00");
   private static final EventDateTime START_ONE = new EventDateTime().setDateTime(EVENT_ONE_START);
   private static final EventDateTime END_ONE = new EventDateTime().setDateTime(EVENT_ONE_END);
   private static final EventDateTime START_TWO = new EventDateTime().setDateTime(EVENT_TWO_START);
