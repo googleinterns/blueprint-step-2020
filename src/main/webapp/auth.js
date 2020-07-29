@@ -60,6 +60,8 @@ function handleAuthenticationState() {
     populateGmail();
     populateTasks();
     populateCalendar();
+    // TEMPORARY: Commenting this out since it adds tasks to user's
+    // Tasks account on every run.
     // postAndGetTaskList();
 
     // Populate magic feature panels at the bottom of the dashboard
