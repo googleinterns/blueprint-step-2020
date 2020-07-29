@@ -29,6 +29,8 @@ public final class KeyProvider {
 
   /** Constructor to create instance with file linked to default path. */
   public KeyProvider() {
+    // Running the app engine development server causes KEYS.json to be 
+    // moved into the target/classes/ directory
     if (System.getProperty("user.dir").contains("target")) {
       this.file = new File("../classes/KEYS.json");
     } else {
