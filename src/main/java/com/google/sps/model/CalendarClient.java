@@ -14,7 +14,7 @@
 
 package com.google.sps.model;
 
-import com.google.api.client.util.DateTime;
+import java.util.Date;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import java.io.IOException;
@@ -48,14 +48,14 @@ public interface CalendarClient {
    * @return the list of Event from a calendar.
    * @throws IOException thrown when an issue occurs.
    */
-  List<Event> getUpcomingEvents(CalendarListEntry calendarList, DateTime timeMin, DateTime timeMax)
+  List<Event> getUpcomingEvents(CalendarListEntry calendarList, Date timeMin, Date timeMax)
       throws IOException;
 
   /**
    * Get the current time from the system.
    *
-   * @return the DateTime object created
+   * @return the Date object created
    * @throws IOException thrown when an issue occurs
    */
-  DateTime getCurrentTime() throws IOException;
+  Date getCurrentTime() throws IOException;
 }
