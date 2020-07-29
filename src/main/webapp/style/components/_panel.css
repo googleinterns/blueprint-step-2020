@@ -97,3 +97,13 @@
   margin: var(--panel-content-entry-vertical-margin) 0 0 0;
   overflow: hidden;
 }
+
+.panel__settings-icon {
+  cursor: pointer;
+  height: 3rem;
+  margin: var(--panel-border-radius);
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 3rem;
+}
