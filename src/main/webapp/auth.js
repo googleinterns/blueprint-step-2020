@@ -96,8 +96,7 @@ function onSignIn(googleUser) {
   // or when the browser is closed
   addCookie('accessToken', accessToken, expiryUtcTime);
 
-  // TODO: Confirm that this is a double call
-  // handleAuthenticationState();
+  handleAuthenticationState();
 }
 
 /**

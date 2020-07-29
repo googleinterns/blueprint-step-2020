@@ -32,11 +32,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -86,6 +87,19 @@ public class GoServlet extends AuthenticatedHttpServlet {
     waypoints = fakeWaypoints;
   }
 
+  private List<String> getTaskListTitles(List<TaskList> taskLists) throws IOException {
+    return taskLists.stream().map(taskList -> taskList.getTitle()).collect(Collectors.toList());
+  }
+
+  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
+    List<TaskList> taskLists = tasksClient.listTaskLists();
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      tasks.addAll(tasksClient.listTasks(taskList));
+    }
+    return tasks;
+  }
+
   private List<Task> getTasks(TasksClient tasksClient, List<String> taskListTitles)
       throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
@@ -98,35 +112,53 @@ public class GoServlet extends AuthenticatedHttpServlet {
     return tasks;
   }
 
-  private List<String> getTaskListTitles(List<TaskList> taskLists) throws IOException {
-    return taskLists.stream().map(taskList -> taskList.getTitle()).collect(Collectors.toList());
+  /**
+   * Parses for locations in Tasks. Scope is public for testing purposes.
+   *
+   * @param prefix String which represents the prefix wrapped in square brackets to look for. (e.g.
+   *     Location if looking for [Location: ])
+   * @param tasks List of tasks to parse for locations from.
+   * @return List of strings representing the locations.
+   */
+  public List<String> getLocations(String prefix, List<Task> tasks) {
+    return tasks.stream()
+        .map(task -> task.getNotes())
+        .filter(Objects::nonNull)
+        .map(notes -> getLocation(prefix, notes))
+        .filter(place -> !place.equals("No " + prefix))
+        .collect(Collectors.toList());
   }
 
-  /*
-  private List<String> getTaskDescriptions(List<Task> tasks) {
-    // get task descriptions
+  private String getLocation(String prefix, String taskNotes) {
+    // taskNotes = ... [prefix: ... ] ...
+    String regex = "\\[" + prefix + ": (.*?)\\]";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(taskNotes);
+    if (matcher.find()) {
+      return matcher.group(1);
+    }
+    return "No " + prefix;
   }
-  */
 
   /**
    * Returns the most optimal order of travel between addresses.
    *
-   * @param request  HTTP request from the client.
+   * @param request HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws ServletException
    * @throws IOException
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws ServletException, IOException {
     assert googleCredential != null
-    : "Null credentials (i.e. unauthenticated requests) should already be handled";
-
-    // Get task lists from Google Tasks
+        : "Null credentials (i.e. unauthenticated requests) should already be handled";
+    // Get all tasks from user's tasks account 
+    // TODO: Get relevant tasks using task titles
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
-    List<TaskList> allTaskLists = tasksClient.listTaskLists();
 
-    // Initialize Tasks Response
+    List<TaskList> allTaskLists = tasksClient.listTaskLists();
     List<String> allTaskListTitles = getTaskListTitles(allTaskLists);
     List<Task> tasks;
 
@@ -139,13 +171,21 @@ public class GoServlet extends AuthenticatedHttpServlet {
       tasks = getTasks(tasksClient, selectedTaskListTitles);
     }
 
-    // List<String> taskDescriptions = getTaskDescriptions(tasks);
-    // List<String> taskAddresses = getAddresses(taskDescriptions);
+    // Get descriptions of relevant tasks
+    // Parse for locations from descriptions
+    // TODO: Get waypoints only when input origin/destination is configured
+    List<String> origin = getLocations("Origin", tasks);
+    List<String> destination = getLocations("Destination", tasks);
+    List<String> waypoints = getLocations("Waypoint", tasks);
 
-    // logic to get task descriptions with task list names
+    // Split waypoints into exact addresses and generic locations by looking for the presence of ","
+    // For every exact address, generic location is sent to Places to obtain the closest match
+
+    // Create 'route' for every permutation send to Directions
+    // Route with shortest travel time is kept at every iteration
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
-      List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
+      List<String> directions = directionsClient.getDirections(origin.get(0), destination.get(0), waypoints);
       JsonUtility.sendJson(response, directions);
     } catch (DirectionsException | IOException e) {
       throw new ServletException(e);

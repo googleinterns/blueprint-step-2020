@@ -39,6 +39,14 @@ public interface TasksClient {
   List<TaskList> listTaskLists() throws IOException;
 
   /**
+   * Get all task lists in a user's Tasks account with the specified task list titles
+   *
+   * @return List of task lists with any of the given task list titles
+   * @throws IOException if an issue occurs with the TasksService
+   */
+  List<TaskList> listTaskLists(List<String> taskListTitles) throws IOException;
+
+  /**
    * Add a new task list to user's Tasks account
    *
    * @param title title of task list
@@ -46,4 +54,14 @@ public interface TasksClient {
    * @throws IOException if an issue occurs with the TasksService
    */
   TaskList postTaskList(String title) throws IOException;
+
+  /**
+   * Add a new task to a tasklist in a user's tasks account
+   *
+   * @param parentTaskListId id of tasklist that the new task will belong to
+   * @param task task object to be posted to user's tasks account
+   * @return Task object that contains passed information
+   * @throws IOException if an issue occurs with the tasksService
+   */
+  Task postTask(String parentTaskListId, Task task) throws IOException;
 }
