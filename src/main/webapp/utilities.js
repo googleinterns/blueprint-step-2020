@@ -98,7 +98,7 @@ function getDateInLocalTimeZone(dateObject = new Date()) {
  * @param {string[]} listOfValues list of words that should be encoded
  * @param {boolean} surroundWithQuotes true if words should be surrounded with
  *     quotes, false if the words can be encoded as is
- * @return {string} the value for a query parameter, with each value seperated
+ * @return {string} the value for a query parameter, with each value separated
  *     by a comma.
  */
 function encodeListForUrl(listOfValues, surroundWithQuotes) {
