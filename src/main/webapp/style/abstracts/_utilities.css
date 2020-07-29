@@ -77,6 +77,30 @@
 }
 
 /*
+  Adds border to panel in dark red material color
+  Overrides other non-important border settings
+ */
+.u-border-assign {
+  border-color: var(--color-assign) !important;
+}
+
+/*
+  Background color set to dark red material color
+  Overrides other non-important background settings
+ */
+.u-background-assign {
+  background-color: var(--color-assign) !important;
+}
+
+.u-button-background-green {
+  background-color: #34a853;
+}
+
+.u-button-background-red {
+  background-color: #ea4335;
+}
+
+/*
   Utility to set a single element to block display setting
  */
 .u-block {
@@ -102,4 +126,9 @@
  */
 .u-text-shadow {
   text-shadow: -.5rem .5rem 3rem var(--color-shadow);
+}
+
+.u-bold-underline {
+  font-weight: var(--font-weight-bold);
+  text-decoration: underline solid;
 }

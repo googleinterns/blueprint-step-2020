@@ -19,9 +19,12 @@
   border: var(--panel-border) solid black;
   border-radius: var(--panel-border-radius);
   box-shadow: -1rem 1rem 3rem var(--color-shadow);
+  display: flex;
+  flex-direction: column;
   height: var(--panel-height);
   margin: var(--panel-margin-vertical) var(--panel-margin-horizontal);
   padding: var(--panel-border-radius);
+  position: relative;
   width: var(--panel-width);
 }
 
@@ -70,10 +73,99 @@
   align-items: center;
   display: flex;
   flex-direction: row;
-  margin: var(--panel-content-entry-vertical-margin) 0;
+  margin: var(--panel-content-entry-vertical-margin) 0 0 0;
 }
 
 .panel__content-entry-link {
   display: flex;
   align-items: center;
+}
+
+.panel__circle-button {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  border-radius: 1000px;
+  border: none;
+  width: var(--panel-icon-width);
+  height: var(--panel-icon-width);
+  color: var(--color-white);
+  font-size: var(--font-size-small);
+  text-align: center;
+  background-image: linear-gradient(45deg, #101010, #2f2f2f);
+  margin-right: var(--panel-flex-margin);
+  cursor: pointer;
+}
+
+.panel__circle-button:hover {
+  border: solid .2rem var(--color-black);
+  color: var(--color-black);
+  background-image: linear-gradient(45deg, #efefef, #d0d0d0);
+}
+
+.panel__circle-button:active {
+  background-image: linear-gradient(45deg, #101010, #2f2f2f);
+}
+
+.panel__circle-button .play-icon {
+  margin-left: .3rem;
+}
+
+.panel__buttons {
+  display: flex;
+  flex-direction: row;
+  height: 3rem;
+  margin: var(--panel-margin-vertical) 0 0 0;
+}
+
+.panel__button--1-of-2 {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  color: white;
+  height: 3rem;
+  border-radius: 1000px;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.panel__button--1-of-2:not(:last-child) {
+  margin-right: var(--panel-flex-margin);
+}
+
+.panel__text-body {
+  margin: var(--panel-content-entry-vertical-margin) 0 0 0;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+#green-button {
+  background-color: #34a853;
+  border: solid .2rem #34a853;
+}
+
+#green-button:hover {
+  color: black;
+  background-color: white;
+}
+
+#green-button:active {
+  background-color: #34a853;
+}
+
+#red-button {
+  background-color: #ea4335;
+  border: solid .2rem #ea4335;
+}
+
+#red-button:hover {
+  color: black;
+  background-color: white;
+}
+
+#red-button:active {
+  background-color: #ea4335;
 }
