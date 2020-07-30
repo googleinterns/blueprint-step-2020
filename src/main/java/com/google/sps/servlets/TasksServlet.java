@@ -26,6 +26,7 @@ import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.utility.JsonUtility;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -83,32 +85,32 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     List<TaskList> allTaskLists = tasksClient.listTaskLists();
 
     // Initialize Tasks Response
-    List<String> allTaskListTitles = getTaskListTitles(allTaskLists);
+    Map<String, String> allTaskListIdsAndTitles = getTaskListIdsAndTitles(allTaskLists);
     List<Task> tasks;
 
     String taskLists = request.getParameter("taskLists");
     if (taskLists == null) {
-      tasks = getTasks(tasksClient, allTaskListTitles);
+      List<String> allTaskListIds = allTaskListIdsAndTitles.keySet().stream().collect(Collectors.toList());
+      tasks = getTasks(tasksClient, allTaskListIds);
     } else {
-      List<String> selectedTaskListTitles = Arrays.asList(taskLists.split(","));
-      tasks = getTasks(tasksClient, selectedTaskListTitles);
+      List<String> selectedTaskListIds = Arrays.asList(taskLists.split(","));
+      tasks = getTasks(tasksClient, selectedTaskListIds);
     }
 
-    List<String> taskListTitles = allTaskListTitles;
+    Map<String, String> taskListIdsAndTitles = allTaskListIdsAndTitles;
     long tasksToCompleteCount = countTasksToComplete(tasks);
     long tasksDueTodayCount = countTasksDueToday(tasks);
     long tasksCompletedTodayCount = countTasksCompletedToday(tasks);
     long tasksOverdueCount = countTasksOverdue(tasks);
     TasksResponse tasksResponse =
         TasksResponse.builder()
-            .taskListTitles(taskListTitles)
+            .taskListIdsAndTitles(taskListIdsAndTitles)
             .tasksToCompleteCount(tasksToCompleteCount)
             .tasksDueTodayCount(tasksDueTodayCount)
             .tasksCompletedTodayCount(tasksCompletedTodayCount)
             .tasksOverdueCount(tasksOverdueCount)
             .build();
 
-    // Convert tasks to JSON and print to response
     JsonUtility.sendJson(response, tasksResponse);
   }
 
@@ -158,8 +160,8 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     }
   }
 
-  private List<String> getTaskListTitles(List<TaskList> taskLists) throws IOException {
-    return taskLists.stream().map(taskList -> taskList.getTitle()).collect(Collectors.toList());
+  private Map<String, String> getTaskListIdsAndTitles(List<TaskList> taskLists) throws IOException {
+    return taskLists.stream().collect(Collectors.toMap(TaskList::getId, TaskList::getTitle));
   }
 
   private long countTasksToComplete(List<Task> tasks) {
@@ -207,19 +209,19 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Get the tasks in the user's task lists with the given task list titles
+   * Get the tasks in the user's task lists with the given task list IDs
    *
    * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
-   * @param taskListTitles List of task list titles which tasks should be obtained from
+   * @param taskListTitles List of task list IDs which tasks should be obtained from
    * @return List of tasks from specified task lists in user's account
    * @throws IOException if an issue occurs with the tasksService
    */
-  private List<Task> getTasks(TasksClient tasksClient, List<String> taskListTitles)
+  private List<Task> getTasks(TasksClient tasksClient, List<String> taskListIds)
       throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
     for (TaskList taskList : taskLists) {
-      if (taskListTitles.contains(taskList.getTitle())) {
+      if (taskListIds.contains(taskList.getId())) {
         tasks.addAll(tasksClient.listTasks(taskList));
       }
     }

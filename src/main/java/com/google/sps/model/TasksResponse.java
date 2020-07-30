@@ -16,6 +16,9 @@ package com.google.sps.model;
 
 import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 import lombok.Builder;
 
 /**
@@ -24,7 +27,7 @@ import lombok.Builder;
  */
 @Builder
 public final class TasksResponse {
-  @Builder.Default List<String> taskListTitles = ImmutableList.of("");
+  @Builder.Default Map<String, String> taskListIdsAndTitles = new HashMap<String, String>();
   @Builder.Default long tasksToCompleteCount = 0;
   @Builder.Default long tasksDueTodayCount = 0;
   @Builder.Default long tasksCompletedTodayCount = 0;
@@ -42,7 +45,7 @@ public final class TasksResponse {
 
     TasksResponse other = (TasksResponse) object;
 
-    return ((this.taskListTitles).equals(other.taskListTitles)
+    return ((this.taskListIdsAndTitles).equals(other.taskListIdsAndTitles)
         && this.tasksToCompleteCount == other.tasksToCompleteCount
         && this.tasksDueTodayCount == other.tasksDueTodayCount
         && this.tasksCompletedTodayCount == other.tasksCompletedTodayCount

@@ -117,14 +117,14 @@ function populateTasks() {
       })
       .then((tasksResponse) => {
         if (options.length === 0) {
-          const allTaskListTitles = tasksResponse['allTaskListTitles'];
+          const taskListIdsAndTitles = tasksResponse['taskListIdsAndTitles'];
           select.innerText = '';
-          allTaskListTitles.forEach((taskListTitle) => {
+          for (taskListId in taskListIdsAndTitles) {
             const option = document.createElement('option');
-            option.value = taskListTitle;
-            option.innerText = taskListTitle;
+            option.value = taskListId;
+            option.innerText = taskListIdsAndTitles[taskListId];
             select.append(option);
-          });
+          }
         }
         document
             .querySelector('#tasks-to-complete')
