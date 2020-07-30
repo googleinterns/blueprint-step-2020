@@ -55,7 +55,7 @@ public final class KeyProvider {
   /**
    * Obtains the value of a key from a json string
    *
-   * @param key represents the key to obtain the corresponding value from
+   * @param key represents the identifier to obtain the corresponding value from
    * @return corresponding value of key
    * @throws IOException
    */
