@@ -28,7 +28,7 @@ postAndGetTaskList, populateGo */
  */
 function init() {
   gapi.load('auth2', () => {
-    fetch('/client-id')/*
+    fetch('/client-id')
         .then((response) => response.json())
         .then((clientIdObject) => {
           const clientId = clientIdObject['client-id'];
@@ -39,9 +39,7 @@ function init() {
             handleAuthenticationState();
             renderButton();
           });
-        });*/
-        .then((response) => response.json())
-        .then((clientIdObject) => console.log(clientIdObject));
+        });
   });
 }
 
