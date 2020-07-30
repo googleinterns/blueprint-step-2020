@@ -323,7 +323,7 @@ function setUpAssign() {
   fetchActionableEmails(subjectLinePhrases, true, 7)
       .then((response) => {
         assignContent.innerText = response
-            .map((obj) => obj.snippet)
+            .map((obj) => obj.subject)
             .join('\n');
       })
       .catch((e) => {
