@@ -21,7 +21,7 @@ import java.security.GeneralSecurityException;
 public interface AuthenticationVerifier {
   // OAuth 2.0 Client ID
   // TODO: Hide Client ID (Issue #72)
-  String CLIENT_ID = "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
+  String CLIENT_ID = "12440562259-8re2p1t92j1uu04fgikocg3ag41h50jn.apps.googleusercontent.com";
 
   /**
    * Verifies that Google User ID Token is legitimate
