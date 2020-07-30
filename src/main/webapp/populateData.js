@@ -329,3 +329,34 @@ function populateGo() {
         }
       });
 }
+
+/**
+ * Populate Plan-mail panel with potential times to read the emails
+ */
+function populatePlanMail() {
+  const planContainer = document.querySelector('#plan');
+  fetch('/plan-mail')
+      .then((response) => {
+        // If response is a 403, user is not authenticated
+        if (response.status === 403) {
+          throw new AuthenticationError();
+        }
+        return response.json();
+      })
+      .then((planMailResponse) => {
+        // Display the potential times to create events
+        console.log(planMailResponse);
+        const numWordsContainer = document.querySelector('#word-count');
+        numWordsContainer.innerText = planMailResponse.wordCount;
+        const averageReplyContainer = document.querySelector('#average-reply');
+        averageReplyContainer.innerText = planMailResponse.averageReadingSpeed;
+        const timeNeededContainer = document.querySelector('#time-needed');
+        timeNeededContainer.innerText = planMailResponse.minutesToRead;
+      })
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
+      });
+}
