@@ -352,13 +352,15 @@ function populatePlanMail() {
         const timeNeededContainer = document.querySelector('#time-needed');
         timeNeededContainer.innerText = planMailResponse.minutesToRead;
         const intervalContainer = document.querySelector('#free-interval');
-        for (var index in planMailResponse.potentialMeetingTimes) {
-          const liElement = document.createElement('li');
-          liElement.innerText =
-            planMailResponse.potentialMeetingTimes[index].key +
-            " " +
-            planMailResponse.potentialMeetingTimes[index].value;
-          intervalContainer.appendChild(liElement);
+        for (let index in planMailResponse.potentialMeetingTimes) {
+          if (typeof index == 'number') {
+            const liElement = document.createElement('li');
+            liElement.innerText =
+              planMailResponse.potentialMeetingTimes[index].key +
+              ' ' +
+              planMailResponse.potentialMeetingTimes[index].value;
+            intervalContainer.appendChild(liElement);
+          }
         }
       })
       .catch((e) => {
