@@ -13,56 +13,43 @@
 // limitations under the License.
 
 import com.google.sps.utility.KeyProvider;
-import java.io.File;
-import java.io.FileWriter;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Test Key Provider functions */
+/**
+ * Test Key Provider functions. File I/O logic in KeyProvider() constructor with no parameters is
+ * not tested. App would fail completely and a FileNotFoundException is thrown if it is not working.
+ */
 @RunWith(JUnit4.class)
 public class KeyProviderTest {
-
-  private static final File file = new File("src/main/resources/TEST_KEYS.json");
+  private static KeyProvider keyProvider;
 
   @BeforeClass
   public static void setUp() throws Exception {
-    // Creates a new file in src/main/resources and writes json content to the file.
-    file.getParentFile().mkdirs();
-    file.createNewFile();
-    FileWriter writer = new FileWriter(file);
-    writer.write("{\"sampleKey\" : \"sampleValue\"}");
-    writer.close();
-  }
-
-  @AfterClass
-  public static void tearDown() {
-    // Removes the file created in src/main/resources from calling setUp.
-    file.delete();
+    keyProvider = new KeyProvider("{\"sampleKey\" : \"sampleValue\"}");
   }
 
   @Test
   public void getSampleKeyValue() throws Exception {
-    // Gets the value of sampleKey which is in src/main/resources/TEST_KEYS.json.
-    String actual = KeyProvider.getKey("sampleKey");
+    // Gets the value of sampleKey which is in the json.
+    String actual = keyProvider.getKey("sampleKey");
     Assert.assertEquals("sampleValue", actual);
   }
 
   @Test
   public void getCapitalisedSampleKeyValue() throws Exception {
-    // Gets the value of SAMPLEKEY which is not in src/main/resources/TEST_KEYS.json since keys are
-    // case sensitive.
-    String actual = KeyProvider.getKey("SAMPLEKEY");
+    // Gets the value of SAMPLEKEY which is not in the json since keys are case sensitive.
+    String actual = keyProvider.getKey("SAMPLEKEY");
     Assert.assertNull(actual);
   }
 
   @Test
   public void getInvalidKeyValue() throws Exception {
-    // Gets the value of an invalid key which is not in src/main/resources/TEST_KEYS.json.
-    String actual = KeyProvider.getKey("invalidKey");
+    // Gets the value of an invalid key which is not in the json.
+    String actual = keyProvider.getKey("invalidKey");
     Assert.assertNull(actual);
   }
 }

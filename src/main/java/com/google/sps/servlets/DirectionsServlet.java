@@ -46,7 +46,7 @@ public class DirectionsServlet extends HttpServlet {
    */
   public DirectionsServlet() throws IOException {
     directionsClientFactory = new DirectionsClientImpl.Factory();
-    apiKey = KeyProvider.getKey("apiKey");
+    apiKey = (new KeyProvider()).getKey("apiKey");
     origin = "Waterloo, ON";
     destination = "Waterloo, ON";
     waypoints = ImmutableList.of("Montreal, QC", "Windsor, ON", "Kitchener, ON");

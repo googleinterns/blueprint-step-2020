@@ -25,18 +25,44 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 public final class KeyProvider {
-  public static String getKey(String name) throws IOException {
+  private String rawJson;
+
+  /**
+   * Constructor to create a KeyProvider instance to get keys from src/main/resources/KEYS.json
+   *
+   * @throws IOException
+   */
+  public KeyProvider() throws IOException {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     InputStream stream = loader.getResourceAsStream("KEYS.json");
     if (stream == null) {
       throw new FileNotFoundException(
           "make sure your local keys are stored under src/main/resources/KEYS.json");
     }
-    String rawJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
+    this.rawJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
     stream.close();
+  }
+
+  /**
+   * Constructor to create a mock KeyProvider instance for testing purposes
+   *
+   * @param rawJson represents the json content in a json file
+   */
+  public KeyProvider(String rawJson) {
+    this.rawJson = rawJson;
+  }
+
+  /**
+   * Obtains the value of a key from a json string
+   *
+   * @param key represents the key to obtain the corresponding value from
+   * @return corresponding value of key
+   * @throws IOException
+   */
+  public String getKey(String key) throws IOException {
     Gson gson = new Gson();
     Type mapType = new TypeToken<Map<String, String>>() {}.getType();
     Map<String, String> keys = gson.fromJson(rawJson, mapType);
-    return keys.get(name);
+    return keys.get(key);
   }
 }
