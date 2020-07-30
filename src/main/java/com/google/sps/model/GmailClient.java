@@ -15,6 +15,9 @@
 package com.google.sps.model;
 
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartHeader;
+import com.google.sps.exceptions.GmailMessageFormatException;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -198,5 +201,31 @@ public interface GmailClient {
             .collect(Collectors.toList());
 
     return String.format("subject:(%s)", String.join(" OR ", phrases));
+  }
+
+  /**
+   * Given a list of message headers, extract a single header with the specified name
+   *
+   * @param message a Gmail message object. Must be METADATA or FULL format
+   * @param headerName name of header that should be extracted
+   * @return first header in list with name headerName (this method does not handle duplicate
+   *     headers)
+   * @throws GmailMessageFormatException if the message does not contain the specified header (and
+   *     is thus the wrong format)
+   */
+  static MessagePartHeader extractHeader(Message message, String headerName) {
+    MessagePart payload = message.getPayload();
+    if (payload == null) {
+      throw new GmailMessageFormatException("No headers present!");
+    }
+    List<MessagePartHeader> headers = payload.getHeaders();
+
+    return headers.stream()
+        .filter((header) -> header.getName().equals(headerName))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new GmailMessageFormatException(
+                    String.format("%s Header not present!", headerName)));
   }
 }

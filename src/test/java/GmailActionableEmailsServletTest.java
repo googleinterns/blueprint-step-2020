@@ -13,14 +13,18 @@
 // limitations under the License.
 
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.sps.model.ActionableMessage;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.servlets.GmailActionableEmailsServlet;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,11 +50,33 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
 
   private static final GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
 
+  private static final String MESSAGE_ID_ONE = "messageOne";
+  private static final String MESSAGE_ID_TWO = "messageTwo";
+  private static final String SUBJECT_VALUE_ONE = "subjectValueOne";
+  private static final String SUBJECT_VALUE_TWO = "subjectValueTwo";
+  private static final MessagePartHeader subjectHeaderOne =
+      new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_ONE);
+  private static final MessagePartHeader subjectHeaderTwo =
+      new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_TWO);
+
   int DEFAULT_N_DAYS = 7;
   int NEGATIVE_N_DAYS = -1;
 
   List<Message> SOME_MESSAGES =
-      ImmutableList.of(new Message().setId("messageFour"), new Message().setId("messageFive"));
+      ImmutableList.of(
+          new Message()
+              .setId(MESSAGE_ID_ONE)
+              .setPayload(
+                  new MessagePart().setHeaders(Collections.singletonList(subjectHeaderOne))),
+          new Message()
+              .setId(MESSAGE_ID_TWO)
+              .setPayload(
+                  new MessagePart().setHeaders(Collections.singletonList(subjectHeaderTwo))));
+
+  List<ActionableMessage> SOME_ACTIONABLE_MESSAGES =
+      ImmutableList.of(
+          new ActionableMessage(MESSAGE_ID_ONE, SUBJECT_VALUE_ONE),
+          new ActionableMessage(MESSAGE_ID_TWO, SUBJECT_VALUE_TWO));
 
   @Override
   @Before
@@ -137,10 +163,9 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
         .thenReturn(SOME_MESSAGES);
 
     servlet.doGet(request, response);
-    Type type = new TypeToken<List<Message>>() {}.getType();
+    Type type = new TypeToken<List<ActionableMessage>>() {}.getType();
     List<Message> actual = gson.fromJson(stringWriter.toString(), type);
 
-    Assert.assertEquals(200, response.getStatus());
-    // Assert.assertEquals(SOME_MESSAGES, actual);
+    Assert.assertEquals(SOME_ACTIONABLE_MESSAGES, actual);
   }
 }
