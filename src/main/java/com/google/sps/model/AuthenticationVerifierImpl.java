@@ -28,12 +28,14 @@ import java.util.Collections;
 public class AuthenticationVerifierImpl implements AuthenticationVerifier {
   @Override
   public boolean verifyUserToken(String idToken) throws GeneralSecurityException, IOException {
+    // OAuth 2.0 Client ID
+    String clientId = AuthenticationVerifier.getClientId();
     // Build a verifier used to ensure the passed user ID is legitimate
     HttpTransport transport = UrlFetchTransport.getDefaultInstance();
     JsonFactory factory = JacksonFactory.getDefaultInstance();
     GoogleIdTokenVerifier verifier =
         new GoogleIdTokenVerifier.Builder(transport, factory)
-            .setAudience(Collections.singletonList(CLIENT_ID))
+            .setAudience(Collections.singletonList(clientId))
             .build();
 
     // If the userToken is not null, the identity is verified and vice versa
