@@ -120,7 +120,9 @@ function populateTasks() {
           const taskListIdsAndTitles = tasksResponse['taskListIdsAndTitles'];
           select.innerText = '';
           for (const taskListId in taskListIdsAndTitles) {
-            if (taskListIdsAndTitles.hasOwnProperty(taskListId)) {
+            if (Object.prototype
+                  .hasOwnProperty
+                  .call(taskListIdsAndTitles, taskListId)) {
               const option = document.createElement('option');
               option.value = taskListId;
               option.innerText = taskListIdsAndTitles[taskListId];
