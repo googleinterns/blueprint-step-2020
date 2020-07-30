@@ -40,16 +40,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.common.io.BaseEncoding;
-import java.io.ByteArrayInputStream;
-import java.net.URLDecoder;
-import java.util.Properties;
+import com.google.api.client.util.StringUtils;
 import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.BodyPart;
-import javax.mail.Part;
+import java.util.StringTokenizer;
 
 /** GET function responds JSON string containing potential events to read mail. */
 @WebServlet("/plan-mail")
@@ -146,6 +139,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
   private int getWordCount(GmailClient gmailClient) {
     GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.RAW;
     int numberDays = 7;
+    int wordCount = 0;
     List<Message> unreadMessages = new ArrayList<>();
     try {
       unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, numberDays);
@@ -154,12 +148,12 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     }
     for (Message message: unreadMessages) {
       try {
-        System.out.println(getMessageSize(message));
+        wordCount += getMessageSize(message);
       } catch (MessagingException | IOException e) {
         System.out.println(e);
       }
     }
-    return 10464;
+    return wordCount;
   }
 
   /**
@@ -197,114 +191,10 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     return events;
   }
 
-  public int getMessageSize(Message message) throws MessagingException, IOException {
+  private int getMessageSize(Message message) throws MessagingException, IOException {
     byte[] emailBytes = BaseEncoding.base64Url().decode(message.getRaw());
-    Session session = Session.getInstance(new Properties());
-    MimeMessage email = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
-    String emailString = "";
-    if (email.isMimeType("text/*")) {
-      emailString = (String) email.getContent();
-    }
-    else if (email.isMimeType("multipart/alternative")) {
-      System.out.println("This is the type");
-      emailString = getTextFromMultiPartAlternative((Multipart) email.getContent());
-    }
-    else if (email.isMimeType("multipart/digest")) {
-      emailString = getTextFromMultiPartDigest((Multipart) email.getContent());
-    }
-    else if (mimeTypeCanBeHandledAsMultiPartMixed(email)) {
-      emailString = getTextHandledAsMultiPartMixed(email);
-    }
-    System.out.println(emailString);
-    return 3;
-  }
-
-  private String getTextFromMultiPartAlternative(Multipart multipart) throws IOException, MessagingException {
-    // search in reverse order as a multipart/alternative should have their most preferred format last
-    for (int i = multipart.getCount() - 1; i >= 0; i--) {
-      BodyPart bodyPart = multipart.getBodyPart(i);
-
-      if (bodyPart.isMimeType("text/html")) {
-        return (String) bodyPart.getContent();
-      } else if (bodyPart.isMimeType("text/plain")) {
-        // Since we are looking in reverse order, if we did not encounter a text/html first we can return the plain
-        // text because that is the best preferred format that we understand. If a text/html comes along later it
-        // means the agent sending the email did not set the html text as preferable or did not set their preferred
-        // order correctly, and in that case we do not handle that.
-        return (String) bodyPart.getContent();
-      } else if (bodyPart.isMimeType("multipart/*") || bodyPart.isMimeType("message/rfc822")) {
-        String text = getTextFromPart(bodyPart);
-        if (text != null) {
-          return text;
-        }
-      }
-    }
-    // we do not know how to handle the text in the multipart or there is no text
-    return null;
-  }
-
-  private String getTextFromMultiPartDigest(Multipart multipart) throws IOException, MessagingException {
-    StringBuilder textBuilder = new StringBuilder();
-    for (int i = 0; i < multipart.getCount(); i++) {
-      BodyPart bodyPart = multipart.getBodyPart(i);
-      if (bodyPart.isMimeType("message/rfc822")) {
-        String text = getTextFromPart(bodyPart);
-        if (text != null) {
-          textBuilder.append(text);
-        }
-      }
-    }
-    String text = textBuilder.toString();
-
-    if (text.isEmpty()) {
-      return null;
-    }
-
-    return text;
-  }
-
-  private boolean mimeTypeCanBeHandledAsMultiPartMixed(Part part) throws MessagingException {
-    return part.isMimeType("multipart/mixed") || part.isMimeType("multipart/parallel")
-      || part.isMimeType("message/rfc822")
-      // as per the RFC2046 specification, other multipart subtypes are recognized as multipart/mixed
-      || part.isMimeType("multipart/*");
-  }
-
-  private String getTextHandledAsMultiPartMixed(Part part) throws IOException, MessagingException {
-    return getTextFromMultiPartMixed((Multipart) part.getContent());
-  }
-
-  private String getTextFromPart(Part part) throws MessagingException, IOException {
-    if (part.isMimeType("multipart/alternative")) {
-      return getTextFromMultiPartAlternative((Multipart) part.getContent());
-    } else if (part.isMimeType("multipart/digest")) {
-      return getTextFromMultiPartDigest((Multipart) part.getContent());
-    } else if (mimeTypeCanBeHandledAsMultiPartMixed(part)) {
-      return getTextHandledAsMultiPartMixed(part);
-    }
-
-    return null;
-  }
-
-  private String getTextFromMultiPartMixed(Multipart multipart) throws IOException, MessagingException {
-    StringBuilder textBuilder = new StringBuilder();
-    for (int i = 0; i < multipart.getCount(); i++) {
-      BodyPart bodyPart = multipart.getBodyPart(i);
-      if (bodyPart.isMimeType("text/*")) {
-        textBuilder.append((String) bodyPart.getContent());
-      } else if (bodyPart.isMimeType("multipart/*")) {
-        String text = getTextFromPart(bodyPart);
-        if (text != null) {
-          textBuilder.append(text);
-        }
-      }
-    }
-    String text = textBuilder.toString();
-
-    if (text.isEmpty()) {
-      return null;
-    }
-
-    return text;
+    String emailString = StringUtils.newStringUtf8(emailBytes);
+    StringTokenizer tokens = new StringTokenizer(emailString);
+    return tokens.countTokens();
   }
 }
