@@ -139,4 +139,8 @@ public final class FreeTimeUtility {
     return new CalendarDataResponse(
         this.startDate.getDay() - 1, this.workHoursPerDay, this.personalHoursPerDay);
   }
+
+  public List<DatePair> getWorkFreeInterval() {
+    return this.workFreeInterval;
+  }
 }

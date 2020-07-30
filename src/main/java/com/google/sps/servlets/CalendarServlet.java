@@ -14,6 +14,7 @@
 
 package com.google.sps.servlets;
 
+import com.google.api.client.util.DateTime;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
@@ -77,8 +78,12 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
 
     FreeTimeUtility freeTimeUtility = new FreeTimeUtility(timeMin);
     for (Event event : calendarEvents) {
-      Date eventStart = new Date(event.getStart().getDateTime().getValue());
-      Date eventEnd = new Date(event.getEnd().getDateTime().getValue());
+      DateTime start = event.getStart().getDateTime();
+      start = start == null ? event.getStart().getDate() : start;
+      DateTime end = event.getEnd().getDateTime();
+      end = end == null ? event.getEnd().getDate() : end;
+      Date eventStart = new Date(start.getValue());
+      Date eventEnd = new Date(end.getValue());
       if (eventStart.before(timeMin)) {
         eventStart = timeMin;
       }
