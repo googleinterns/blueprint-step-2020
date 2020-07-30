@@ -65,6 +65,21 @@ public class GmailClientImpl implements GmailClient {
   }
 
   @Override
+  public Message getUserMessageWithMetadataHeaders(String messageId, List<String> metadataHeaders)
+      throws IOException {
+    Message message =
+        gmailService
+            .users()
+            .messages()
+            .get("me", messageId)
+            .setFormat(MessageFormat.METADATA.formatValue)
+            .setMetadataHeaders(metadataHeaders)
+            .execute();
+
+    return message;
+  }
+
+  @Override
   public List<Message> getUnreadEmailsFromNDays(GmailClient.MessageFormat messageFormat, int nDays)
       throws IOException {
     String ageQuery = GmailClient.emailAgeQuery(nDays, "d");
@@ -76,17 +91,14 @@ public class GmailClientImpl implements GmailClient {
 
   @Override
   public List<Message> getActionableEmails(
-      GmailClient.MessageFormat messageFormat,
-      List<String> subjectLinePhrases,
-      boolean unreadOnly,
-      int nDays)
+      List<String> subjectLinePhrases, boolean unreadOnly, int nDays, List<String> metadataHeaders)
       throws IOException {
     String ageQuery = GmailClient.emailAgeQuery(nDays, "d");
     String unreadQuery = GmailClient.unreadEmailQuery(unreadOnly);
     String subjectLineQuery = GmailClient.oneOfPhrasesInSubjectLineQuery(subjectLinePhrases);
     String searchQuery = GmailClient.combineSearchQueries(ageQuery, unreadQuery, subjectLineQuery);
 
-    return listUserMessagesWithFormat(messageFormat, searchQuery);
+    return listUserMessagesWithMetadataHeaders(searchQuery, metadataHeaders);
   }
 
   /**
@@ -106,6 +118,30 @@ public class GmailClientImpl implements GmailClient {
             (message) -> {
               try {
                 return getUserMessage(message.getId(), messageFormat);
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            })
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Lists out messages, but maps each user message to the METADATA format with only the specified
+   * headers.
+   *
+   * @param searchQuery search query to filter which results are returned (see:
+   *     https://support.google.com/mail/answer/7190?hl=en)
+   * @param metadataHeaders list of names of headers (e.g. "From") that should be included
+   * @return list of messages with requested information
+   * @throws IOException if there is an issue with the GmailService
+   */
+  private List<Message> listUserMessagesWithMetadataHeaders(
+      String searchQuery, List<String> metadataHeaders) throws IOException {
+    return listUserMessages(searchQuery).stream()
+        .map(
+            (message) -> {
+              try {
+                return getUserMessageWithMetadataHeaders(message.getId(), metadataHeaders);
               } catch (IOException e) {
                 throw new RuntimeException(e);
               }
