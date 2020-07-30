@@ -18,7 +18,7 @@
   align-items: center;
   background-image: linear-gradient(var(--button-gradient-angle), var(--color-button-dark-black), var(--color-button-light-black));
   border: none;
-  border-radius: 1000px;
+  border-radius: var(--border-radius-round);
   color: var(--color-white);
   cursor: pointer;
   display: flex;

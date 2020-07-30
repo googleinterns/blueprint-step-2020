@@ -19,7 +19,7 @@
  */
 .button-1-of-2 {
   align-items: center;
-  border-radius: 1000px;
+  border-radius: var(--border-radius-round);
   color: var(--color-white);
   cursor: pointer;
   display: flex;

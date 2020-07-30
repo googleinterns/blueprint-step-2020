@@ -42,7 +42,7 @@
 .panel__round-letter {
   align-items: center;
   background-color: var(--color-black);
-  border-radius: 1000px;
+  border-radius: var(--border-radius-round);
   display: flex;
   flex-shrink: 0;
   height: var(--panel-icon-width);
