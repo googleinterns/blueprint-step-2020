@@ -40,7 +40,8 @@ function init() {
             renderButton();
           });
         });*/
-        .then((response) => console.log("response is " + response))
+        .then((response) => response.json())
+        .then((clientIdObject) => console.log(clientIdObject))
   });
 }
 
