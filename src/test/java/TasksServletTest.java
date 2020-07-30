@@ -32,7 +32,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
@@ -79,9 +78,10 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
   private static final List<TaskList> TWO_TASK_LISTS =
       ImmutableList.of(TASK_LIST_ONE, TASK_LIST_TWO);
   private static final Map<String, String> NO_TASK_LIST_IDS_AND_TITLES = ImmutableMap.of();
-  private static final Map<String, String> ONE_TASK_LIST_IDS_AND_TITLES = ImmutableMap.of(TASK_LIST_ID_ONE, TASK_LIST_TITLE_ONE);
+  private static final Map<String, String> ONE_TASK_LIST_IDS_AND_TITLES =
+      ImmutableMap.of(TASK_LIST_ID_ONE, TASK_LIST_TITLE_ONE);
   private static final Map<String, String> TWO_TASK_LIST_IDS_AND_TITLES =
-  ImmutableMap.of(TASK_LIST_ID_ONE, TASK_LIST_TITLE_ONE, TASK_LIST_ID_TWO, TASK_LIST_TITLE_TWO);
+      ImmutableMap.of(TASK_LIST_ID_ONE, TASK_LIST_TITLE_ONE, TASK_LIST_ID_TWO, TASK_LIST_TITLE_TWO);
 
   private static final DateTimeFormatter FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX").withZone(ZoneId.systemDefault());

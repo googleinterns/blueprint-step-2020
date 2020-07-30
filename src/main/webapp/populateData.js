@@ -120,10 +120,12 @@ function populateTasks() {
           const taskListIdsAndTitles = tasksResponse['taskListIdsAndTitles'];
           select.innerText = '';
           for (taskListId in taskListIdsAndTitles) {
-            const option = document.createElement('option');
-            option.value = taskListId;
-            option.innerText = taskListIdsAndTitles[taskListId];
-            select.append(option);
+            if (taskListIdsAndTitles.hasOwnProperty(taskListId)) {
+              const option = document.createElement('option');
+              option.value = taskListId;
+              option.innerText = taskListIdsAndTitles[taskListId];
+              select.append(option);
+            }
           }
         }
         document

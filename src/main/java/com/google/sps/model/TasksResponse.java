@@ -14,11 +14,8 @@
 
 package com.google.sps.model;
 
-import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
-import java.util.List;
-import java.util.Map;
 import java.util.HashMap;
-
+import java.util.Map;
 import lombok.Builder;
 
 /**
