@@ -17,12 +17,12 @@ package com.google.sps.servlets;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
-import com.google.gson.Gson;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.CalendarClient;
 import com.google.sps.model.CalendarClientFactory;
 import com.google.sps.model.CalendarClientImpl;
+import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,12 +69,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     List<Event> calendarEvents = getEvents(calendarClient);
 
-    // Convert event list to JSON and print to response
-    Gson gson = new Gson();
-    String eventJson = gson.toJson(calendarEvents);
-
-    response.setContentType("application/json");
-    response.getWriter().println(eventJson);
+    JsonUtility.sendJson(response, calendarEvents);
   }
 
   /**
