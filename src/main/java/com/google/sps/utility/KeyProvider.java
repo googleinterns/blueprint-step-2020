@@ -63,6 +63,8 @@ public final class KeyProvider {
       while (reader.hasNextLine()) {
         rawJson.append(reader.nextLine());
       }
+    } catch (Exception e) {
+      throw new IOException("DEBUG " + System.getProperty("user.dir"));
     }
     Gson gson = new Gson();
     Type mapType = new TypeToken<Map<String, String>>() {}.getType();
