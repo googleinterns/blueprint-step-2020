@@ -31,10 +31,10 @@ public final class KeyProvider {
   public KeyProvider() {
     // Running the app engine development server causes KEYS.json to be
     // moved into the target/classes/ directory
+    System.out.println("DEBUG " + System.getProperty("user.dir"));
     if (System.getProperty("user.dir").contains("target")) {
       this.file = new File("../classes/KEYS.json");
     } else if (System.getProperty("user.dir").contains("appengine-generated")) {
-      System.out.println(System.getProperty("user.dir"));
       this.file = new File("../KEYS.json");
     } else {
       this.file = new File("src/main/resources/KEYS.json");
