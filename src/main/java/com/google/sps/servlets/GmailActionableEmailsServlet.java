@@ -17,6 +17,8 @@ package com.google.sps.servlets;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.gmail.model.Message;
 import com.google.common.collect.ImmutableList;
+import com.google.sps.exceptions.GmailMessageFormatException;
+import com.google.sps.model.ActionableMessage;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
@@ -26,6 +28,7 @@ import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -106,8 +109,27 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
       return;
     }
 
-    List<Message> actionableEmails =
-        gmailClient.getActionableEmails(subjectLinePhrases, unreadOnly, nDays, METADATA_HEADERS);
+    List<ActionableMessage> actionableEmails =
+        gmailClient.getActionableEmails(subjectLinePhrases, unreadOnly, nDays, METADATA_HEADERS)
+            .stream()
+            .map(this::createActionableMessage)
+            .collect(Collectors.toList());
     JsonUtility.sendJson(response, actionableEmails);
+  }
+
+  /**
+   * Creates an ActionableMessage object from a Gmail Message
+   *
+   * @param message Message object from user's Gmail account
+   * @return ActionableMessage object with information from Gmail Message object
+   * @throws GmailMessageFormatException if the "Subject" header is not present (despite filtering
+   *     for this in the search query).
+   */
+  private ActionableMessage createActionableMessage(Message message)
+      throws GmailMessageFormatException {
+    String messageId = message.getId();
+    String subject = GmailClient.extractHeader(message, "Subject").getValue();
+
+    return new ActionableMessage(messageId, subject);
   }
 }
