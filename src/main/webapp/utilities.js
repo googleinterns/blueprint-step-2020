@@ -93,12 +93,12 @@ function getDateInLocalTimeZone(dateObject = new Date()) {
 
 /**
  * Given a list of phrases, encode them for a query string with commas
- * separating the values and quotes surrounding the phrases
+ * separating the values
  *
  * @param {string[]} listOfValues list of words that should be encoded.
  * @return {string} the value for a query parameter, with each value separated
  *     by a comma.
  */
 function encodeListForUrl(listOfValues) {
-  return listOfValues.map((value) => encodeURI(`"${value}"`)).join();
+  return listOfValues.map((value) => encodeURI(value)).join();
 }

@@ -320,7 +320,9 @@ function setUpAssign() {
   const assignContent = document.querySelector('#assign');
 
   const subjectLinePhrases = ['Action Required', 'Action Requested'];
-  fetchActionableEmails(subjectLinePhrases, true, 7)
+  const unreadOnly = true;
+  const nDays = 7;
+  fetchActionableEmails(subjectLinePhrases, unreadOnly, nDays)
       .then((response) => {
         assignContent.innerText = response
             .map((obj) => obj.subject)
