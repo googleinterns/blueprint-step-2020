@@ -15,6 +15,7 @@
 import com.google.common.collect.ImmutableList;
 import com.google.sps.exceptions.CookieParseException;
 import com.google.sps.utility.ServletUtility;
+import java.util.List;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;
@@ -23,7 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
-import java.util.List;
 
 /** Test Authentication Utility functions */
 @RunWith(JUnit4.class)
@@ -56,7 +56,8 @@ public final class ServletUtilityTest {
   private static final String LIST_VALUES_STRING = "\"Action Word One\",\"ActionWordTwo\"";
 
   // U
-  private static final List<String> LIST_VALUES = ImmutableList.of("\"Action Word One\"", "\"ActionWordTwo\"");
+  private static final List<String> LIST_VALUES =
+      ImmutableList.of("\"Action Word One\"", "\"ActionWordTwo\"");
   private static final List<String> EMPTY_LIST = ImmutableList.of();
 
   @Before
@@ -178,6 +179,7 @@ public final class ServletUtilityTest {
   public void listFromRequestNonEmptyList() {
     Mockito.when(request.getParameter(LIST_PARAMETER)).thenReturn(LIST_VALUES_STRING);
 
-    Assert.assertEquals(LIST_VALUES, ServletUtility.getListFromQueryString(request, LIST_PARAMETER));
+    Assert.assertEquals(
+        LIST_VALUES, ServletUtility.getListFromQueryString(request, LIST_PARAMETER));
   }
 }

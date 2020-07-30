@@ -16,6 +16,7 @@ package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.gmail.model.Message;
+import com.google.common.collect.ImmutableList;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
@@ -23,10 +24,7 @@ import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
 import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.ServletUtility;
-
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +43,8 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
     gmailClientFactory = new GmailClientImpl.Factory();
   }
 
+  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
+
   /**
    * Create new servlet instance (used for testing)
    *
@@ -62,13 +62,12 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
    * search for in the subject line.
    *
    * @param request HTTP request from client. Should include at least two parameters: 1)
-   *     subjectLinePhrases, which is a list (comma-separated) of phrases to search for.
-   *     Gmail doesn't recognize special search characters like [], (), currency
-   *     symbols, &, #, *, or commas. As such, these phrases should not contain any of the above
-   *     punctuation. Moreover, phrases with commas will be
-   *     2) nDays, which specifies that emails from the
-   *     last nDays days will be queried. unreadOnly is an optional parameter, assumed to be false.
-   *     If true, only unread emails will be queried.
+   *     subjectLinePhrases, which is a list (comma-separated) of phrases to search for. Gmail
+   *     doesn't recognize special search characters like [], (), currency symbols, &, #, *, or
+   *     commas. As such, these phrases should not contain any of the above punctuation. Moreover,
+   *     phrases with commas will be 2) nDays, which specifies that emails from the last nDays days
+   *     will be queried. unreadOnly is an optional parameter, assumed to be false. If true, only
+   *     unread emails will be queried.
    * @param response Http response to be sent to client. Will contain a list of messages that are
    *     deemed actionable by the above criteria.
    * @param googleCredential valid, verified google credential object
@@ -107,11 +106,8 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
       return;
     }
 
-    System.out.println(subjectLinePhrases);
-
     List<Message> actionableEmails =
-        gmailClient.getActionableEmails(
-            GmailClient.MessageFormat.FULL, subjectLinePhrases, unreadOnly, nDays);
+        gmailClient.getActionableEmails(subjectLinePhrases, unreadOnly, nDays, METADATA_HEADERS);
     JsonUtility.sendJson(response, actionableEmails);
   }
 }

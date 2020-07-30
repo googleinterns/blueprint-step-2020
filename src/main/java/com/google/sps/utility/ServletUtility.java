@@ -97,7 +97,8 @@ public final class ServletUtility {
 
   /**
    * Parses a list of values (contained as a single parameter) from a request. Requested parameter
-   * should have format: ..."parameter=value1,value2,value3"...
+   * should have format: ..."parameter=value1,value2,value3"... Values cannot contain commas, as
+   * this will cause the method to behave unexpectedly.
    *
    * @param request HttpServletRequest containing parameter with above format
    * @param parameter name of the request parameter
