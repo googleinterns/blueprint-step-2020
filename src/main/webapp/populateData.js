@@ -324,7 +324,7 @@ function setUpAssign() {
       .then((response) => {
         assignContent.innerText = response
             .map((obj) => obj.snippet)
-            .reduce((a, b) => a + '\n' + b);
+            .join('\n');
       })
       .catch((e) => {
         console.log(e);
