@@ -106,18 +106,18 @@ function populateTasks() {
       .then((tasksResponse) => {
         document
             .querySelector('#panel__tasks-to-complete')
-            .innerText = tasksResponse['tasksToComplete'];
+            .innerText = tasksResponse['tasksToCompleteCount'];
         document
             .querySelector('#panel__tasks-due-today')
-            .innerText = tasksResponse['tasksDueToday'] +
+            .innerText = tasksResponse['tasksDueTodayCount'] +
                             ' due today';
         document
             .querySelector('#panel__tasks-completed-today')
-            .innerText = tasksResponse['tasksCompletedToday'] +
+            .innerText = tasksResponse['tasksCompletedTodayCount'] +
                             ' completed today';
         document
             .querySelector('#panel__tasks-overdue')
-            .innerText = tasksResponse['tasksOverdue'] +
+            .innerText = tasksResponse['tasksOverdueCount'] +
                             ' overdue';
       })
       .catch((e) => {
