@@ -41,7 +41,7 @@ function init() {
           });
         });*/
         .then((response) => response.json())
-        .then((clientIdObject) => console.log(clientIdObject))
+        .then((clientIdObject) => console.log(clientIdObject));
   });
 }
 
