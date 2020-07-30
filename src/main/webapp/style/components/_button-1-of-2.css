@@ -15,7 +15,7 @@
 */
 
 /*
-  This is a fractional naming (i.e. a button that takes up half the available space)
+  Uses fractional naming (i.e. a button that takes up half the available space)
  */
 .button-1-of-2 {
   align-items: center;
