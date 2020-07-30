@@ -32,7 +32,6 @@ function init() {
         .then((response) => response.json())
         .then((clientIdObject) => {
           const clientId = clientIdObject['client-id'];
-
           // Initialize Google Sign-in with the clientID
           gapi.auth2.init({
             'client_id': clientId,
