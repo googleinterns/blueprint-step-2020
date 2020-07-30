@@ -92,8 +92,8 @@ function getDateInLocalTimeZone(dateObject = new Date()) {
 }
 
 /**
- * Given a list of phrases, encode them for a query string with commas separating
- * the values and quotes surrounding the phrases
+ * Given a list of phrases, encode them for a query string with commas
+ * separating the values and quotes surrounding the phrases
  *
  * @param {string[]} listOfValues list of words that should be encoded.
  * @return {string} the value for a query parameter, with each value separated
