@@ -16,59 +16,27 @@ package com.google.sps.utility;
 
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.appengine.repackaged.com.google.gson.reflect.TypeToken;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Scanner;
+import org.apache.commons.io.IOUtils;
 
-/** Class to interact with the Secret Manager API. */
 public final class KeyProvider {
-
-  private File file;
-
-  /** Constructor to create instance with file linked to default path. */
-  public KeyProvider() {
-    // Running the app engine development server causes KEYS.json to be
-    // moved into the target/classes/ directory
-    if (System.getProperty("user.dir").contains("target")) {
-      this.file = new File("../classes/KEYS.json");
-    } else if (System.getProperty("user.dir").contains("s~step7-2020")) {
-      System.out.println("THIS CONDITION IS CALLED");
-      this.file = new File(System.getProperty("user.dir") + "/WEB-INF/classes/com/google/sps/KEYS.json");
-    } else {
-      this.file = new File("src/main/resources/KEYS.json");
+  public static String getKey(String name) throws IOException {
+    ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    InputStream stream = loader.getResourceAsStream("KEYS.json");
+    if (stream == null) {
+      throw new FileNotFoundException(
+          "make sure your local keys are stored under src/main/resources/KEYS.json");
     }
-  }
-
-  /**
-   * Constructor to create instance with file linked to specified file path.
-   *
-   * @param file An object which contains the path to the file storing the keys.
-   */
-  public KeyProvider(File file) {
-    this.file = file;
-  }
-
-  /**
-   * Gets the value of a key from the Secret Manager API.
-   *
-   * @param name A string representing the name of the key.
-   * @return A string representing the value of stored under the given key.
-   * @throws IOException
-   */
-  public String getKey(String name) throws IOException {
-    StringBuilder rawJson = new StringBuilder();
-    try (Scanner reader = new Scanner(file)) {
-      while (reader.hasNextLine()) {
-        rawJson.append(reader.nextLine());
-      }
-    } catch (Exception e) {
-      throw new IOException("DEBUG " + System.getProperty("user.dir"));
-    }
+    String rawJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
+    stream.close();
     Gson gson = new Gson();
     Type mapType = new TypeToken<Map<String, String>>() {}.getType();
-    Map<String, String> keys = gson.fromJson(rawJson.toString(), mapType);
+    Map<String, String> keys = gson.fromJson(rawJson, mapType);
     return keys.get(name);
   }
 }

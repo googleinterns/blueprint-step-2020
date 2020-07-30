@@ -26,7 +26,7 @@ public interface AuthenticationVerifier {
    * @return String representing Client ID value defined in Secret Manager
    */
   static String getClientId() throws IOException {
-    return (new KeyProvider()).getKey("clientId");
+    return KeyProvider.getKey("clientId");
   }
   /**
    * Verifies that Google User ID Token is legitimate

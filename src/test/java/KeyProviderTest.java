@@ -47,7 +47,7 @@ public class KeyProviderTest {
   @Test
   public void getSampleKeyValue() throws Exception {
     // Gets the value of sampleKey which is in src/main/resources/TEST_KEYS.json.
-    String actual = (new KeyProvider(file)).getKey("sampleKey");
+    String actual = KeyProvider.getKey("sampleKey");
     Assert.assertEquals("sampleValue", actual);
   }
 
@@ -55,14 +55,14 @@ public class KeyProviderTest {
   public void getCapitalisedSampleKeyValue() throws Exception {
     // Gets the value of SAMPLEKEY which is not in src/main/resources/TEST_KEYS.json since keys are
     // case sensitive.
-    String actual = (new KeyProvider(file)).getKey("SAMPLEKEY");
+    String actual = KeyProvider.getKey("SAMPLEKEY");
     Assert.assertNull(actual);
   }
 
   @Test
   public void getInvalidKeyValue() throws Exception {
     // Gets the value of an invalid key which is not in src/main/resources/TEST_KEYS.json.
-    String actual = (new KeyProvider(file)).getKey("invalidKey");
+    String actual = KeyProvider.getKey("invalidKey");
     Assert.assertNull(actual);
   }
 }
