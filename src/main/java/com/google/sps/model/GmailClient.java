@@ -104,7 +104,8 @@ public interface GmailClient {
    * @param subjectLinePhrases list of words that gmail should look for in the subject line. Emails
    *     will be returned as long as one of the passed phrases are present.
    * @param unreadOnly true if emails must be unread, false otherwise
-   * @param nDays how many days of emails Gmail should look through.
+   * @param nDays emails from the last nDays days will be returned. (Goes by time, not date. E.g. if
+   *     nDays is 1, emails from last 24 hours will be returned)
    * @return List of messages that match above criteria
    * @throws IOException if an issue occurs with the Gmail service
    */
