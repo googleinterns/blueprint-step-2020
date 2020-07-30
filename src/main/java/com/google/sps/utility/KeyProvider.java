@@ -35,7 +35,7 @@ public final class KeyProvider {
     if (System.getProperty("user.dir").contains("target")) {
       this.file = new File("../classes/KEYS.json");
     } else if (System.getProperty("user.dir").contains("s~step7-2020")) {
-      this.file = new File("WEB-INF/classes/com/google/sps/KEYS.json");
+      this.file = new File(System.getProperty("user.dir") + "/WEB-INF/classes/com/google/sps/KEYS.json");
     } else {
       this.file = new File("src/main/resources/KEYS.json");
     }
