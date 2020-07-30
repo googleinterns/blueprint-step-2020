@@ -352,7 +352,7 @@ function populatePlanMail() {
         const timeNeededContainer = document.querySelector('#time-needed');
         timeNeededContainer.innerText = planMailResponse.minutesToRead;
         const intervalContainer = document.querySelector('#free-interval');
-        for (let index in planMailResponse.potentialMeetingTimes) {
+        for (const index in planMailResponse.potentialMeetingTimes) {
           if (typeof index == 'number') {
             const liElement = document.createElement('li');
             liElement.innerText =
