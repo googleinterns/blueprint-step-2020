@@ -14,8 +14,8 @@
 
 package com.google.sps.servlets;
 
-import com.google.api.client.util.DateTime;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.sps.model.AuthenticatedHttpServlet;

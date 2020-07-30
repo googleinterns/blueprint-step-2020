@@ -14,12 +14,15 @@
 
 package com.google.sps.servlets;
 
-import com.google.api.client.util.DateTime;
-import com.google.api.services.gmail.model.Message;
-import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.StringUtils;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.common.io.BaseEncoding;
+import com.google.sps.data.PlanMailResponse;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.CalendarClient;
@@ -28,23 +31,20 @@ import com.google.sps.model.CalendarClientImpl;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
-import com.google.sps.utility.FreeTimeUtility;
 import com.google.sps.utility.DatePair;
+import com.google.sps.utility.FreeTimeUtility;
 import com.google.sps.utility.JsonUtility;
-import com.google.sps.data.PlanMailResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import javax.mail.MessagingException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.common.io.BaseEncoding;
-import com.google.api.client.util.StringUtils;
-import javax.mail.MessagingException;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 
 /** GET function responds JSON string containing potential events to read mail. */
 @WebServlet("/plan-mail")
@@ -65,14 +65,17 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
    * @param calendarClientFactory implementation of CalendarClientFactory
    */
   public PlanMailServlet(
-      AuthenticationVerifier authenticationVerifier, CalendarClientFactory calendarClientFactory, GmailClientFactory gmailClientFactory) {
+      AuthenticationVerifier authenticationVerifier,
+      CalendarClientFactory calendarClientFactory,
+      GmailClientFactory gmailClientFactory) {
     super(authenticationVerifier);
     this.calendarClientFactory = calendarClientFactory;
     this.gmailClientFactory = gmailClientFactory;
   }
 
   /**
-   * Returns string containing the some of the user's free time intervals, where events can be created
+   * Returns string containing the some of the user's free time intervals, where events can be
+   * created
    *
    * @param request Http request from the client. Should contain idToken and accessToken
    * @param response 403 if user is not authenticated, or Json string with the user's events
@@ -111,11 +114,12 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
 
     int wordCount = getWordCount(gmailClient);
     int averageReadingSpeed = 50;
-    int minutesToRead = (int)Math.ceil((double)wordCount / averageReadingSpeed);
+    int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
     List<DatePair> potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
 
-    PlanMailResponse planMailResponse = new PlanMailResponse(wordCount, averageReadingSpeed, minutesToRead, potentialTimes);
+    PlanMailResponse planMailResponse =
+        new PlanMailResponse(wordCount, averageReadingSpeed, minutesToRead, potentialTimes);
     // Convert event list to JSON and print to response
     JsonUtility.sendJson(response, planMailResponse);
   }
@@ -124,13 +128,12 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     List<DatePair> workFreeInterval = freeTimeUtility.getWorkFreeInterval();
     List<DatePair> potentialEventTimes = new ArrayList<>();
     long remainingTime = timeNeeded;
-    for (DatePair interval: workFreeInterval) {
+    for (DatePair interval : workFreeInterval) {
       Date potentialEnd = new Date(interval.getKey().getTime() + remainingTime);
       if (interval.getValue().before(potentialEnd)) {
         remainingTime -= (interval.getValue().getTime() - interval.getKey().getTime());
         potentialEventTimes.add(interval);
-      }
-      else {
+      } else {
         potentialEventTimes.add(new DatePair(interval.getKey(), potentialEnd));
         break;
       }
@@ -148,7 +151,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     } catch (IOException e) {
       System.out.println(e);
     }
-    for (Message message: unreadMessages) {
+    for (Message message : unreadMessages) {
       try {
         wordCount += getMessageSize(message);
       } catch (MessagingException | IOException e) {
@@ -195,14 +198,15 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
 
   private int getMessageSize(Message message) throws MessagingException, IOException {
     List<MessagePart> messageParts = message.getPayload().getParts();
-    List<MessagePart> messageBody = messageParts.stream().filter((messagePart)->
-      messagePart.getMimeType().equals("text/plain")
-    ).collect(Collectors.toList());
+    List<MessagePart> messageBody =
+        messageParts.stream()
+            .filter((messagePart) -> messagePart.getMimeType().equals("text/plain"))
+            .collect(Collectors.toList());
     int size = 0;
     if (messageBody.isEmpty()) {
       return size;
     }
-    for (MessagePart part: messageBody) {
+    for (MessagePart part : messageBody) {
       byte[] messageBytes = BaseEncoding.base64Url().decode(part.getBody().getData());
       String messageString = StringUtils.newStringUtf8(messageBytes);
       StringTokenizer tokens = new StringTokenizer(messageString);

@@ -352,14 +352,14 @@ function populatePlanMail() {
         const timeNeededContainer = document.querySelector('#time-needed');
         timeNeededContainer.innerText = planMailResponse.minutesToRead;
         const intervalContainer = document.querySelector('#free-interval');
-        for (index in planMailResponse.potentialMeetingTimes) {
+        for (var index in planMailResponse.potentialMeetingTimes) {
           const liElement = document.createElement('li');
           liElement.innerText =
-            planMailResponse.potentialMeetingTimes[index].key
-            + " "
-            + planMailResponse.potentialMeetingTimes[index].value;
+            planMailResponse.potentialMeetingTimes[index].key +
+            " " +
+            planMailResponse.potentialMeetingTimes[index].value;
           intervalContainer.appendChild(liElement);
-        } 
+        }
       })
       .catch((e) => {
         console.log(e);

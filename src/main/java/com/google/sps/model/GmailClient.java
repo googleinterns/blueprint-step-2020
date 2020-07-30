@@ -51,7 +51,8 @@ public interface GmailClient {
   //  */
   // int getMessageSize(Message message) throws IOException, MessagingException;
 
-  // String getTextFromMultiPartAlternative(Multipart multipart) throws IOException, MessagingException;
+  // String getTextFromMultiPartAlternative(Multipart multipart) throws IOException,
+  // MessagingException;
 
   /**
    * Encapsulates possible values for the "format" query parameter in the Gmail GET message method
