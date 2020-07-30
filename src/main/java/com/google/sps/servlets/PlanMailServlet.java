@@ -16,6 +16,7 @@ package com.google.sps.servlets;
 
 import com.google.api.client.util.DateTime;
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
@@ -43,6 +44,7 @@ import com.google.common.io.BaseEncoding;
 import com.google.api.client.util.StringUtils;
 import javax.mail.MessagingException;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 /** GET function responds JSON string containing potential events to read mail. */
 @WebServlet("/plan-mail")
@@ -108,8 +110,8 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     }
 
     int wordCount = getWordCount(gmailClient);
-    int averageReadingSpeed = 200;
-    int minutesToRead = wordCount / averageReadingSpeed;
+    int averageReadingSpeed = 50;
+    int minutesToRead = (int)Math.ceil((double)wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
     List<DatePair> potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
 
@@ -137,7 +139,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
   }
 
   private int getWordCount(GmailClient gmailClient) {
-    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.RAW;
+    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
     int numberDays = 7;
     int wordCount = 0;
     List<Message> unreadMessages = new ArrayList<>();
@@ -153,7 +155,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
         System.out.println(e);
       }
     }
-    return wordCount;
+    return 104;
   }
 
   /**
@@ -192,9 +194,20 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
   }
 
   private int getMessageSize(Message message) throws MessagingException, IOException {
-    byte[] emailBytes = BaseEncoding.base64Url().decode(message.getRaw());
-    String emailString = StringUtils.newStringUtf8(emailBytes);
-    StringTokenizer tokens = new StringTokenizer(emailString);
-    return tokens.countTokens();
+    List<MessagePart> messageParts = message.getPayload().getParts();
+    List<MessagePart> messageBody = messageParts.stream().filter((messagePart)->
+      messagePart.getMimeType().equals("text/plain")
+    ).collect(Collectors.toList());
+    int size = 0;
+    if (messageBody.isEmpty()) {
+      return size;
+    }
+    for (MessagePart part: messageBody) {
+      byte[] messageBytes = BaseEncoding.base64Url().decode(part.getBody().getData());
+      String messageString = StringUtils.newStringUtf8(messageBytes);
+      StringTokenizer tokens = new StringTokenizer(messageString);
+      size += tokens.countTokens();
+    }
+    return size;
   }
 }
