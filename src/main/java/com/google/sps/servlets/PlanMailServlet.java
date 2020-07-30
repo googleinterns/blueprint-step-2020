@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.api.client.util.Base64;
+import com.google.common.io.BaseEncoding;
 import java.io.ByteArrayInputStream;
 import java.net.URLDecoder;
 import java.util.Properties;
@@ -49,6 +49,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.BodyPart;
+import javax.mail.Part;
 
 /** GET function responds JSON string containing potential events to read mail. */
 @WebServlet("/plan-mail")
@@ -147,7 +148,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     int numberDays = 7;
     List<Message> unreadMessages = new ArrayList<>();
     try {
-      gmailClient.getUnreadEmailsFromNDays(messageFormat, numberDays);
+      unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, numberDays);
     } catch (IOException e) {
       System.out.println(e);
     }
@@ -197,15 +198,15 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
   }
 
   public int getMessageSize(Message message) throws MessagingException, IOException {
-    byte[] emailBytes = Base64.decodeBase64(message.getRaw());
-    Properties props = new Properties();
-    Session session = Session.getDefaultInstance(props, null);
+    byte[] emailBytes = BaseEncoding.base64Url().decode(message.getRaw());
+    Session session = Session.getInstance(new Properties());
     MimeMessage email = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
     String emailString = "";
     if (email.isMimeType("text/*")) {
       emailString = (String) email.getContent();
     }
     else if (email.isMimeType("multipart/alternative")) {
+      System.out.println("This is the type");
       emailString = getTextFromMultiPartAlternative((Multipart) email.getContent());
     }
     else if (email.isMimeType("multipart/digest")) {

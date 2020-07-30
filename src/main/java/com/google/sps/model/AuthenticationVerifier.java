@@ -14,15 +14,20 @@
 
 package com.google.sps.model;
 
+import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 /** Contract for verifying user with Google Sign in API */
 public interface AuthenticationVerifier {
-  // OAuth 2.0 Client ID
-  // TODO: Hide Client ID (Issue #72)
-  String CLIENT_ID = "12440562259-mf97tunvqs179cu1bu7s6pg749gdpked.apps.googleusercontent.com";
-
+  /**
+   * Retrieves hidden Client ID from Secret Manager
+   *
+   * @return String representing Client ID value defined in Secret Manager
+   */
+  static String getClientId() throws IOException {
+    return (new KeyProvider()).getKey("clientId");
+  }
   /**
    * Verifies that Google User ID Token is legitimate
    *
