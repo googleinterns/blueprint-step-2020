@@ -1,3 +1,3 @@
-# step7-2020
+# blueprint-step-2020
 
 **This is not an officially supported Google product.**
