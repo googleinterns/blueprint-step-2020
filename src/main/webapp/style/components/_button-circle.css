@@ -14,11 +14,11 @@
   limitations under the License.
 */
 
-.button--circle {
+.button-circle {
   align-items: center;
   background-image: linear-gradient(var(--button-gradient-angle), var(--color-button-dark-black), var(--color-button-light-black));
   border: none;
-  border-radius: 1000px;
+  border-radius: var(--border-radius-round);
   color: var(--color-white);
   cursor: pointer;
   display: flex;
@@ -28,60 +28,16 @@
   justify-content: center;
   margin-right: var(--panel-flex-margin);
   text-align: center;
+  user-select: none;
   width: var(--panel-icon-width);
 }
 
-.button--circle:hover {
+.button-circle:hover {
   background-image: linear-gradient(var(--button-gradient-angle), var(--color-button-light-white), var(--color-button-dark-white));
   border: solid var(--button-border-width) var(--color-black);
   color: var(--color-black);
 }
 
-.button--circle:active {
+.button-circle:active {
   background-image: linear-gradient(var(--button-gradient-angle), var(--color-button-dark-black), var(--color-button-light-black));
-}
-
-.button--1-of-2 {
-  align-items: center;
-  border-radius: 1000px;
-  color: var(--color-white);
-  cursor: pointer;
-  display: flex;
-  flex: 1 1 auto;
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-bold);
-  height: 100%;
-  justify-content: center;
-}
-
-.button--1-of-2:not(:last-child) {
-  margin-right: var(--panel-flex-margin);
-}
-
-#green-button {
-  background-color: var(--color-green);
-  border: solid var(--button-border-width) var(--color-green);
-}
-
-#green-button:hover {
-  background-color: var(--color-white);
-  color: var(--color-black);
-}
-
-#green-button:active {
-  background-color: var(--color-green);
-}
-
-#red-button {
-  background-color: var(--color-red);
-  border: solid var(--button-border-width) var(--color-red);
-}
-
-#red-button:hover {
-  background-color: var(--color-white);
-  color: var(--color-black);
-}
-
-#red-button:active {
-  background-color: var(--color-red);
 }

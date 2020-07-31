@@ -17,8 +17,13 @@
 /*
   Global variables used in various styles.
   First word of name directly correlates to variable type (e.g. color or font) or specific component (e.g. panel)
+
+  border-radius-round is a very high number to ensure that things stay circular. 1000px does the same thing as
+  any other large number, like 10000000px. However, changing this to a small value will make all circular elements
+  non-circular.
  */
 :root {
+  --border-radius-round: 1000px;
   --button-border-width: .2rem;
   --button-gradient-angle: 45deg;
   --button-height: 4rem;
@@ -61,15 +66,29 @@
   --header-logo-margin-horizontal: 1rem;
   --panel-border: .3rem;
   --panel-border-radius: 2.5rem;
+  --panel-box-shadow-blur: 3rem;
+  --panel-box-shadow-x: -1rem;
+  --panel-box-shadow-y: 1rem;
+  --panel-button-incremental-margin-right: 1rem;
+  --panel-button-incremental-size: 3rem;
+  --panel-button-incremental-span-offset: .1rem;
+  --panel-button-incremental--small-font-size: 2.5rem;
+  --panel-button-incremental--small-size: 2.5rem;
+  --panel-button-incremental--small-span-offset: .3rem;
+  --panel-button-incremental--small-margin-left: 2.5rem;
   --panel-content-entry-vertical-margin: 2rem;
+  --panel-content-entry--list-vertical-margin: .5rem;
   --panel-flex-margin: 2.5rem;
   --panel-height: 50rem;
   --panel-icon-width: 5rem;
   --panel-left-edge-x: calc(50% - var(--panel-width) * 1.5 - var(--panel-margin-horizontal) * 2);
+  --panel-list-unordered-margin-vertical: .5rem;
   --panel-logo-width: 7rem;
   --panel-margin-horizontal: 2%;
   --panel-margin-vertical: 2rem;
   --panel-rounded-number-border-radius: calc(var(--panel-icon-width) / 10);
+  --panel-text-entry-height: 2.5rem;
+  --panel-toggle-icon-size: 3rem;
   --panel-width: 50rem;
   --play-icon-right-offset: .3rem;
 }
