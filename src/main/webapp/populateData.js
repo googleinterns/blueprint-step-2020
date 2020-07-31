@@ -144,21 +144,33 @@ function populateCalendar() {
       .then((hoursJson) => {
         // Display the days and the free hours for each one of them
         const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        const panelContent = document.querySelector('#panel-content');
+        panelContent.innerHTML = '';
         for (const day in hoursJson.workTimeFree) {
           if (typeof day == 'string') {
-            const dayContainer = document.querySelector('#day-'+day);
-            dayContainer.innerText = days[(hoursJson.startDay + day) % 7];
-            const workContainer = document.querySelector('#work-day-'+day);
+            const panelContentEntry = document.createElement('div');
+            panelContentEntry.className = 'panel__content-entry';
+            const dayContainer = document.createElement('p');
+            dayContainer.className = 'panel__text-icon u-text-calendar';
+            dayContainer.innerText = days[(hoursJson.startDay + parseInt(day)) % 7];
+            const timeContainer = document.createElement('div');
+            const workContainer = document.createElement('p');
+            workContainer.className = 'u-block';
             workContainer.innerText =
                 hoursJson.workTimeFree[day].hours +
                 'h ' + hoursJson.workTimeFree[day].minutes +
                 'm free (working)';
-            const personalContainer =
-                document.querySelector('#personal-day-'+day);
+            const personalContainer = document.createElement('p');
+            personalContainer.className = 'u-block';
             personalContainer.innerText =
                 hoursJson.personalTimeFree[day].hours +
                 'h ' + hoursJson.personalTimeFree[day].minutes +
                 'm free (personal)';
+            timeContainer.appendChild(workContainer);
+            timeContainer.appendChild(personalContainer);
+            panelContentEntry.appendChild(dayContainer);
+            panelContentEntry.appendChild(timeContainer);
+            panelContent.appendChild(panelContentEntry);
           }
         }
       })
