@@ -14,7 +14,8 @@
 
 package com.google.sps.utility;
 
-import com.google.sps.data.CalendarDataResponse;
+import com.google.sps.data.CalendarSummaryResponse;
+import com.google.sps.data.TimeHourMin;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.time.Instant;
@@ -24,6 +25,10 @@ public final class FreeTimeUtility {
 
   private final Date startDate;
   private final int numDays;
+  /**
+   * The lists of time intervals from now (startDate) to the end day. They are divided by morning, work, and evening periods
+   * to allow easy computation of free hours, and later to create events during work/morning/evening hours
+  */
   private List<DateInterval> morningFreeInterval;
   private List<DateInterval> workFreeInterval;
   private List<DateInterval> eveningFreeInterval;
@@ -34,6 +39,9 @@ public final class FreeTimeUtility {
    * PM. The rest of the free hours are between 7 AM and 11 PM.
    *
    * @param startTime parameter that gives the time of the start/now.
+   * @param personalBeginHour parameter that gives the hour to begin the personal time
+   * @param workBeginHour parameter that gives the hour to begin the work time
+   * @param workEndHour parameter that gives the hour to begin the work time
    */
   public FreeTimeUtility(Date startDate, int personalBeginHour, int workBeginHour, int workEndHour, int personalEndHour, int numDays) {
     this.startDate = startDate;
@@ -135,12 +143,22 @@ public final class FreeTimeUtility {
     return hoursPerDay;
   }
 
+  private List<TimeHourMin> convertTime(List<Long> hoursPerDay) {
+    List<TimeHourMin> freeTime = new ArrayList<>();
+    for (long durationMilli: hoursPerDay) {
+      int hours = (int) (durationMilli / TimeUnit.HOURS.toMillis(1));
+      int minutes = (int) ((durationMilli % TimeUnit.HOURS.toMillis(1)) / TimeUnit.MINUTES.toMillis(1));
+      freeTime.add(new TimeHourMin(hours, minutes));
+    }
+    return freeTime;
+  }
+
   /**
    * Method to create and return the calendar data response.
    *
    * @return the calendar data response to be sent as servlet response
    */
-  public CalendarDataResponse getCalendarDataResponse() {
+  public CalendarSummaryResponse getCalendarSummaryResponse() {
     long zero = 0;
     List<Long> workHoursPerDay = new ArrayList<Long>(Collections.nCopies(this.numDays, (long)0));
     List<Long> personalHoursPerDay = new ArrayList<Long>(Collections.nCopies(this.numDays, (long)0));
@@ -149,7 +167,9 @@ public final class FreeTimeUtility {
         updateHoursPerDay(personalHoursPerDay, this.morningFreeInterval);
     personalHoursPerDay =
         updateHoursPerDay(personalHoursPerDay, this.eveningFreeInterval);
-    return new CalendarDataResponse(
-        this.startDate.getDay(), workHoursPerDay, personalHoursPerDay);
+    List<TimeHourMin> workTimeFree = convertTime(workHoursPerDay);
+    List<TimeHourMin> personalTimeFree = convertTime(personalHoursPerDay);
+    return new CalendarSummaryResponse(
+        this.startDate.getDay(), workTimeFree, personalTimeFree);
   }
 }
