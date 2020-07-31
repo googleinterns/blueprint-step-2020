@@ -19,21 +19,11 @@
 // Add appropriate event listeners to all toggle icons
 document.querySelectorAll('.panel__toggle-icon')
     .forEach((element) => {
-      switch (element.id) {
-        case 'assignSettingsIcon':
-          element
-              .addEventListener(
-                  'click',
-                  (event) => displayAssignSettings(event)
-              );
-          break;
-        default:
-          element
-              .addEventListener(
-                  'click',
-                  (event) => toggleIconHandler(event)
-              );
-      }
+      element
+          .addEventListener(
+              'click',
+              (event) => toggleIconHandler(event)
+          );
     });
 
 /**
@@ -49,18 +39,6 @@ function toggleIconHandler(event) {
 
   currentIcon.setAttribute('hidden', '');
   newIcon.removeAttribute('hidden');
-}
-
-/**
- * Shows/hides the settings display in the assign panel
- *
- * @param {Event} event event generated from click
- */
-function displayAssignSettings(event) {
-  // Change icon appearance
-  toggleIconHandler(event);
-
-  // TODO: show/hide the settings display
 }
 
 /**
