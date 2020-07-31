@@ -36,7 +36,6 @@ function init() {
           gapi.auth2.init({
             'client_id': clientId,
           }).then(() => {
-            handleAuthenticationState();
             renderButton();
           });
         });
@@ -50,6 +49,8 @@ function handleAuthenticationState() {
   const featureContainer = document.querySelector('.feature-container');
   const signInButton = document.querySelector('#google-sign-in-btn');
   if (isCookiePresent('idToken')) {
+    console.log('Fetching Data for panels');
+
     // User is logged in.
     // Hide sign in button, show features
     signInButton.setAttribute('hidden', '');
@@ -79,6 +80,7 @@ function handleAuthenticationState() {
  *     authenticated user.
  */
 function onSignIn(googleUser) {
+  console.log('Signing in with Google');
   // Get the authentication object. Always include accessID, even if null
   const userAuth = googleUser.getAuthResponse(true);
 
@@ -97,8 +99,6 @@ function onSignIn(googleUser) {
   // or when the browser is closed
   addCookie('accessToken', accessToken, expiryUtcTime);
 
-  // TODO: Double call - if a user is not signed in and tries
-  // to log in, they'll get stuck without this (Issue #97)
   handleAuthenticationState();
 }
 
@@ -108,6 +108,8 @@ function onSignIn(googleUser) {
 function signOut() {
   const auth2 = gapi.auth2.getAuthInstance();
   auth2.signOut().then(() => {
+    console.log('Signing out with Google');
+
     // Remove Authentication Cookies
     deleteCookie('idToken');
     deleteCookie('accessToken');
