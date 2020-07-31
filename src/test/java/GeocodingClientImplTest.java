@@ -31,7 +31,7 @@ import org.junit.runners.JUnit4;
 public class GeocodingClientImplTest {
 
   @Test
-  public void getCoordinates() throws Exception {
+  public void getCoordinates() {
     GeocodingResult result = new GeocodingResult();
     LatLng expectedCoordinates = new LatLng(0, 0);
     Geometry geometry = new Geometry();
@@ -39,24 +39,6 @@ public class GeocodingClientImplTest {
     result.geometry = geometry;
     LatLng actualCoordinates = GeocodingClient.getCoordinates(result);
     Assert.assertEquals(expectedCoordinates, actualCoordinates);
-  }
-
-  @Test
-  public void convertValidAddressTypeToPlaceType() throws Exception {
-    // PlaceType is a subset of AddressType. AddressType here is in the PlaceType enum class, hence
-    // the same AddressType in the form of PlaceType is expected.
-    PlaceType actualPlaceType =
-        GeocodingClient.convertAddressTypeToPlaceType(AddressType.RESTAURANT);
-    Assert.assertEquals(PlaceType.RESTAURANT, actualPlaceType);
-  }
-
-  @Test
-  public void convertInvalidAddressTypeToPlaceType() throws Exception {
-    // PlaceType is a subset of AddressType. AddressType here is not present in the PlaceType enum
-    // class, hence null is expected.
-    PlaceType actualPlaceType =
-        GeocodingClient.convertAddressTypeToPlaceType(AddressType.STREET_ADDRESS);
-    Assert.assertNull(actualPlaceType);
   }
 
   @Test
@@ -76,10 +58,28 @@ public class GeocodingClientImplTest {
   }
 
   @Test
-  public void getPlaceType() throws Exception {
+  public void getPlaceType() {
     GeocodingResult result = new GeocodingResult();
     result.types = new AddressType[] {AddressType.ACCOUNTING};
     PlaceType actualPlaceType = GeocodingClient.getPlaceType(result);
     Assert.assertEquals(PlaceType.ACCOUNTING, actualPlaceType);
+  }
+
+  @Test
+  public void convertValidAddressTypeToPlaceType() {
+    // PlaceType is a subset of AddressType. AddressType here is in the PlaceType enum class, hence
+    // the same AddressType in the form of PlaceType is expected.
+    PlaceType actualPlaceType =
+        GeocodingClient.convertAddressTypeToPlaceType(AddressType.RESTAURANT);
+    Assert.assertEquals(PlaceType.RESTAURANT, actualPlaceType);
+  }
+
+  @Test
+  public void convertInvalidAddressTypeToPlaceType() {
+    // PlaceType is a subset of AddressType. AddressType here is not present in the PlaceType enum
+    // class, hence null is expected.
+    PlaceType actualPlaceType =
+        GeocodingClient.convertAddressTypeToPlaceType(AddressType.STREET_ADDRESS);
+    Assert.assertNull(actualPlaceType);
   }
 }

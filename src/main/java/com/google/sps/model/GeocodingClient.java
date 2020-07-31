@@ -22,8 +22,7 @@ import com.google.sps.exceptions.GeocodingException;
 
 /**
  * Contract for sending GET requests to the Google Geocoding API. Implement getGeocodingResult to
- * obtain the corresponding GeocodingResult of an address, getCoordinates to convert a Geocoding
- * result to its coordinates, getPlaceType to convert a Geocodiing result to its place type.
+ * obtain the corresponding GeocodingResult of an address.
  */
 public interface GeocodingClient {
   /**
