@@ -70,6 +70,10 @@ function createTextListElement(inputElementId, listElementId) {
   const inputElement = document.getElementById(inputElementId);
   const phrase = inputElement.value;
 
+  if (phrase === null || phrase.length === 0) {
+    return;
+  }
+
   const list = document.getElementById(listElementId);
 
   const listEntry = document.createElement('li');
