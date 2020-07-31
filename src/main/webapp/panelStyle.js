@@ -12,26 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable no-unused-vars */
+
 // Script for handling the behaviour of the panels' layout
 
+// Add appropriate event listeners to all toggle icons
 document.querySelectorAll('.panel__toggle-icon')
     .forEach((element) => {
       switch (element.id) {
         case 'assignSettingsIcon':
-          element.addEventListener('click', (event) => displayAssignSettings(event));
+          element
+              .addEventListener(
+                  'click',
+                  (event) => displayAssignSettings(event)
+              );
           break;
         default:
-          element.addEventListener('click', (event) => toggleIconHandler(event));
+          element
+              .addEventListener(
+                  'click',
+                  (event) => toggleIconHandler(event)
+              );
       }
     });
 
 /**
  * Changes icon from clicked to un-clicked, and vice versa.
  * Assumes parent div has two img elements, one hidden and one not.
- * TODO: Something broken here.
+ *
  * @param {Event} event event generated from click
  */
-function toggleIconHandler (event) {
+function toggleIconHandler(event) {
   const currentIcon = event.target;
   const currentDiv = currentIcon.parentNode;
   const newIcon = currentDiv.querySelector('img[hidden]');
@@ -52,6 +63,14 @@ function displayAssignSettings(event) {
   // TODO: show/hide the settings display
 }
 
+/**
+ * Will increase a the integer value of a text element up to a
+ * specified max.
+ *
+ * @param {string} elementId the ID of the element containing the integer value
+ * @param {number} max the maximum integer the text element should increase to.
+ *     30 by default
+ */
 function incrementElement(elementId, max = 30) {
   const targetElement = document.getElementById(elementId);
   const currentValue = parseInt(targetElement.innerText);
@@ -59,6 +78,14 @@ function incrementElement(elementId, max = 30) {
   targetElement.innerText = Math.min(max, currentValue + 1);
 }
 
+/**
+ * Will decrease a the integer value of a text element down to a
+ * specified minimum.
+ *
+ * @param {string} elementId the ID of the element containing the integer value
+ * @param {number} min the minimum integer the text element should decrease to.
+ *     1 by default
+ */
 function decrementElement(elementId, min = 1) {
   const targetElement = document.getElementById(elementId);
   const currentValue = parseInt(targetElement.innerText);
@@ -66,6 +93,13 @@ function decrementElement(elementId, min = 1) {
   targetElement.innerText = Math.max(min, currentValue - 1);
 }
 
+/**
+ * Add a panel__content-entry-list entry to a list with text and a
+ * remove button (to delete the entry)
+ *
+ * @param {string} inputElementId the id of the input field
+ * @param {string} listElementId the id of the list that contains the entries
+ */
 function createTextListElement(inputElementId, listElementId) {
   const inputElement = document.getElementById(inputElementId);
   const phrase = inputElement.value;
@@ -86,8 +120,9 @@ function createTextListElement(inputElementId, listElementId) {
   listEntryText.appendChild(listEntryTextNode);
 
   const panelButton = document.createElement('a');
-  panelButton.className = "panel__button-incremental--small u-right-align";
-  panelButton.addEventListener('click', (event) => removeTextListElement(event));
+  panelButton.className = 'panel__button-incremental--small u-right-align';
+  panelButton
+      .addEventListener('click', (event) => removeTextListElement(event));
 
   const panelButtonSpan = document.createElement('span');
   const panelButtonSpanTextNode = document.createTextNode('-');
@@ -100,6 +135,11 @@ function createTextListElement(inputElementId, listElementId) {
   list.appendChild(listEntry);
 }
 
+/**
+ * Click event handler for the remove button in a list entry. Deletes the entry
+ *
+ * @param {Event} event event generated from click
+ */
 function removeTextListElement(event) {
   const targetElement = event.currentTarget;
   const parentListEntry = targetElement.parentNode;
@@ -107,18 +147,28 @@ function removeTextListElement(event) {
   parentListEntry.remove();
 }
 
-function show(classId) {
-  const elements = document.querySelectorAll(`.${classId}`);
+/**
+ * Shows (i.e. un-hides) all elements with a certain class name.
+ *
+ * @param {string} className the class name to unhide
+ */
+function show(className) {
+  const elements = document.querySelectorAll(`.${className}`);
 
   elements.forEach((element) => {
     element.removeAttribute('hidden');
-  })
+  });
 }
 
-function hide(classId) {
-  const elements = document.querySelectorAll(`.${classId}`);
+/**
+ * Hides all elements with a certain class name.
+ *
+ * @param {string} className the class name to hide
+ */
+function hide(className) {
+  const elements = document.querySelectorAll(`.${className}`);
 
   elements.forEach((element) => {
     element.setAttribute('hidden', '');
-  })
+  });
 }

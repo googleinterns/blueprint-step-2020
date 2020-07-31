@@ -12,8 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable no-unused-vars */
+/* global show, hide */
+
 // Script for handling the behaviour of the Assign panel's layout
 
+/**
+ * Display the settings in the Assign panel (and hide the content)
+ */
 function displaySettings() {
   show('assign-settings');
   hide('assign-content');
@@ -21,10 +27,13 @@ function displaySettings() {
   const acceptButton = document.getElementById('assign-accept-button');
   const rejectButton = document.getElementById('assign-reject-button');
 
-  acceptButton.innerText = "Confirm";
-  rejectButton.innerText = "Reset";
+  acceptButton.innerText = 'Confirm';
+  rejectButton.innerText = 'Reset';
 }
 
+/**
+ * Display the content of the Assign panel (and hide the settings)
+ */
 function displayContent() {
   show('assign-content');
   hide('assign-settings');
@@ -32,7 +41,7 @@ function displayContent() {
   const acceptButton = document.getElementById('assign-accept-button');
   const rejectButton = document.getElementById('assign-reject-button');
 
-  acceptButton.innerText = "Add Task";
-  rejectButton.innerText = "Skip Item";
+  acceptButton.innerText = 'Add Task';
+  rejectButton.innerText = 'Skip Item';
 }
 
