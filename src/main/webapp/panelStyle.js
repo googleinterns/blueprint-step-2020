@@ -90,11 +90,17 @@ function decrementElement(elementId, min = 1) {
  */
 function createTextListElement(inputElementId, listElementId) {
   const inputElement = document.getElementById(inputElementId);
-  const phrase = inputElement.value;
 
+  // Remove commas from phrase, since this is currently the delimiter
+  // for query strings and they are not recognized by most Google services
+  // TODO: Nicer client-side validation (tell user why this isn't permitted)
+  // (Issue #135)
+  let phrase = inputElement.value;
   if (phrase === null || phrase.length === 0) {
     return;
   }
+  phrase = phrase.split(',').join('');
+  inputElement.value = '';
 
   const list = document.getElementById(listElementId);
 
