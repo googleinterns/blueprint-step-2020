@@ -38,17 +38,14 @@ public final class CalendarDataResponse {
   }
 
   public long getStartDay() {
-    // Useful for testing purposes
     return startDay;
   }
 
   public List<Long> getWorkHoursPerDay() {
-    // Useful for testing purposes
     return workHoursPerDay;
   }
 
   public List<Long> getPersonalHoursPerDay() {
-    // Useful for testing purposes
     return personalHoursPerDay;
   }
 }

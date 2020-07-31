@@ -143,7 +143,7 @@ function populateCalendar() {
       })
       .then((hoursJson) => {
         // Display the days and the free hours for each one of them
-        const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         for (let day = 0; day < 5; day++) {
           const dayContainer = document.querySelector('#day-'+day);
           dayContainer.innerText = days[(hoursJson.startDay + day) % 7];

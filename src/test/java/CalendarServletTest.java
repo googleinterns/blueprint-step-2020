@@ -119,7 +119,7 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
     List<Long> workHoursPerDay = Arrays.asList(8 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour);
     List<Long> personalHoursPerDay =
         Arrays.asList(6 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour);
-    Assert.assertEquals(1, actual.getStartDay());
+    Assert.assertEquals(2, actual.getStartDay());
     Assert.assertTrue(workHoursPerDay.equals(actual.getWorkHoursPerDay()));
     Assert.assertTrue(personalHoursPerDay.equals(actual.getPersonalHoursPerDay()));
   }
@@ -138,7 +138,7 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
     List<Long> workHoursPerDay = Arrays.asList(7 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour);
     List<Long> personalHoursPerDay =
         Arrays.asList(6 * hour, 7 * hour, 8 * hour, 8 * hour, 8 * hour);
-    Assert.assertEquals(1, actual.getStartDay());
+    Assert.assertEquals(2, actual.getStartDay());
     Assert.assertTrue(workHoursPerDay.equals(actual.getWorkHoursPerDay()));
     Assert.assertTrue(personalHoursPerDay.equals(actual.getPersonalHoursPerDay()));
   }

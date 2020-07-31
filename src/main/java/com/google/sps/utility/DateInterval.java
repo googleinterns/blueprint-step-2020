@@ -16,28 +16,28 @@ package com.google.sps.utility;
 
 import java.util.*;
 
-/** Class implementing a Pair Data Structure. */
-public final class DatePair {
+/** Class implementing an Interval Data Structure. */
+public final class DateInterval {
 
-  private final Date key;
-  private final Date value;
+  private final Date start;
+  private final Date end;
 
   /**
    * Constructor for the class
    *
-   * @param key the start time of the interval
-   * @param value the end time of the interval
+   * @param start the start time of the interval
+   * @param end the end time of the interval
    */
-  public DatePair(Date key, Date value) {
-    this.key = key;
-    this.value = value;
+  public DateInterval(Date start, Date end) {
+    this.start = start;
+    this.end = end;
   }
 
-  public Date getKey() {
-    return this.key;
+  public Date getStart() {
+    return this.start;
   }
 
-  public Date getValue() {
-    return this.value;
+  public Date getEnd() {
+    return this.end;
   }
 }
