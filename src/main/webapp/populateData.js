@@ -144,16 +144,22 @@ function populateCalendar() {
       .then((hoursJson) => {
         // Display the days and the free hours for each one of them
         const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-        for (let day = 0; day < 5; day++) {
-          const dayContainer = document.querySelector('#day-'+day);
-          dayContainer.innerText = days[(hoursJson.startDay + day) % 7];
-          const workContainer = document.querySelector('#work-day-'+day);
-          workContainer.innerText =
-              convertTime(hoursJson.workHoursPerDay[day]) + ' (working)';
-          const personalContainer =
-              document.querySelector('#personal-day-'+day);
-          personalContainer.innerText =
-              convertTime(hoursJson.personalHoursPerDay[day]) + ' (personal)';
+        for (const day in hoursJson.workTimeFree) {
+          if (typeof day == 'string') {
+            const dayContainer = document.querySelector('#day-'+day);
+            dayContainer.innerText = days[(hoursJson.startDay + day) % 7];
+            const workContainer = document.querySelector('#work-day-'+day);
+            workContainer.innerText =
+                hoursJson.workTimeFree[day].hours +
+                'h ' + hoursJson.workTimeFree[day].minutes +
+                'm free (working)';
+            const personalContainer =
+                document.querySelector('#personal-day-'+day);
+            personalContainer.innerText =
+                hoursJson.personalTimeFree[day].hours +
+                'h ' + hoursJson.personalTimeFree[day].minutes +
+                'm free (personal)';
+          }
         }
       })
       .catch((e) => {
@@ -162,18 +168,6 @@ function populateCalendar() {
           signOut();
         }
       });
-}
-
-/**
- * Convert the time in hours and minutes,
- * and concatenate the string to be displayed
- * @param {int} timeMilli the time in milliseconds that needs to be converted
- * @return {String} String representing the converted free time
- */
-function convertTime(timeMilli) {
-  const hours = Math.floor(timeMilli / (60 * 60 * 1000));
-  const minutes = Math.floor((timeMilli - hours * 60 * 60 * 1000)/(60*1000));
-  return hours + 'h ' + minutes + 'm free';
 }
 
 /**
