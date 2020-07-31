@@ -131,19 +131,19 @@ function populateTasks() {
           }
         }
         document
-            .querySelector('#tasks-to-complete')
-            .innerText = tasksResponse['tasksToComplete'];
+            .querySelector('#panel__tasks-to-complete')
+            .innerText = tasksResponse['tasksToCompleteCount'];
         document
-            .querySelector('#tasks-due-today')
-            .innerText = tasksResponse['tasksDueToday'] +
+            .querySelector('#panel__tasks-due-today')
+            .innerText = tasksResponse['tasksDueTodayCount'] +
                             ' due today';
         document
-            .querySelector('#tasks-completed-today')
-            .innerText = tasksResponse['tasksCompletedToday'] +
+            .querySelector('#panel__tasks-completed-today')
+            .innerText = tasksResponse['tasksCompletedTodayCount'] +
                             ' completed today';
         document
-            .querySelector('#tasks-overdue')
-            .innerText = tasksResponse['tasksOverdue'] +
+            .querySelector('#panel__tasks-overdue')
+            .innerText = tasksResponse['tasksOverdueCount'] +
                             ' overdue';
       })
       .catch((e) => {
