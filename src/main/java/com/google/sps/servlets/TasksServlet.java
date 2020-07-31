@@ -79,36 +79,6 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
-    // Get tasks from Google Tasks
-    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
-    List<TaskList> allTaskLists = tasksClient.listTaskLists();
-
-    // Initialize Tasks Response
-    List<Task> tasks;
-
-    String taskLists = request.getParameter("taskLists");
-    if (taskLists == null) {
-      tasks = getAllTasksFromAllTaskLists(tasksClient);
-    } else {
-      List<String> selectedTaskListIds = Arrays.asList(taskLists.split(","));
-      tasks = getAllTasksFromSpecificTaskLists(tasksClient, selectedTaskListIds);
-    }
-
-    Map<String, String> taskListIdsToTitles = getTaskListIdsAndTitles(allTaskLists);
-    long tasksToCompleteCount = countTasksToComplete(tasks);
-    long tasksDueTodayCount = countTasksDueToday(tasks);
-    long tasksCompletedTodayCount = countTasksCompletedToday(tasks);
-    long tasksOverdueCount = countTasksOverdue(tasks);
-    TasksResponse tasksResponse =
-        TasksResponse.builder()
-            .taskListIdsToTitles(taskListIdsToTitles)
-            .tasksToCompleteCount(tasksToCompleteCount)
-            .tasksDueTodayCount(tasksDueTodayCount)
-            .tasksCompletedTodayCount(tasksCompletedTodayCount)
-            .tasksOverdueCount(tasksOverdueCount)
-            .build();
-
-    JsonUtility.sendJson(response, tasksResponse);
   }
 
   /**
@@ -155,89 +125,5 @@ public class TasksServlet extends AuthenticatedHttpServlet {
       throw new IOException(
           "There was an issue posting the task. Check the taskListId and try again", e);
     }
-  }
-
-  private Map<String, String> getTaskListIdsAndTitles(List<TaskList> taskLists) throws IOException {
-    return taskLists.stream().collect(Collectors.toMap(TaskList::getId, TaskList::getTitle));
-  }
-
-  private long countTasksToComplete(List<Task> tasks) {
-    // getHidden is defined for incomplete tasks
-    return tasks.stream().filter(task -> task.getHidden() == null).count();
-  }
-
-  private long countTasksDueToday(List<Task> tasks) {
-    String today = LocalDate.now().toString();
-    return tasks.stream()
-        .filter(task -> task.getDue() != null && task.getDue().contains(today))
-        .count();
-  }
-
-  private long countTasksCompletedToday(List<Task> tasks) {
-    ZoneId zoneId = ZoneId.systemDefault();
-    Instant startOfDay = LocalDate.now(zoneId).atStartOfDay(zoneId).toInstant();
-    Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-    // getHidden is defined for completed tasks
-    return tasks.stream()
-        .filter(task -> task.getHidden() != null)
-        .filter(
-            task -> {
-              Instant completionDateTime = ZonedDateTime.parse(task.getUpdated()).toInstant();
-              return completionDateTime.isAfter(startOfDay)
-                  && completionDateTime.isBefore(endOfDay);
-            })
-        .count();
-  }
-
-  private long countTasksOverdue(List<Task> tasks) {
-    ZoneId zoneId = ZoneId.systemDefault();
-    String zoneOffset = zoneId.getRules().getOffset(Instant.now()).toString();
-    Instant endOfDay = LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant();
-    return tasks.stream()
-        .filter(task -> task.getDue() != null)
-        .filter(
-            task -> {
-              DateTime dateTime = DateTime.parseRfc3339(task.getDue().replace("Z", zoneOffset));
-              long millis = dateTime.getValue();
-              Instant dueDate = new Date(millis).toInstant().plus(Period.ofDays(1));
-              return dueDate.isBefore(endOfDay);
-            })
-        .count();
-  }
-
-  /**
-   * Get the all tasks in all the user's task lists
-   *
-   * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
-   * @return List of tasks from all task lists in user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  private List<Task> getAllTasksFromAllTaskLists(TasksClient tasksClient) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
-    }
-    return tasks;
-  }
-
-  /**
-   * Get the tasks in the user's task lists with the given task list IDs
-   *
-   * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
-   * @param taskListTitles List of task list IDs which tasks should be obtained from
-   * @return List of tasks from specified task lists in user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  private List<Task> getAllTasksFromSpecificTaskLists(
-      TasksClient tasksClient, List<String> taskListIds) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      if (taskListIds.contains(taskList.getId())) {
-        tasks.addAll(tasksClient.listTasks(taskList));
-      }
-    }
-    return tasks;
   }
 }
