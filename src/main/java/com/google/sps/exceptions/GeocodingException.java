@@ -17,7 +17,7 @@ package com.google.sps.exceptions;
 /** Exception to be thrown when an issue occurs with the Google Geocoding API */
 public class GeocodingException extends Exception {
   /**
-   * Constructor to create a PlaceException with the given message
+   * Constructor to create a GeocodingException with the given message
    *
    * @param message String to display on console when exception is thrown
    */
@@ -26,7 +26,7 @@ public class GeocodingException extends Exception {
   }
 
   /**
-   * Constructor to create a PlaceException with the given message and cause
+   * Constructor to create a GeocodingException with the given message and cause
    *
    * @param message String to display on console when exception is thrown
    * @param cause Throwable to display on console when exception is thrown
