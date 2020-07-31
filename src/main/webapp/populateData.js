@@ -377,7 +377,7 @@ function setUpAssign() {
  *     case of other error code
  */
 function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
-  const listOfPhrasesString = encodeListForUrl(listOfPhrases, true);
+  const listOfPhrasesString = encodeListForUrl(listOfPhrases);
   const unreadOnlyString = unreadOnly.toString();
   const nDaysString = nDays.toString();
 
