@@ -189,39 +189,6 @@ function populateCalendar() {
 }
 
 /**
- * Function to test getting taskLists, adding a new taskList, and then getting
- * a new task.
- *
- * Will 1) request a new taskList be made with a default name (current time)
- * then, 2) add a task to the new taskList and
- * 3) get the new list of taskLists and log them in the console.
- */
-function postAndGetTaskList() {
-  const sampleTitle =
-      getDateInLocalTimeZone().getTime().toString();
-
-  postNewTaskList(sampleTitle)
-      .then((taskList) => {
-        const sampleTask =
-                  new Task(
-                      'test',
-                      'This is a test',
-                      getDateInLocalTimeZone()
-                  );
-        const taskListId = taskList.id;
-
-        postNewTask(taskListId, sampleTask)
-            .then(() => {
-              getTaskListsAndTasks()
-                  .then(() => {
-                    console.log(tasks);
-                    console.log(taskLists);
-                  });
-            });
-      });
-}
-
-/**
  * Post a new task to a given taskList
  *
  * @param {string} taskListId the id of the taskList that the new task should
@@ -271,8 +238,7 @@ function getTaskListsAndTasks() {
         }
       })
       .then((response) => {
-        tasks = response.tasks;
-        taskLists = response.taskLists;
+        return response;
       });
 }
 
