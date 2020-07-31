@@ -361,39 +361,3 @@ function setUpAssign() {
         }
       });
 }
-
-/**
- * Get actionable emails from server. Used for assign panel
- *
- * @param {string[]} listOfPhrases list of words/phrases that the subject line
- *     of user's emails should be queried for
- * @param {boolean} unreadOnly true if only unread emails should be returned,
- *     false otherwise
- * @param {number} nDays number of days to check unread emails for.
- *     Should be an integer > 0
- * @return {Promise<Object>} returns promise that returns the JSON response
- *     from client. Should be list of Gmail Message Objects. Will throw
- *     AuthenticationError in the case of a 403, or generic Error in
- *     case of other error code
- */
-function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
-  const listOfPhrasesString = encodeListForUrl(listOfPhrases);
-  const unreadOnlyString = unreadOnly.toString();
-  const nDaysString = nDays.toString();
-
-  const queryString =
-      `/gmail-actionable-emails?subjectLinePhrases=${listOfPhrasesString}` +
-      `&unreadOnly=${unreadOnlyString}&nDays=${nDaysString}`;
-
-  return fetch(queryString)
-      .then((response) => {
-        switch (response.status) {
-          case 200:
-            return response.json();
-          case 403:
-            throw new AuthenticationError();
-          default:
-            throw new Error(response.status + ' ' + response.statusText);
-        }
-      });
-}
