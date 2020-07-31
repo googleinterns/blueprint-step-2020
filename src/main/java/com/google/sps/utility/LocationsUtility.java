@@ -15,6 +15,8 @@
 package com.google.sps.utility;
 
 import com.google.api.services.tasks.model.Task;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -57,5 +59,18 @@ public class LocationsUtility {
       return matcher.group(1);
     }
     return "No " + prefix;
+  }
+  
+  public static void generateCombinations(List<List<String>> lists, List<List<String>> result, int depth, List<String> current) {
+    if (depth == lists.size()) {
+        result.add(new ArrayList<>(current));
+        return;
+    }
+    for (int i = 0; i < lists.get(depth).size(); i++) {
+      List<String> next = new ArrayList<>();
+      next.addAll(current);
+      next.add(lists.get(depth).get(i));
+      generateCombinations(lists, result, depth + 1, next);
+    }
   }
 }

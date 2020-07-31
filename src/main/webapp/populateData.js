@@ -311,7 +311,7 @@ function postNewTaskList(title) {
 function populateGo() {
   const goContainer = document.querySelector('#go');
 
-  fetch('/directions')
+  fetch('/go')
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {

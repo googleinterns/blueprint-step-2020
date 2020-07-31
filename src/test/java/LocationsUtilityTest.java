@@ -15,6 +15,8 @@
 import com.google.api.services.tasks.model.Task;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.utility.LocationsUtility;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -117,5 +119,15 @@ public class LocationsUtilityTest {
     Assert.assertEquals(
         ImmutableList.of("Google Kitchener", "Google Kitchener", ""),
         LocationsUtility.getLocations(PREFIX, ALL_TASKS));
+  }
+  
+  @Test
+  public void testGetPermutations() {
+    List<List<String>> searchResults = ImmutableList.of(ImmutableList.of("1", "2"), ImmutableList.of("3", "4", "5"));
+    List<List<String>> result = new ArrayList<List<String>>();
+
+    LocationsUtility.generateCombinations(searchResults, result, 0, new ArrayList<String>());
+    System.out.println(result);
+    Assert.assertNotNull(result);
   }
 }
