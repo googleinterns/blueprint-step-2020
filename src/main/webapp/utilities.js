@@ -102,3 +102,32 @@ function getDateInLocalTimeZone(dateObject = new Date()) {
 function encodeListForUrl(listOfValues) {
   return listOfValues.map((value) => encodeURI(value)).join();
 }
+
+/**
+ * Uses Binary Search to check if an element is present
+ *
+ * @param {Object} target element to find
+ * @param {Object[]} list The list that should be checked for the element.
+ *     Must be sorted from smallest to largest
+ * @param {number} start the starting index that should be checked. Default is
+ *     start of list
+ * @param {number} end the ending index that should be checked. Default is end
+ *     of list
+ * @return {boolean} true if found, false otherwise
+ */
+function binarySearch(target, list, start = 0, end = list.length - 1) {
+  if (end < start) {
+    return false;
+  }
+
+  const ind = Math.floor((end + start)/2);
+  const compareElement = list[ind];
+
+  if (compareElement === target) {
+    return true;
+  } else if (compareElement > target) {
+    return binarySearch(target, list, start, ind-1);
+  } else {
+    return binarySearch(target, list, ind + 1, end);
+  }
+}

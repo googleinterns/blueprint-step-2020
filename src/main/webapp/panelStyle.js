@@ -102,6 +102,17 @@ function createTextListElement(inputElementId, listElementId) {
   phrase = phrase.split(',').join('');
   inputElement.value = '';
 
+  createTextListElementFromString(phrase, listElementId);
+}
+
+/**
+ * Add a panel__content-entry-list entry to a list with text and a
+ * remove button (to delete the entry)
+ *
+ * @param {string} phrase the value of the phrase to be added
+ * @param {string} listElementId the id of the list that contains the entries
+ */
+function createTextListElementFromString(phrase, listElementId) {
   const list = document.getElementById(listElementId);
 
   const listEntry = document.createElement('li');

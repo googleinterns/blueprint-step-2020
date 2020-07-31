@@ -29,6 +29,11 @@ function displaySettings() {
 
   acceptButton.innerText = 'Confirm';
   rejectButton.innerText = 'Reset';
+
+  acceptButton.addEventListener('click', updateSettings);
+  rejectButton.addEventListener('click', revertSettings);
+  acceptButton.removeEventListener('click', addCurrentEmail);
+  rejectButton.removeEventListener('click', skipCurrentEmail);
 }
 
 /**
@@ -43,5 +48,10 @@ function displayContent() {
 
   acceptButton.innerText = 'Add Task';
   rejectButton.innerText = 'Skip Item';
+
+  acceptButton.removeEventListener('click', updateSettings);
+  rejectButton.removeEventListener('click', revertSettings);
+  acceptButton.addEventListener('click', addCurrentEmail);
+  rejectButton.addEventListener('click', skipCurrentEmail);
 }
 
