@@ -180,6 +180,13 @@
   color: var(--color-button-dark-black);
 }
 
+.panel__button-incremental .disabled,
+.panel__button-incremental--small .disabled {
+  pointer-events: none;
+  cursor: none;
+  opacity: .6;
+}
+
 .panel__list {
   display: flex;
   flex: 1;

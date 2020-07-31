@@ -190,9 +190,9 @@
           <p class="panel__text-data-point">Possible Items:</p>
         </div>
         <div class="panel__content-entry assign-content">
-          <a class="button-circle" id="assignStartResetButton" onclick="startAssign()"><span class="button-circle__ascii-icon">▶</span></a>
+          <a class="button-circle u-button-disable" id="assignStartResetButton" onclick="startAssign()"><span class="button-circle__ascii-icon">▶</span></a>
           <!-- Will default to click to start. When started, will list item number (e.g. "Item 1/6") -->
-          <p class="panel__text-data-point" id="assignStartRestart">Click to start
+          <p class="panel__text-data-point" id="assignStartResetText">Click to start
         </div>
         <!-- Container to hold subject line of actionable email -->
         <div class="panel__text-body assign-content">
@@ -235,10 +235,10 @@
             </div>
           </div>
         </div>
-        <!-- Change to CONFIRM and CANCEL for settings, YES and NO otherwise -->
+        <!-- Change to Confirm and Reset for settings, Add Task and Skip Task otherwise -->
         <div class="panel__buttons">
-          <a class="button-1-of-2 panel__green-button" id="assign-accept-button" onclick="addCurrentEmail()">Add Task</a>
-          <a class="button-1-of-2 panel__red-button" id="assign-reject-button" onclick="skipCurrentEmail()">Skip Task</a>
+          <a class="button-1-of-2 panel__green-button u-button-disable" id="assign-accept-button" onclick="addCurrentEmail()">Add Task</a>
+          <a class="button-1-of-2 panel__red-button u-button-disable" id="assign-reject-button" onclick="skipCurrentEmail()">Skip Task</a>
         </div>
       </div>
       <div class="panel">Plan</div>

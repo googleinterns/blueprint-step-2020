@@ -62,8 +62,10 @@ function startAssign() {
   assignStartResetButtonElement.removeEventListener('click', startAssign);
   assignStartResetButtonElement.addEventListener('click', restartAssign);
 
-  const assignStartRestartElement = document.getElementById('assignStartRestart');
-  assignStartRestartElement.innerText = 'Click to Restart';
+  const assignStartResetTextElement = document.getElementById('assignStartResetText');
+  assignStartResetTextElement.innerText = 'Click to Restart';
+
+  enableAssignAcceptRejectButtons();
 
   displayNextEmail();
 }
@@ -75,12 +77,41 @@ function restartAssign() {
   assignStartResetButtonElement.removeEventListener('click', restartAssign);
   assignStartResetButtonElement.addEventListener('click', startAssign);
 
-  const assignStartRestartElement = document.getElementById('assignStartRestart');
-  assignStartRestartElement.innerText = 'Click to Start';
+  const assignStartResetTextElement = document.getElementById('assignStartResetText');
+  assignStartResetTextElement.innerText = 'Click to Start';
 
   const assignSuspectedActionItemsElement = document.getElementById('assignSuspectedActionItems');
   assignSuspectedActionItemsElement.innerText = '-';
 
+  disableAssignAcceptRejectButtons();
+  disableAssignStartResetButton();
+
   setUpAssign();
+}
+
+function enableAssignAcceptRejectButtons() {
+  const assignAcceptButtonElement = document.getElementById('assign-accept-button');
+  const assignRejectButtonElement = document.getElementById('assign-reject-button');
+  assignAcceptButtonElement.classList.remove('u-button-disable');
+  assignRejectButtonElement.classList.remove('u-button-disable');
+}
+
+function disableAssignAcceptRejectButtons() {
+  const assignAcceptButtonElement = document.getElementById('assign-accept-button');
+  const assignRejectButtonElement = document.getElementById('assign-reject-button');
+  assignAcceptButtonElement.classList.add('u-button-disable');
+  assignRejectButtonElement.classList.add('u-button-disable');
+}
+
+function enableAssignStartResetButton() {
+  const assignStartResetButtonElement =
+      document.getElementById('assignStartResetButton');
+  assignStartResetButtonElement.classList.remove('u-button-disable');
+}
+
+function disableAssignStartResetButton() {
+  const assignStartResetButtonElement =
+      document.getElementById('assignStartResetButton');
+  assignStartResetButtonElement.classList.add('u-button-disable');
 }
 

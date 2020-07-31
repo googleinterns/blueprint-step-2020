@@ -40,7 +40,7 @@ const taskNotesPrefix =
 function initializeAssignFeatures() {
   const actionItemsCountElement = document.getElementById('assignSuspectedActionItems');
 
-  Promise.all([getAssignPanelTasks(), fetchActionableEmails(subjectLinePhrases, unreadOnly, nDays)]).then((values) => {
+  return Promise.all([getAssignPanelTasks(), fetchActionableEmails(subjectLinePhrases, unreadOnly, nDays)]).then((values) => {
     // Parse values from server
     const assignTasksResponse = values[0];
     const actionableEmailsResponse = values[1];
@@ -57,7 +57,7 @@ function initializeAssignFeatures() {
 
     // Set the panel statistics
     actionItemsCountElement.innerText = actionableEmails.length;
-  })
+  });
 }
 
 function parseEmailIdFromTaskNotes(task) {
@@ -103,6 +103,7 @@ function displayNextEmail() {
   actionItemsCountElement.innerText = actionableEmails.length;
   if (actionableEmails.length === 0) {
     subjectLineElement.innerText = '';
+    disableAssignAcceptRejectButtons();
     return;
   }
 
@@ -161,7 +162,8 @@ function setUpAssign() {
   const listElements = phrasesListElement.querySelectorAll('.panel__list-text');
   listElements.forEach((element) => subjectLinePhrases.push(element.innerText));
 
-  initializeAssignFeatures();
+  initializeAssignFeatures()
+      .then(() => enableAssignStartResetButton());
 }
 
 function revertSettings() {
