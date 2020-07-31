@@ -25,12 +25,12 @@ class Task {
    *
    * @param {string} title a title for the task
    * @param {string} notes messages associated with a given task
-   * @param {Date} due a Date object / null if not present
+   * @param {Date} due a Date object / undefined if not present
    */
   constructor(title, notes, due) {
     this.title = title;
     this.notes = notes;
-    if (due !== null) {
+    if (due != null) {
       this.due = due.toISOString();
     }
   }

@@ -30,7 +30,7 @@ function displaySettings() {
   acceptButton.innerText = 'Confirm';
   rejectButton.innerText = 'Reset';
 
-  acceptButton.addEventListener('click', updateSettings);
+  acceptButton.addEventListener('click', setUpAssign);
   rejectButton.addEventListener('click', revertSettings);
   acceptButton.removeEventListener('click', addCurrentEmail);
   rejectButton.removeEventListener('click', skipCurrentEmail);
@@ -49,9 +49,38 @@ function displayContent() {
   acceptButton.innerText = 'Add Task';
   rejectButton.innerText = 'Skip Item';
 
-  acceptButton.removeEventListener('click', updateSettings);
+  acceptButton.removeEventListener('click', setUpAssign);
   rejectButton.removeEventListener('click', revertSettings);
   acceptButton.addEventListener('click', addCurrentEmail);
   rejectButton.addEventListener('click', skipCurrentEmail);
+}
+
+function startAssign() {
+  const assignStartResetButtonElement = document.getElementById('assignStartResetButton');
+  assignStartResetButtonElement.querySelector('.button-circle__ascii-icon')
+      .innerText = '↻';
+  assignStartResetButtonElement.removeEventListener('click', startAssign);
+  assignStartResetButtonElement.addEventListener('click', restartAssign);
+
+  const assignStartRestartElement = document.getElementById('assignStartRestart');
+  assignStartRestartElement.innerText = 'Click to Restart';
+
+  displayNextEmail();
+}
+
+function restartAssign() {
+  const assignStartResetButtonElement = document.getElementById('assignStartResetButton');
+  assignStartResetButtonElement.querySelector('.button-circle__ascii-icon')
+      .innerText = '▶';
+  assignStartResetButtonElement.removeEventListener('click', restartAssign);
+  assignStartResetButtonElement.addEventListener('click', startAssign);
+
+  const assignStartRestartElement = document.getElementById('assignStartRestart');
+  assignStartRestartElement.innerText = 'Click to Start';
+
+  const assignSuspectedActionItemsElement = document.getElementById('assignSuspectedActionItems');
+  assignSuspectedActionItemsElement.innerText = '-';
+
+  setUpAssign();
 }
 

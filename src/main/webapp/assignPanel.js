@@ -82,7 +82,7 @@ function parseEmailIdFromTaskNotes(task) {
 }
 
 function addCurrentEmail() {
-  const currentEmail = actionableEmails.pop();
+  const currentEmail = actionableEmails.shift();
   const newTaskNotes = taskNotesPrefix + 'emailId:' + currentEmail.id;
   const newTask = new Task(currentEmail.subject, newTaskNotes);
 
@@ -91,26 +91,27 @@ function addCurrentEmail() {
 }
 
 function skipCurrentEmail() {
-  actionableEmails.pop();
+  actionableEmails.shift();
   displayNextEmail();
 }
 
 function displayNextEmail() {
-  if (actionableEmails.length === 0) {
-    // Do something
-  }
-
   const actionItemsCountElement =
       document.getElementById('assignSuspectedActionItems');
   const subjectLineElement = document.getElementById('assignSubject');
 
+  actionItemsCountElement.innerText = actionableEmails.length;
+  if (actionableEmails.length === 0) {
+    subjectLineElement.innerText = '';
+    return;
+  }
+
   let subjectLine = actionableEmails[0].subject;
+  console.log(subjectLine);
   if (subjectLine.length > 15) {
     // Bigger than some limit for the text box. Truncate / parse manually
   }
-
   subjectLineElement.innerText = subjectLine;
-  actionItemsCountElement.innerText = actionableEmails.length;
 }
 
 /**

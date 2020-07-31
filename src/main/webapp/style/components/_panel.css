@@ -89,10 +89,6 @@
   display: flex;
 }
 
-.play-icon {
-  margin-left: var(--play-icon-right-offset);
-}
-
 .panel__buttons {
   display: flex;
   flex-direction: row;
