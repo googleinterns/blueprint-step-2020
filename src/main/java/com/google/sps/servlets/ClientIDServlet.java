@@ -25,6 +25,25 @@ import javax.servlet.http.HttpServletResponse;
 /** Serves the OAuth 2.0 Client ID */
 @WebServlet("/client-id")
 public class ClientIDServlet extends HttpServlet {
+  private final String clientId;
+
+  /**
+   * Constructor which obtains Client ID from AuthenticationVerifier
+   *
+   * @throws IOException
+   */
+  public ClientIDServlet() throws IOException {
+    clientId = AuthenticationVerifier.getClientId();
+  }
+
+  /**
+   * Constructor where the Client ID is input via a parameter.
+   *
+   * @param clientId String representing a Client ID
+   */
+  public ClientIDServlet(String clientId) {
+    this.clientId = clientId;
+  }
 
   /**
    * Return the OAuth 2.0 Client ID to the client
@@ -35,8 +54,9 @@ public class ClientIDServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // Cannot use JsonUtility since response needs to be a JsonObject, not just a generic object.
     JsonObject clientIdJson = new JsonObject();
-    clientIdJson.addProperty("client-id", AuthenticationVerifier.CLIENT_ID);
+    clientIdJson.addProperty("client-id", clientId);
 
     response.setContentType("application/json");
     response.getWriter().println(clientIdJson);

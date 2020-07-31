@@ -18,7 +18,7 @@
   Global variables used in various styles.
   First word of name directly correlates to variable type (e.g. color or font) or specific component (e.g. panel)
 
-  border-radius-round is a very high number to ensure that things stay circular. 1000px does the same thing as
+  border-radius-round is a very high number to ensure that things stay circular/round. 1000px does the same thing as
   any other large number, like 10000000px. However, changing this to a small value will make all circular elements
   non-circular.
  */
