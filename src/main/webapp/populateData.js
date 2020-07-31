@@ -117,32 +117,32 @@ function populateTasks() {
       })
       .then((tasksResponse) => {
         if (options.length === 0) {
-          const taskListIdsAndTitles = tasksResponse['taskListIdsAndTitles'];
+          const taskListIdsToTitles = tasksResponse['taskListIdsToTitles'];
           select.innerText = '';
-          for (const taskListId in taskListIdsAndTitles) {
+          for (const taskListId in taskListIdsToTitles) {
             if (Object.prototype
                 .hasOwnProperty
-                .call(taskListIdsAndTitles, taskListId)) {
+                .call(taskListIdsToTitles, taskListId)) {
               const option = document.createElement('option');
               option.value = taskListId;
-              option.innerText = taskListIdsAndTitles[taskListId];
+              option.innerText = taskListIdsToTitles[taskListId];
               select.append(option);
             }
           }
         }
         document
-            .querySelector('#panel__tasks-to-complete')
+            .querySelector('#tasks-to-complete')
             .innerText = tasksResponse['tasksToCompleteCount'];
         document
-            .querySelector('#panel__tasks-due-today')
+            .querySelector('#tasks-due-today')
             .innerText = tasksResponse['tasksDueTodayCount'] +
                             ' due today';
         document
-            .querySelector('#panel__tasks-completed-today')
+            .querySelector('#tasks-completed-today')
             .innerText = tasksResponse['tasksCompletedTodayCount'] +
                             ' completed today';
         document
-            .querySelector('#panel__tasks-overdue')
+            .querySelector('#tasks-overdue')
             .innerText = tasksResponse['tasksOverdueCount'] +
                             ' overdue';
       })

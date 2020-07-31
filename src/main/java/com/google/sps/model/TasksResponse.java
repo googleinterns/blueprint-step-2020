@@ -24,7 +24,7 @@ import lombok.Builder;
  */
 @Builder
 public final class TasksResponse {
-  @Builder.Default Map<String, String> taskListIdsAndTitles = new HashMap<String, String>();
+  @Builder.Default Map<String, String> taskListIdsToTitles = new HashMap<String, String>();
   @Builder.Default long tasksToCompleteCount = 0;
   @Builder.Default long tasksDueTodayCount = 0;
   @Builder.Default long tasksCompletedTodayCount = 0;
@@ -42,7 +42,7 @@ public final class TasksResponse {
 
     TasksResponse other = (TasksResponse) object;
 
-    return ((this.taskListIdsAndTitles).equals(other.taskListIdsAndTitles)
+    return ((this.taskListIdsToTitles).equals(other.taskListIdsToTitles)
         && this.tasksToCompleteCount == other.tasksToCompleteCount
         && this.tasksDueTodayCount == other.tasksDueTodayCount
         && this.tasksCompletedTodayCount == other.tasksCompletedTodayCount

@@ -77,10 +77,10 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
   private static final List<TaskList> ONE_TASK_LIST = ImmutableList.of(TASK_LIST_ONE);
   private static final List<TaskList> TWO_TASK_LISTS =
       ImmutableList.of(TASK_LIST_ONE, TASK_LIST_TWO);
-  private static final Map<String, String> NO_TASK_LIST_IDS_AND_TITLES = ImmutableMap.of();
-  private static final Map<String, String> ONE_TASK_LIST_IDS_AND_TITLES =
+  private static final Map<String, String> NO_TASK_LIST_IDS_TO_TITLES = ImmutableMap.of();
+  private static final Map<String, String> ONE_TASK_LIST_IDS_TO_TITLES =
       ImmutableMap.of(TASK_LIST_ID_ONE, TASK_LIST_TITLE_ONE);
-  private static final Map<String, String> TWO_TASK_LIST_IDS_AND_TITLES =
+  private static final Map<String, String> TWO_TASK_LIST_IDS_TO_TITLES =
       ImmutableMap.of(TASK_LIST_ID_ONE, TASK_LIST_TITLE_ONE, TASK_LIST_ID_TWO, TASK_LIST_TITLE_TWO);
 
   private static final DateTimeFormatter FORMATTER =
@@ -126,7 +126,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
 
   private static final TasksResponse NO_TASK_LISTS_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(NO_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(NO_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(0)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -134,7 +134,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse NO_TASKS_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(ONE_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(0)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -142,7 +142,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_DUE_YESTERDAY_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(ONE_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(1)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -150,7 +150,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_DUE_TODAY_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(ONE_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(1)
           .tasksDueTodayCount(1)
           .tasksCompletedTodayCount(0)
@@ -158,7 +158,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_DUE_TOMORROW_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(ONE_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(1)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -166,7 +166,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_COMPLETED_YESTERDAY_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(ONE_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(0)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -174,7 +174,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_COMPLETED_TODAY_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(ONE_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(0)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(1)
@@ -182,7 +182,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse ALL_TASKS_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(ONE_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(3)
           .tasksDueTodayCount(1)
           .tasksCompletedTodayCount(1)
@@ -190,7 +190,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse MULTIPLE_TASK_LISTS_RESPONSE =
       TasksResponse.builder()
-          .taskListIdsAndTitles(TWO_TASK_LIST_IDS_AND_TITLES)
+          .taskListIdsToTitles(TWO_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(6)
           .tasksDueTodayCount(2)
           .tasksCompletedTodayCount(2)

@@ -84,27 +84,24 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     List<TaskList> allTaskLists = tasksClient.listTaskLists();
 
     // Initialize Tasks Response
-    Map<String, String> allTaskListIdsAndTitles = getTaskListIdsAndTitles(allTaskLists);
     List<Task> tasks;
 
     String taskLists = request.getParameter("taskLists");
     if (taskLists == null) {
-      List<String> allTaskListIds =
-          allTaskListIdsAndTitles.keySet().stream().collect(Collectors.toList());
-      tasks = getTasks(tasksClient, allTaskListIds);
+      tasks = getAllTasksFromAllTaskLists(tasksClient);
     } else {
       List<String> selectedTaskListIds = Arrays.asList(taskLists.split(","));
-      tasks = getTasks(tasksClient, selectedTaskListIds);
+      tasks = getAllTasksFromSpecificTaskLists(tasksClient, selectedTaskListIds);
     }
 
-    Map<String, String> taskListIdsAndTitles = allTaskListIdsAndTitles;
+    Map<String, String> taskListIdsToTitles = getTaskListIdsAndTitles(allTaskLists);
     long tasksToCompleteCount = countTasksToComplete(tasks);
     long tasksDueTodayCount = countTasksDueToday(tasks);
     long tasksCompletedTodayCount = countTasksCompletedToday(tasks);
     long tasksOverdueCount = countTasksOverdue(tasks);
     TasksResponse tasksResponse =
         TasksResponse.builder()
-            .taskListIdsAndTitles(taskListIdsAndTitles)
+            .taskListIdsToTitles(taskListIdsToTitles)
             .tasksToCompleteCount(tasksToCompleteCount)
             .tasksDueTodayCount(tasksDueTodayCount)
             .tasksCompletedTodayCount(tasksCompletedTodayCount)
@@ -209,6 +206,22 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   /**
+   * Get the all tasks in all the user's task lists
+   *
+   * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
+   * @return List of tasks from all task lists in user's account
+   * @throws IOException if an issue occurs with the tasksService
+   */
+  private List<Task> getAllTasksFromAllTaskLists(TasksClient tasksClient) throws IOException {
+    List<TaskList> taskLists = tasksClient.listTaskLists();
+    List<Task> tasks = new ArrayList<>();
+    for (TaskList taskList : taskLists) {
+      tasks.addAll(tasksClient.listTasks(taskList));
+    }
+    return tasks;
+  }
+
+  /**
    * Get the tasks in the user's task lists with the given task list IDs
    *
    * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
@@ -216,8 +229,8 @@ public class TasksServlet extends AuthenticatedHttpServlet {
    * @return List of tasks from specified task lists in user's account
    * @throws IOException if an issue occurs with the tasksService
    */
-  private List<Task> getTasks(TasksClient tasksClient, List<String> taskListIds)
-      throws IOException {
+  private List<Task> getAllTasksFromSpecificTaskLists(
+      TasksClient tasksClient, List<String> taskListIds) throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
     for (TaskList taskList : taskLists) {
