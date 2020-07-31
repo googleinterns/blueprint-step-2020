@@ -81,6 +81,7 @@ function handleAuthenticationState() {
  */
 function onSignIn(googleUser) {
   console.log('Signing in with Google');
+
   // Get the authentication object. Always include accessID, even if null
   const userAuth = googleUser.getAuthResponse(true);
 
