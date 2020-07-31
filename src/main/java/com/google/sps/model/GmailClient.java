@@ -15,6 +15,9 @@
 package com.google.sps.model;
 
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartHeader;
+import com.google.sps.exceptions.GmailMessageFormatException;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +44,18 @@ public interface GmailClient {
    * @throws IOException if an issue occurs with the Gmail service
    */
   Message getUserMessage(String messageId, MessageFormat format) throws IOException;
+
+  /**
+   * Gets a message from a user's Gmail account. Format assumed to be METADATA. Returned message
+   * will only include email message ID, labels, and specified headers
+   *
+   * @param messageId messageID (retrieved from listUserMessages) of the desired Message
+   * @param metadataHeaders list of names of headers (e.g. "From") that should be included
+   * @return a Message object with the requested information
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  Message getUserMessageWithMetadataHeaders(String messageId, List<String> metadataHeaders)
+      throws IOException;
 
   /**
    * Encapsulates possible values for the "format" query parameter in the Gmail GET message method
@@ -94,6 +109,23 @@ public interface GmailClient {
    * @throws IOException if an issue occurs with the Gmail service
    */
   List<Message> getUnreadEmailsFromNDays(GmailClient.MessageFormat messageFormat, int nDays)
+      throws IOException;
+
+  /**
+   * Get list of actionable emails that meet specified criteria. Format assumed to be METADATA,
+   * Returned message will only include email message ID, labels, and specified headers
+   *
+   * @param subjectLinePhrases list of words that gmail should look for in the subject line. Emails
+   *     will be returned as long as one of the passed phrases are present.
+   * @param unreadOnly true if emails must be unread, false otherwise
+   * @param nDays emails from the last nDays days will be returned. (Goes by time, not date. E.g. if
+   *     nDays is 1, emails from last 24 hours will be returned)
+   * @param metadataHeaders list of names of headers (e.g. "From") that should be included
+   * @return List of messages that match above criteria
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  List<Message> getActionableEmails(
+      List<String> subjectLinePhrases, boolean unreadOnly, int nDays, List<String> metadataHeaders)
       throws IOException;
 
   /**
@@ -169,5 +201,31 @@ public interface GmailClient {
             .collect(Collectors.toList());
 
     return String.format("subject:(%s)", String.join(" OR ", phrases));
+  }
+
+  /**
+   * Given a list of message headers, extract a single header with the specified name
+   *
+   * @param message a Gmail message object. Must be METADATA or FULL format
+   * @param headerName name of header that should be extracted
+   * @return first header in list with name headerName (this method does not handle duplicate
+   *     headers)
+   * @throws GmailMessageFormatException if the message does not contain the specified header (and
+   *     is thus the wrong format)
+   */
+  static MessagePartHeader extractHeader(Message message, String headerName) {
+    MessagePart payload = message.getPayload();
+    if (payload == null) {
+      throw new GmailMessageFormatException("No headers present!");
+    }
+    List<MessagePartHeader> headers = payload.getHeaders();
+
+    return headers.stream()
+        .filter((header) -> header.getName().equals(headerName))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new GmailMessageFormatException(
+                    String.format("%s Header not present!", headerName)));
   }
 }

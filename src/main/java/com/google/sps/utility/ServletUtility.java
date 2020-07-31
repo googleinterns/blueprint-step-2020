@@ -16,6 +16,7 @@ package com.google.sps.utility;
 
 import com.google.sps.exceptions.CookieParseException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.Cookie;
@@ -92,5 +93,26 @@ public final class ServletUtility {
 
     // Return the accessToken as a Bearer token for the Authorization Header
     return "Bearer " + authCookie.getValue();
+  }
+
+  /**
+   * Parses a list of values (contained as a single parameter) from a request. Requested parameter
+   * should have format: ..."parameter=value1,value2,value3"... Values cannot contain commas, as
+   * this will cause the method to behave unexpectedly.
+   *
+   * @param request HttpServletRequest containing parameter with above format
+   * @param parameter name of the request parameter
+   * @return parsed list of request parameter values. Empty list if parameter is empty
+   */
+  public static List<String> getListFromQueryString(HttpServletRequest request, String parameter)
+      throws IllegalArgumentException {
+    String listAsString = request.getParameter(parameter);
+    if (listAsString == null) {
+      throw new IllegalArgumentException(parameter + " parameter is not present in request");
+    }
+
+    return !listAsString.isEmpty()
+        ? Arrays.asList(listAsString.split(","))
+        : Collections.emptyList();
   }
 }
