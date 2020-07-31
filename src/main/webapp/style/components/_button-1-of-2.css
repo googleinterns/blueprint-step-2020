@@ -28,7 +28,7 @@
   height: 100%;
   justify-content: center;
   user-select: none;
-  width: calc(50% - var(--panel-flex-margin)/2);
+  width: calc(50% - var(--panel-flex-margin) / 2);
 }
 
 .button-1-of-2:not(:last-child) {
