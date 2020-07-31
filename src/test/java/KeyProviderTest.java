@@ -14,7 +14,7 @@
 
 import com.google.sps.utility.KeyProvider;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -25,10 +25,10 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class KeyProviderTest {
-  private static KeyProvider keyProvider;
+  private KeyProvider keyProvider;
 
-  @BeforeClass
-  public static void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     keyProvider = new KeyProvider("{\"sampleKey\" : \"sampleValue\"}");
   }
 
