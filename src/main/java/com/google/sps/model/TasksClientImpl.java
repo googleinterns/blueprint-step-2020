@@ -26,6 +26,7 @@ import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** Handles basic GET/POST requests to and from the Google Tasks service */
 public class TasksClientImpl implements TasksClient {
@@ -59,6 +60,17 @@ public class TasksClientImpl implements TasksClient {
     List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
 
     return taskLists != null ? taskLists : new ArrayList<>();
+  }
+
+  @Override
+  public List<TaskList> listTaskLists(List<String> taskListTitles) throws IOException {
+    // returns null if no taskLists exist. Convert to empty list for ease.
+    List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
+    taskLists = taskLists != null ? taskLists : new ArrayList<>();
+    taskLists.stream()
+        .filter(taskList -> taskListTitles.contains(taskList.getTitle()))
+        .collect(Collectors.toList());
+    return taskLists;
   }
 
   @Override
