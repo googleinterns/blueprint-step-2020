@@ -18,13 +18,23 @@
 
 // Add appropriate event listeners to all toggle icons
 document.querySelectorAll('.panel__toggle-icon')
-    .forEach((element) => {
-      element
-          .addEventListener(
-              'click',
-              (event) => toggleIconHandler(event)
-          );
-    });
+    .forEach((element) =>
+      element.addEventListener(
+          'click',
+          (event) => toggleIconHandler(event))
+    );
+
+// Add event listeners to pre-existing buttons in list elements
+const listElementSelector =
+    '.panel__list-unordered ' +
+    '.panel__content-entry--list ' +
+    '.panel__button-incremental--small';
+document.querySelectorAll(listElementSelector)
+    .forEach((element) =>
+      element.addEventListener(
+          'click',
+          (event) => removeTextListElement(event))
+    );
 
 /**
  * Changes icon from clicked to un-clicked, and vice versa.
