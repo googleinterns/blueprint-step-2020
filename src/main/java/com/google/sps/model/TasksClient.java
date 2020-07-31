@@ -39,14 +39,6 @@ public interface TasksClient {
   List<TaskList> listTaskLists() throws IOException;
 
   /**
-   * Get all task lists in a user's Tasks account with the specified task list titles
-   *
-   * @return List of task lists with any of the given task list titles
-   * @throws IOException if an issue occurs with the TasksService
-   */
-  List<TaskList> listTaskLists(List<String> taskListTitles) throws IOException;
-
-  /**
    * Add a new task list to user's Tasks account
    *
    * @param title title of task list
