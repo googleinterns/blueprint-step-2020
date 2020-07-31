@@ -90,12 +90,24 @@ function populateGmail() {
  * Populate Tasks container with user information
  */
 function populateTasks() {
-  // Get Container for Tasks content
-  const tasksContainer = document.querySelector('#tasks');
+  let fetchFrom;
+  const select = document.querySelector('#tasks-select');
+  // Cast from HTMLOptionsCollection to Array
+  const options = Array(...select.options);
 
-  // Get list of tasks from user's Tasks account
-  // and display the task titles from all task lists on the screen
-  fetch('/tasks')
+  if (options.length === 0) {
+    fetchFrom = '/tasks';
+  } else {
+    const selectedOptions = [];
+    options.forEach((option) => {
+      if (option.selected) {
+        selectedOptions.push(option.value);
+      }
+    });
+    fetchFrom = '/tasks?taskLists=' + selectedOptions.join();
+  }
+
+  fetch(fetchFrom)
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
@@ -104,20 +116,34 @@ function populateTasks() {
         return response.json();
       })
       .then((tasksResponse) => {
+        if (options.length === 0) {
+          const taskListIdsToTitles = tasksResponse['taskListIdsToTitles'];
+          select.innerText = '';
+          for (const taskListId in taskListIdsToTitles) {
+            if (Object.prototype
+                .hasOwnProperty
+                .call(taskListIdsToTitles, taskListId)) {
+              const option = document.createElement('option');
+              option.value = taskListId;
+              option.innerText = taskListIdsToTitles[taskListId];
+              select.append(option);
+            }
+          }
+        }
         document
-            .querySelector('#panel__tasks-to-complete')
-            .innerText = tasksResponse['tasksToComplete'];
+            .querySelector('#tasks-to-complete')
+            .innerText = tasksResponse['tasksToCompleteCount'];
         document
-            .querySelector('#panel__tasks-due-today')
-            .innerText = tasksResponse['tasksDueToday'] +
+            .querySelector('#tasks-due-today')
+            .innerText = tasksResponse['tasksDueTodayCount'] +
                             ' due today';
         document
-            .querySelector('#panel__tasks-completed-today')
-            .innerText = tasksResponse['tasksCompletedToday'] +
+            .querySelector('#tasks-completed-today')
+            .innerText = tasksResponse['tasksCompletedTodayCount'] +
                             ' completed today';
         document
-            .querySelector('#panel__tasks-overdue')
-            .innerText = tasksResponse['tasksOverdue'] +
+            .querySelector('#tasks-overdue')
+            .innerText = tasksResponse['tasksOverdueCount'] +
                             ' overdue';
       })
       .catch((e) => {
@@ -310,4 +336,3 @@ function populateGo() {
         }
       });
 }
-

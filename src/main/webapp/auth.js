@@ -32,7 +32,6 @@ function init() {
         .then((response) => response.json())
         .then((clientIdObject) => {
           const clientId = clientIdObject['client-id'];
-
           // Initialize Google Sign-in with the clientID
           gapi.auth2.init({
             'client_id': clientId,
@@ -60,7 +59,9 @@ function handleAuthenticationState() {
     populateGmail();
     populateTasks();
     populateCalendar();
-    postAndGetTaskList();
+    // TEMPORARY: Commenting this out since it adds tasks to user's
+    // Tasks account on every run.
+    // postAndGetTaskList();
 
     // Populate magic feature panels at the bottom of the dashboard
     populateGo();
@@ -96,6 +97,8 @@ function onSignIn(googleUser) {
   // or when the browser is closed
   addCookie('accessToken', accessToken, expiryUtcTime);
 
+  // TODO: Double call - if a user is not signed in and tries
+  // to log in, they'll get stuck without this (Issue #97)
   handleAuthenticationState();
 }
 

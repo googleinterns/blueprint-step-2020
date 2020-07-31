@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.servlets.ClientIDServlet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,11 +21,13 @@ import org.junit.runners.JUnit4;
 /** Test Client ID Servlet to ensure response contains a defined OAuth 2.0 client ID */
 @RunWith(JUnit4.class)
 public final class ClientIDServletTest extends ServletTestBase {
-  private static final ClientIDServlet servlet = new ClientIDServlet();
+
+  private static final String CLIENT_ID = "sampleValue";
+  private static final ClientIDServlet servlet = new ClientIDServlet(CLIENT_ID);
 
   @Test
   public void responseContainsClientId() throws Exception {
     servlet.doGet(request, response);
-    Assert.assertTrue(stringWriter.toString().contains(AuthenticationVerifier.CLIENT_ID));
+    Assert.assertTrue(stringWriter.toString().contains(CLIENT_ID));
   }
 }
