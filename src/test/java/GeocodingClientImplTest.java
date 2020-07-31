@@ -45,10 +45,8 @@ public class GeocodingClientImplTest {
   public void convertValidAddressTypeToPlaceType() throws Exception {
     // PlaceType is a subset of AddressType. AddressType here is in the PlaceType enum class, hence
     // the same AddressType in the form of PlaceType is expected.
-    GeocodingResult result = new GeocodingResult();
-    result.types = new AddressType[] {AddressType.RESTAURANT};
-    result.partialMatch = true;
-    PlaceType actualPlaceType = GeocodingClient.getPlaceType(result);
+    PlaceType actualPlaceType =
+        GeocodingClient.convertAddressTypeToPlaceType(AddressType.RESTAURANT);
     Assert.assertEquals(PlaceType.RESTAURANT, actualPlaceType);
   }
 
@@ -56,32 +54,32 @@ public class GeocodingClientImplTest {
   public void convertInvalidAddressTypeToPlaceType() throws Exception {
     // PlaceType is a subset of AddressType. AddressType here is not present in the PlaceType enum
     // class, hence null is expected.
-    GeocodingResult result = new GeocodingResult();
-    result.types = new AddressType[] {AddressType.STREET_ADDRESS};
-    result.partialMatch = true;
-    PlaceType actualPlaceType = GeocodingClient.getPlaceType(result);
+    PlaceType actualPlaceType =
+        GeocodingClient.convertAddressTypeToPlaceType(AddressType.STREET_ADDRESS);
     Assert.assertNull(actualPlaceType);
   }
 
   @Test
-  public void getPlaceTypeIsPartialMatch() throws Exception {
-    // GeocodingResult a partial match (i.e. an exact match) so PlaceType which is used to search
-    // nearby is needed.
+  public void isPartialMatch() {
+    GeocodingResult result = new GeocodingResult();
+    result.partialMatch = true;
+    boolean actual = GeocodingClient.isPartialMatch(result);
+    Assert.assertTrue(actual);
+  }
+
+  @Test
+  public void isNotPartialMatch() {
+    GeocodingResult result = new GeocodingResult();
+    result.partialMatch = false;
+    boolean actual = GeocodingClient.isPartialMatch(result);
+    Assert.assertFalse(actual);
+  }
+
+  @Test
+  public void getPlaceType() throws Exception {
     GeocodingResult result = new GeocodingResult();
     result.types = new AddressType[] {AddressType.ACCOUNTING};
-    result.partialMatch = true;
     PlaceType actualPlaceType = GeocodingClient.getPlaceType(result);
     Assert.assertEquals(PlaceType.ACCOUNTING, actualPlaceType);
-  }
-
-  @Test
-  public void getPlaceTypeIsNotPartialMatch() throws Exception {
-    // GeocodingResult is not a partial match (i.e. an exact match) so PlaceType which is used to
-    // search nearby is not needed, hence null is returned.
-    GeocodingResult result = new GeocodingResult();
-    result.types = new AddressType[] {AddressType.STREET_ADDRESS};
-    result.partialMatch = false;
-    PlaceType actualPlaceType = GeocodingClient.getPlaceType(result);
-    Assert.assertNull(actualPlaceType);
   }
 }

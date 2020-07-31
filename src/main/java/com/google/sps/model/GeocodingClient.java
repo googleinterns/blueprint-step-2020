@@ -63,15 +63,26 @@ public interface GeocodingClient {
   }
 
   /**
-   * Parses for a place type if address used to obtain GeocodingResult is not an exact match. This
-   * place type is used to further determine a location which results in a route with the shortest
-   * travel time.
+   * Determines if the address in which the Geocoding API is executed against is geocoded as an
+   * exact match or a partial match. An exact match includes a valid street address or a mistyped
+   * street address which is converted to the correct spelling by the Geocoding API. A partial match
+   * is everything else.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
-   * @return A PlaceType representing the type or null if the address used to obtain the
-   *     GeocodingResult is an exact match.
+   * @return True if result is a partial match, false otherwise.
+   */
+  public static boolean isPartialMatch(GeocodingResult result) {
+    return result.partialMatch;
+  }
+
+  /**
+   * Parses for a address type and converts it to a place type if available. This place type is used
+   * to further determine a location which results in a route with the shortest travel time.
+   *
+   * @param result A GeocodingResult returned from the Geocoding API.
+   * @return A PlaceType representing the type or null if no corresponding PlaceType is found.
    */
   public static PlaceType getPlaceType(GeocodingResult result) {
-    return result.partialMatch ? convertAddressTypeToPlaceType(result.types[0]) : null;
+    return convertAddressTypeToPlaceType(result.types[0]);
   }
 }
