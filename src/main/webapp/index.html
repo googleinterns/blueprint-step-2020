@@ -218,7 +218,16 @@
           </div>
           <div class="panel__list">
             <p class="panel__text-large u-bold-underline">Search Phrases:
-            <ul class="panel__list-unordered" id="assignList"></ul>
+            <ul class="panel__list-unordered" id="assignList">
+              <li class="panel__content-entry--list">
+                <p class="panel__list-text">Action Required</p>
+                <a class="panel__button-incremental--small u-right-align"><span>-</span></a>
+              </li>
+              <li class="panel__content-entry--list">
+                <p class="panel__list-text">Action Requested</p>
+                <a class="panel__button-incremental--small u-right-align"><span>-</span></a>
+              </li>
+            </ul>
             <div class="panel__content-entry">
               <input type="text" class="panel__text-entry" placeholder="New Phrase..." id="assignListTextInput">
               <a class="panel__button-incremental--small" onclick="createTextListElement('assignListTextInput', 'assignList')"><span>+</span></a>
