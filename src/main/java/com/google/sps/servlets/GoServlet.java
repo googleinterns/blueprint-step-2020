@@ -143,11 +143,18 @@ public class GoServlet extends AuthenticatedHttpServlet {
 
     // Get descriptions of relevant tasks
     // Parse for locations from descriptions
-    List<String> allGenericPlaces = getLocations("Search", tasks);
-    List<String> allAddresses = getLocations("Address", tasks);
+    List<String> originList = getLocations("Origin", tasks);
+    List<String> destinationList = getLocations("Destination", tasks);
+    List<String> waypoints = getLocations("Waypoints", tasks);
 
     // Split waypoints into exact addresses and generic locations by looking for the presence of ","
     // For every exact address, generic location is sent to Places to obtain the closest match
+    try {
+      String origin = originList.get(0);
+      String destination = destinationList.get(0);
+    } catch (Exception e) {
+      throw new IndexOutOfBoundsException("Either origin or destination not found.");
+    }
 
     // Create 'route' for every permutation send to Directions
     // Route with shortest travel time is kept at every iteration
