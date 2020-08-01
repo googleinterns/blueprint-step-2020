@@ -19,9 +19,12 @@
   border: var(--panel-border) solid black;
   border-radius: var(--panel-border-radius);
   box-shadow: -1rem 1rem 3rem var(--color-shadow);
+  display: flex;
+  flex-direction: column;
   height: var(--panel-height);
   margin: var(--panel-margin-vertical) var(--panel-margin-horizontal);
   padding: var(--panel-border-radius);
+  position: relative;
   width: var(--panel-width);
 }
 
@@ -39,7 +42,7 @@
 .panel__round-letter {
   align-items: center;
   background-color: var(--color-black);
-  border-radius: 1000px;
+  border-radius: var(--border-radius-round);
   display: flex;
   flex-shrink: 0;
   height: var(--panel-icon-width);
@@ -70,10 +73,55 @@
   align-items: center;
   display: flex;
   flex-direction: row;
-  margin: var(--panel-content-entry-vertical-margin) 0;
+  margin: var(--panel-content-entry-vertical-margin) 0 0 0;
 }
 
 .panel__content-entry-link {
-  display: flex;
   align-items: center;
+  display: flex;
+}
+
+.play-icon {
+  margin-left: var(--play-icon-right-offset);
+}
+
+.panel__buttons {
+  display: flex;
+  flex-direction: row;
+  height: var(--button-height);
+  margin: var(--panel-margin-vertical) 0 0 0;
+}
+
+.panel__text-body {
+  flex-grow: 1;
+  margin: var(--panel-content-entry-vertical-margin) 0 0 0;
+  overflow: hidden;
+}
+
+#green-button {
+  background-color: var(--color-green);
+  border: solid var(--button-border-width) var(--color-green);
+}
+
+#green-button:hover {
+  background-color: var(--color-white);
+  color: var(--color-black);
+}
+
+#green-button:active {
+  background-color: var(--color-green);
+}
+
+#red-button {
+  background-color: var(--color-red);
+  border: solid var(--button-border-width) var(--color-red);
+}
+
+#red-button:hover {
+  background-color: var(--color-white);
+  color: var(--color-black);
+}
+
+#red-button:active {
+  background-color: var(--color-red);
 }
