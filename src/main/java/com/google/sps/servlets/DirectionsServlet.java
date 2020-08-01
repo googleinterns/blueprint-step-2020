@@ -83,7 +83,9 @@ public class DirectionsServlet extends HttpServlet {
       throws ServletException {
     try {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
-      List<String> directions = directionsClient.getDirections(origin, destination, waypoints);
+      List<String> directions =
+          DirectionsClient.parseDirectionsResult(
+              directionsClient.getDirections(origin, destination, waypoints));
       JsonUtility.sendJson(response, directions);
     } catch (DirectionsException | IOException e) {
       throw new ServletException(e);
