@@ -270,8 +270,7 @@ function getTaskListsAndTasks() {
         }
       })
       .then((response) => {
-        tasks = response.tasks;
-        taskLists = response.taskLists;
+        console.log(response['taskLists']);
       });
 }
 

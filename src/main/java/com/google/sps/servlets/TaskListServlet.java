@@ -17,8 +17,6 @@ package com.google.sps.servlets;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.TasksClient;
@@ -73,20 +71,8 @@ public class TaskListServlet extends AuthenticatedHttpServlet {
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
-
     List<TaskList> taskLists = tasksClient.listTaskLists();
-    Map<String, List<Task>> taskListsWithTasks = mapTaskListsToTasks(taskLists, tasksClient);
-
-    // Cannot use JsonUtility since gson needs to know the object is a JsonObject, not just a
-    // generic object.
-    Gson gson = new Gson();
-    JsonObject jsonObject = new JsonObject();
-    jsonObject.add("taskLists", gson.toJsonTree(taskLists));
-    jsonObject.add("tasks", gson.toJsonTree(taskListsWithTasks));
-    String json = gson.toJson(jsonObject);
-
-    response.setContentType("application/json");
-    response.getWriter().println(json);
+    JsonUtility.sendJson(response, taskLists);
   }
 
   /**

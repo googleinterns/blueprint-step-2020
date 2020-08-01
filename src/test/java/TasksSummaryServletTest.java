@@ -18,13 +18,10 @@ import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.sps.model.AuthenticationVerifier;
-import com.google.sps.model.GmailResponse;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksSummaryServlet;
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -211,6 +208,8 @@ public final class TasksSummaryServletTest extends AuthenticatedServletTestBase 
         Mockito.mock(
             HttpServletResponse.class,
             AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
+
+    Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
   @Test
@@ -286,6 +285,40 @@ public final class TasksSummaryServletTest extends AuthenticatedServletTestBase 
 
   @Test
   public void multipleTaskLists() throws Exception {
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(TWO_TASK_LISTS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_TWO)).thenReturn(ALL_TASKS);
+    servlet.doGet(request, response);
+    TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+    Assert.assertEquals(MULTIPLE_TASK_LISTS_RESPONSE, actual);
+  }
+
+  @Test
+  public void noTaskListSelected() throws Exception {
+    // No task lists selected is equivalent to all task lists selected
+    Mockito.when(request.getParameter("taskLists")).thenReturn(null);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(TWO_TASK_LISTS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_TWO)).thenReturn(ALL_TASKS);
+    servlet.doGet(request, response);
+    TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+    Assert.assertEquals(MULTIPLE_TASK_LISTS_RESPONSE, actual);
+  }
+
+  @Test
+  public void oneTaskListSelected() throws Exception {
+    Mockito.when(request.getParameter("taskLists")).thenReturn(TASK_LIST_ID_ONE);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
+    servlet.doGet(request, response);
+    TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+    Assert.assertEquals(ALL_TASKS_RESPONSE, actual);
+  }
+
+  @Test
+  public void allTaskListsSelected() throws Exception {
+    Mockito.when(request.getParameter("taskLists"))
+        .thenReturn(TASK_LIST_ID_ONE + "," + TASK_LIST_ID_TWO);
     Mockito.when(tasksClient.listTaskLists()).thenReturn(TWO_TASK_LISTS);
     Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
     Mockito.when(tasksClient.listTasks(TASK_LIST_TWO)).thenReturn(ALL_TASKS);

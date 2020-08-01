@@ -1,5 +1,3 @@
 package com.google.sps.servlets;
 
-public class GoServlet {
-  
-}
+public class GoServlet {}

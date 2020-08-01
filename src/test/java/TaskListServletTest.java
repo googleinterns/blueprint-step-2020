@@ -16,13 +16,12 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.servlets.TaskListServlet;
-import java.util.HashMap;
+import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,39 +76,25 @@ public final class TaskListServletTest extends AuthenticatedServletTestBase {
   @Test
   public void getTasklists() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASK_LISTS);
-    Mockito.when(tasksClient.listTasks(SOME_TASK_LISTS.get(0))).thenReturn(TASKS_ONE_TWO);
-    Mockito.when(tasksClient.listTasks(SOME_TASK_LISTS.get(1))).thenReturn(TASKS_THREE_FOUR);
-
-    Map<String, List<Task>> tasksWithTaskLists = new HashMap<>();
-    tasksWithTaskLists.put(SOME_TASK_LISTS.get(0).getId(), TASKS_ONE_TWO);
-    tasksWithTaskLists.put(SOME_TASK_LISTS.get(1).getId(), TASKS_THREE_FOUR);
-
-    JsonObject expectedResponseObject = new JsonObject();
-    expectedResponseObject.add("taskLists", gson.toJsonTree(SOME_TASK_LISTS));
-    expectedResponseObject.add("tasks", gson.toJsonTree(tasksWithTaskLists));
-
-    String expectedResponse = gson.toJson(expectedResponseObject);
 
     servlet.doGet(request, response);
 
-    Assert.assertTrue(stringWriter.toString().contains(expectedResponse));
+    Type type = new TypeToken<List<TaskList>>() {}.getType();
+    List<TaskList> actual = gson.fromJson(stringWriter.toString(), type);
+
+    Assert.assertEquals(SOME_TASK_LISTS, actual);
   }
 
   @Test
   public void getTasklistsEmpty() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASK_LISTS);
 
-    Map<String, List<Task>> emptyTasksWithTaskLists = new HashMap<>();
-
-    JsonObject expectedResponseObject = new JsonObject();
-    expectedResponseObject.add("taskLists", gson.toJsonTree(NO_TASK_LISTS));
-    expectedResponseObject.add("tasks", gson.toJsonTree(emptyTasksWithTaskLists));
-
-    String expectedResponse = gson.toJson(expectedResponseObject);
-
     servlet.doGet(request, response);
 
-    Assert.assertTrue(stringWriter.toString().contains(expectedResponse));
+    Type type = new TypeToken<List<TaskList>>() {}.getType();
+    List<TaskList> actual = gson.fromJson(stringWriter.toString(), type);
+
+    Assert.assertEquals(NO_TASK_LISTS, actual);
   }
 
   @Test

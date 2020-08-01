@@ -15,7 +15,6 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.gson.Gson;
@@ -24,20 +23,10 @@ import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
-import com.google.sps.model.TasksResponse;
 import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,7 +54,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Returns Tasks from the user's Tasks account
+   * Returns all tasks from the user's Tasks account
    *
    * @param request Http request from client. Should contain idToken and accessToken
    * @param response 403 if user is not authenticated, list of Tasks otherwise
@@ -79,6 +68,15 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
+    TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
+    List<TaskList> allTaskLists = tasksClient.listTaskLists();
+
+    List<Task> allTasks = new ArrayList<>();
+    for (TaskList taskList : allTaskLists) {
+      allTasks.addAll(tasksClient.listTasks(taskList));
+    }
+
+    JsonUtility.sendJson(response, allTasks);
   }
 
   /**
