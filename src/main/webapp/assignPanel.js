@@ -60,6 +60,13 @@ function initializeAssignFeatures() {
   });
 }
 
+/**
+ * Will get the email ID from the task notes.
+ * Assumes that the email ID will be in the last line of the notes.
+ *
+ * @param {Task} task task object
+ * @returns {string|null} id if present, null otherwise
+ */
 function parseEmailIdFromTaskNotes(task) {
   // Get emailId from end of message
   const notes = task.notes;
@@ -81,43 +88,14 @@ function parseEmailIdFromTaskNotes(task) {
   return emailIdValue.split(':')[1];
 }
 
-function addCurrentEmail() {
-  const currentEmail = actionableEmails.shift();
-  const newTaskNotes = taskNotesPrefix + 'emailId:' + currentEmail.id;
-  const newTask = new Task(currentEmail.subject, newTaskNotes);
-
-  postNewTask(assignTaskListId, newTask);
-  displayNextEmail();
-}
-
-function skipCurrentEmail() {
-  actionableEmails.shift();
-  displayNextEmail();
-}
-
-function displayNextEmail() {
-  const actionItemsCountElement =
-      document.getElementById('assignSuspectedActionItems');
-  const subjectLineElement = document.getElementById('assignSubject');
-
-  actionItemsCountElement.innerText = actionableEmails.length;
-  if (actionableEmails.length === 0) {
-    subjectLineElement.innerText = '';
-    disableAssignAcceptRejectButtons();
-    return;
-  }
-
-  let subjectLine = actionableEmails[0].subject;
-  console.log(subjectLine);
-  if (subjectLine.length > 15) {
-    // Bigger than some limit for the text box. Truncate / parse manually
-  }
-  subjectLineElement.innerText = subjectLine;
-}
 
 /**
+ * Get the tasks for the assign panel from the server
+ * TODO: Change when Tasks is refactored (Issue #133)
  *
- * @returns {Promise<*>}
+ * @returns {Promise<Object>} promise that will return an object containing
+ *     1) the id of the relevant taskList for the assign panel and
+ *     2) a list of Task objects associated with that taskList
  */
 function getAssignPanelTasks() {
   return getTaskListsAndTasks()
@@ -125,11 +103,11 @@ function getAssignPanelTasks() {
         const assignTaskLists = response.taskLists.filter((taskList) => taskList.title === assignTaskListTitle)
         if (assignTaskLists.length === 0) {
           return postNewTaskList(assignTaskListTitle).
-              then((taskList) => {
-                return {
-                  'taskListId': taskList.id,
-                  'tasks': []
-                };
+          then((taskList) => {
+            return {
+              'taskListId': taskList.id,
+              'tasks': []
+            };
           })
         } else {
           const assignTaskList = assignTaskLists[0];
@@ -145,7 +123,7 @@ function getAssignPanelTasks() {
 
 /**
  * Sets the values of the settings for the assign panel based on what is
- * present in the panel
+ * present in the panel (will be the default values on sign-in)
  */
 function setUpAssign() {
   const nDaysElement = document.getElementById('assignNDays');
@@ -159,13 +137,19 @@ function setUpAssign() {
   unreadOnly = unreadOnlyUnselectedElement.hasAttribute('hidden');
 
   const phrasesListElement = document.getElementById('assignList');
-  const listElements = phrasesListElement.querySelectorAll('.panel__list-text');
-  listElements.forEach((element) => subjectLinePhrases.push(element.innerText));
+  const listElements =
+      phrasesListElement.querySelectorAll('.panel__list-text');
+  listElements
+      .forEach((element) => subjectLinePhrases.push(element.innerText));
 
   initializeAssignFeatures()
       .then(() => enableAssignStartResetButton());
 }
 
+/**
+ * Reset the settings panel to display the values currently set for the
+ * assignPanel (i.e. ignore new changes - reset to old values)
+ */
 function revertSettings() {
   const nDaysElement = document.getElementById('assignNDays');
   nDaysElement.innerText = nDays;
@@ -225,4 +209,43 @@ function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
             throw new Error(response.status + ' ' + response.statusText);
         }
       });
+}
+
+/**
+ * Add the current actionable email to the assign taskList
+ */
+function addCurrentEmail() {
+  const currentEmail = actionableEmails.shift();
+  const newTaskNotes = taskNotesPrefix + 'emailId:' + currentEmail.id;
+  const newTask = new Task(currentEmail.subject, newTaskNotes);
+
+  postNewTask(assignTaskListId, newTask);
+  displayNextEmail();
+}
+
+/**
+ * Skip the current actionable email - don't add to the taskList
+ */
+function skipCurrentEmail() {
+  actionableEmails.shift();
+  displayNextEmail();
+}
+
+/**
+ * Display the next email for user review. If none left, disable the buttons and
+ * reset the subject line field to the default value
+ */
+function displayNextEmail() {
+  const actionItemsCountElement =
+      document.getElementById('assignSuspectedActionItems');
+  const subjectLineElement = document.getElementById('assignSubject');
+
+  actionItemsCountElement.innerText = actionableEmails.length;
+  if (actionableEmails.length === 0) {
+    subjectLineElement.innerText = '';
+    disableAssignAcceptRejectButtons();
+    return;
+  }
+
+  subjectLineElement.innerText = actionableEmails[0].subject;
 }

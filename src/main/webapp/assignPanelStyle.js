@@ -55,14 +55,20 @@ function displayContent() {
   rejectButton.addEventListener('click', skipCurrentEmail);
 }
 
+/**
+ * Start the process of presenting emails to the user
+ */
 function startAssign() {
-  const assignStartResetButtonElement = document.getElementById('assignStartResetButton');
-  assignStartResetButtonElement.querySelector('.button-circle__ascii-icon')
+  const assignStartResetButtonElement =
+      document.getElementById('assignStartResetButton');
+  assignStartResetButtonElement
+      .querySelector('.button-circle__ascii-icon')
       .innerText = '↻';
   assignStartResetButtonElement.removeEventListener('click', startAssign);
   assignStartResetButtonElement.addEventListener('click', restartAssign);
 
-  const assignStartResetTextElement = document.getElementById('assignStartResetText');
+  const assignStartResetTextElement =
+      document.getElementById('assignStartResetText');
   assignStartResetTextElement.innerText = 'Click to Restart';
 
   enableAssignAcceptRejectButtons();
@@ -71,16 +77,21 @@ function startAssign() {
 }
 
 function restartAssign() {
-  const assignStartResetButtonElement = document.getElementById('assignStartResetButton');
-  assignStartResetButtonElement.querySelector('.button-circle__ascii-icon')
+  const assignStartResetButtonElement =
+      document.getElementById('assignStartResetButton');
+  assignStartResetButtonElement
+      .querySelector('.button-circle__ascii-icon')
       .innerText = '▶';
-  assignStartResetButtonElement.removeEventListener('click', restartAssign);
+  assignStartResetButtonElement
+      .removeEventListener('click', restartAssign);
   assignStartResetButtonElement.addEventListener('click', startAssign);
 
-  const assignStartResetTextElement = document.getElementById('assignStartResetText');
+  const assignStartResetTextElement =
+      document.getElementById('assignStartResetText');
   assignStartResetTextElement.innerText = 'Click to Start';
 
-  const assignSuspectedActionItemsElement = document.getElementById('assignSuspectedActionItems');
+  const assignSuspectedActionItemsElement =
+      document.getElementById('assignSuspectedActionItems');
   assignSuspectedActionItemsElement.innerText = '-';
 
   disableAssignAcceptRejectButtons();
@@ -90,15 +101,19 @@ function restartAssign() {
 }
 
 function enableAssignAcceptRejectButtons() {
-  const assignAcceptButtonElement = document.getElementById('assign-accept-button');
-  const assignRejectButtonElement = document.getElementById('assign-reject-button');
+  const assignAcceptButtonElement =
+      document.getElementById('assign-accept-button');
+  const assignRejectButtonElement =
+      document.getElementById('assign-reject-button');
   assignAcceptButtonElement.classList.remove('u-button-disable');
   assignRejectButtonElement.classList.remove('u-button-disable');
 }
 
 function disableAssignAcceptRejectButtons() {
-  const assignAcceptButtonElement = document.getElementById('assign-accept-button');
-  const assignRejectButtonElement = document.getElementById('assign-reject-button');
+  const assignAcceptButtonElement =
+      document.getElementById('assign-accept-button');
+  const assignRejectButtonElement =
+      document.getElementById('assign-reject-button');
   assignAcceptButtonElement.classList.add('u-button-disable');
   assignRejectButtonElement.classList.add('u-button-disable');
 }
