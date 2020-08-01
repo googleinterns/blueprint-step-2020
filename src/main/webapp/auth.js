@@ -66,7 +66,7 @@ function handleAuthenticationState() {
 
     // Populate magic feature panels at the bottom of the dashboard
     populateGo();
-    new Promise(() => setUpAssign());
+    setUpAssign();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
