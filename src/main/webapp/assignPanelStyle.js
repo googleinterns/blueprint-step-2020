@@ -14,10 +14,11 @@
 
 /* eslint-disable no-unused-vars */
 /* global show, hide, setUpAssign, revertSettings, addCurrentEmail,
- skipCurrentEmail, setUpAssign, displayNextEmail */
+ skipCurrentEmail, setUpAssign, displayNextEmail, actionableEmails */
 
 // Script for handling the behaviour of the Assign panel's layout
 
+// Add default event listeners
 const acceptButton = document.getElementById('assign-accept-button');
 const rejectButton = document.getElementById('assign-reject-button');
 acceptButton.addEventListener('click', addCurrentEmail);

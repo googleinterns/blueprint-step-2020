@@ -25,7 +25,7 @@ let assignTaskListId;
 let assignTasks = [];
 let nDays;
 let unreadOnly;
-const subjectLinePhrases = [];
+let subjectLinePhrases = [];
 let actionableEmails = [];
 
 const taskNotesPrefix =
@@ -157,6 +157,7 @@ function setUpAssign() {
   const phrasesListElement = document.getElementById('assignList');
   const listElements =
       phrasesListElement.querySelectorAll('.panel__list-text');
+  subjectLinePhrases = [];
   listElements
       .forEach((element) => subjectLinePhrases.push(element.innerText));
 
@@ -188,6 +189,7 @@ function revertSettings() {
     unreadOnlySelectedElement.setAttribute('hidden', '');
   }
 
+  console.log(subjectLinePhrases);
   const phrasesListElement = document.getElementById('assignList');
   phrasesListElement.innerHTML = '';
   subjectLinePhrases
