@@ -19,16 +19,14 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.data.CalendarSummaryResponse;
-import com.google.sps.data.TimeHourMin;
 import com.google.sps.model.CalendarClient;
 import com.google.sps.model.CalendarClientFactory;
 import com.google.sps.servlets.CalendarServlet;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.time.Instant;
-import java.time.Duration;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,12 +50,13 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
   private static final String EVENT_SUMMARY_ONE = "test event one";
   private static final String EVENT_SUMMARY_TWO = "test event two";
   private static final int OFFSET_YEAR = 1900;
-  private static final String EVENT_ONE_TWO_JSON =
-      String.format(
-          "[{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
-  private static final String EVENT_ALL_JSON =
-      String.format(
-          "[{},{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
+  // private static final String EVENT_ONE_TWO_JSON =
+  //     String.format(
+  //         "[{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
+  // private static final String EVENT_ALL_JSON =
+  //     String.format(
+  //         "[{},{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE,
+  // EVENT_SUMMARY_TWO);
   private static final String EVENT_UNDEFINED_JSON = "[{}]";
   private static final String EMPTY_JSON = "[]";
   private static final CalendarListEntry PRIMARY = new CalendarListEntry().setId("primary");
@@ -125,9 +124,11 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
     Assert.assertEquals(5, actual.getWorkTimeFree().size());
     Assert.assertEquals(5, actual.getPersonalTimeFree().size());
     for (int index = 0; index < workHoursPerDay.size(); index++) {
-      Assert.assertEquals((int)workHoursPerDay.get(index), actual.getWorkTimeFree().get(index).getHours());
+      Assert.assertEquals(
+          (int) workHoursPerDay.get(index), actual.getWorkTimeFree().get(index).getHours());
       Assert.assertEquals(0, actual.getWorkTimeFree().get(index).getMinutes());
-      Assert.assertEquals((int)personalHoursPerDay.get(index), actual.getPersonalTimeFree().get(index).getHours());
+      Assert.assertEquals(
+          (int) personalHoursPerDay.get(index), actual.getPersonalTimeFree().get(index).getHours());
       Assert.assertEquals(0, actual.getPersonalTimeFree().get(index).getMinutes());
     }
   }
@@ -149,9 +150,11 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
     Assert.assertEquals(5, actual.getWorkTimeFree().size());
     Assert.assertEquals(5, actual.getPersonalTimeFree().size());
     for (int index = 0; index < workHoursPerDay.size(); index++) {
-      Assert.assertEquals((int)workHoursPerDay.get(index), actual.getWorkTimeFree().get(index).getHours());
+      Assert.assertEquals(
+          (int) workHoursPerDay.get(index), actual.getWorkTimeFree().get(index).getHours());
       Assert.assertEquals(0, actual.getWorkTimeFree().get(index).getMinutes());
-      Assert.assertEquals((int)personalHoursPerDay.get(index), actual.getPersonalTimeFree().get(index).getHours());
+      Assert.assertEquals(
+          (int) personalHoursPerDay.get(index), actual.getPersonalTimeFree().get(index).getHours());
       Assert.assertEquals(0, actual.getPersonalTimeFree().get(index).getMinutes());
     }
   }

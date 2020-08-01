@@ -26,6 +26,7 @@ import com.google.sps.model.CalendarClientImpl;
 import com.google.sps.utility.FreeTimeUtility;
 import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -73,7 +74,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
-    Date timeMax = new Date(timeMin.getTime() + fiveDaysInMillis);
+    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
 
     int personalBeginHour = 7;
@@ -81,7 +82,9 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     int workEndHour = 18;
     int personalEndHour = 23;
     int numDays = 5;
-    FreeTimeUtility freeTimeUtility = new FreeTimeUtility(timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
+    FreeTimeUtility freeTimeUtility =
+        new FreeTimeUtility(
+            timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
     for (Event event : calendarEvents) {
       DateTime start = event.getStart().getDateTime();
       start = start == null ? event.getStart().getDate() : start;

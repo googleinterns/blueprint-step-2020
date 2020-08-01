@@ -16,34 +16,42 @@ package com.google.sps.utility;
 
 import com.google.sps.data.CalendarSummaryResponse;
 import com.google.sps.data.TimeHourMin;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.time.Instant;
-import java.time.Duration;
+
 /** Class containing the user's free hours. */
 public final class FreeTimeUtility {
 
   private final Date startDate;
   private final int numDays;
   /**
-   * The lists of time intervals from now (startDate) to the end day. They are divided by morning, work, and evening periods
-   * to allow easy computation of free hours, and later to create events during work/morning/evening hours
-  */
+   * The lists of time intervals from now (startDate) to the end day. They are divided by morning,
+   * work, and evening periods to allow easy computation of free hours, and later to create events
+   * during work/morning/evening hours
+   */
   private List<DateInterval> morningFreeInterval;
+
   private List<DateInterval> workFreeInterval;
   private List<DateInterval> eveningFreeInterval;
   private static final int DAY_ADJUST = 7;
 
   /**
-   * Initialize the class with the start day. The work hours are hard-coded between 10 AM and 6
-   * PM. The rest of the free hours are between 7 AM and 11 PM.
+   * Initialize the class with the start day. The work hours are hard-coded between 10 AM and 6 PM.
+   * The rest of the free hours are between 7 AM and 11 PM.
    *
    * @param startTime parameter that gives the time of the start/now.
    * @param personalBeginHour parameter that gives the hour to begin the personal time
    * @param workBeginHour parameter that gives the hour to begin the work time
    * @param workEndHour parameter that gives the hour to begin the work time
    */
-  public FreeTimeUtility(Date startDate, int personalBeginHour, int workBeginHour, int workEndHour, int personalEndHour, int numDays) {
+  public FreeTimeUtility(
+      Date startDate,
+      int personalBeginHour,
+      int workBeginHour,
+      int workEndHour,
+      int personalEndHour,
+      int numDays) {
     this.startDate = startDate;
     this.numDays = numDays;
     Date basisDate = new Date(startDate.getYear(), startDate.getMonth(), startDate.getDate(), 0, 0);
@@ -53,10 +61,27 @@ public final class FreeTimeUtility {
     this.eveningFreeInterval = new ArrayList<>();
 
     for (int day = 0; day < numDays; day++) {
-      Date workStart = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(workBeginHour)));
-      Date workEnd = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(workEndHour)));
-      Date personalStart = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(personalBeginHour)));
-      Date personalEnd = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(personalEndHour)));
+      Date workStart =
+          Date.from(
+              basisDate
+                  .toInstant()
+                  .plus(Duration.ofDays(day))
+                  .plus(Duration.ofHours(workBeginHour)));
+      Date workEnd =
+          Date.from(
+              basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(workEndHour)));
+      Date personalStart =
+          Date.from(
+              basisDate
+                  .toInstant()
+                  .plus(Duration.ofDays(day))
+                  .plus(Duration.ofHours(personalBeginHour)));
+      Date personalEnd =
+          Date.from(
+              basisDate
+                  .toInstant()
+                  .plus(Duration.ofDays(day))
+                  .plus(Duration.ofHours(personalEndHour)));
       morningFreeInterval.add(new DateInterval(personalStart, workStart));
       workFreeInterval.add(new DateInterval(workStart, workEnd));
       eveningFreeInterval.add(new DateInterval(workEnd, personalEnd));
@@ -77,53 +102,56 @@ public final class FreeTimeUtility {
   }
 
   /**
-   * Method to change the list of free intervals according to a new event, that may occupy parts of the intervals
+   * Method to change the list of free intervals according to a new event, that may occupy parts of
+   * the intervals
    *
    * @param freeTime the list of intervals to update.
    * @param eventStart the start time of the new event
    * @param eventEnd the end time of the new event
    * @return the new list of intervals
    */
-  private List<DateInterval> updateInterval(List<DateInterval> freeTime, Date eventStart, Date eventEnd) {
+  private List<DateInterval> updateInterval(
+      List<DateInterval> freeTime, Date eventStart, Date eventEnd) {
     List<DateInterval> updatedTime = new ArrayList<>();
     for (DateInterval interval : freeTime) {
-      //interval:      |--------------|
-      //event:              |----|
-      //new intervals: |----|    |----|
+      // interval:      |--------------|
+      // event:              |----|
+      // new intervals: |----|    |----|
       if (interval.getStart().before(eventStart) && interval.getEnd().after(eventEnd)) {
         updatedTime.add(new DateInterval(interval.getStart(), eventStart));
         updatedTime.add(new DateInterval(eventEnd, interval.getEnd()));
       }
-      //interval:      |--------------|
-      //event:              |------------|
-      //new interval:  |----| 
+      // interval:      |--------------|
+      // event:              |------------|
+      // new interval:  |----|
       else if (interval.getStart().before(eventStart) && interval.getEnd().after(eventStart)) {
         updatedTime.add(new DateInterval(interval.getStart(), eventStart));
-      } 
-      //interval:       |--------------|
-      //event:        |-----------|
-      //new interval:             |----|
+      }
+      // interval:       |--------------|
+      // event:        |-----------|
+      // new interval:             |----|
       else if (interval.getStart().before(eventEnd) && interval.getEnd().after(eventEnd)) {
         updatedTime.add(new DateInterval(eventEnd, interval.getEnd()));
-      } 
-      //interval:     |------|
-      //event:                 |----|
-      //new interval: |------|
-      else if (!((eventStart.before(interval.getStart()) || eventStart.equals(interval.getStart())) && (eventEnd.after(interval.getEnd()) || eventEnd.equals(interval.getEnd())))) {
+      }
+      // interval:     |------|
+      // event:                 |----|
+      // new interval: |------|
+      else if (!((eventStart.before(interval.getStart()) || eventStart.equals(interval.getStart()))
+          && (eventEnd.after(interval.getEnd()) || eventEnd.equals(interval.getEnd())))) {
         updatedTime.add(interval);
       }
-      //Remaining case, excluded from the updated list of intervals.
-      //interval:    |----|
-      //event:    |-----------|
+      // Remaining case, excluded from the updated list of intervals.
+      // interval:    |----|
+      // event:    |-----------|
     }
     return updatedTime;
   }
 
   /**
-   * Method to accumulate the free time on a particular list of free times by adding the time of each interval
-   * on a the given list of free time intervals. To get the index to update, find the difference in Day between
-   * the interval date and the start date. In case the difference is negative (for example the start day is friday
-   * and we are monday), adjust the index by adding 7
+   * Method to accumulate the free time on a particular list of free times by adding the time of
+   * each interval on a the given list of free time intervals. To get the index to update, find the
+   * difference in Day between the interval date and the start date. In case the difference is
+   * negative (for example the start day is friday and we are monday), adjust the index by adding 7
    *
    * @param hoursPerDay the list of free time in milliseconds to update.
    * @param freeInterval the list of free intervals
@@ -131,9 +159,11 @@ public final class FreeTimeUtility {
    */
   private List<Long> updateHoursPerDay(List<Long> hoursPerDay, List<DateInterval> freeInterval) {
     for (DateInterval interval : freeInterval) {
-      //Find the index to update as the difference in day between the interval day and the start day
-      //Adjust the index if it is negative (for example the start day is friday (5) and we are monday (1))
-      //by adding 7.
+      // Find the index to update as the difference in day between the interval day and the start
+      // day
+      // Adjust the index if it is negative (for example the start day is friday (5) and we are
+      // monday (1))
+      // by adding 7.
       int index = interval.getStart().getDay() - this.startDate.getDay();
       index = index < 0 ? index + DAY_ADJUST : index;
       hoursPerDay.set(
@@ -145,9 +175,10 @@ public final class FreeTimeUtility {
 
   private List<TimeHourMin> convertTime(List<Long> hoursPerDay) {
     List<TimeHourMin> freeTime = new ArrayList<>();
-    for (long durationMilli: hoursPerDay) {
+    for (long durationMilli : hoursPerDay) {
       int hours = (int) (durationMilli / TimeUnit.HOURS.toMillis(1));
-      int minutes = (int) ((durationMilli % TimeUnit.HOURS.toMillis(1)) / TimeUnit.MINUTES.toMillis(1));
+      int minutes =
+          (int) ((durationMilli % TimeUnit.HOURS.toMillis(1)) / TimeUnit.MINUTES.toMillis(1));
       freeTime.add(new TimeHourMin(hours, minutes));
     }
     return freeTime;
@@ -160,16 +191,14 @@ public final class FreeTimeUtility {
    */
   public CalendarSummaryResponse getCalendarSummaryResponse() {
     long zero = 0;
-    List<Long> workHoursPerDay = new ArrayList<Long>(Collections.nCopies(this.numDays, (long)0));
-    List<Long> personalHoursPerDay = new ArrayList<Long>(Collections.nCopies(this.numDays, (long)0));
+    List<Long> workHoursPerDay = new ArrayList<Long>(Collections.nCopies(this.numDays, (long) 0));
+    List<Long> personalHoursPerDay =
+        new ArrayList<Long>(Collections.nCopies(this.numDays, (long) 0));
     workHoursPerDay = updateHoursPerDay(workHoursPerDay, this.workFreeInterval);
-    personalHoursPerDay =
-        updateHoursPerDay(personalHoursPerDay, this.morningFreeInterval);
-    personalHoursPerDay =
-        updateHoursPerDay(personalHoursPerDay, this.eveningFreeInterval);
+    personalHoursPerDay = updateHoursPerDay(personalHoursPerDay, this.morningFreeInterval);
+    personalHoursPerDay = updateHoursPerDay(personalHoursPerDay, this.eveningFreeInterval);
     List<TimeHourMin> workTimeFree = convertTime(workHoursPerDay);
     List<TimeHourMin> personalTimeFree = convertTime(personalHoursPerDay);
-    return new CalendarSummaryResponse(
-        this.startDate.getDay(), workTimeFree, personalTimeFree);
+    return new CalendarSummaryResponse(this.startDate.getDay(), workTimeFree, personalTimeFree);
   }
 }

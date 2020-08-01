@@ -28,8 +28,7 @@ public final class TimeHourMin {
    * @param hours parameter that gives the number of hours in the duration
    * @param minutes parameter that gives the number of minutes in the duration
    */
-  public TimeHourMin(
-      int hours, int minutes) {
+  public TimeHourMin(int hours, int minutes) {
     this.hours = hours;
     this.minutes = minutes;
   }

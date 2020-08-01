@@ -19,8 +19,12 @@ import java.util.*;
 /** Class containing the response to be converted to Json. */
 public final class CalendarSummaryResponse {
 
-  /**This variable is an integer between 0 and 6 representing the current day (from sunday to saturday) */
+  /**
+   * This variable is an integer between 0 and 6 representing the current day (from sunday to
+   * saturday)
+   */
   final int startDay;
+
   final List<TimeHourMin> workTimeFree;
   final List<TimeHourMin> personalTimeFree;
 
