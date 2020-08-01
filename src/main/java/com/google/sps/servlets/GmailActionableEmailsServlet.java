@@ -24,6 +24,7 @@ import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
+import com.google.sps.utility.GmailUtility;
 import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
@@ -128,7 +129,7 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
   private ActionableMessage createActionableMessage(Message message)
       throws GmailMessageFormatException {
     String messageId = message.getId();
-    String subject = GmailClient.extractHeader(message, "Subject").getValue();
+    String subject = GmailUtility.extractHeader(message, "Subject").getValue();
 
     return new ActionableMessage(messageId, subject);
   }

@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.api.services.gmail.model.Message;
-import com.google.api.services.gmail.model.MessagePart;
-import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.common.collect.ImmutableList;
-import com.google.sps.exceptions.GmailMessageFormatException;
 import com.google.sps.model.GmailClient;
 import java.util.Arrays;
 import java.util.List;
@@ -59,25 +55,6 @@ public final class GmailClientTest {
       ImmutableList.of("phrase one", "phrase two");
   private static final String SUBJECT_LINE_PHRASES_QUERY =
       "subject:(\"phrase one\" OR \"phrase two\")";
-
-  private static final String HEADER_NAME = "SampleName";
-  private static final String HEADER_VALUE = "SampleName";
-  private static final MessagePartHeader headerWithHeaderValue =
-      new MessagePartHeader().setName(HEADER_NAME).setValue(HEADER_VALUE);
-  private static final List<MessagePartHeader> HEADERS_WITH_HEADER_NAME =
-      ImmutableList.of(
-          headerWithHeaderValue,
-          new MessagePartHeader().setName("junk_header_one").setValue("junk_value_one"),
-          new MessagePartHeader().setName("junk_header_two").setValue("junk_value_two"));
-  private static final List<MessagePartHeader> HEADERS_WITHOUT_HEADER_NAME =
-      ImmutableList.of(
-          new MessagePartHeader().setName("junk_header_one").setValue("junk_value_one"),
-          new MessagePartHeader().setName("junk_header_two").setValue("junk_value_two"));
-  private static final Message messageNoHeaders = new Message();
-  private static final Message messageWithHeaderName =
-      new Message().setPayload(new MessagePart().setHeaders(HEADERS_WITH_HEADER_NAME));
-  private static final Message messageWithoutHeaderName =
-      new Message().setPayload(new MessagePart().setHeaders(HEADERS_WITHOUT_HEADER_NAME));
 
   @Test
   public void getQueryStringDays() {
@@ -209,22 +186,5 @@ public final class GmailClientTest {
     Assert.assertTrue(queries.contains(ONE_DAY_QUERY));
     Assert.assertTrue(queries.contains(UNREAD_EMAILS_QUERY));
     Assert.assertTrue(queries.contains(IMPORTANT_EMAILS_QUERY));
-  }
-
-  @Test(expected = GmailMessageFormatException.class)
-  public void extractHeaderFromMessageWithNoHeaders() {
-    GmailClient.extractHeader(messageNoHeaders, HEADER_NAME);
-  }
-
-  @Test(expected = GmailMessageFormatException.class)
-  public void extractHeaderFromMessageWithoutDesiredHeader() {
-    GmailClient.extractHeader(messageWithoutHeaderName, HEADER_NAME);
-  }
-
-  @Test()
-  public void extractHeaderFromMessageWithDesiredHeader() {
-    MessagePartHeader actualHeader = GmailClient.extractHeader(messageWithHeaderName, HEADER_NAME);
-
-    Assert.assertEquals(headerWithHeaderValue, actualHeader);
   }
 }
