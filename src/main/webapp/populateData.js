@@ -16,7 +16,7 @@
 
 /* eslint-disable no-unused-vars */
 /* global signOut, AuthenticationError, Task, getDateInLocalTimeZone,
- encodeListForUrl,  */
+ encodeListForUrl */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
 // Stores the last retrieved copy of the user's taskLists and tasks
