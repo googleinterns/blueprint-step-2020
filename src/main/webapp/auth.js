@@ -62,6 +62,8 @@ function handleAuthenticationState() {
     // TEMPORARY: Commenting this out since it adds tasks to user's
     // Tasks account on every run.
     // postAndGetTaskList();
+    getTasks();
+    getTaskLists();
 
     // Populate magic feature panels at the bottom of the dashboard
     populateGo();

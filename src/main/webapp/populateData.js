@@ -96,7 +96,7 @@ function populateTasks() {
   const options = Array(...select.options);
 
   if (options.length === 0) {
-    fetchFrom = '/tasks';
+    fetchFrom = '/tasks-summary';
   } else {
     const selectedOptions = [];
     options.forEach((option) => {
@@ -104,7 +104,7 @@ function populateTasks() {
         selectedOptions.push(option.value);
       }
     });
-    fetchFrom = '/tasks?taskLists=' + selectedOptions.join();
+    fetchFrom = '/tasks-summary?taskLists=' + selectedOptions.join();
   }
 
   fetch(fetchFrom)
@@ -211,10 +211,13 @@ function postAndGetTaskList() {
 
         postNewTask(taskListId, sampleTask)
             .then(() => {
-              getTaskListsAndTasks()
+              getTaskLists()
+                  .then(() => {
+                    console.log(taskLists);
+                  });
+              getTasks()
                   .then(() => {
                     console.log(tasks);
-                    console.log(taskLists);
                   });
             });
       });
@@ -252,12 +255,12 @@ function postNewTask(taskListId, taskObject) {
 }
 
 /**
- * Update the tasks and taskLists lists.
+ * Update the taskLists lists.
  *
  * @return {Promise<any>} A promise that is resolved once the tasks and
  *     and taskLists arrays are updated, and rejected if there's an error
  */
-function getTaskListsAndTasks() {
+function getTaskLists() {
   return fetch('/taskLists')
       .then((response) => {
         switch (response.status) {
@@ -270,7 +273,32 @@ function getTaskListsAndTasks() {
         }
       })
       .then((response) => {
-        console.log(response['taskLists']);
+        taskLists = response['taskLists'];
+        console.log(taskLists);
+      });
+}
+
+/**
+ * Update the tasks lists.
+ *
+ * @return {Promise<any>} A promise that is resolved once the tasks and
+ *     and taskLists arrays are updated, and rejected if there's an error
+ */
+function getTasks() {
+  return fetch('/tasks')
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
+        }
+      })
+      .then((response) => {
+        tasks = response['tasks'];
+        console.log(tasks);
       });
 }
 

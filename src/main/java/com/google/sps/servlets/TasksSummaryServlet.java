@@ -42,7 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Serves selected information from the User's Tasks Account. */
-@WebServlet("/tasks")
+@WebServlet("/tasks-summary")
 public class TasksSummaryServlet extends AuthenticatedHttpServlet {
   private final TasksClientFactory tasksClientFactory;
 
