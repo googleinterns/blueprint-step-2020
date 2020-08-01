@@ -53,7 +53,7 @@ public final class FreeTimeUtility {
     this.eveningFreeInterval = new ArrayList<>();
 
     for (int day = 0; day < numDays; day++) {
-      Date workStart = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(workBeginHour)));// + day * DAY_MILLI + WORK_BEGIN);
+      Date workStart = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(workBeginHour)));
       Date workEnd = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(workEndHour)));
       Date personalStart = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(personalBeginHour)));
       Date personalEnd = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(personalEndHour)));
