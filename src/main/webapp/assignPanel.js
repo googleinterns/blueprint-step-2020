@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /* eslint-disable no-unused-vars */
-/* global binarySearch, getTaskListsAndTasks, postNewTaskList,
+/* global getTaskListsAndTasks, postNewTaskList,
  enableAssignStartResetButton, createTextListElementFromString,
  encodeListForUrl, AuthenticationError, Task, postNewTask,
  disableAssignAcceptRejectButtons */
@@ -62,13 +62,13 @@ function initializeAssignFeatures() {
     assignTasks = assignTasksResponse.tasks;
 
     const tasksEmailIds =
-        assignTasks
+        new Set(assignTasks
             .map((task) => parseEmailIdFromTaskNotes(task))
-            .filter((id) => id !== null).sort();
+            .filter((id) => id !== null));
 
     actionableEmails =
         actionableEmailsResponse
-            .filter((message) => !binarySearch(message.id, tasksEmailIds));
+            .filter((message) => !tasksEmailIds.has(message.id));
 
     // Set the panel statistics
     actionItemsCountElement.innerText = actionableEmails.length;
