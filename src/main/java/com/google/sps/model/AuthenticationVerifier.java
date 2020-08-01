@@ -28,6 +28,7 @@ public interface AuthenticationVerifier {
   static String getClientId() throws IOException {
     return (new KeyProvider()).getKey("clientId");
   }
+
   /**
    * Verifies that Google User ID Token is legitimate
    *
