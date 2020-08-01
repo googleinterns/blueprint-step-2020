@@ -18,15 +18,17 @@
 
 // Script for handling the behaviour of the Assign panel's layout
 
+const acceptButton = document.getElementById('assign-accept-button');
+const rejectButton = document.getElementById('assign-reject-button');
+acceptButton.addEventListener('click', addCurrentEmail);
+rejectButton.addEventListener('click', skipCurrentEmail);
+
 /**
  * Display the settings in the Assign panel (and hide the content)
  */
 function displaySettings() {
   show('assign-settings');
   hide('assign-content');
-
-  const acceptButton = document.getElementById('assign-accept-button');
-  const rejectButton = document.getElementById('assign-reject-button');
 
   acceptButton.innerText = 'Confirm';
   rejectButton.innerText = 'Reset';
@@ -35,6 +37,8 @@ function displaySettings() {
   rejectButton.addEventListener('click', revertSettings);
   acceptButton.removeEventListener('click', addCurrentEmail);
   rejectButton.removeEventListener('click', skipCurrentEmail);
+
+  enableAssignAcceptRejectButtons();
 }
 
 /**
@@ -44,9 +48,6 @@ function displayContent() {
   show('assign-content');
   hide('assign-settings');
 
-  const acceptButton = document.getElementById('assign-accept-button');
-  const rejectButton = document.getElementById('assign-reject-button');
-
   acceptButton.innerText = 'Add Task';
   rejectButton.innerText = 'Skip Item';
 
@@ -54,6 +55,16 @@ function displayContent() {
   rejectButton.removeEventListener('click', revertSettings);
   acceptButton.addEventListener('click', addCurrentEmail);
   rejectButton.addEventListener('click', skipCurrentEmail);
+
+  const assignStartResetButtonIcon =
+      document.getElementById('assignStartResetButton')
+          .querySelector('.button-circle__ascii-icon');
+
+  console.log(assignStartResetButtonIcon.innerText);
+  if (assignStartResetButtonIcon.innerText === '▶' ||
+      actionableEmails.length === 0) {
+    disableAssignAcceptRejectButtons();
+  }
 }
 
 /**
