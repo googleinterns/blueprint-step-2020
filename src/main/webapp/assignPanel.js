@@ -189,7 +189,6 @@ function revertSettings() {
     unreadOnlySelectedElement.setAttribute('hidden', '');
   }
 
-  console.log(subjectLinePhrases);
   const phrasesListElement = document.getElementById('assignList');
   phrasesListElement.innerHTML = '';
   subjectLinePhrases

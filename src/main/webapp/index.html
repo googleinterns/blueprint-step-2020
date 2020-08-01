@@ -62,7 +62,8 @@
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="clock-icon" src="assets/clock.png">
-              <p class="panel__text-large"><span id="gmailUnreadEmailsHours"></span> from the last <span id="gmailMHours"></span> hours
+              <p class="panel__text-large">
+                <span id="gmailUnreadEmailsHours"></span> from the last <span id="gmailMHours"></span> hours
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="flag-icon" src="assets/flag.png">
@@ -165,7 +166,7 @@
       </div>
     </div>
   </article>
-  <!-- Placeholder panels for features built in future -->
+  <!-- Panels for cross-product features -->
   <article>
     <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
     <div class="panel-row__content">
@@ -190,7 +191,9 @@
           <p class="panel__text-data-point">Possible Items:</p>
         </div>
         <div class="panel__content-entry assign-content">
-          <a class="button-circle u-button-disable" id="assignStartResetButton" onclick="startAssign()"><span class="button-circle__ascii-icon">▶</span></a>
+          <a class="button-circle u-button-disable" id="assignStartResetButton" onclick="startAssign()">
+            <span class="button-circle__ascii-icon">▶</span>
+          </a>
           <!-- Will default to click to start. When started, will list item number (e.g. "Item 1/6") -->
           <p class="panel__text-data-point" id="assignStartResetText">Click to start
         </div>
@@ -231,7 +234,9 @@
             </ul>
             <div class="panel__content-entry">
               <input type="text" class="panel__text-entry" placeholder="New Phrase..." id="assignListTextInput">
-              <a class="panel__button-incremental--small" onclick="createTextListElement('assignListTextInput', 'assignList')"><span>+</span></a>
+              <a class="panel__button-incremental--small" onclick="createTextListElement('assignListTextInput', 'assignList')">
+                <span>+</span>
+              </a>
             </div>
           </div>
         </div>

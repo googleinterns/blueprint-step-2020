@@ -61,7 +61,6 @@ function displayContent() {
       document.getElementById('assignStartResetButton')
           .querySelector('.button-circle__ascii-icon');
 
-  console.log(assignStartResetButtonIcon.innerText);
   if (assignStartResetButtonIcon.innerText === '▶' ||
       actionableEmails.length === 0) {
     disableAssignAcceptRejectButtons();
