@@ -273,8 +273,7 @@ function getTaskLists() {
         }
       })
       .then((response) => {
-        taskLists = response['taskLists'];
-        console.log(taskLists);
+        taskLists = response;
       });
 }
 
@@ -297,8 +296,7 @@ function getTasks() {
         }
       })
       .then((response) => {
-        tasks = response['tasks'];
-        console.log(tasks);
+        tasks = response;
       });
 }
 
