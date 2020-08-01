@@ -13,7 +13,8 @@
 // limitations under the License.
 
 /* eslint-disable no-unused-vars */
-/* global show, hide */
+/* global show, hide, setUpAssign, revertSettings, addCurrentEmail,
+ skipCurrentEmail, setUpAssign, displayNextEmail */
 
 // Script for handling the behaviour of the Assign panel's layout
 
@@ -76,6 +77,10 @@ function startAssign() {
   displayNextEmail();
 }
 
+/**
+ * Restart the process of presenting emails to the user. Disable the
+ * start button while the messages load
+ */
 function restartAssign() {
   const assignStartResetButtonElement =
       document.getElementById('assignStartResetButton');
@@ -100,6 +105,11 @@ function restartAssign() {
   setUpAssign();
 }
 
+/**
+ * Enable the accept and reject buttons for the assign panel.
+ * Done when there are emails to assign and the user has pressed play,
+ * or the user is toggling settings.
+ */
 function enableAssignAcceptRejectButtons() {
   const assignAcceptButtonElement =
       document.getElementById('assign-accept-button');
@@ -109,6 +119,11 @@ function enableAssignAcceptRejectButtons() {
   assignRejectButtonElement.classList.remove('u-button-disable');
 }
 
+/**
+ * Disable the accept and reject buttons for the assign panel.
+ * Done when there are no emails left to assign, or the user has not yet
+ * pressed play
+ */
 function disableAssignAcceptRejectButtons() {
   const assignAcceptButtonElement =
       document.getElementById('assign-accept-button');
@@ -118,12 +133,19 @@ function disableAssignAcceptRejectButtons() {
   assignRejectButtonElement.classList.add('u-button-disable');
 }
 
+/**
+ * Disable the start button for the assign panel. Done while the messages
+ * are loading
+ */
 function enableAssignStartResetButton() {
   const assignStartResetButtonElement =
       document.getElementById('assignStartResetButton');
   assignStartResetButtonElement.classList.remove('u-button-disable');
 }
 
+/**
+ * Disable the start button for the assign panel. Done when the messages load
+ */
 function disableAssignStartResetButton() {
   const assignStartResetButtonElement =
       document.getElementById('assignStartResetButton');

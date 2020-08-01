@@ -16,13 +16,13 @@
 
 /* eslint-disable no-unused-vars */
 /* global signOut, AuthenticationError, Task, getDateInLocalTimeZone,
- encodeListForUrl */
+ encodeListForUrl,  */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
 // Stores the last retrieved copy of the user's taskLists and tasks
 // (mapped by taskListId)
-let taskLists = [];
-let tasks = {};
+const taskLists = [];
+const tasks = {};
 
 /**
  * Populate Gmail container with user information
@@ -295,30 +295,6 @@ function populateGo() {
         } else {
           goContainer.innerText = 'No direction legs returned';
         }
-      })
-      .catch((e) => {
-        console.log(e);
-        if (e instanceof AuthenticationError) {
-          signOut();
-        }
-      });
-}
-
-/**
- * Set up the assign panel. For now, this just prints the response
- * from the server for /gmail-actionable-emails
- */
-function setUpAssign() {
-  const assignContent = document.querySelector('#assign');
-
-  const subjectLinePhrases = ['Action Required', 'Action Requested'];
-  const unreadOnly = true;
-  const nDays = 7;
-  fetchActionableEmails(subjectLinePhrases, unreadOnly, nDays)
-      .then((response) => {
-        assignContent.innerText = response
-            .map((obj) => obj.subject)
-            .join('\n');
       })
       .catch((e) => {
         console.log(e);
