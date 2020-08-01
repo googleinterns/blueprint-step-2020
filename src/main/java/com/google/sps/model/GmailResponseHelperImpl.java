@@ -17,6 +17,7 @@ package com.google.sps.model;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.sps.exceptions.GmailMessageFormatException;
+import com.google.sps.utility.GmailUtility;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -106,7 +107,7 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
     Map<String, Integer> sendersToFrequencies = new HashMap<>();
 
     messages.stream()
-        .map((message) -> GmailClient.extractHeader(message, "From"))
+        .map((message) -> GmailUtility.extractHeader(message, "From"))
         .forEach(
             (fromHeader) -> {
               String sender = fromHeader.getValue();
@@ -134,7 +135,7 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
 
     messages.forEach(
         (message) -> {
-          MessagePartHeader fromHeader = GmailClient.extractHeader(message, "From");
+          MessagePartHeader fromHeader = GmailUtility.extractHeader(message, "From");
 
           String sender = fromHeader.getValue();
           long newEmailTimestamp = message.getInternalDate();

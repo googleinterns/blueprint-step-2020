@@ -42,9 +42,9 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   private static final Gson gson = new Gson();
 
   // Spaces within words are fine (and would be encoded/decoded by request.getParameter)
-  private static final String SUBJECT_LINE_PHRASES_STRING = "\"Action Word One\",\"ActionWordTwo\"";
+  private static final String SUBJECT_LINE_PHRASES_STRING = "Action Word One,ActionWordTwo";
   private static final List<String> SUBJECT_LINE_PHRASES_LIST =
-      Arrays.asList("\"Action Word One\"", "\"ActionWordTwo\"");
+      Arrays.asList("Action Word One", "ActionWordTwo");
 
   private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
 
