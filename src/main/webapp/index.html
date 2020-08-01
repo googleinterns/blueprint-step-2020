@@ -83,25 +83,26 @@
             </a>
             <h3 class="panel__section-heading">Tasks</h3>
           </div>
-          <p class="panel__section-subheading">Selected Tasks:
+          <p class="panel__section-subheading">Task Lists: 
+            <select name="panel__task-list-select" id="tasks-select" onchange="populateTasks()" size="2" multiple></select>
           <div class="panel__content">
             <div class="panel__content-entry">
               <div class="panel__rounded-number u-background-tasks">
-                <p id="panel__tasks-to-complete" class="panel__text-data-point u-text-white">
+                <p class="panel__text-data-point u-text-white" id="tasks-to-complete">
               </div>
               <p class="panel__text-data-point">Tasks to complete
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="clipboard-icon" src="assets/clipboard.png">
-              <p id="panel__tasks-due-today" class="panel__text-large">4 due today
+              <p class="panel__text-large" id="tasks-due-today">4 due today
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="checkmark-icon" src="assets/checkmark.png">
-              <p id="panel__tasks-completed-today" class="panel__text-large">2 completed today
+              <p class="panel__text-large" id="tasks-completed-today">2 completed today
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="exclamation-icon" src="assets/exclamation.png">
-              <p id="panel__tasks-overdue" class="panel__text-large">1 overdue
+              <p class="panel__text-large" id="tasks-overdue">1 overdue
             </div>
           </div>
         </div>
