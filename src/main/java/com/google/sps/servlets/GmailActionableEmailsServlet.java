@@ -30,6 +30,7 @@ import com.google.sps.utility.GmailUtility;
 import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
@@ -126,7 +127,7 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
         gmailClient.getActionableEmails(subjectLinePhrases, unreadOnly, nDays, METADATA_HEADERS)
             .stream()
             .map((message) -> createActionableMessage(message, userEmail))
-            .sorted()
+            .sorted(Comparator.reverseOrder())
             .collect(Collectors.toList());
     JsonUtility.sendJson(response, actionableEmails);
   }

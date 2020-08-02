@@ -70,7 +70,8 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
 
   /**
    * Compares two actionable messages by their priorities. High priority > Medium priority > Low
-   * priority
+   * priority. If the assigned priorities are the same, the actionableMessage that was sent later is
+   * considered to be higher priority
    *
    * @param actionableMessage the ActionableMessage that this object is being compared against
    * @return A positive integer if the current object has the higher priority, a negative integer if
@@ -78,6 +79,10 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
    */
   @Override
   public int compareTo(ActionableMessage actionableMessage) {
+    if (priority.getPriorityValue() == actionableMessage.priority.getPriorityValue()) {
+      return (int) (internalDate - actionableMessage.internalDate);
+    }
+
     return priority.getPriorityValue() - actionableMessage.priority.getPriorityValue();
   }
 

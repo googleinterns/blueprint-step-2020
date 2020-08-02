@@ -50,37 +50,61 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
 
   private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
 
-  private static final String MESSAGE_ID_ONE = "messageOne";
-  private static final String MESSAGE_ID_TWO = "messageTwo";
+  private static final String MESSAGE_ID_OLD = "messageOne";
+  private static final String MESSAGE_ID_NEW = "messageTwo";
+  private static final String MESSAGE_ID_LOW_PRIORITY = "messageTwo";
+  private static final String MESSAGE_ID_HIGH_PRIORITY = "messageTwo";
   private static final String SUBJECT_VALUE_ONE = "subjectValueOne";
   private static final String SUBJECT_VALUE_TWO = "subjectValueTwo";
   private static final MessagePartHeader subjectHeaderOne =
       new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_ONE);
   private static final MessagePartHeader subjectHeaderTwo =
       new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_TWO);
-  private static final long INTERNAL_DATE = 1;
-  private static final ActionableMessage.MessagePriority MESSAGE_PRIORITY =
-      ActionableMessage.MessagePriority.LOW;
+  private static final long INTERNAL_DATE_EARLY = 1;
+  private static final long INTERNAL_DATE_LATE = 2;
 
-  int DEFAULT_N_DAYS = 7;
-  int NEGATIVE_N_DAYS = -1;
+  private static final int DEFAULT_N_DAYS = 7;
+  private static final int NEGATIVE_N_DAYS = -1;
+  private static final ActionableMessage.MessagePriority DEFAULT_PRIORITY = ActionableMessage.MessagePriority.LOW;
 
-  List<Message> SOME_MESSAGES =
-      ImmutableList.of(
+  private static final Message messageOld =
+      new Message()
+      .setId(MESSAGE_ID_OLD)
+      .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderOne)))
+      .setInternalDate(INTERNAL_DATE_EARLY);
+  private static final Message messageNew =
           new Message()
-              .setId(MESSAGE_ID_ONE)
-              .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderOne)))
-              .setInternalDate(INTERNAL_DATE),
-          new Message()
-              .setId(MESSAGE_ID_TWO)
+              .setId(MESSAGE_ID_NEW)
               .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderTwo)))
-              .setInternalDate(INTERNAL_DATE));
+      .setInternalDate(INTERNAL_DATE_LATE);
+  private static final Message messageLowPriority =
+      new Message()
+          .setId(MESSAGE_ID_LOW_PRIORITY)
+          .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderOne)))
+          .setInternalDate(INTERNAL_DATE_LATE);
+  private static final Message messageHighPriority =
+      new Message()
+          .setId(MESSAGE_ID_LOW_PRIORITY)
+          .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderTwo)))
+          .setInternalDate(INTERNAL_DATE_LATE);
 
-  List<ActionableMessage> SOME_ACTIONABLE_MESSAGES =
-      ImmutableList.of(
-          new ActionableMessage(MESSAGE_ID_ONE, SUBJECT_VALUE_ONE, INTERNAL_DATE, MESSAGE_PRIORITY),
-          new ActionableMessage(
-              MESSAGE_ID_TWO, SUBJECT_VALUE_TWO, INTERNAL_DATE, MESSAGE_PRIORITY));
+  private static final List<Message> messagesOldestToNewest = ImmutableList.of(
+      messageOld,
+      messageNew
+  );
+  private static final List<Message> messagesPriorityLowestToHighest = ImmutableList.of(
+      messageLowPriority,
+      messageHighPriority
+  );
+
+  private static final List<ActionableMessage> actionableMessagesNewestToOldest = ImmutableList.of(
+      new ActionableMessage(MESSAGE_ID_NEW, SUBJECT_VALUE_TWO, INTERNAL_DATE_LATE, DEFAULT_PRIORITY),
+      new ActionableMessage(MESSAGE_ID_OLD, SUBJECT_VALUE_ONE, INTERNAL_DATE_EARLY, DEFAULT_PRIORITY)
+  );
+  private static final List<ActionableMessage> actionableMessagesPriorityHighestToLowest = ImmutableList.of(
+      new ActionableMessage(MESSAGE_ID_HIGH_PRIORITY, SUBJECT_VALUE_TWO, INTERNAL_DATE_LATE, ActionableMessage.MessagePriority.HIGH),
+      new ActionableMessage(MESSAGE_ID_LOW_PRIORITY, SUBJECT_VALUE_ONE, INTERNAL_DATE_LATE, ActionableMessage.MessagePriority.LOW)
+  );
 
   @Override
   @Before
@@ -88,8 +112,6 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
     super.setUp();
     GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
     actionableMessageHelper = Mockito.mock(ActionableMessageHelper.class);
-    Mockito.when(actionableMessageHelper.assignMessagePriority(Mockito.any(), Mockito.notNull()))
-        .thenReturn(MESSAGE_PRIORITY);
     gmailClient = Mockito.mock(GmailClient.class);
     servlet =
         new GmailActionableEmailsServlet(
@@ -160,21 +182,44 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   }
 
   @Test
-  public void validResponse() throws Exception {
+  public void validResponseSortByDate() throws Exception {
     Mockito.when(request.getParameter("subjectLinePhrases"))
         .thenReturn(SUBJECT_LINE_PHRASES_STRING);
     Mockito.when(request.getParameter("unreadOnly")).thenReturn(String.valueOf(true));
     Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
-
+    Mockito.when(actionableMessageHelper.assignMessagePriority(Mockito.any(), Mockito.eq(USER_EMAIL)))
+        .thenReturn(DEFAULT_PRIORITY);
     Mockito.when(
             gmailClient.getActionableEmails(
                 SUBJECT_LINE_PHRASES_LIST, true, DEFAULT_N_DAYS, METADATA_HEADERS))
-        .thenReturn(SOME_MESSAGES);
+        .thenReturn(messagesOldestToNewest);
 
     servlet.doGet(request, response);
     Type type = new TypeToken<List<ActionableMessage>>() {}.getType();
-    List<Message> actual = gson.fromJson(stringWriter.toString(), type);
+    List<ActionableMessage> actual = gson.fromJson(stringWriter.toString(), type);
 
-    Assert.assertEquals(SOME_ACTIONABLE_MESSAGES, actual);
+    Assert.assertEquals(actionableMessagesNewestToOldest, actual);
+  }
+
+  @Test
+  public void validResponseSortByPriority() throws Exception {
+    Mockito.when(request.getParameter("subjectLinePhrases"))
+        .thenReturn(SUBJECT_LINE_PHRASES_STRING);
+    Mockito.when(request.getParameter("unreadOnly")).thenReturn(String.valueOf(true));
+    Mockito.when(request.getParameter("nDays")).thenReturn(String.valueOf(DEFAULT_N_DAYS));
+    Mockito.when(actionableMessageHelper.assignMessagePriority(messageHighPriority, USER_EMAIL))
+        .thenReturn(ActionableMessage.MessagePriority.HIGH);
+    Mockito.when(actionableMessageHelper.assignMessagePriority(messageLowPriority, USER_EMAIL))
+        .thenReturn(ActionableMessage.MessagePriority.LOW);
+    Mockito.when(
+        gmailClient.getActionableEmails(
+            SUBJECT_LINE_PHRASES_LIST, true, DEFAULT_N_DAYS, METADATA_HEADERS))
+        .thenReturn(messagesPriorityLowestToHighest);
+
+    servlet.doGet(request, response);
+    Type type = new TypeToken<List<ActionableMessage>>() {}.getType();
+    List<ActionableMessage> actual = gson.fromJson(stringWriter.toString(), type);
+
+    Assert.assertEquals(actionableMessagesPriorityHighestToLowest, actual);
   }
 }

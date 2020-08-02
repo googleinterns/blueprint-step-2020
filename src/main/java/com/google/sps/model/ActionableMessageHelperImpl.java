@@ -23,6 +23,10 @@ import java.util.List;
 
 /** Contains methods that help create the non-trivial fields in an ActionableMessage. */
 public final class ActionableMessageHelperImpl implements ActionableMessageHelper {
+  // Public for testing purposes
+  public static final String UNDISCLOSED_RECIPIENTS_TO_HEADER = "undisclosed-recipients:;";
+  public static final int MAILING_LIST_LOWER_BOUND = 15;
+
   @Override
   public ActionableMessage.MessagePriority assignMessagePriority(
       Message message, String userEmail) {
@@ -30,7 +34,7 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
       return ActionableMessage.MessagePriority.HIGH;
     }
 
-    if (isFromMailingList(message, userEmail) || isImportant(message)) {
+    if (!isFromMailingList(message, userEmail) || isImportant(message)) {
       return ActionableMessage.MessagePriority.MEDIUM;
     }
 
@@ -66,10 +70,39 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
     if (toHeader == null) {
       throw new GmailMessageFormatException("'To' header not present. Check message format");
     }
+    String headerValue = toHeader.getValue();
+    if (headerValue.equals(UNDISCLOSED_RECIPIENTS_TO_HEADER)) {
+      return true;
+    }
 
-    List<String> recipients = Arrays.asList(toHeader.getValue().split(","));
+    List<String> recipientHeaders = Arrays.asList(headerValue.split(","));
+    if (recipientHeaders.size() >= MAILING_LIST_LOWER_BOUND) {
+      return true;
+    }
 
-    return recipients.contains(userEmail) && recipients.size() < 15;
+    boolean userEmailInHeader =
+        recipientHeaders
+            .stream()
+            .filter((header) -> userEmailInHeader(header, userEmail)).count() == 1;
+    return !userEmailInHeader;
+  }
+
+  /**
+   * Gets a sender's contact name or email address.
+   *
+   * "To" header values have two possible formats: "<sampleemail@sample.com>" (if name is not
+   * available) OR "Sample Name <sampleemail@sample.com>" In either case, the email is checked
+   * against the userEmail passed
+   *
+   * @param headerValue the value of a "From" header from which a contact name / email should be
+   *     extracted
+   * @param userEmail the email address of the current user.
+   * @return true if the userEmail is in the header, false otherwise
+   */
+  private boolean userEmailInHeader(String headerValue, String userEmail) {
+    String emailInHeader = headerValue.split("<")[1].replace(">", "");
+
+    return emailInHeader.equals(userEmail);
   }
 
   /**
