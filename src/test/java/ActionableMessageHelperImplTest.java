@@ -20,77 +20,69 @@ import com.google.sps.exceptions.GmailMessageFormatException;
 import com.google.sps.model.ActionableMessage;
 import com.google.sps.model.ActionableMessageHelper;
 import com.google.sps.model.ActionableMessageHelperImpl;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.Collections;
-import java.util.List;
-
-/**
- * Tests the ActionableMessageHelperImpl and its helper methods.
- */
+/** Tests the ActionableMessageHelperImpl and its helper methods. */
 @RunWith(JUnit4.class)
 public class ActionableMessageHelperImplTest {
-  private static final ActionableMessageHelper actionableMessageHelperImpl = new ActionableMessageHelperImpl();
+  private static final ActionableMessageHelper actionableMessageHelperImpl =
+      new ActionableMessageHelperImpl();
 
   private static final List<String> LABELS_STARRED = ImmutableList.of("STARRED");
   private static final List<String> LABELS_IMPORTANT = ImmutableList.of("IMPORTANT");
   private static final String USER_EMAIL = "example@example.com";
   private static final String NOT_USER_EMAIL = "fake@fake.com";
   private static final String TO_HEADER_VALUE_USER_EMAIL = String.format("<%s>", USER_EMAIL);
-  private static final String TO_HEADER_VALUE_NOT_USER_EMAIL = String.format("<%s>", NOT_USER_EMAIL);
-  private static final String TO_HEADER_VALUE_UNDISCLOSED_RECIPIENTS = ActionableMessageHelperImpl.UNDISCLOSED_RECIPIENTS_TO_HEADER;
-  private static final String TO_HEADER_VALUE_TOO_MANY_RECIPIENTS = createHeaderWithNRecipients(ActionableMessageHelperImpl.MAILING_LIST_LOWER_BOUND, TO_HEADER_VALUE_USER_EMAIL, ", ");
-  private static final MessagePartHeader toHeaderUserEmail = new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_USER_EMAIL);
-  private static final MessagePartHeader toHeaderNotUserEmail = new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_NOT_USER_EMAIL);
-  private static final MessagePartHeader toHeaderUndisclosedRecipients = new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_UNDISCLOSED_RECIPIENTS);
-  private static final MessagePartHeader toHeaderTooManyRecipients = new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_TOO_MANY_RECIPIENTS);
+  private static final String TO_HEADER_VALUE_NOT_USER_EMAIL =
+      String.format("<%s>", NOT_USER_EMAIL);
+  private static final String TO_HEADER_VALUE_UNDISCLOSED_RECIPIENTS =
+      ActionableMessageHelperImpl.UNDISCLOSED_RECIPIENTS_TO_HEADER;
+  private static final String TO_HEADER_VALUE_TOO_MANY_RECIPIENTS =
+      createHeaderWithNRecipients(
+          ActionableMessageHelperImpl.MAILING_LIST_LOWER_BOUND, TO_HEADER_VALUE_USER_EMAIL, ", ");
+  private static final MessagePartHeader toHeaderUserEmail =
+      new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_USER_EMAIL);
+  private static final MessagePartHeader toHeaderNotUserEmail =
+      new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_NOT_USER_EMAIL);
+  private static final MessagePartHeader toHeaderUndisclosedRecipients =
+      new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_UNDISCLOSED_RECIPIENTS);
+  private static final MessagePartHeader toHeaderTooManyRecipients =
+      new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_TOO_MANY_RECIPIENTS);
 
   private static final Message starredMessage =
       new Message()
-          .setPayload(
-              new MessagePart()
-                  .setHeaders(
-                      Collections.singletonList(toHeaderNotUserEmail)))
+          .setPayload(new MessagePart().setHeaders(Collections.singletonList(toHeaderNotUserEmail)))
           .setLabelIds(LABELS_STARRED);
   private static final Message importantMessage =
       new Message()
-          .setPayload(
-              new MessagePart()
-                  .setHeaders(
-                      Collections.singletonList(toHeaderNotUserEmail)))
+          .setPayload(new MessagePart().setHeaders(Collections.singletonList(toHeaderNotUserEmail)))
           .setLabelIds(LABELS_IMPORTANT);
   private static final Message undisclosedRecipientsMessage =
       new Message()
           .setPayload(
               new MessagePart()
-                  .setHeaders(
-                      Collections.singletonList(toHeaderUndisclosedRecipients)));
+                  .setHeaders(Collections.singletonList(toHeaderUndisclosedRecipients)));
   private static final Message tooManyRecipientsMessage =
       new Message()
           .setPayload(
-              new MessagePart()
-                  .setHeaders(
-                      Collections.singletonList(toHeaderTooManyRecipients)));
+              new MessagePart().setHeaders(Collections.singletonList(toHeaderTooManyRecipients)));
   private static final Message notUserEmailMessage =
       new Message()
           .setPayload(
-              new MessagePart()
-                  .setHeaders(
-                      Collections.singletonList(toHeaderNotUserEmail)));
+              new MessagePart().setHeaders(Collections.singletonList(toHeaderNotUserEmail)));
   private static final Message userEmailMessage =
       new Message()
-          .setPayload(
-              new MessagePart()
-                  .setHeaders(
-                      Collections.singletonList(toHeaderUserEmail)));
+          .setPayload(new MessagePart().setHeaders(Collections.singletonList(toHeaderUserEmail)));
   private static final Message messageWithoutToHeader = new Message();
 
   private static String createHeaderWithNRecipients(int n, String headerValue, String delimiter) {
     StringBuilder stringBuilder = new StringBuilder();
-    for (int i = 0; i<n; i++) {
+    for (int i = 0; i < n; i++) {
       stringBuilder.append(headerValue).append(delimiter);
     }
 

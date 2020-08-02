@@ -81,16 +81,15 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
     }
 
     boolean userEmailInHeader =
-        recipientHeaders
-            .stream()
-            .filter((header) -> userEmailInHeader(header, userEmail)).count() == 1;
+        recipientHeaders.stream().filter((header) -> userEmailInHeader(header, userEmail)).count()
+            == 1;
     return !userEmailInHeader;
   }
 
   /**
    * Gets a sender's contact name or email address.
    *
-   * "To" header values have two possible formats: "<sampleemail@sample.com>" (if name is not
+   * <p>"To" header values have two possible formats: "<sampleemail@sample.com>" (if name is not
    * available) OR "Sample Name <sampleemail@sample.com>" In either case, the email is checked
    * against the userEmail passed
    *
