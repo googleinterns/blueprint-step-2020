@@ -17,6 +17,7 @@ package com.google.sps.model;
 import com.google.sps.utility.KeyProvider;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Optional;
 
 /** Contract for verifying user with Google Sign in API */
 public interface AuthenticationVerifier {
@@ -30,12 +31,12 @@ public interface AuthenticationVerifier {
   }
 
   /**
-   * Verifies that Google User ID Token is legitimate
+   * Verifies that Google User ID Token is legitimate and returns user's email if it is
    *
    * @param idToken idToken from HTTP Request
-   * @return true if token is valid, false otherwise
+   * @return email of user if idToken is verified, null otherwise
    * @throws GeneralSecurityException If an issue occurs verifying the user token with Google
    * @throws IOException If an issue occurs verifying the user token with Google
    */
-  boolean verifyUserToken(String idToken) throws GeneralSecurityException, IOException;
+  Optional<String> getUserEmail(String idToken) throws GeneralSecurityException, IOException;
 }
