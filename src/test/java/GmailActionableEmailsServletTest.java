@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.sps.model.ActionableMessage;
+import com.google.sps.model.ActionableMessageHelper;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.servlets.GmailActionableEmailsServlet;
@@ -38,6 +39,7 @@ import org.mockito.Mockito;
 public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBase {
   private GmailClient gmailClient;
   private GmailActionableEmailsServlet servlet;
+  private ActionableMessageHelper actionableMessageHelper;
 
   private static final Gson gson = new Gson();
 
@@ -48,8 +50,6 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
 
   private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
 
-  private static final GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
-
   private static final String MESSAGE_ID_ONE = "messageOne";
   private static final String MESSAGE_ID_TWO = "messageTwo";
   private static final String SUBJECT_VALUE_ONE = "subjectValueOne";
@@ -58,6 +58,9 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
       new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_ONE);
   private static final MessagePartHeader subjectHeaderTwo =
       new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_TWO);
+  private static final long INTERNAL_DATE = 1;
+  private static final ActionableMessage.MessagePriority MESSAGE_PRIORITY =
+      ActionableMessage.MessagePriority.LOW;
 
   int DEFAULT_N_DAYS = 7;
   int NEGATIVE_N_DAYS = -1;
@@ -66,25 +69,31 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
       ImmutableList.of(
           new Message()
               .setId(MESSAGE_ID_ONE)
-              .setPayload(
-                  new MessagePart().setHeaders(Collections.singletonList(subjectHeaderOne))),
+              .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderOne)))
+              .setInternalDate(INTERNAL_DATE),
           new Message()
               .setId(MESSAGE_ID_TWO)
-              .setPayload(
-                  new MessagePart().setHeaders(Collections.singletonList(subjectHeaderTwo))));
+              .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderTwo)))
+              .setInternalDate(INTERNAL_DATE));
 
   List<ActionableMessage> SOME_ACTIONABLE_MESSAGES =
       ImmutableList.of(
-          new ActionableMessage(MESSAGE_ID_ONE, SUBJECT_VALUE_ONE),
-          new ActionableMessage(MESSAGE_ID_TWO, SUBJECT_VALUE_TWO));
+          new ActionableMessage(MESSAGE_ID_ONE, SUBJECT_VALUE_ONE, INTERNAL_DATE, MESSAGE_PRIORITY),
+          new ActionableMessage(
+              MESSAGE_ID_TWO, SUBJECT_VALUE_TWO, INTERNAL_DATE, MESSAGE_PRIORITY));
 
   @Override
   @Before
   public void setUp() throws Exception {
     super.setUp();
     GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
+    actionableMessageHelper = Mockito.mock(ActionableMessageHelper.class);
+    Mockito.when(actionableMessageHelper.assignMessagePriority(Mockito.any(), Mockito.notNull()))
+        .thenReturn(MESSAGE_PRIORITY);
     gmailClient = Mockito.mock(GmailClient.class);
-    servlet = new GmailActionableEmailsServlet(authenticationVerifier, gmailClientFactory);
+    servlet =
+        new GmailActionableEmailsServlet(
+            authenticationVerifier, gmailClientFactory, actionableMessageHelper);
     Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
   }
 
