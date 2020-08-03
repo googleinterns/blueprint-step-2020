@@ -38,6 +38,7 @@ import org.mockito.Mockito;
 public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBase {
   private GmailClient gmailClient;
   private GmailActionableEmailsServlet servlet;
+  private GmailClientFactory gmailClientFactory;
 
   private static final Gson gson = new Gson();
 
@@ -47,8 +48,6 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
       Arrays.asList("Action Word One", "ActionWordTwo");
 
   private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
-
-  private static final GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
 
   private static final String MESSAGE_ID_ONE = "messageOne";
   private static final String MESSAGE_ID_TWO = "messageTwo";
@@ -82,7 +81,7 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
+    gmailClientFactory = Mockito.mock(GmailClientFactory.class);
     gmailClient = Mockito.mock(GmailClient.class);
     servlet = new GmailActionableEmailsServlet(authenticationVerifier, gmailClientFactory);
     Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
