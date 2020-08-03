@@ -152,7 +152,8 @@ function populateCalendar() {
             panelContentEntry.className = 'panel__content-entry';
             const dayContainer = document.createElement('p');
             dayContainer.className = 'panel__text-icon u-text-calendar';
-            dayContainer.innerText = days[(hoursJson.startDay + parseInt(day)) % 7];
+            dayContainer.innerText =
+                days[(hoursJson.startDay + parseInt(day)) % 7];
             const timeContainer = document.createElement('div');
             const workContainer = document.createElement('p');
             workContainer.className = 'u-block';
