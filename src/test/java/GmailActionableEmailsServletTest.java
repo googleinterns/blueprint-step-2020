@@ -40,6 +40,7 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   private GmailClient gmailClient;
   private GmailActionableEmailsServlet servlet;
   private ActionableMessageHelper actionableMessageHelper;
+  private GmailClientFactory gmailClientFactory;
 
   private static final Gson gson = new Gson();
 
@@ -117,8 +118,8 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
     actionableMessageHelper = Mockito.mock(ActionableMessageHelper.class);
+    gmailClientFactory = Mockito.mock(GmailClientFactory.class);
     gmailClient = Mockito.mock(GmailClient.class);
     servlet =
         new GmailActionableEmailsServlet(
