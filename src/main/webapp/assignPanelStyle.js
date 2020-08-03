@@ -20,7 +20,7 @@
 /**
  * Display the settings in the Assign panel (and hide the content)
  */
-function displaySettings() {
+function displayAssignSettings() {
   show('assign-settings');
   hide('assign-content');
 
@@ -34,7 +34,7 @@ function displaySettings() {
 /**
  * Display the content of the Assign panel (and hide the settings)
  */
-function displayContent() {
+function displayAssignContent() {
   show('assign-content');
   hide('assign-settings');
 
