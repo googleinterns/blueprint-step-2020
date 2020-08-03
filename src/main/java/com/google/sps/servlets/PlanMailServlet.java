@@ -31,10 +31,11 @@ import com.google.sps.model.CalendarClientImpl;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
-import com.google.sps.utility.DatePair;
+import com.google.sps.utility.DateInterval;
 import com.google.sps.utility.FreeTimeUtility;
 import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -92,10 +93,17 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
-    Date timeMax = new Date(timeMin.getTime() + fiveDaysInMillis);
+    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
 
-    FreeTimeUtility freeTimeUtility = new FreeTimeUtility(timeMin);
+    int personalBeginHour = 7;
+    int workBeginHour = 10;
+    int workEndHour = 18;
+    int personalEndHour = 23;
+    int numDays = 5;
+    FreeTimeUtility freeTimeUtility =
+        new FreeTimeUtility(
+            timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
     for (Event event : calendarEvents) {
       DateTime start = event.getStart().getDateTime();
       start = start == null ? event.getStart().getDate() : start;
@@ -116,7 +124,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     int averageReadingSpeed = 50;
     int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
-    List<DatePair> potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
+    List<DateInterval> potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
 
     PlanMailResponse planMailResponse =
         new PlanMailResponse(wordCount, averageReadingSpeed, minutesToRead, potentialTimes);
@@ -124,17 +132,17 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     JsonUtility.sendJson(response, planMailResponse);
   }
 
-  private List<DatePair> getPotentialTimes(FreeTimeUtility freeTimeUtility, long timeNeeded) {
-    List<DatePair> workFreeInterval = freeTimeUtility.getWorkFreeInterval();
-    List<DatePair> potentialEventTimes = new ArrayList<>();
+  private List<DateInterval> getPotentialTimes(FreeTimeUtility freeTimeUtility, long timeNeeded) {
+    List<DateInterval> workFreeInterval = freeTimeUtility.getWorkFreeInterval();
+    List<DateInterval> potentialEventTimes = new ArrayList<>();
     long remainingTime = timeNeeded;
-    for (DatePair interval : workFreeInterval) {
-      Date potentialEnd = new Date(interval.getKey().getTime() + remainingTime);
-      if (interval.getValue().before(potentialEnd)) {
-        remainingTime -= (interval.getValue().getTime() - interval.getKey().getTime());
+    for (DateInterval interval : workFreeInterval) {
+      Date potentialEnd = new Date(interval.getStart().getTime() + remainingTime);
+      if (interval.getEnd().before(potentialEnd)) {
+        remainingTime -= (interval.getEnd().getTime() - interval.getStart().getTime());
         potentialEventTimes.add(interval);
       } else {
-        potentialEventTimes.add(new DatePair(interval.getKey(), potentialEnd));
+        potentialEventTimes.add(new DateInterval(interval.getStart(), potentialEnd));
         break;
       }
     }
@@ -158,7 +166,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
         System.out.println(e);
       }
     }
-    return 104;
+    return wordCount;
   }
 
   /**
@@ -176,22 +184,6 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     List<Event> events = new ArrayList<>();
     for (CalendarListEntry calendar : calendarList) {
       events.addAll(calendarClient.getUpcomingEvents(calendar, timeMin, timeMax));
-    }
-    return events;
-  }
-
-  /**
-   * Get the events in the user's calendars
-   *
-   * @param calendarClient either a mock CalendarClient or a calendarClient with a valid credential
-   * @return List of Events from all of the user's calendars
-   * @throws IOException if an issue occurs in the method
-   */
-  private List<Event> getEvents(CalendarClient calendarClient) throws IOException {
-    List<CalendarListEntry> calendarList = calendarClient.getCalendarList();
-    List<Event> events = new ArrayList<>();
-    for (CalendarListEntry calendar : calendarList) {
-      events.addAll(calendarClient.getCalendarEvents(calendar));
     }
     return events;
   }

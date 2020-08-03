@@ -12,32 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.utility;
+package com.google.sps.model;
 
-import java.util.*;
-
-/** Class implementing a Pair Data Structure. */
-public final class DatePair {
-
-  private final Date key;
-  private final Date value;
-
+/**
+ * Contract for creating a PlacesClient with a given API key. Implement getPlacesClient to obtain an
+ * instance of PlacesClient.
+ */
+public interface PlacesClientFactory {
   /**
-   * Constructor for the class
+   * Gets a PlacesClient which executes against the given API key.
    *
-   * @param key the start time of the interval
-   * @param value the end time of the interval
+   * @param apiKey A string representing the API key to authenticate a Google Places API call.
+   * @return PlacesClientImpl instance which executes against the given API key.
    */
-  public DatePair(Date key, Date value) {
-    this.key = key;
-    this.value = value;
-  }
-
-  public Date getKey() {
-    return this.key;
-  }
-
-  public Date getValue() {
-    return this.value;
-  }
+  PlacesClient getPlacesClient(String apiKey);
 }

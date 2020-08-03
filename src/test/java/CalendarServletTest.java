@@ -18,12 +18,13 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
-import com.google.sps.data.CalendarDataResponse;
+import com.google.sps.data.CalendarSummaryResponse;
 import com.google.sps.model.CalendarClient;
 import com.google.sps.model.CalendarClientFactory;
 import com.google.sps.servlets.CalendarServlet;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletException;
@@ -49,12 +50,13 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
   private static final String EVENT_SUMMARY_ONE = "test event one";
   private static final String EVENT_SUMMARY_TWO = "test event two";
   private static final int OFFSET_YEAR = 1900;
-  private static final String EVENT_ONE_TWO_JSON =
-      String.format(
-          "[{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
-  private static final String EVENT_ALL_JSON =
-      String.format(
-          "[{},{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
+  // private static final String EVENT_ONE_TWO_JSON =
+  //     String.format(
+  //         "[{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
+  // private static final String EVENT_ALL_JSON =
+  //     String.format(
+  //         "[{},{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE,
+  // EVENT_SUMMARY_TWO);
   private static final String EVENT_UNDEFINED_JSON = "[{}]";
   private static final String EMPTY_JSON = "[]";
   private static final CalendarListEntry PRIMARY = new CalendarListEntry().setId("primary");
@@ -62,7 +64,7 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
   private static final List<CalendarListEntry> ONE_CALENDAR = ImmutableList.of(PRIMARY);
   private static final List<CalendarListEntry> TWO_CALENDARS = ImmutableList.of(PRIMARY, SECONDARY);
   private static final Date CURRENT_TIME = new Date(2020 - OFFSET_YEAR, 4, 19, 9, 0);
-  private static final Date END_TIME = new Date(CURRENT_TIME.getTime() + TimeUnit.DAYS.toMillis(5));
+  private static final Date END_TIME = Date.from(CURRENT_TIME.toInstant().plus(Duration.ofDays(5)));
   private static final Date EVENT_ONE_START = new Date(2020 - OFFSET_YEAR, 4, 19, 15, 0);
   private static final Date EVENT_ONE_END = new Date(2020 - OFFSET_YEAR, 4, 19, 16, 0);
   private static final Date EVENT_TWO_START = new Date(2020 - OFFSET_YEAR, 4, 20, 6, 0);
@@ -115,13 +117,20 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
     Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
         .thenReturn(NO_EVENT);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
-    CalendarDataResponse actual = getServletResponse();
-    List<Long> workHoursPerDay = Arrays.asList(8 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour);
-    List<Long> personalHoursPerDay =
-        Arrays.asList(6 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour);
-    Assert.assertEquals(1, actual.getStartDay());
-    Assert.assertTrue(workHoursPerDay.equals(actual.getWorkHoursPerDay()));
-    Assert.assertTrue(personalHoursPerDay.equals(actual.getPersonalHoursPerDay()));
+    CalendarSummaryResponse actual = getServletResponse();
+    List<Integer> workHoursPerDay = new ArrayList<Integer>(Collections.nCopies(5, 8));
+    List<Integer> personalHoursPerDay = Arrays.asList(6, 8, 8, 8, 8);
+    Assert.assertEquals(2, actual.getStartDay());
+    Assert.assertEquals(5, actual.getWorkTimeFree().size());
+    Assert.assertEquals(5, actual.getPersonalTimeFree().size());
+    for (int index = 0; index < workHoursPerDay.size(); index++) {
+      Assert.assertEquals(
+          (int) workHoursPerDay.get(index), actual.getWorkTimeFree().get(index).getHours());
+      Assert.assertEquals(0, actual.getWorkTimeFree().get(index).getMinutes());
+      Assert.assertEquals(
+          (int) personalHoursPerDay.get(index), actual.getPersonalTimeFree().get(index).getHours());
+      Assert.assertEquals(0, actual.getPersonalTimeFree().get(index).getMinutes());
+    }
   }
 
   @Test
@@ -134,20 +143,27 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
     Mockito.when(calendarClient.getUpcomingEvents(SECONDARY, CURRENT_TIME, END_TIME))
         .thenReturn(EVENT_TWO);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
-    CalendarDataResponse actual = getServletResponse();
-    List<Long> workHoursPerDay = Arrays.asList(7 * hour, 8 * hour, 8 * hour, 8 * hour, 8 * hour);
-    List<Long> personalHoursPerDay =
-        Arrays.asList(6 * hour, 7 * hour, 8 * hour, 8 * hour, 8 * hour);
-    Assert.assertEquals(1, actual.getStartDay());
-    Assert.assertTrue(workHoursPerDay.equals(actual.getWorkHoursPerDay()));
-    Assert.assertTrue(personalHoursPerDay.equals(actual.getPersonalHoursPerDay()));
+    CalendarSummaryResponse actual = getServletResponse();
+    List<Integer> workHoursPerDay = Arrays.asList(7, 8, 8, 8, 8);
+    List<Integer> personalHoursPerDay = Arrays.asList(6, 7, 8, 8, 8);
+    Assert.assertEquals(2, actual.getStartDay());
+    Assert.assertEquals(5, actual.getWorkTimeFree().size());
+    Assert.assertEquals(5, actual.getPersonalTimeFree().size());
+    for (int index = 0; index < workHoursPerDay.size(); index++) {
+      Assert.assertEquals(
+          (int) workHoursPerDay.get(index), actual.getWorkTimeFree().get(index).getHours());
+      Assert.assertEquals(0, actual.getWorkTimeFree().get(index).getMinutes());
+      Assert.assertEquals(
+          (int) personalHoursPerDay.get(index), actual.getPersonalTimeFree().get(index).getHours());
+      Assert.assertEquals(0, actual.getPersonalTimeFree().get(index).getMinutes());
+    }
   }
 
-  private CalendarDataResponse getServletResponse() throws IOException, ServletException {
+  private CalendarSummaryResponse getServletResponse() throws IOException, ServletException {
     // Method that handles the request once the Calendar Client has been mocked
     servlet.doGet(request, response);
     String actualString = stringWriter.toString();
-    CalendarDataResponse actual = gson.fromJson(actualString, CalendarDataResponse.class);
+    CalendarSummaryResponse actual = gson.fromJson(actualString, CalendarSummaryResponse.class);
     return actual;
   }
 }

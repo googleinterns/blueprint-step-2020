@@ -26,6 +26,7 @@ import com.google.sps.model.CalendarClientImpl;
 import com.google.sps.utility.FreeTimeUtility;
 import com.google.sps.utility.JsonUtility;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -73,10 +74,17 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
-    Date timeMax = new Date(timeMin.getTime() + fiveDaysInMillis);
+    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
 
-    FreeTimeUtility freeTimeUtility = new FreeTimeUtility(timeMin);
+    int personalBeginHour = 7;
+    int workBeginHour = 10;
+    int workEndHour = 18;
+    int personalEndHour = 23;
+    int numDays = 5;
+    FreeTimeUtility freeTimeUtility =
+        new FreeTimeUtility(
+            timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
     for (Event event : calendarEvents) {
       DateTime start = event.getStart().getDateTime();
       start = start == null ? event.getStart().getDate() : start;
@@ -94,7 +102,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     }
 
     // Convert event list to JSON and print to response
-    JsonUtility.sendJson(response, freeTimeUtility.getCalendarDataResponse());
+    JsonUtility.sendJson(response, freeTimeUtility.getCalendarSummaryResponse());
   }
 
   /**
@@ -112,22 +120,6 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     List<Event> events = new ArrayList<>();
     for (CalendarListEntry calendar : calendarList) {
       events.addAll(calendarClient.getUpcomingEvents(calendar, timeMin, timeMax));
-    }
-    return events;
-  }
-
-  /**
-   * Get the events in the user's calendars
-   *
-   * @param calendarClient either a mock CalendarClient or a calendarClient with a valid credential
-   * @return List of Events from all of the user's calendars
-   * @throws IOException if an issue occurs in the method
-   */
-  private List<Event> getEvents(CalendarClient calendarClient) throws IOException {
-    List<CalendarListEntry> calendarList = calendarClient.getCalendarList();
-    List<Event> events = new ArrayList<>();
-    for (CalendarListEntry calendar : calendarList) {
-      events.addAll(calendarClient.getCalendarEvents(calendar));
     }
     return events;
   }

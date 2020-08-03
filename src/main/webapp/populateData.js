@@ -106,18 +106,18 @@ function populateTasks() {
       .then((tasksResponse) => {
         document
             .querySelector('#panel__tasks-to-complete')
-            .innerText = tasksResponse['tasksToComplete'];
+            .innerText = tasksResponse['tasksToCompleteCount'];
         document
             .querySelector('#panel__tasks-due-today')
-            .innerText = tasksResponse['tasksDueToday'] +
+            .innerText = tasksResponse['tasksDueTodayCount'] +
                             ' due today';
         document
             .querySelector('#panel__tasks-completed-today')
-            .innerText = tasksResponse['tasksCompletedToday'] +
+            .innerText = tasksResponse['tasksCompletedTodayCount'] +
                             ' completed today';
         document
             .querySelector('#panel__tasks-overdue')
-            .innerText = tasksResponse['tasksOverdue'] +
+            .innerText = tasksResponse['tasksOverdueCount'] +
                             ' overdue';
       })
       .catch((e) => {
@@ -143,17 +143,36 @@ function populateCalendar() {
       })
       .then((hoursJson) => {
         // Display the days and the free hours for each one of them
-        const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-        for (let day = 0; day < 5; day++) {
-          const dayContainer = document.querySelector('#day-'+day);
-          dayContainer.innerText = days[(hoursJson.startDay + day) % 7];
-          const workContainer = document.querySelector('#work-day-'+day);
-          workContainer.innerText =
-              convertTime(hoursJson.workHoursPerDay[day]) + ' (working)';
-          const personalContainer =
-              document.querySelector('#personal-day-'+day);
-          personalContainer.innerText =
-              convertTime(hoursJson.personalHoursPerDay[day]) + ' (personal)';
+        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        const panelContent = document.querySelector('#panel-content');
+        panelContent.innerHTML = '';
+        for (const day in hoursJson.workTimeFree) {
+          if (typeof day == 'string') {
+            const panelContentEntry = document.createElement('div');
+            panelContentEntry.className = 'panel__content-entry';
+            const dayContainer = document.createElement('p');
+            dayContainer.className = 'panel__text-icon u-text-calendar';
+            dayContainer.innerText =
+                days[(hoursJson.startDay + parseInt(day)) % 7];
+            const timeContainer = document.createElement('div');
+            const workContainer = document.createElement('p');
+            workContainer.className = 'u-block';
+            workContainer.innerText =
+                hoursJson.workTimeFree[day].hours +
+                'h ' + hoursJson.workTimeFree[day].minutes +
+                'm free (working)';
+            const personalContainer = document.createElement('p');
+            personalContainer.className = 'u-block';
+            personalContainer.innerText =
+                hoursJson.personalTimeFree[day].hours +
+                'h ' + hoursJson.personalTimeFree[day].minutes +
+                'm free (personal)';
+            timeContainer.appendChild(workContainer);
+            timeContainer.appendChild(personalContainer);
+            panelContentEntry.appendChild(dayContainer);
+            panelContentEntry.appendChild(timeContainer);
+            panelContent.appendChild(panelContentEntry);
+          }
         }
       })
       .catch((e) => {
@@ -162,18 +181,6 @@ function populateCalendar() {
           signOut();
         }
       });
-}
-
-/**
- * Convert the time in hours and minutes,
- * and concatenate the string to be displayed
- * @param {int} timeMilli the time in milliseconds that needs to be converted
- * @return {String} String representing the converted free time
- */
-function convertTime(timeMilli) {
-  const hours = Math.floor(timeMilli / (60 * 60 * 1000));
-  const minutes = Math.floor((timeMilli - hours * 60 * 60 * 1000)/(60*1000));
-  return hours + 'h ' + minutes + 'm free';
 }
 
 /**
@@ -357,9 +364,9 @@ function populatePlanMail() {
           if (typeof index == 'string') {
             const liElement = document.createElement('li');
             liElement.innerText =
-              planMailResponse.potentialMeetingTimes[index].key +
+              planMailResponse.potentialMeetingTimes[index].start +
               ' ' +
-              planMailResponse.potentialMeetingTimes[index].value;
+              planMailResponse.potentialMeetingTimes[index].end;
             intervalContainer.appendChild(liElement);
           }
         }

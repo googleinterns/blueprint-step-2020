@@ -14,7 +14,7 @@
 
 package com.google.sps.data;
 
-import com.google.sps.utility.DatePair;
+import com.google.sps.utility.DateInterval;
 import java.util.*;
 
 /** Class containing the response to be converted to Json. */
@@ -23,14 +23,14 @@ public final class PlanMailResponse {
   final int wordCount;
   final int averageReadingSpeed;
   final int minutesToRead;
-  final List<DatePair> potentialMeetingTimes;
+  final List<DateInterval> potentialMeetingTimes;
 
   /** Initialize the class with all the parameters required. */
   public PlanMailResponse(
       int wordCount,
       int averageReadingSpeed,
       int minutesToRead,
-      List<DatePair> potentialMeetingTimes) {
+      List<DateInterval> potentialMeetingTimes) {
     this.wordCount = wordCount;
     this.averageReadingSpeed = averageReadingSpeed;
     this.minutesToRead = minutesToRead;
@@ -52,7 +52,7 @@ public final class PlanMailResponse {
     return minutesToRead;
   }
 
-  public List<DatePair> getPotentialMeetingTimes() {
+  public List<DateInterval> getPotentialMeetingTimes() {
     // Useful for testing purposes
     return potentialMeetingTimes;
   }
