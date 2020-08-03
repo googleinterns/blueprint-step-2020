@@ -169,7 +169,7 @@ function setUpAssign() {
  * Reset the settings panel to display the values currently set for the
  * assignPanel (i.e. ignore new changes - reset to old values)
  */
-function revertSettings() {
+function assignRevertSettings() {
   const nDaysElement = document.getElementById('assignNDays');
   nDaysElement.innerText = nDays;
 
@@ -235,28 +235,28 @@ function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
 /**
  * Add the current actionable email to the assign taskList
  */
-function addCurrentEmail() {
+function assignAddCurrentEmail() {
   const currentEmail = actionableEmails.shift();
   const newTaskNotes = taskNotesPrefix + 'emailId:' + currentEmail.id;
   const newTask = new Task(currentEmail.subject, newTaskNotes);
 
   postNewTask(assignTaskListId, newTask);
-  displayNextEmail();
+  assignDisplayNextEmail();
 }
 
 /**
  * Skip the current actionable email - don't add to the taskList
  */
-function skipCurrentEmail() {
+function assignSkipCurrentEmail() {
   actionableEmails.shift();
-  displayNextEmail();
+  assignDisplayNextEmail();
 }
 
 /**
  * Display the next email for user review. If none left, disable the buttons and
  * reset the subject line field to the default value
  */
-function displayNextEmail() {
+function assignDisplayNextEmail() {
   const actionItemsCountElement =
       document.getElementById('assignSuspectedActionItems');
   const subjectLineElement = document.getElementById('assignSubject');

@@ -13,16 +13,17 @@
 // limitations under the License.
 
 /* eslint-disable no-unused-vars */
-/* global show, hide, setUpAssign, revertSettings, addCurrentEmail,
- skipCurrentEmail, setUpAssign, displayNextEmail, actionableEmails */
+/* global show, hide, setUpAssign, assignRevertSettings, assignAddCurrentEmail,
+ assignSkipCurrentEmail, setUpAssign, assignDisplayNextEmail,
+ actionableEmails */
 
 // Script for handling the behaviour of the Assign panel's layout
 
 // Add default event listeners
 const acceptButton = document.getElementById('assign-accept-button');
 const rejectButton = document.getElementById('assign-reject-button');
-acceptButton.addEventListener('click', addCurrentEmail);
-rejectButton.addEventListener('click', skipCurrentEmail);
+acceptButton.addEventListener('click', assignAddCurrentEmail);
+rejectButton.addEventListener('click', assignSkipCurrentEmail);
 
 /**
  * Display the settings in the Assign panel (and hide the content)
@@ -35,9 +36,9 @@ function displaySettings() {
   rejectButton.innerText = 'Reset';
 
   acceptButton.addEventListener('click', setUpAssign);
-  rejectButton.addEventListener('click', revertSettings);
-  acceptButton.removeEventListener('click', addCurrentEmail);
-  rejectButton.removeEventListener('click', skipCurrentEmail);
+  rejectButton.addEventListener('click', assignRevertSettings);
+  acceptButton.removeEventListener('click', assignAddCurrentEmail);
+  rejectButton.removeEventListener('click', assignSkipCurrentEmail);
 
   enableAssignAcceptRejectButtons();
 }
@@ -53,9 +54,9 @@ function displayContent() {
   rejectButton.innerText = 'Skip Item';
 
   acceptButton.removeEventListener('click', setUpAssign);
-  rejectButton.removeEventListener('click', revertSettings);
-  acceptButton.addEventListener('click', addCurrentEmail);
-  rejectButton.addEventListener('click', skipCurrentEmail);
+  rejectButton.removeEventListener('click', assignRevertSettings);
+  acceptButton.addEventListener('click', assignAddCurrentEmail);
+  rejectButton.addEventListener('click', assignSkipCurrentEmail);
 
   const assignStartResetButtonIcon =
       document.getElementById('assignStartResetButton')
@@ -85,7 +86,7 @@ function startAssign() {
 
   enableAssignAcceptRejectButtons();
 
-  displayNextEmail();
+  assignDisplayNextEmail();
 }
 
 /**
