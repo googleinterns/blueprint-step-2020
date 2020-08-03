@@ -104,13 +104,19 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     FreeTimeUtility freeTimeUtility =
         new FreeTimeUtility(
             timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
+    long preAssignedTime = 0;
+    String eventSummary = "Read emails";
     for (Event event : calendarEvents) {
       DateTime start = event.getStart().getDateTime();
       start = start == null ? event.getStart().getDate() : start;
       DateTime end = event.getEnd().getDateTime();
       end = end == null ? event.getEnd().getDate() : end;
+      if (event.getSummary().equals(eventSummary)) {
+        preAssignedTime += end.getValue() - start.getValue();
+      }
       Date eventStart = new Date(start.getValue());
       Date eventEnd = new Date(end.getValue());
+      
       if (eventStart.before(timeMin)) {
         eventStart = timeMin;
       }
@@ -124,7 +130,14 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     int averageReadingSpeed = 50;
     int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
-    List<DateInterval> potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
+    timeNeeded = Math.max(0, timeNeeded - preAssignedTime);
+    List<DateInterval> potentialTimes;
+    if (timeNeeded > 0) {
+      potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
+    }
+    else {
+      potentialTimes = new ArrayList<>();
+    }
 
     PlanMailResponse planMailResponse =
         new PlanMailResponse(wordCount, averageReadingSpeed, minutesToRead, potentialTimes);

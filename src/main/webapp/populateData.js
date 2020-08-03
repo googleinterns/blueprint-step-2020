@@ -147,7 +147,7 @@ function populateCalendar() {
         const panelContent = document.querySelector('#panel-content');
         panelContent.innerHTML = '';
         for (const day in hoursJson.workTimeFree) {
-          if (typeof day == 'string') {
+          if (typeof day === 'string') {
             const panelContentEntry = document.createElement('div');
             panelContentEntry.className = 'panel__content-entry';
             const dayContainer = document.createElement('p');
@@ -358,16 +358,29 @@ function populatePlanMail() {
         averageReplyContainer.innerText = planMailResponse.averageReadingSpeed;
         const timeNeededContainer = document.querySelector('#time-needed');
         timeNeededContainer.innerText = planMailResponse.minutesToRead;
+        const messageEventContainer = document.querySelector('#message-event');
+        messageEventContainer.innerHTML = '';
         const intervalContainer = document.querySelector('#free-interval');
         intervalContainer.innerHTML = '';
-        for (const index in planMailResponse.potentialMeetingTimes) {
-          if (typeof index == 'string') {
-            const liElement = document.createElement('li');
-            liElement.innerText =
-              planMailResponse.potentialMeetingTimes[index].start +
-              ' ' +
-              planMailResponse.potentialMeetingTimes[index].end;
-            intervalContainer.appendChild(liElement);
+        if (planMailResponse.potentialEventTimes.length === 0) {
+          messageEventContainer.innerText = 'No new events needed';
+        }
+        else {
+          messageEventContainer.innerText = 'Click to schedule';
+          for (const index in planMailResponse.potentialEventTimes) {
+            if (typeof index === 'string') {
+              const buttonElement = document.createElement('button');
+              buttonElement.innerText =
+                planMailResponse.potentialEventTimes[index].start +
+                ' to ' +
+                planMailResponse.potentialEventTimes[index].end;
+              buttonElement.name = planMailResponse.potentialEventTimes[index].start;
+              buttonElement.value = planMailResponse.potentialEventTimes[index].end;
+              buttonElement.addEventListener('click', () => {
+                createEvent(buttonElement.name, buttonElement.value);
+              });
+              intervalContainer.appendChild(buttonElement);
+            }
           }
         }
       })
@@ -377,4 +390,13 @@ function populatePlanMail() {
           signOut();
         }
       });
+}
+
+function createEvent(eventSart, eventEnd) {
+  const params = new URLSearchParams();
+  params.append('start', eventSart);
+  params.append('end', eventEnd);
+  fetch('/calendar', {method: 'POST', body: params});
+  populateCalendar();
+  populatePlanMail();
 }

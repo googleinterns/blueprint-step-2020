@@ -58,4 +58,6 @@ public interface CalendarClient {
    * @throws IOException thrown when an issue occurs
    */
   Date getCurrentTime() throws IOException;
+
+  void createNewEvent(Date start, Date end, String summary, String calendarId) throws IOException;
 }

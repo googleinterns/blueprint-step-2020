@@ -23,18 +23,18 @@ public final class PlanMailResponse {
   final int wordCount;
   final int averageReadingSpeed;
   final int minutesToRead;
-  final List<DateInterval> potentialMeetingTimes;
+  final List<DateInterval> potentialEventTimes;
 
   /** Initialize the class with all the parameters required. */
   public PlanMailResponse(
       int wordCount,
       int averageReadingSpeed,
       int minutesToRead,
-      List<DateInterval> potentialMeetingTimes) {
+      List<DateInterval> potentialEventTimes) {
     this.wordCount = wordCount;
     this.averageReadingSpeed = averageReadingSpeed;
     this.minutesToRead = minutesToRead;
-    this.potentialMeetingTimes = potentialMeetingTimes;
+    this.potentialEventTimes = potentialEventTimes;
   }
 
   public int getWordCount() {
@@ -52,8 +52,8 @@ public final class PlanMailResponse {
     return minutesToRead;
   }
 
-  public List<DateInterval> getPotentialMeetingTimes() {
+  public List<DateInterval> getPotentialEventTimes() {
     // Useful for testing purposes
-    return potentialMeetingTimes;
+    return potentialEventTimes;
   }
 }

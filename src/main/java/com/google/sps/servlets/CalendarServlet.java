@@ -123,4 +123,21 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     }
     return events;
   }
+
+  @Override
+  public void doPost(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      throws IOException {
+    assert googleCredential != null
+        : "Null credentials (i.e. unauthenticated requests) should already be handled";
+
+    CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
+    Date start = new Date(request.getParameter("start"));
+    Date end = new Date(request.getParameter("end"));
+    String summary = "Read emails";
+    String calendarId = "primary";
+    calendarClient.createNewEvent(start, end, summary, calendarId);
+
+    JsonUtility.sendJson(response, "Event created");
+  }
 }
