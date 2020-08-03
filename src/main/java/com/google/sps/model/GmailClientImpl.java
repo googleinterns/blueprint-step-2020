@@ -16,6 +16,10 @@ package com.google.sps.model;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
+import com.google.api.client.googleapis.batch.BatchRequest;
+import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 /** Handles GET requests from Gmail API */
 public class GmailClientImpl implements GmailClient {
   private Gmail gmailService;
+  private static final int BATCH_REQUEST_CALL_LIMIT = 100;
 
   private GmailClientImpl(Credential credential) {
     JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -103,6 +108,7 @@ public class GmailClientImpl implements GmailClient {
 
   /**
    * Lists out messages, but maps each user message to a specific message format
+   * Uses batching, where there is a limit of 100 calls per batch request.
    *
    * @param messageFormat GmailClient.MessageFormat setting that specifies how much information from
    *     each email to retrieve
@@ -113,16 +119,48 @@ public class GmailClientImpl implements GmailClient {
    */
   private List<Message> listUserMessagesWithFormat(
       GmailClient.MessageFormat messageFormat, String searchQuery) throws IOException {
-    return listUserMessages(searchQuery).stream()
-        .map(
-            (message) -> {
-              try {
-                return getUserMessage(message.getId(), messageFormat);
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-            })
-        .collect(Collectors.toList());
+    List<Message> userMessagesWithoutFormat = listUserMessages(searchQuery);
+    List<Message> userMessagesWithFormat = new ArrayList<>();
+
+    // When each message is retrieved, add them to the userMessagesWithFormat list
+    JsonBatchCallback<Message> batchCallback = addToListMessageCallback(userMessagesWithFormat);
+    System.out.println(userMessagesWithoutFormat.size());
+
+    // Add messages to a batch request, BATCH_REQUEST_CALL_LIMIT messages at a time
+    // At time of writing, the limit is 100 messages, so it will add 100 messages per request
+    int messageIndex = 0;
+    while (messageIndex < userMessagesWithoutFormat.size()) {
+      BatchRequest batchRequest = gmailService.batch();
+
+      while (messageIndex < userMessagesWithoutFormat.size() && batchRequest.size() < BATCH_REQUEST_CALL_LIMIT) {
+        Message currentMessage = userMessagesWithoutFormat.get(messageIndex);
+        gmailService
+            .users()
+            .messages()
+            .get("me", currentMessage.getId())
+            .setFormat(messageFormat.formatValue)
+            .queue(batchRequest, batchCallback);
+        messageIndex++;
+      }
+
+      batchRequest.execute();
+    }
+
+    return userMessagesWithFormat;
+  }
+
+  private JsonBatchCallback<Message> addToListMessageCallback(List<Message> listToAddTo) {
+    return new JsonBatchCallback<Message>() {
+      @Override
+      public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) {
+        throw new RuntimeException(googleJsonError.getMessage());
+      }
+
+      @Override
+      public void onSuccess(Message message, HttpHeaders httpHeaders) {
+        listToAddTo.add(message);
+      }
+    };
   }
 
   /**
