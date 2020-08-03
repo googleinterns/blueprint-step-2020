@@ -26,6 +26,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
+import com.google.sps.exceptions.GmailException;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -149,7 +150,6 @@ public class GmailClientImpl implements GmailClient {
 
     // When each message is retrieved, add them to the userMessagesWithFormat list
     JsonBatchCallback<Message> batchCallback = addToListMessageCallback(userMessagesWithFormat);
-    System.out.println(userMessagesWithoutFormat.size());
 
     // Add messages to a batch request, BATCH_REQUEST_CALL_LIMIT messages at a time
     // At time of writing, the limit is 100 messages, so it will add 100 messages per request
@@ -173,20 +173,6 @@ public class GmailClientImpl implements GmailClient {
     }
 
     return userMessagesWithFormat;
-  }
-
-  private JsonBatchCallback<Message> addToListMessageCallback(List<Message> listToAddTo) {
-    return new JsonBatchCallback<Message>() {
-      @Override
-      public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) {
-        throw new RuntimeException(googleJsonError.getMessage());
-      }
-
-      @Override
-      public void onSuccess(Message message, HttpHeaders httpHeaders) {
-        listToAddTo.add(message);
-      }
-    };
   }
 
   /**
@@ -230,6 +216,28 @@ public class GmailClientImpl implements GmailClient {
     }
 
     return userMessagesWithFormat;
+  }
+
+  /**
+   * Will create a callback function for a batch request that adds a message to a specified list in
+   * the case of success, or throws a GmailException in the case of failure
+   *
+   * @param listToAddTo a reference to a list the message should be added to
+   * @return a callback that can be used in a batch request to add a message to the specified list
+   * @throws GmailException if a GoogleJsonError arises while processing the request
+   */
+  private JsonBatchCallback<Message> addToListMessageCallback(List<Message> listToAddTo) {
+    return new JsonBatchCallback<Message>() {
+      @Override
+      public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) {
+        throw new GmailException(googleJsonError.getMessage());
+      }
+
+      @Override
+      public void onSuccess(Message message, HttpHeaders httpHeaders) {
+        listToAddTo.add(message);
+      }
+    };
   }
 
   /** Factory to create a GmailClientImpl instance with given credential */
