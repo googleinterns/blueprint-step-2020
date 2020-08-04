@@ -166,13 +166,32 @@
     <div class="panel-row__content">
       <div class="panel">Assign</div>
       <div class="panel">Plan</div>
-      <div class="panel">Go
-        <div id="go"></div>
+      <div class="panel">
+        <h3 class="panel__section-heading">Go</h3>
+        <div class="panel__content-entry">
+          <p class="panel__section-subheading">Task Lists: 
+          <select name="panel__task-list-select" id="go-select" size="2" multiple></select>
+          <button onclick="populateGo()">Optimize</button>
+        </div>
+        <div class="panel__content">
+          <div class="panel__content-entry">
+            <p class="panel__text-large">Origin:      
+            <input type="text" id="go-origin" name="go-origin" required>
+          </div>
+          <div class="panel__content-entry">
+            <p class="panel__text-large">Destination:  
+            <input type="text" id="go-destination" name="go-destination" required>
+          </div>
+          <div class="panel__content-entry">
+            <p class="panel__section-subheading">Optimized route: 
+          </div>
+          <div id="go"></div>
+        </div>
       </div>
     </div>
   </article>
   <div class="footer u-align-with-first-panel">
-    <p>Icons made by <a target="_blank" href="https://www.flaticon.com/authors/google" title="Google">Google</a> from <a target="_blank" href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+    <p>Icons made by <a target="_blank" href="https://www.flaticon.com/authors/google" title="Google">Google</a> and <a target="_blank" href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a target="_blank" href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
     <p><a target="_blank" href="https://icons8.com/icons/set/drafting-compass">Drafting Compass icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
   </div>
 </div>
