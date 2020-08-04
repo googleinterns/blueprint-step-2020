@@ -41,7 +41,7 @@ public interface GeocodingClient {
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A LatLng representing coordinates.
    */
-  public static LatLng getCoordinates(GeocodingResult result) {
+  static LatLng getCoordinates(GeocodingResult result) {
     return result.geometry.location;
   }
 
@@ -52,7 +52,7 @@ public interface GeocodingClient {
    * @param addressType An AddressType to convert to a PlaceType
    * @return A PlaceType corresponding to an AddressType if available, null if not available.
    */
-  public static PlaceType convertAddressTypeToPlaceType(AddressType addressType) {
+  static PlaceType convertAddressTypeToPlaceType(AddressType addressType) {
     for (PlaceType placeType : PlaceType.values()) {
       if (placeType.toString().equals(addressType.toString())) {
         return placeType;
@@ -70,7 +70,7 @@ public interface GeocodingClient {
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return True if result is a partial match, false otherwise.
    */
-  public static boolean isPartialMatch(GeocodingResult result) {
+  static boolean isPartialMatch(GeocodingResult result) {
     return result.partialMatch;
   }
 
@@ -81,7 +81,7 @@ public interface GeocodingClient {
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A PlaceType representing the type or null if no corresponding PlaceType is found.
    */
-  public static PlaceType getPlaceType(GeocodingResult result) {
+  static PlaceType getPlaceType(GeocodingResult result) {
     return convertAddressTypeToPlaceType(result.types[0]);
   }
 }
