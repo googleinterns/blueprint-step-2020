@@ -32,7 +32,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -88,10 +87,10 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     String taskLists = request.getParameter("taskLists");
     if (taskLists == null) {
-      tasks = getAllTasksFromAllTaskLists(tasksClient);
+      tasks = TasksClient.getAllTasksFromAllTaskLists(tasksClient);
     } else {
       List<String> selectedTaskListIds = Arrays.asList(taskLists.split(","));
-      tasks = getAllTasksFromSpecificTaskLists(tasksClient, selectedTaskListIds);
+      tasks = TasksClient.getAllTasksFromSpecificTaskLists(tasksClient, selectedTaskListIds);
     }
 
     Map<String, String> taskListIdsToTitles = getTaskListIdsAndTitles(allTaskLists);
@@ -203,41 +202,5 @@ public class TasksServlet extends AuthenticatedHttpServlet {
               return dueDate.isBefore(endOfDay);
             })
         .count();
-  }
-
-  /**
-   * Get the all tasks in all the user's task lists
-   *
-   * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
-   * @return List of tasks from all task lists in user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  public static List<Task> getAllTasksFromAllTaskLists(TasksClient tasksClient) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
-    }
-    return tasks;
-  }
-
-  /**
-   * Get the tasks in the user's task lists with the given task list IDs
-   *
-   * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
-   * @param taskListTitles List of task list IDs which tasks should be obtained from
-   * @return List of tasks from specified task lists in user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  public static List<Task> getAllTasksFromSpecificTaskLists(
-      TasksClient tasksClient, List<String> taskListIds) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      if (taskListIds.contains(taskList.getId())) {
-        tasks.addAll(tasksClient.listTasks(taskList));
-      }
-    }
-    return tasks;
   }
 }
