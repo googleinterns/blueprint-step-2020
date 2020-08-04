@@ -125,7 +125,7 @@ function populateTasks() {
             if (Object.prototype
                 .hasOwnProperty
                 .call(taskListIdsToTitles, taskListId)) {
-              var option = document.createElement('option');
+              let option = document.createElement('option');
               option.value = taskListId;
               option.innerText = taskListIdsToTitles[taskListId];
               tasksSelect.append(option);
@@ -331,7 +331,9 @@ function populateGo() {
     }
   });
 
-  fetch('/go?taskLists=' + selectedOptions.join() + '&origin=' + origin + '&destination=' + destination)
+  fetch('/go?taskLists=' + selectedOptions.join() +
+          '&origin=' + origin +
+          '&destination=' + destination)
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
