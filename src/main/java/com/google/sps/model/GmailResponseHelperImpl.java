@@ -17,6 +17,7 @@ package com.google.sps.model;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.sps.exceptions.GmailMessageFormatException;
+import com.google.sps.utility.GmailUtility;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -106,7 +107,7 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
     Map<String, Integer> sendersToFrequencies = new HashMap<>();
 
     messages.stream()
-        .map(this::extractFromHeader)
+        .map((message) -> GmailUtility.extractHeader(message, "From"))
         .forEach(
             (fromHeader) -> {
               String sender = fromHeader.getValue();
@@ -125,13 +126,16 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
    * @param messages a list of Gmail Messages objects. Must be MINIMAL, METADATA or FULL format
    * @return a Map where the keys are the values of the "From" header and the values are timestamps
    *     of that sender's most recent email
+   * @throws GmailMessageFormatException if ann email does not have a "From" header (this is a
+   *     required header for all emails)
    */
-  private Map<String, Long> mapSendersToMostRecentEmail(List<Message> messages) {
+  private Map<String, Long> mapSendersToMostRecentEmail(List<Message> messages)
+      throws GmailMessageFormatException {
     Map<String, Long> sendersToTimestamp = new HashMap<>();
 
     messages.forEach(
         (message) -> {
-          MessagePartHeader fromHeader = extractFromHeader(message);
+          MessagePartHeader fromHeader = GmailUtility.extractHeader(message, "From");
 
           String sender = fromHeader.getValue();
           long newEmailTimestamp = message.getInternalDate();
@@ -148,24 +152,6 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
         });
 
     return sendersToTimestamp;
-  }
-
-  /**
-   * Given a list of message headers, extract the "From" header
-   *
-   * @param message a Gmail message object. Must be METADATA or FULL format
-   * @return "From" header
-   * @throws GmailMessageFormatException if the messages do not contain a from header (and are thus
-   *     the wrong format)
-   */
-  private MessagePartHeader extractFromHeader(Message message) {
-    List<MessagePartHeader> headers = message.getPayload().getHeaders();
-
-    return headers.stream()
-        .filter((header) -> header.getName().equals("From"))
-        .findFirst()
-        .orElseThrow(
-            () -> new GmailMessageFormatException("Messages must be METADATA or FULL format"));
   }
 
   /** Private comparator class to compare entries of sender hashmaps */
