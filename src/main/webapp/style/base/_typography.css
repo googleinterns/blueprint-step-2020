@@ -30,6 +30,7 @@ body {
 .panel__section-subheading {
   font-size: var(--font-size-subheading);
   font-weight: var(--font-weight-medium);
+  margin: var(--panel-margin-vertical) 0 0 0;
 }
 
 .panel__text-data-point {
