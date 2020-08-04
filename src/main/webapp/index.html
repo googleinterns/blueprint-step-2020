@@ -56,44 +56,44 @@
           </a>
           <h3 class="panel__section-heading">Mail</h3>
         </div>
-        <p class="panel__section-subheading gmail-content">From the last <span id="gmailNDays"></span> days:
+        <p class="panel__section-subheading gmail-content">From the last <span id="gmail-n-days"></span> days:
         <div class="panel__content gmail-content">
           <div class="panel__content-entry">
             <div class="panel__rounded-number u-background-mail">
-              <p class="panel__text-data-point u-text-white" id="gmailUnreadEmailsDays">
+              <p class="panel__text-data-point u-text-white" id="gmail-unread-emails-days">
             </div>
             <p class="panel__text-data-point">Unread Emails:
           </div>
           <div class="panel__content-entry">
             <img class="panel__content-icon" alt="clock-icon" src="assets/clock.png">
-            <p class="panel__text-large"><span id="gmailUnreadEmailsHours"></span> from the last <span id="gmailMHours"></span> hours
+            <p class="panel__text-large"><span id="gmail-unread-emails-hours"></span> from the last <span id="gmail-m-hours"></span> hours
           </div>
           <div class="panel__content-entry">
             <img class="panel__content-icon" alt="flag-icon" src="assets/flag.png">
-            <p class="panel__text-large"><span id="gmailUnreadImportantEmails"></span> marked important
+            <p class="panel__text-large"><span id="gmail-unread-important-emails"></span> marked important
           </div>
           <div class="panel__content-entry">
             <div class="panel__round-letter">
-              <p class="panel__text-data-point u-text-white" id="gmailSenderInitial">
+              <p class="panel__text-data-point u-text-white" id="gmail-sender-initial">
             </div>
-            <p class="panel__text-large"><span id="gmailSender"></span> sent the most unread emails
+            <p class="panel__text-large"><span id="gmail-sender"></span> sent the most unread emails
           </div>
         </div>
         <!-- Settings section -->
         <h3 hidden class="panel__section-heading u-remove-top-margin gmail-settings">Settings:</h3>
         <div hidden class="panel__text-body gmail-settings">
           <div class="panel__content-entry u-remove-top-margin">
-            <p class="panel__text-large">Search <span class="u-bold-underline" id="gmailSettingsNDays">7</span> days of email
+            <p class="panel__text-large">Search <span class="u-bold-underline" id="gmail-settings-n-days">7</span> days of email
             <div class="panel__two-buttons-incremental u-right-align">
-              <a class="panel__button-incremental" onclick="incrementElement('gmailSettingsNDays')"><span>+</span></a>
-              <a class="panel__button-incremental" onclick="decrementElement('gmailSettingsNDays')"><span>-</span></a>
+              <a class="panel__button-incremental" onclick="incrementElement('gmail-settings-n-days')"><span>+</span></a>
+              <a class="panel__button-incremental" onclick="decrementElement('gmail-settings-n-days')"><span>-</span></a>
             </div>
           </div>
           <div class="panel__content-entry">
-            <p class="panel__text-large">Search <span class="u-bold-underline" id="gmailSettingsMHours">3</span> hours of recent email
+            <p class="panel__text-large">Search <span class="u-bold-underline" id="gmail-settings-m-hours">3</span> hours of recent email
             <div class="panel__two-buttons-incremental u-right-align">
-              <a class="panel__button-incremental" onclick="incrementElement('gmailSettingsMHours')"><span>+</span></a>
-              <a class="panel__button-incremental" onclick="decrementElement('gmailSettingsMHours')"><span>-</span></a>
+              <a class="panel__button-incremental" onclick="incrementElement('gmail-settings-m-hours')"><span>+</span></a>
+              <a class="panel__button-incremental" onclick="decrementElement('gmail-settings-m-hours')"><span>-</span></a>
             </div>
           </div>
         </div>
@@ -191,7 +191,8 @@
       </div>
     </div>
   </article>
-  <!-- Placeholder panels for features built in future -->
+  <!-- Feature panels -->
+  <!-- TODO: Rename id's to be - separated (Issue #152) -->
   <article>
     <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
     <div class="panel-row__content">
@@ -266,6 +267,7 @@
           <a class="button-1-of-2 panel__green-button" id="assign-accept-button">Add Task</a>
           <a class="button-1-of-2 panel__red-button" id="assign-reject-button">Skip Task</a>
         </div>
+        <div id="assign"></div>
       </div>
       <div class="panel">Plan</div>
       <div class="panel">Go

@@ -25,25 +25,26 @@ let gmailMHours;
  */
 function populateGmail() {
   // Get values for nDays and mHours
-  const nDaysSettingsContainer = document.querySelector('#gmailSettingsNDays');
+  const nDaysSettingsContainer =
+      document.querySelector('#gmail-settings-n-days');
   const mHoursSettingsContainer =
-      document.querySelector('#gmailSettingsMHours');
+      document.querySelector('#gmail-settings-m-hours');
   gmailNDays = parseInt(nDaysSettingsContainer.innerText);
   gmailMHours = parseInt(mHoursSettingsContainer.innerText);
 
   // Get containers for all gmail fields
-  const nDaysContainer = document.querySelector('#gmailNDays');
-  const mHoursContainer = document.querySelector('#gmailMHours');
+  const nDaysContainer = document.querySelector('#gmail-n-days');
+  const mHoursContainer = document.querySelector('#gmail-m-hours');
   const unreadEmailsContainer =
-      document.querySelector('#gmailUnreadEmailsDays');
+      document.querySelector('#gmail-unread-emails-days');
   const unreadEmailsThreeHrsContainer =
-      document.querySelector('#gmailUnreadEmailsHours');
+      document.querySelector('#gmail-unread-emails-hours');
   const importantEmailsContainer =
-      document.querySelector('#gmailUnreadImportantEmails');
+      document.querySelector('#gmail-unread-important-emails');
   const senderInitialContainer =
-      document.querySelector('#gmailSenderInitial');
+      document.querySelector('#gmail-sender-initial');
   const senderContainer =
-      document.querySelector('#gmailSender');
+      document.querySelector('#gmail-sender');
 
   nDaysContainer.innerText = gmailNDays;
   mHoursContainer.innerText = gmailMHours;
@@ -90,10 +91,10 @@ function populateGmail() {
  * Reset the values for nDays and mHours in the settings panel
  */
 function gmailRevertSettings() {
-  // Get values for nDays and mHours
-  const nDaysSettingsContainer = document.querySelector('#gmailSettingsNDays');
+  const nDaysSettingsContainer =
+      document.querySelector('#gmail-settings-n-days');
   const mHoursSettingsContainer =
-      document.querySelector('#gmailSettingsMHours');
+      document.querySelector('#gmail-settings-m-hours');
   nDaysSettingsContainer.innerText = gmailNDays;
   mHoursSettingsContainer.innerText = gmailMHours;
 }
