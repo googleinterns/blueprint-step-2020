@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="style/abstracts/_utilities.css">
 <link rel="stylesheet" href="style/layout/_layout.css">
 <link rel="stylesheet" href="style/components/_panel.css">
+<link rel="stylesheet" href="style/components/_button-circle.css">
+<link rel="stylesheet" href="style/components/_button-1-of-2.css">
 <link rel="stylesheet" href="style/layout/_header.css">
 <link rel="stylesheet" href="style/layout/_footer.css">
 <link rel="stylesheet" href="style/base/_base.css">
@@ -164,7 +166,38 @@
   <article>
     <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
     <div class="panel-row__content">
-      <div class="panel">Assign</div>
+      <div class="panel u-border-assign">
+        <div class="panel__content-entry u-remove-top-margin">
+          <!-- TODO: Create JS to update search query based on inputted words (Issue #130) -->
+          <a class="panel__content-entry-link" target="_blank" href="https://mail.google.com/mail/u/0/#search/subject%3A(%22TODO+FILL+IN+SEARCH+QUERY%22)">
+            <img class="panel__logo" alt="assign-logo" src="assets/assign.png">
+          </a>
+          <h3 class="panel__section-heading">Assign</h3>
+        </div>
+        <p class="panel__section-subheading">Find tasks in your emails:</p>
+        <div class="panel__content-entry">
+          <div class="panel__rounded-number u-background-assign">
+            <p class="panel__text-data-point u-text-white" id="assignSuspectedActionItems">6
+          </div>
+          <p class="panel__text-data-point">Possible Items:</p>
+        </div>
+        <div class="panel__content-entry">
+          <a class="button-circle"><span class="play-icon">▶</span></a>
+          <!-- Will default to click to start. When started, will list item number (e.g. "Item 1/6") -->
+          <p class="panel__text-data-point" id="assignItemCount">Click to start
+        </div>
+        <!-- Container to hold subject line of actionable email -->
+        <div class="panel__text-body">
+          <p class="panel__text-large">
+            <span class="u-bold-underline">Subject:</span>
+            <span id="assignSubject"> Lorem ipsum emmet Lorem ipsum emmet Lorem ipsum emmet</span>
+        </div>
+        <div class="panel__buttons">
+          <a class="button-1-of-2 u-background-green" id="green-button">Add Task</a>
+          <a class="button-1-of-2 u-background-red" id="red-button">Skip Task</a>
+        </div>
+        <div id="assign"></div>
+      </div>
       <div class="panel">Plan</div>
       <div class="panel">Go
         <div id="go"></div>
