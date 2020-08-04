@@ -60,12 +60,21 @@ public class LocationsUtility {
     return "No " + prefix;
   }
 
+  /**
+   * Generates all permutations of the lists recursively. Scope of method is public for testing purposes.
+   * 
+   * @param lists A list of lists to generate permutations for.
+   * @param result A pointer to the result since the method is recursive.
+   * @param depth An int which specifies the list in lists to traverse.
+   * @param current A list which represents the result for the current recursive stack.
+   */
   public static void generateCombinations(
       List<List<String>> lists, List<List<String>> result, int depth, List<String> current) {
     if (depth == lists.size()) {
       result.add(new ArrayList<>(current));
       return;
     }
+
     for (int i = 0; i < lists.get(depth).size(); i++) {
       List<String> next = new ArrayList<>();
       next.addAll(current);

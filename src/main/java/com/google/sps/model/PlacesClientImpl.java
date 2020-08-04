@@ -44,12 +44,12 @@ public class PlacesClientImpl implements PlacesClient {
   }
 
   @Override
-  public List<String> searchNearby(LatLng location, PlaceType placeType, RankBy rankBy)
+  public String searchNearby(LatLng location, PlaceType placeType, RankBy rankBy)
       throws PlacesException {
     try {
       PlacesSearchResponse response =
           placesService.location(location).type(placeType).rankby(rankBy).await();
-      return PlacesClient.getFormattedAddresses(response);
+      return PlacesClient.getPlaceId(response);
     } catch (ApiException | InterruptedException | IOException e) {
       throw new PlacesException("Failed to get directions", e);
     }

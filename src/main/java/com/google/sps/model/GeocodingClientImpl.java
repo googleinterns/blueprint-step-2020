@@ -21,6 +21,8 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.GeocodingResult;
 import com.google.sps.exceptions.GeocodingException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /** Handles GET requests to the Google Geocoding API */
 public class GeocodingClientImpl implements GeocodingClient {
@@ -41,10 +43,10 @@ public class GeocodingClientImpl implements GeocodingClient {
   }
 
   @Override
-  public GeocodingResult getGeocodingResult(String address) throws GeocodingException {
+  public List<GeocodingResult> getGeocodingResult(String address) throws GeocodingException {
     try {
       GeocodingResult[] response = geocodingService.address(address).await();
-      return response[0];
+      return Arrays.asList(response);
     } catch (ApiException | InterruptedException | IOException | IndexOutOfBoundsException e) {
       throw new GeocodingException("Failed to geocode address", e);
     }

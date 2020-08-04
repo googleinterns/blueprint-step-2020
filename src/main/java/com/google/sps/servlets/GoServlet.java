@@ -25,6 +25,7 @@ import com.google.maps.model.PlaceType;
 import com.google.maps.model.RankBy;
 import com.google.sps.exceptions.DirectionsException;
 import com.google.sps.exceptions.GeocodingException;
+import com.google.sps.exceptions.PlacesException;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
@@ -43,7 +44,11 @@ import com.google.sps.utility.KeyProvider;
 import com.google.sps.utility.LocationsUtility;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -76,174 +81,186 @@ public class GoServlet extends AuthenticatedHttpServlet {
    * Construct servlet with explicit implementation of DirectionsClient.
    *
    * @param factory A DirectionsClientFactory containing the implementation of
-   *     DirectionsClientFactory.
+   *                DirectionsClientFactory.
    */
-  public GoServlet(
-      DirectionsClientFactory directionsClientFactory,
-      PlacesClientFactory placesClientFactory,
-      TasksClientFactory tasksClientFactory,
-      GeocodingClientFactory geocodingClientFactory,
-      String fakeApiKey,
-      String fakeOrigin,
-      String fakeDestination,
-      List<String> fakeWaypoints) {
+  public GoServlet(DirectionsClientFactory directionsClientFactory, PlacesClientFactory placesClientFactory,
+      TasksClientFactory tasksClientFactory, GeocodingClientFactory geocodingClientFactory, String apiKey) {
     this.directionsClientFactory = directionsClientFactory;
     this.placesClientFactory = placesClientFactory;
     this.tasksClientFactory = tasksClientFactory;
     this.geocodingClientFactory = geocodingClientFactory;
-    apiKey = fakeApiKey;
-  }
-
-  private List<Task> getTasks(TasksClient tasksClient) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
-    }
-    return tasks;
+    this.apiKey = apiKey;
   }
 
   /**
    * Returns the most optimal order of travel between addresses.
    *
-   * @param request HTTP request from the client.
+   * @param request  HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws ServletException
    * @throws IOException
    */
   @Override
-  public void doGet(
-      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws ServletException, IOException {
-    assert googleCredential != null
-        : "Null credentials (i.e. unauthenticated requests) should already be handled";
+    assert googleCredential != null : "Null credentials (i.e. unauthenticated requests) should already be handled";
     // Get all tasks from user's tasks account TODO: Get relevant tasks using task
     // titles
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
     DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
-    GeocodingClient geocodingClient = geocodingClientFactory.getGeocodingClient(apiKey);
-    List<Task> tasks = getTasks(tasksClient);
 
-    // Get descriptions of relevant tasks
-    // Parse for locations from descriptions
-    List<String> originList = LocationsUtility.getLocations("Origin", tasks);
-    List<String> destinationList = LocationsUtility.getLocations("Destination", tasks);
-    List<String> waypoints = LocationsUtility.getLocations("Waypoint", tasks);
+    // Initialize Tasks Response
+    List<Task> tasks;
 
-    // Split waypoints into exact addresses and generic locations by looking for the
-    // presence of ","
-    // For every exact address, generic location is sent to Places to obtain the
-    // closest match
+    String taskLists = request.getParameter("taskLists");
+    if (taskLists == null) {
+      tasks = TasksServlet.getAllTasksFromAllTaskLists(tasksClient);
+    } else {
+      List<String> selectedTaskListIds = Arrays.asList(taskLists.split(","));
+      tasks = TasksServlet.getAllTasksFromSpecificTaskLists(tasksClient, selectedTaskListIds);
+    }
 
-    List<String> mostOptimalWaypointCombination =
-        optimizeSearchNearbyWaypoints(originList, destinationList, waypoints);
+    String origin = request.getParameter("origin");
+    String destination = request.getParameter("destination");
+    List<String> waypoints = LocationsUtility.getLocations("Location", tasks);
 
     try {
-      String origin = originList.get(0);
-      String destination = destinationList.get(0);
-      DirectionsResult directionsResult =
-          directionsClient.getDirections(origin, destination, mostOptimalWaypointCombination);
-      List<String> directions = DirectionsClient.parseDirectionsResult(directionsResult);
-      JsonUtility.sendJson(response, directions);
-    } catch (IndexOutOfBoundsException e) {
-      throw new ServletException("Either origin or destination not found.");
-    } catch (DirectionsException | IOException e) {
+      List<String> mostOptimalWaypointCombination = optimizeSearchNearbyWaypoints(origin, destination, waypoints);
+      DirectionsResult directionsResult = directionsClient.getDirections(origin, destination,
+          mostOptimalWaypointCombination);
+      List<String> optimizedRoute = DirectionsClient.parseDirectionsResult(directionsResult);
+      JsonUtility.sendJson(response, optimizedRoute);
+    } catch (DirectionsException | GeocodingException | PlacesException | IOException e) {
       throw new ServletException(e);
     }
   }
 
-  public void generatePermutations(
-      List<List<String>> searchResults,
-      List<List<String>> result,
-      int depth,
-      List<String> current) {
-    if (depth == searchResults.size()) {
-      result.add(current);
-      return;
-    }
-
-    for (int i = 0; i < searchResults.get(depth).size(); ++i) {
-      current.add(searchResults.get(depth).get(i));
-      generatePermutations(searchResults, result, depth + 1, current);
+  /**
+   * Separate waypoints into street addresses and non street addresses. Street addresses are converted to coordinates and non street addresses are converted to place types. Scope of method is public for testing purposes.
+   * 
+   * @param waypoints A list of waypoints to filter into the two categories: street addresses and non street addresses.
+   * @param streetAddressWaypoints A pointer to the result for street address waypoints to achieve the effect of returning multiple types at once.
+   * @param streetAddressWaypointsAsCoordinates A pointer to the result for street address waypoints as coordinates to achieve the effect of returning multiple types at once.
+   * @param nonStreetAddressWaypointsAsPlaceTypes A pointer to the result for non street address waypoints as place types to achieve the effect of returning multiple types at once.
+   * @throws GeocodingException An exception thrown when an error occurs with the Geocoding API.
+   */
+  public void separateWaypoints(List<String> waypoints, List<String> streetAddressWaypoints, List<LatLng> streetAddressWaypointsAsCoordinates, List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes)
+      throws GeocodingException {
+    for (String waypoint : waypoints) {
+      GeocodingClient geocodingClient = geocodingClientFactory.getGeocodingClient(apiKey);
+      List<GeocodingResult> geocodingResult = geocodingClient.getGeocodingResult(waypoint);
+      if (GeocodingClient.isStreetAddress(geocodingResult)) {
+        streetAddressWaypoints.add(waypoint);
+        streetAddressWaypointsAsCoordinates.add(GeocodingClient.getCoordinates(geocodingResult));
+      } else {
+        nonStreetAddressWaypointsAsPlaceTypes.add(GeocodingClient.convertToPlaceType(waypoint));
+      }
     }
   }
 
-  private List<String> optimizeSearchNearbyWaypoints(
-      List<String> originList, List<String> destinationList, List<String> waypoints)
-      throws ServletException {
-    try {
+  /**
+   * Search nearby every street address with known coordinates for a place type match.
+   * For example, if we know exactly where our houses are and we are looking for a restaurant, we search for a restaurant closest to your house and a restaurant closest to my house.
+   * In this case, the method should return [[restaurantOne, restaurantTwo]]. Scope of method is public for testing purposes.
+   * 
+   * @param nonStreetAddressWaypointsAsPlaceTypes A list of place types to call search for. (e.g. restaurant, supermarket, police station)
+   * @param streetAddressesAsCoordinates A list of coordinates to look for the place types around.
+   * @return A list of lists of place IDs where each list represents the search nearby result for every known coordinate.
+   * @throws PlacesException An exception thrown when an error occurs with the Places API.
+   */
+  public List<List<String>> searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes, List<LatLng> streetAddressesAsCoordinates)
+      throws PlacesException {
+    List<List<String>> allSearchNearbyResults = new ArrayList<>();
+    for (PlaceType nonStreetAddressWaypoint : nonStreetAddressWaypointsAsPlaceTypes) {
+      List<String> searchNearbyResults = new ArrayList<>();
+      for (LatLng coordinate : streetAddressesAsCoordinates) {
+        PlaceType placeType = nonStreetAddressWaypoint;
+        RankBy rankBy = RankBy.DISTANCE;
+        PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
+        String nearestMatch =
+            placesClient.searchNearby(coordinate, placeType, rankBy);
+        if (nearestMatch != null) {
+          searchNearbyResults.add("place_id:" + nearestMatch);
+        }
+      }
+      allSearchNearbyResults.add(searchNearbyResults);
+    }
+    return allSearchNearbyResults;
+  }
+
+  /**
+   * Chooses the combination of waypoints that results in the shortest travel time possible. Scope of method is public for testing purposes.
+   *
+   * @param origin The starting point of travel.
+   * @param destination The ending point of travel.
+   * @param allWaypointCombinations A list of waypoint combinations to select between for the shortest travel time possible.
+   * @return The most optimal combination of waypoint with the shortest travel time.
+   * @throws DirectionsException An exception thrown when an error occurs with the Directions API.
+   */
+  public List<String> chooseWaypointCombinationWithShortestTravelTime(String origin, String destination, List<List<String>> allWaypointCombinations)
+      throws DirectionsException {
+    long minTravelTime = 0;
+    List<String> mostOptimalWaypointCombination = new ArrayList<String>();
+    for (List<String> waypointCombination : allWaypointCombinations) {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
-      PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
-      GeocodingClient geocodingClient;
-
-      LatLng originAsCoordinates;
-      LatLng destinationAsCoordinates;
-      List<LatLng> waypointsAsCoordinates = new ArrayList<>();
-      List<PlaceType> waypointsAsPlaceTypes = new ArrayList<>();
-
-      try {
-        geocodingClient = geocodingClientFactory.getGeocodingClient(apiKey);
-        originAsCoordinates =
-            GeocodingClient.getCoordinates(geocodingClient.getGeocodingResult(originList.get(0)));
-        geocodingClient = geocodingClientFactory.getGeocodingClient(apiKey);
-        destinationAsCoordinates =
-            GeocodingClient.getCoordinates(
-                geocodingClient.getGeocodingResult(destinationList.get(0)));
-        for (String waypoint : waypoints) {
-          geocodingClient = geocodingClientFactory.getGeocodingClient(apiKey);
-          GeocodingResult geocodingResult = geocodingClient.getGeocodingResult(waypoint);
-          if (GeocodingClient.isPartialMatch(geocodingResult)) {
-            waypointsAsPlaceTypes.add(GeocodingClient.getPlaceType(geocodingResult));
-          } else {
-            waypointsAsCoordinates.add(GeocodingClient.getCoordinates(geocodingResult));
-          }
-        }
-      } catch (GeocodingException e) {
-        throw new ServletException(e);
+      DirectionsResult directionsResult =
+          directionsClient.getDirections(
+              origin, destination, waypointCombination);
+      long travelTime = DirectionsClient.getTotalTravelTime(directionsResult);
+      if (minTravelTime == 0 || travelTime < minTravelTime) {
+        minTravelTime = travelTime;
+        mostOptimalWaypointCombination = waypointCombination;
       }
-
-      List<LatLng> originDestinationAndWaypointsAsCoordinates = waypointsAsCoordinates;
-      originDestinationAndWaypointsAsCoordinates.add(originAsCoordinates);
-      originDestinationAndWaypointsAsCoordinates.add(destinationAsCoordinates);
-
-      List<List<String>> allSearchNearbyResults = new ArrayList<>();
-
-      List<LatLng> allExactAddressCoordinates = ImmutableList.of();
-      for (LatLng coordinate : originDestinationAndWaypointsAsCoordinates) {
-        for (PlaceType query : waypointsAsPlaceTypes) {
-          PlaceType placeType = query;
-          RankBy rankBy = RankBy.DISTANCE;
-          List<String> searchNearbyResults =
-              placesClient.searchNearby(coordinate, placeType, rankBy);
-          allSearchNearbyResults.add(searchNearbyResults);
-        }
-      }
-
-      for (String waypoint : waypoints) {
-        allSearchNearbyResults.add(ImmutableList.of(waypoint));
-      }
-
-      List<List<String>> allWaypointCombinations = new ArrayList<List<String>>();
-      LocationsUtility.generateCombinations(
-          allSearchNearbyResults, allWaypointCombinations, 0, new ArrayList<String>());
-
-      long minTravelTime = 0;
-      List<String> mostOptimalWaypointCombination = new ArrayList<String>();
-
-      for (List<String> waypointCombination : allWaypointCombinations) {
-        DirectionsResult directionsResult =
-            directionsClient.getDirections(
-                originList.get(0), destinationList.get(0), waypointCombination);
-        long travelTime = DirectionsClient.getTotalTravelTime(directionsResult);
-        if (minTravelTime == 0 || travelTime < minTravelTime) {
-          minTravelTime = travelTime;
-          mostOptimalWaypointCombination = waypointCombination;
-        }
-      }
-
-      return mostOptimalWaypointCombination;
-    } catch (Exception e) {
-      throw new ServletException(e);
     }
+    return mostOptimalWaypointCombination;
+  }
+
+  /**
+   * Finds the most optimal route of travel between the origin and destination and a set of waypoints which if the exact location is not known, an exact location is determined and chosen based on the resulting travel time.
+   * Scope of method is public for testing purposes.
+   * 
+   * @param origin The starting point of travel.
+   * @param destination The ending point of travel.
+   * @param waypoints The waypoints that should be visited while travelling from the origin to the destination.
+   * @return The most optimal set of waypoints between origin and destination.
+   * @throws GeocodingException  An exception thrown when an error occurs with the Geocoding API.
+   * @throws PlacesException An exception thrown when an error occurs with the Places API.
+   * @throws DirectionsException  An exception thrown when an error occurs with the Directions API.
+   */
+  public List<String> optimizeSearchNearbyWaypoints(String origin, String destination, List<String> waypoints)
+      throws GeocodingException, PlacesException, DirectionsException {
+
+    LatLng originAsCoordinates =
+            GeocodingClient.getCoordinates(
+              geocodingClientFactory.getGeocodingClient(apiKey).getGeocodingResult(origin));
+
+    LatLng destinationAsCoordinates =
+            GeocodingClient.getCoordinates(
+              geocodingClientFactory.getGeocodingClient(apiKey).getGeocodingResult(destination));
+
+    List<String> streetAddressWaypoints = new ArrayList<>();
+    List<LatLng> streetAddressWaypointsAsCoordinates = new ArrayList<>();
+    List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes = new ArrayList<>();
+    separateWaypoints(waypoints, streetAddressWaypoints, streetAddressWaypointsAsCoordinates, nonStreetAddressWaypointsAsPlaceTypes);
+
+    // All street address coordinates including origin and destination are collected
+    List<LatLng> streetAddressesAsCoordinates = streetAddressWaypointsAsCoordinates;
+    streetAddressesAsCoordinates.add(originAsCoordinates);
+    streetAddressesAsCoordinates.add(destinationAsCoordinates);
+
+    // Remove all null entries of street address coordinates and non street address waypoints
+    streetAddressesAsCoordinates = streetAddressesAsCoordinates.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    nonStreetAddressWaypointsAsPlaceTypes = nonStreetAddressWaypointsAsPlaceTypes.stream().filter(Objects::nonNull).collect(Collectors.toList());
+
+    List<List<String>> allSearchNearbyResults = searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(nonStreetAddressWaypointsAsPlaceTypes, streetAddressesAsCoordinates);
+
+    List<List<String>> allWaypointCombinations = new ArrayList<List<String>>();
+    LocationsUtility.generateCombinations(
+        allSearchNearbyResults, allWaypointCombinations, 0, new ArrayList<String>());
+
+    List<String> mostOptimalWaypointCombination = chooseWaypointCombinationWithShortestTravelTime(origin, destination, allWaypointCombinations);
+    mostOptimalWaypointCombination.addAll(streetAddressWaypoints);
+
+    return mostOptimalWaypointCombination;
   }
 }

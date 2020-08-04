@@ -41,8 +41,7 @@ public interface DirectionsClient {
       throws DirectionsException;
 
   /**
-   * Converts DirectionsResult into a List of String. Scope of method is public for testing
-   * purposes.
+   * Converts DirectionsResult into a List of String.
    *
    * @param result The DirectionsResult object to convert into a List<String>
    */
@@ -51,17 +50,21 @@ public interface DirectionsClient {
         .map(
             route ->
                 Arrays.asList(route.legs).stream()
-                    .map(String::valueOf)
+                    .map(leg -> leg.duration.humanReadable + " to travel to " + leg.endAddress)
                     .collect(Collectors.toList()))
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
   }
 
+  /**
+   * Get total travel time of all legs in a DirectionsResult.
+   * 
+   * @param result  The DirectionsResult object to calculate total travel time from
+   */
   public static long getTotalTravelTime(DirectionsResult result) {
     return Arrays.asList(result.routes).stream()
-        .mapToLong(
+        .flatMapToLong(
             route ->
-                Arrays.asList(route.legs).stream().mapToLong(leg -> leg.duration.inSeconds).sum())
-        .sum();
+                Arrays.asList(route.legs).stream().mapToLong(leg -> leg.duration.inSeconds)).sum();
   }
 }

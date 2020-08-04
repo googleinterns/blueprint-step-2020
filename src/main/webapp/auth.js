@@ -64,7 +64,7 @@ function handleAuthenticationState() {
     // postAndGetTaskList();
 
     // Populate magic feature panels at the bottom of the dashboard
-    populateGo();
+    // populateGo();
   } else {
     // User is not logged in.
     // Show sign in button, hide features
