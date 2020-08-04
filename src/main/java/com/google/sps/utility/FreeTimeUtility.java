@@ -24,6 +24,10 @@ import java.util.concurrent.TimeUnit;
 public final class FreeTimeUtility {
 
   private final Date startDate;
+  /**
+   * numDays represents the number of days from the current one (and including it) we are considering for our calculations
+   * It is used to initialize the free interval lists and the size of the free time lists that are returned
+   */
   private final int numDays;
   /**
    * The lists of time intervals from now (startDate) to the end day. They are divided by morning,
@@ -31,14 +35,12 @@ public final class FreeTimeUtility {
    * during work/morning/evening hours
    */
   private List<DateInterval> morningFreeInterval;
-
   private List<DateInterval> workFreeInterval;
   private List<DateInterval> eveningFreeInterval;
-  private static final int DAY_ADJUST = 7;
+  private static final int DAYS_IN_WEEK = 7;
 
   /**
-   * Initialize the class with the start day. The work hours are hard-coded between 10 AM and 6 PM.
-   * The rest of the free hours are between 7 AM and 11 PM.
+   * Initialize the class with the start day. The work hours and personal hours are provided as parameters of the constructor.
    *
    * @param startTime parameter that gives the time of the start/now.
    * @param personalBeginHour parameter that gives the hour to begin the personal time
@@ -61,26 +63,24 @@ public final class FreeTimeUtility {
     this.eveningFreeInterval = new ArrayList<>();
 
     for (int day = 0; day < numDays; day++) {
+      Date currentDate = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)));
       Date workStart =
           Date.from(
-              basisDate
+              currentDate
                   .toInstant()
-                  .plus(Duration.ofDays(day))
                   .plus(Duration.ofHours(workBeginHour)));
       Date workEnd =
           Date.from(
-              basisDate.toInstant().plus(Duration.ofDays(day)).plus(Duration.ofHours(workEndHour)));
+              currentDate.toInstant().plus(Duration.ofHours(workEndHour)));
       Date personalStart =
           Date.from(
-              basisDate
+              currentDate
                   .toInstant()
-                  .plus(Duration.ofDays(day))
                   .plus(Duration.ofHours(personalBeginHour)));
       Date personalEnd =
           Date.from(
-              basisDate
+              currentDate
                   .toInstant()
-                  .plus(Duration.ofDays(day))
                   .plus(Duration.ofHours(personalEndHour)));
       morningFreeInterval.add(new DateInterval(personalStart, workStart));
       workFreeInterval.add(new DateInterval(workStart, workEnd));
@@ -165,7 +165,7 @@ public final class FreeTimeUtility {
       // monday (1))
       // by adding 7.
       int index = interval.getStart().getDay() - this.startDate.getDay();
-      index = index < 0 ? index + DAY_ADJUST : index;
+      index = index < 0 ? index + DAYS_IN_WEEK : index;
       hoursPerDay.set(
           index,
           hoursPerDay.get(index) + interval.getEnd().getTime() - interval.getStart().getTime());
