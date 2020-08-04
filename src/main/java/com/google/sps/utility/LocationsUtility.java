@@ -53,7 +53,7 @@ public final class LocationsUtility {
    *
    * @param prefix String to look for in the square brackets
    * @param taskNotes String to parse from, usually in the form "... [prefix: ... ] ..."
-   * @return String enclosed in [prefix: ] or No prefix if no enclosure found
+   * @return String enclosed in [prefix: ] or an empty string if no enclosure found
    */
   private static String getLocation(Pattern pattern, String prefix, String taskNotes) {
     Matcher matcher = pattern.matcher(taskNotes);
