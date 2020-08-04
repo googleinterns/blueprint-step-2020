@@ -400,9 +400,9 @@ function populatePlanMail() {
  * @param {string} eventStart the start time of the event to create
  * @param {string} eventEnd the end time of the event to create
  */
-function createEvent(eventSart, eventEnd) {
+function createEvent(eventStart, eventEnd) {
   const params = new URLSearchParams();
-  params.append('start', eventSart);
+  params.append('start', eventStart);
   params.append('end', eventEnd);
   fetch('/calendar', {method: 'POST', body: params});
   populateCalendar();
