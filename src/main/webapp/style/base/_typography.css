@@ -49,6 +49,13 @@ body {
   width: var(--panel-icon-width);
 }
 
+.panel__optimize-button {
+  border-radius: 6px;
+  border: 2px solid black;
+  font-size: 12px;
+  padding: 6px;
+}
+
 .panel-row__header {
   font-size: var(--font-size-row-title);
   font-weight: var(--font-weight-bold);
