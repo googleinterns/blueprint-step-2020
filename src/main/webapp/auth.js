@@ -15,6 +15,26 @@
 // This file contains functionality relating to Google Sign in
 // and storing cookies
 
+// This application uses Google sign-in to authenticate and authorize users.
+//     The flow looks like this (all functions found in `auth.js`):
+//
+// 1) `init()` is called when the page loads.
+// 2) The OAuth ClientID is retrieved from the server
+// 3) The Google sign-in button is loaded from the
+//    Google Platform Library
+//    (https://github.com/google/google-api-javascript-client)
+// 4) The button is configured to collect the proper permissions
+//    (read access to Gmail, read/write access to Tasks, read/write access to
+//    Calendar), and to call `onSignIn()` when the user successfully
+//    authenticates. Note this is automatically called if the user is already
+//    signed in (this is handled automatically by the Platform library)
+// 5) `onSignIn()` is called, and stores two cookies on the client:
+//    `idToken` and `accessToken`.
+//    These are used to authenticate and authorize users, respectively.
+//    The UI then appears, and the sign in button is removed.
+// 6) When the user signs out, `onSignOut()` is called and the cookies are
+//    deleted. The UI then disappears and the Google sign-in button reappears.
+
 /* eslint-disable no-unused-vars */
 /* global gapi, addCookie, isCookiePresent,
 deleteCookie, populateGmail, populateTasks, populateCalendar,
@@ -36,7 +56,6 @@ function init() {
           gapi.auth2.init({
             'client_id': clientId,
           }).then(() => {
-            handleAuthenticationState();
             renderButton();
           });
         });
@@ -50,6 +69,8 @@ function handleAuthenticationState() {
   const featureContainer = document.querySelector('.feature-container');
   const signInButton = document.querySelector('#google-sign-in-btn');
   if (isCookiePresent('idToken')) {
+    console.log('Fetching Data for panels');
+
     // User is logged in.
     // Hide sign in button, show features
     signInButton.setAttribute('hidden', '');
@@ -80,6 +101,8 @@ function handleAuthenticationState() {
  *     authenticated user.
  */
 function onSignIn(googleUser) {
+  console.log('Signing in with Google');
+
   // Get the authentication object. Always include accessID, even if null
   const userAuth = googleUser.getAuthResponse(true);
 
@@ -98,8 +121,6 @@ function onSignIn(googleUser) {
   // or when the browser is closed
   addCookie('accessToken', accessToken, expiryUtcTime);
 
-  // TODO: Double call - if a user is not signed in and tries
-  // to log in, they'll get stuck without this (Issue #97)
   handleAuthenticationState();
 }
 
@@ -109,6 +130,8 @@ function onSignIn(googleUser) {
 function signOut() {
   const auth2 = gapi.auth2.getAuthInstance();
   auth2.signOut().then(() => {
+    console.log('Signing out with Google');
+
     // Remove Authentication Cookies
     deleteCookie('idToken');
     deleteCookie('accessToken');
