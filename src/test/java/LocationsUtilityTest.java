@@ -15,7 +15,6 @@
 import com.google.api.services.tasks.model.Task;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.utility.LocationsUtility;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +23,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class LocationsUtilityTest {
 
+  private static final String LOCATION = "Google Kitchener";
   private static final String PREFIX = "Location";
 
   private static final Task TASK_WITH_NO_NOTES = new Task();
@@ -36,52 +36,35 @@ public class LocationsUtilityTest {
       new Task().setNotes("(Location: Google Kitchener)");
   private static final Task TASK_WITH_EMPTY_LOCATION = new Task().setNotes("[Location: ]");
 
-  private static final List<Task> NO_TASKS = ImmutableList.of();
-  private static final List<Task> TASKS_WITH_NO_NOTES = ImmutableList.of(TASK_WITH_NO_NOTES);
-  private static final List<Task> TASKS_WITH_NO_LOCATION = ImmutableList.of(TASK_WITH_NO_LOCATION);
-  private static final List<Task> TASKS_WITH_ONE_LOCATION =
-      ImmutableList.of(TASK_WITH_ONE_LOCATION);
-  private static final List<Task> TASKS_WITH_TWO_LOCATIONS =
-      ImmutableList.of(TASK_WITH_TWO_LOCATIONS);
-  private static final List<Task> TASKS_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY =
-      ImmutableList.of(TASK_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY);
-  private static final List<Task> TASKS_WITH_EMPTY_LOCATION =
-      ImmutableList.of(TASK_WITH_EMPTY_LOCATION);
-  private static final List<Task> ALL_TASKS =
-      ImmutableList.of(
-          TASK_WITH_NO_NOTES,
-          TASK_WITH_NO_LOCATION,
-          TASK_WITH_ONE_LOCATION,
-          TASK_WITH_TWO_LOCATIONS,
-          TASK_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY,
-          TASK_WITH_EMPTY_LOCATION);
-
   @Test
   public void getLocationNoTasks() {
     // Obtain locations in the the task notes of no tasks.
-    Assert.assertEquals(ImmutableList.of(), LocationsUtility.getLocations(PREFIX, NO_TASKS));
+    Assert.assertEquals(
+        ImmutableList.of(), LocationsUtility.getLocations(PREFIX, ImmutableList.of()));
   }
 
   @Test
   public void getLocationNoNotes() {
     // Obtain location in the task notes of one task with no notes defined.
     Assert.assertEquals(
-        ImmutableList.of(), LocationsUtility.getLocations(PREFIX, TASKS_WITH_NO_NOTES));
+        ImmutableList.of(),
+        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_NO_NOTES)));
   }
 
   @Test
   public void getNoLocation() {
     // Obtain location in the task notes of one task with no location.
     Assert.assertEquals(
-        ImmutableList.of(), LocationsUtility.getLocations(PREFIX, TASKS_WITH_NO_LOCATION));
+        ImmutableList.of(),
+        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_NO_LOCATION)));
   }
 
   @Test
   public void getOneLocation() {
     // Obtain location in the task notes of one task with one location.
     Assert.assertEquals(
-        ImmutableList.of("Google Kitchener"),
-        LocationsUtility.getLocations(PREFIX, TASKS_WITH_ONE_LOCATION));
+        ImmutableList.of(LOCATION),
+        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_ONE_LOCATION)));
   }
 
   @Test
@@ -89,8 +72,8 @@ public class LocationsUtilityTest {
     // Obtain location in the task notes of one task with two locations. Second location, Google
     // Montreal, is ignored.
     Assert.assertEquals(
-        ImmutableList.of("Google Kitchener"),
-        LocationsUtility.getLocations(PREFIX, TASKS_WITH_TWO_LOCATIONS));
+        ImmutableList.of(LOCATION),
+        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_TWO_LOCATIONS)));
   }
 
   @Test
@@ -99,7 +82,8 @@ public class LocationsUtilityTest {
     // [].
     Assert.assertEquals(
         ImmutableList.of(),
-        LocationsUtility.getLocations(PREFIX, TASKS_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY));
+        LocationsUtility.getLocations(
+            PREFIX, ImmutableList.of(TASK_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY)));
   }
 
   @Test
@@ -107,7 +91,8 @@ public class LocationsUtilityTest {
     // Obtain location in the task notes of one task with one location with [Location: ] tag but
     // nothing inside of it.
     Assert.assertEquals(
-        ImmutableList.of(""), LocationsUtility.getLocations(PREFIX, TASKS_WITH_EMPTY_LOCATION));
+        ImmutableList.of(),
+        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_EMPTY_LOCATION)));
   }
 
   @Test
@@ -115,7 +100,15 @@ public class LocationsUtilityTest {
     // Obtain location in the task notes of five tasks each with either one, empty or no location as
     // noted in the individual tests above.
     Assert.assertEquals(
-        ImmutableList.of("Google Kitchener", "Google Kitchener", ""),
-        LocationsUtility.getLocations(PREFIX, ALL_TASKS));
+        ImmutableList.of(LOCATION),
+        LocationsUtility.getLocations(
+            PREFIX,
+            ImmutableList.of(
+                TASK_WITH_NO_NOTES,
+                TASK_WITH_NO_LOCATION,
+                TASK_WITH_ONE_LOCATION,
+                TASK_WITH_TWO_LOCATIONS,
+                TASK_WITH_ONE_LOCATION_ENCLOSED_INCORRECTLY,
+                TASK_WITH_EMPTY_LOCATION)));
   }
 }

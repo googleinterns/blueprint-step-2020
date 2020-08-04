@@ -21,9 +21,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class LocationsUtility {
+public final class LocationsUtility {
+
+  private LocationsUtility() {}
+
   /**
-   * Parses for locations in Tasks.
+   * Parses for locations in Tasks. Missing, empty and duplicate locations are ignored.
    *
    * @param prefix String which represents the prefix wrapped in square brackets to look for. (e.g.
    *     Location if looking for [Location: ])
@@ -31,31 +34,33 @@ public class LocationsUtility {
    * @return List of strings representing the locations.
    */
   public static List<String> getLocations(String prefix, List<Task> tasks) {
+    // Regular expression matches the characters [prefix: and ] literally, (.*?) signifies the 1st
+    // capturing group which matches any character except for line terminators
+    String regex = "\\[" + prefix + ": (.*?)\\]";
+    Pattern pattern = Pattern.compile(regex);
     return tasks.stream()
         .map(task -> task.getNotes())
         .filter(Objects::nonNull)
-        .map(notes -> getLocation(prefix, notes))
-        .filter(place -> !place.equals("No " + prefix))
+        .map(notes -> getLocation(pattern, prefix, notes))
+        .filter(place -> !place.equals(""))
+        .distinct()
         .collect(Collectors.toList());
   }
 
   /**
-   * Parses for string enclosed in [prefix: ] in notes of a task
+   * Parses for string enclosed in [prefix: ] in notes of a task. Only the 1st match is returned.
+   * All other matches are ignored.
    *
    * @param prefix String to look for in the square brackets
    * @param taskNotes String to parse from, usually in the form "... [prefix: ... ] ..."
    * @return String enclosed in [prefix: ] or No prefix if no enclosure found
    */
-  private static String getLocation(String prefix, String taskNotes) {
-    // Regular expression matches the characters [prefix: and ] literally, (.*?) signifies the 1st
-    // capturing group which matches any character except for line terminators
-    String regex = "\\[" + prefix + ": (.*?)\\]";
-    Pattern pattern = Pattern.compile(regex);
+  private static String getLocation(Pattern pattern, String prefix, String taskNotes) {
     Matcher matcher = pattern.matcher(taskNotes);
     if (matcher.find()) {
       // Return the 1st captured group obtained from executing the regular expression
       return matcher.group(1);
     }
-    return "No " + prefix;
+    return "";
   }
 }
