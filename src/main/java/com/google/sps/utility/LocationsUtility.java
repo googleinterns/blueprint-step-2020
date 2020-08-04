@@ -75,7 +75,6 @@ public class LocationsUtility {
       result.add(new ArrayList<>(current));
       return;
     }
-
     for (int i = 0; i < lists.get(depth).size(); i++) {
       List<String> next = new ArrayList<>();
       next.addAll(current);

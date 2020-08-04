@@ -91,10 +91,9 @@ function populateGmail() {
  */
 function populateTasks() {
   let fetchFrom;
-  const tasksSelect = document.querySelector('#tasks-select');
-  const goSelect = document.querySelector('#go-select');
+  const select = document.querySelector('#tasks-select');
   // Cast from HTMLOptionsCollection to Array
-  const options = Array(...tasksSelect.options);
+  const options = Array(...select.options);
 
   if (options.length === 0) {
     fetchFrom = '/tasks';
@@ -119,20 +118,15 @@ function populateTasks() {
       .then((tasksResponse) => {
         if (options.length === 0) {
           const taskListIdsToTitles = tasksResponse['taskListIdsToTitles'];
-          tasksSelect.innerText = '';
-          goSelect.innerText = '';
+          select.innerText = '';
           for (const taskListId in taskListIdsToTitles) {
             if (Object.prototype
                 .hasOwnProperty
                 .call(taskListIdsToTitles, taskListId)) {
-              let option = document.createElement('option');
+              const option = document.createElement('option');
               option.value = taskListId;
               option.innerText = taskListIdsToTitles[taskListId];
-              tasksSelect.append(option);
-              option = document.createElement('option');
-              option.value = taskListId;
-              option.innerText = taskListIdsToTitles[taskListId];
-              goSelect.append(option);
+              select.append(option);
             }
           }
         }
@@ -312,28 +306,12 @@ function postNewTaskList(title) {
 }
 
 /**
- * Populate Go container
+ * Populate Go container with hardcoded values
  */
 function populateGo() {
   const goContainer = document.querySelector('#go');
 
-  const goSelect = document.querySelector('#go-select');
-  const origin = document.querySelector('#go-origin').value;
-  const destination = document.querySelector('#go-destination').value;
-
-  // Cast from HTMLOptionsCollection to Array
-  const options = Array(...goSelect.options);
-
-  const selectedOptions = [];
-  options.forEach((option) => {
-    if (option.selected) {
-      selectedOptions.push(option.value);
-    }
-  });
-
-  fetch('/go?taskLists=' + selectedOptions.join() +
-          '&origin=' + origin +
-          '&destination=' + destination)
+  fetch('/directions')
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
@@ -342,12 +320,14 @@ function populateGo() {
         return response.json();
       })
       .then((legs) => {
-        goContainer.innerText = '';
-        legs.forEach((leg) => {
-          const li = document.createElement('li');
-          li.innerText = leg;
-          goContainer.append(li);
-        });
+        // Convert JSON to string containing all legs
+        // and display it on client
+        // Handle case where user has no events to avoid unwanted behaviour
+        if (legs.length !== 0) {
+          goContainer.innerText = legs;
+        } else {
+          goContainer.innerText = 'No direction legs returned';
+        }
       })
       .catch((e) => {
         console.log(e);
