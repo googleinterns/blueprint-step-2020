@@ -1,3 +1,4 @@
+
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +15,12 @@
 
 package com.google.sps.model;
 
+import com.google.maps.model.DirectionsResult;
 import com.google.sps.exceptions.DirectionsException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Contract for sending GET requests to the Google Directions API. Implement getDirections to obtain
@@ -33,6 +38,34 @@ public interface DirectionsClient {
    * @throws DirectionsException A custom exception is thrown to signal an error pertaining to the
    *     Directions API.
    */
-  List<String> getDirections(String origin, String destination, List<String> waypoints)
+  DirectionsResult getDirections(String origin, String destination, List<String> waypoints)
       throws DirectionsException;
+
+  /**
+   * Converts DirectionsResult into a List of String.
+   *
+   * @param result The DirectionsResult object to convert into a List<String>
+   */
+  public static List<String> parseDirectionsResult(DirectionsResult result) {
+    return Arrays.asList(result.routes).stream()
+        .map(
+            route ->
+                Arrays.asList(route.legs).stream()
+                    .map(leg -> leg.duration.humanReadable + " to travel to " + leg.endAddress)
+                    .collect(Collectors.toList()))
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Get total travel time of all legs in a DirectionsResult.
+   *
+   * @param result The DirectionsResult object to calculate total travel time from
+   */
+  public static long getTotalTravelTime(DirectionsResult result) {
+    return Arrays.asList(result.routes).stream()
+        .flatMapToLong(
+            route -> Arrays.asList(route.legs).stream().mapToLong(leg -> leg.duration.inSeconds))
+        .sum();
+  }
 }
