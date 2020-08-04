@@ -28,6 +28,7 @@
   justify-content: center;
   margin-right: var(--panel-flex-margin);
   text-align: center;
+  user-select: none;
   width: var(--panel-icon-width);
 }
 
