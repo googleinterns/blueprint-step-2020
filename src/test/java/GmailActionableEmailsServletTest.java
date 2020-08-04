@@ -90,9 +90,9 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
           .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderTwo)))
           .setInternalDate(INTERNAL_DATE_LATE);
 
-  private static final List<Message> messagesOldestToNewest =
+  private static final List<Message> MESSAGES_OLDEST_TO_NEWEST =
       ImmutableList.of(messageOld, messageNew);
-  private static final List<Message> messagesPriorityLowestToHighest =
+  private static final List<Message> MESSAGES_PRIORITY_LOWEST_TO_HIGHEST =
       ImmutableList.of(messageLowPriority, messageHighPriority);
 
   private static final List<ActionableMessage> actionableMessagesNewestToOldest =
@@ -201,7 +201,7 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
     Mockito.when(
             gmailClient.getActionableEmails(
                 SUBJECT_LINE_PHRASES_LIST, true, DEFAULT_N_DAYS, METADATA_HEADERS))
-        .thenReturn(messagesOldestToNewest);
+        .thenReturn(MESSAGES_OLDEST_TO_NEWEST);
 
     servlet.doGet(request, response);
     Type type = new TypeToken<List<ActionableMessage>>() {}.getType();
@@ -223,7 +223,7 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
     Mockito.when(
             gmailClient.getActionableEmails(
                 SUBJECT_LINE_PHRASES_LIST, true, DEFAULT_N_DAYS, METADATA_HEADERS))
-        .thenReturn(messagesPriorityLowestToHighest);
+        .thenReturn(MESSAGES_PRIORITY_LOWEST_TO_HIGHEST);
 
     servlet.doGet(request, response);
     Type type = new TypeToken<List<ActionableMessage>>() {}.getType();
