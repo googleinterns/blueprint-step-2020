@@ -370,6 +370,7 @@ function populatePlanMail() {
           for (const index in planMailResponse.potentialEventTimes) {
             if (typeof index === 'string') {
               const buttonElement = document.createElement('button');
+              buttonElement.className = 'button plan__button';
               buttonElement.innerText =
                 planMailResponse.potentialEventTimes[index].start +
                 ' to ' +

@@ -115,3 +115,7 @@
 .u-background-plan {
   background-color: var(--color-plan) !important;
 }
+
+.plan__button {
+  background-color: var(--color-plan) !important;
+}
