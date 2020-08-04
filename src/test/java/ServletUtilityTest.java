@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import com.google.common.collect.ImmutableList;
 import com.google.sps.exceptions.CookieParseException;
 import com.google.sps.utility.ServletUtility;
+import java.util.List;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;
@@ -49,6 +51,14 @@ public final class ServletUtilityTest {
         new Cookie("accessToken", "sample_access_token"),
         new Cookie("accessToken", "sample_access_token")
       };
+
+  private static final String LIST_PARAMETER = "list";
+  private static final String LIST_VALUES_STRING = "\"Action Word One\",\"ActionWordTwo\"";
+
+  // U
+  private static final List<String> LIST_VALUES =
+      ImmutableList.of("\"Action Word One\"", "\"ActionWordTwo\"");
+  private static final List<String> EMPTY_LIST = ImmutableList.of();
 
   @Before
   public void init() {
@@ -151,5 +161,25 @@ public final class ServletUtilityTest {
     Mockito.when(request.getCookies()).thenReturn(duplicateCookies);
 
     Assert.assertTrue(ServletUtility.hasCookie(request, "idToken"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void listFromRequestNullParameter() {
+    ServletUtility.getListFromQueryString(request, LIST_PARAMETER);
+  }
+
+  @Test
+  public void listFromRequestEmptyList() {
+    Mockito.when(request.getParameter(LIST_PARAMETER)).thenReturn("");
+
+    Assert.assertEquals(EMPTY_LIST, ServletUtility.getListFromQueryString(request, LIST_PARAMETER));
+  }
+
+  @Test
+  public void listFromRequestNonEmptyList() {
+    Mockito.when(request.getParameter(LIST_PARAMETER)).thenReturn(LIST_VALUES_STRING);
+
+    Assert.assertEquals(
+        LIST_VALUES, ServletUtility.getListFromQueryString(request, LIST_PARAMETER));
   }
 }
