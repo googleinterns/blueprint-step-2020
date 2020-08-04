@@ -364,8 +364,7 @@ function populatePlanMail() {
         intervalContainer.innerHTML = '';
         if (planMailResponse.potentialEventTimes.length === 0) {
           messageEventContainer.innerText = 'No new events needed';
-        }
-        else {
+        } else {
           messageEventContainer.innerText = 'Click to schedule';
           for (const index in planMailResponse.potentialEventTimes) {
             if (typeof index === 'string') {
@@ -375,8 +374,10 @@ function populatePlanMail() {
                 planMailResponse.potentialEventTimes[index].start +
                 ' to ' +
                 planMailResponse.potentialEventTimes[index].end;
-              buttonElement.name = planMailResponse.potentialEventTimes[index].start;
-              buttonElement.value = planMailResponse.potentialEventTimes[index].end;
+              buttonElement.name =
+                  planMailResponse.potentialEventTimes[index].start;
+              buttonElement.value =
+                  planMailResponse.potentialEventTimes[index].end;
               buttonElement.addEventListener('click', () => {
                 createEvent(buttonElement.name, buttonElement.value);
               });
@@ -393,9 +394,16 @@ function populatePlanMail() {
       });
 }
 
-function createEvent(eventSart, eventEnd) {
+/**
+ * Call a post request to create a new event in the calendar, then display the
+ * updated information in calendar and plan panels
+ *
+ * @param {string} eventStart the start time of the event to create
+ * @param {string} eventEnd the end time of the event to create
+ */
+function createEvent(eventStart, eventEnd) {
   const params = new URLSearchParams();
-  params.append('start', eventSart);
+  params.append('start', eventStart);
   params.append('end', eventEnd);
   fetch('/calendar', {method: 'POST', body: params});
   populateCalendar();

@@ -116,7 +116,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
       }
       Date eventStart = new Date(start.getValue());
       Date eventEnd = new Date(end.getValue());
-      
+
       if (eventStart.before(timeMin)) {
         eventStart = timeMin;
       }
@@ -134,8 +134,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     List<DateInterval> potentialTimes;
     if (timeNeeded > 0) {
       potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
-    }
-    else {
+    } else {
       potentialTimes = new ArrayList<>();
     }
 
