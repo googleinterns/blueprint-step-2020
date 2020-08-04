@@ -47,6 +47,6 @@ public interface PlacesClient {
     if (response.results.length != 0) {
       return response.results[0].placeId;
     }
-    return null;
+    return "";
   }
 }

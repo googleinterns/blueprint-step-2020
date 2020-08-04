@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
  * Places API into a list of formatted addresses
  */
 @RunWith(JUnit4.class)
-public class PlacesClientImplTest {
+public class PlacesClientTest {
 
   private static PlacesSearchResult googleKitchener;
   private static PlacesSearchResult googleMontreal;
@@ -50,7 +50,7 @@ public class PlacesClientImplTest {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {};
     String actual = PlacesClient.getPlaceId(response);
-    Assert.assertNull(actual);
+    Assert.assertEquals("", actual);
   }
 
   @Test
