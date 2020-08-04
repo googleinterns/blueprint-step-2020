@@ -19,11 +19,6 @@
  encodeListForUrl */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
-// Stores the last retrieved copy of the user's taskLists and tasks
-// (mapped by taskListId)
-const taskLists = [];
-const tasks = {};
-
 /**
  * Populate Gmail container with user information
  */
@@ -156,6 +151,15 @@ function populateTasks() {
 }
 
 /**
+ * Will reset the tasklists selector and populate the panel again,
+ * giving the system the chance to add new tasklists to the tasklists options.
+ */
+function resetTasks() {
+  document.querySelector('#tasks-select').options.length = 0;
+  populateTasks();
+}
+
+/**
  * Populate Calendar container with user's events
  */
 function populateCalendar() {
@@ -210,6 +214,7 @@ function postNewTask(taskListId, taskObject) {
       .then((response) => {
         switch (response.status) {
           case 200:
+            resetTasks();
             return response.json();
           case 403:
             throw new AuthenticationError();
@@ -260,6 +265,7 @@ function postNewTaskList(title) {
       .then((response) => {
         switch (response.status) {
           case 200:
+            resetTasks();
             return response.json();
           case 403:
             throw new AuthenticationError();
