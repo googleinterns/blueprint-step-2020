@@ -103,3 +103,15 @@
 .u-text-shadow {
   text-shadow: -.5rem .5rem 3rem var(--color-shadow);
 }
+
+/*
+  Adds border to panel in color of Plan logo
+  Overrides other non-important border settings.
+ */
+ .u-border-plan {
+  border-color: var(--color-plan) !important;
+}
+
+.u-background-plan {
+  background-color: var(--color-plan) !important;
+}

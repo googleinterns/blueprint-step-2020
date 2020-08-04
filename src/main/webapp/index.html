@@ -130,13 +130,30 @@
     <div class="panel-row__content">
       <div class="panel">Assign</div>
       <!-- Plan panel container-->
-      <div class="panel" id="plan">Plan
-        <p> Your unread emails contain <b id="word-count"></b> words
+      <div class="panel u-border-plan">
+        <div class="panel__header">
+          <div class="panel__content-entry u-remove-top-margin">
+            <a class="panel__content-entry-link" target="_blank" href="https://calendar.google.com/calendar/b/0/r">
+              <img class="panel__logo" alt="plan-logo" src="assets/plan_tick.png">
+            </a>
+            <h3 class="panel__section-heading">Plan Mails</h3>
+          </div>
+          <div class="panel__content">
+            <div class="panel__content-entry">
+              <div class="panel__rounded-number u-background-plan">
+                <p class="panel__text-data-point u-text-white" id="word-count">
+              </div>
+              <p class="panel__text-data-point">Words in unread emails
+            </div>
+          </div>
+        </div>
+        <!--<p> Your unread emails contain <b id="word-count"></b> words-->
         <p>Average reply: <b id="average-reply"></b> words
         <p>Time needed: <b id="time-needed"></b> minutes
         <p id = "message-event">
         <p id="free-interval">
       </div>
+      <!-- Go panel container -->
       <div class="panel">Go
         <div id="go"></div>
       </div>
