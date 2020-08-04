@@ -108,7 +108,7 @@
   Adds border to panel in color of Plan logo
   Overrides other non-important border settings.
  */
- .u-border-plan {
+.u-border-plan {
   border-color: var(--color-plan) !important;
 }
 
