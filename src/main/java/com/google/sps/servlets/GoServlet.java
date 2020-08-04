@@ -116,7 +116,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
     List<Task> tasks;
 
     String taskLists = request.getParameter("taskLists");
-    if (taskLists == null) {
+    if (taskLists.isEmpty()) {
       tasks = TasksServlet.getAllTasksFromAllTaskLists(tasksClient);
     } else {
       List<String> selectedTaskListIds = Arrays.asList(taskLists.split(","));
