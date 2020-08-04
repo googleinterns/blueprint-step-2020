@@ -212,7 +212,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
    * @return List of tasks from all task lists in user's account
    * @throws IOException if an issue occurs with the tasksService
    */
-  private List<Task> getAllTasksFromAllTaskLists(TasksClient tasksClient) throws IOException {
+  public static List<Task> getAllTasksFromAllTaskLists(TasksClient tasksClient) throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
     for (TaskList taskList : taskLists) {
@@ -229,7 +229,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
    * @return List of tasks from specified task lists in user's account
    * @throws IOException if an issue occurs with the tasksService
    */
-  private List<Task> getAllTasksFromSpecificTaskLists(
+  public static List<Task> getAllTasksFromSpecificTaskLists(
       TasksClient tasksClient, List<String> taskListIds) throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
