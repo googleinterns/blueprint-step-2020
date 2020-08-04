@@ -43,8 +43,6 @@ public class AuthenticationVerifierImpl implements AuthenticationVerifier {
     // If the userToken is not null, the identity is verified and vice versa
     GoogleIdToken userToken = verifier.verify(idToken);
 
-    return userToken != null
-        ? Optional.ofNullable(userToken.getPayload().getEmail())
-        : Optional.empty();
+    return Optional.ofNullable(userToken).map(t -> t.getPayload().getEmail());
   }
 }
