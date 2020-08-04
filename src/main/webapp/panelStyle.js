@@ -52,7 +52,7 @@ function toggleIconHandler(event) {
 }
 
 /**
- * Will increase a the integer value of a text element up to a
+ * Will increase the integer value of a text element up to a
  * specified max.
  *
  * @param {string} elementId the ID of the element containing the integer value
@@ -67,7 +67,7 @@ function incrementElement(elementId, max = 30) {
 }
 
 /**
- * Will decrease a the integer value of a text element down to a
+ * Will decrease the integer value of a text element down to a
  * specified minimum.
  *
  * @param {string} elementId the ID of the element containing the integer value
@@ -96,7 +96,10 @@ function createTextListElement(inputElementId, listElementId) {
   // TODO: Nicer client-side validation (tell user why this isn't permitted)
   // (Issue #135)
   let phrase = inputElement.value;
-  if (phrase === null || phrase.length === 0) {
+  if (phrase === null ||
+      phrase.length === 0 ||
+      phraseInTextListElement(listElementId, phrase)) {
+    inputElement.value = '';
     return;
   }
   phrase = phrase.split(',').join('');
@@ -138,6 +141,30 @@ function createTextListElementFromString(phrase, listElementId) {
   listEntry.appendChild(panelButton);
 
   list.appendChild(listEntry);
+}
+
+/**
+ * Given the id of a listElement, check all of the list entries for a given
+ * phrase. Return true if found, false otherwise.
+ *
+ * @param {string} listElementId the id of a list that contains 'li' elements
+ *     which each contain a 'p' element
+ * @param {string} phrase the phrase to check the list for. Case sensitive
+ * @return {boolean} true if the phrase is present in the list, false otherwise
+ */
+function phraseInTextListElement(listElementId, phrase) {
+  const listElements = document
+      .getElementById(listElementId)
+      .querySelectorAll('li');
+
+  for (const element of listElements) {
+    const textElement = element.querySelector('p');
+    if (textElement.innerText.trim() === phrase.trim()) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

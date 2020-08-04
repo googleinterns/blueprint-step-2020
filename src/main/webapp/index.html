@@ -172,8 +172,8 @@
     <div class="panel-row__content">
       <div class="panel u-border-assign">
         <div class="panel__toggle-icon" id="assignSettingsIcon">
-          <img hidden class="panel__toggle-icon--selected" alt="settings-icon" src="assets/settings-selected.png" onclick="displayContent()">
-          <img class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/settings-unselected.png" onclick="displaySettings()">
+          <img hidden class="panel__toggle-icon--selected" alt="settings-icon" src="assets/settings-selected.png" onclick="displayAssignContent()">
+          <img class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/settings-unselected.png" onclick="displayAssignSettings()">
         </div>
         <!-- Assign content section-->
         <div class="panel__content-entry u-remove-top-margin assign-content">
@@ -245,6 +245,7 @@
           <a class="button-1-of-2 panel__green-button u-button-disable" id="assign-accept-button">Add Task</a>
           <a class="button-1-of-2 panel__red-button u-button-disable" id="assign-reject-button">Skip Task</a>
         </div>
+        <div id="assign"></div>
       </div>
       <div class="panel">Plan</div>
       <div class="panel">Go
