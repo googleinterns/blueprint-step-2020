@@ -25,8 +25,9 @@ public final class FreeTimeUtility {
 
   private final Date startDate;
   /**
-   * numDays represents the number of days from the current one (and including it) we are considering for our calculations
-   * It is used to initialize the free interval lists and the size of the free time lists that are returned
+   * numDays represents the number of days from the current one (and including it) we are
+   * considering for our calculations It is used to initialize the free interval lists and the size
+   * of the free time lists that are returned
    */
   private final int numDays;
   /**
@@ -35,12 +36,14 @@ public final class FreeTimeUtility {
    * during work/morning/evening hours
    */
   private List<DateInterval> morningFreeInterval;
+
   private List<DateInterval> workFreeInterval;
   private List<DateInterval> eveningFreeInterval;
   private static final int DAYS_IN_WEEK = 7;
 
   /**
-   * Initialize the class with the start day. The work hours and personal hours are provided as parameters of the constructor.
+   * Initialize the class with the start day. The work hours and personal hours are provided as
+   * parameters of the constructor.
    *
    * @param startTime parameter that gives the time of the start/now.
    * @param personalBeginHour parameter that gives the hour to begin the personal time
@@ -64,24 +67,11 @@ public final class FreeTimeUtility {
 
     for (int day = 0; day < numDays; day++) {
       Date currentDate = Date.from(basisDate.toInstant().plus(Duration.ofDays(day)));
-      Date workStart =
-          Date.from(
-              currentDate
-                  .toInstant()
-                  .plus(Duration.ofHours(workBeginHour)));
-      Date workEnd =
-          Date.from(
-              currentDate.toInstant().plus(Duration.ofHours(workEndHour)));
+      Date workStart = Date.from(currentDate.toInstant().plus(Duration.ofHours(workBeginHour)));
+      Date workEnd = Date.from(currentDate.toInstant().plus(Duration.ofHours(workEndHour)));
       Date personalStart =
-          Date.from(
-              currentDate
-                  .toInstant()
-                  .plus(Duration.ofHours(personalBeginHour)));
-      Date personalEnd =
-          Date.from(
-              currentDate
-                  .toInstant()
-                  .plus(Duration.ofHours(personalEndHour)));
+          Date.from(currentDate.toInstant().plus(Duration.ofHours(personalBeginHour)));
+      Date personalEnd = Date.from(currentDate.toInstant().plus(Duration.ofHours(personalEndHour)));
       morningFreeInterval.add(new DateInterval(personalStart, workStart));
       workFreeInterval.add(new DateInterval(workStart, workEnd));
       eveningFreeInterval.add(new DateInterval(workEnd, personalEnd));
