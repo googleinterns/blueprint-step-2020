@@ -122,11 +122,12 @@ public class LocationsUtilityTest {
 
   @Test
   public void getCombinationsOneList() {
-    List<List<String>> oneList =
-        ImmutableList.of(ImmutableList.of("1", "2", "3"));
+    List<List<String>> oneList = ImmutableList.of(ImmutableList.of("1", "2", "3"));
     List<List<String>> actual = new ArrayList<List<String>>();
     LocationsUtility.generateCombinations(oneList, actual, 0, new ArrayList<String>());
-    Assert.assertEquals(ImmutableList.of(ImmutableList.of("1"), ImmutableList.of("2"), ImmutableList.of("3")), actual);
+    Assert.assertEquals(
+        ImmutableList.of(ImmutableList.of("1"), ImmutableList.of("2"), ImmutableList.of("3")),
+        actual);
   }
 
   @Test
@@ -135,6 +136,7 @@ public class LocationsUtilityTest {
         ImmutableList.of(ImmutableList.of("1", "2"), ImmutableList.of("3"));
     List<List<String>> actual = new ArrayList<List<String>>();
     LocationsUtility.generateCombinations(twoLists, actual, 0, new ArrayList<String>());
-    Assert.assertEquals(ImmutableList.of(ImmutableList.of("1", "3"), ImmutableList.of("2", "3")), actual);
+    Assert.assertEquals(
+        ImmutableList.of(ImmutableList.of("1", "3"), ImmutableList.of("2", "3")), actual);
   }
 }

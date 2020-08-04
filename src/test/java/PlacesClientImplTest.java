@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.common.collect.ImmutableList;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
 import com.google.sps.model.PlacesClient;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,10 +32,8 @@ public class PlacesClientImplTest {
   private static PlacesSearchResult googleMontreal;
   private static final String GOOGLE_KITCHENER_NAME = "Google Kitchener";
   private static final String GOOGLE_MONTREAL_NAME = "Google Montreal";
-  private static final String GOOGLE_KITCHENER_PLACE_ID =
-      "Google Kitchener Place ID";
-  private static final String GOOGLE_MONTREAL_PLACE_ID =
-      "Google Montreal Place ID";
+  private static final String GOOGLE_KITCHENER_PLACE_ID = "Google Kitchener Place ID";
+  private static final String GOOGLE_MONTREAL_PLACE_ID = "Google Montreal Place ID";
 
   @Before
   public void setUp() {

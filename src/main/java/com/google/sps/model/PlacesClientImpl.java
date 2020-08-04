@@ -23,7 +23,6 @@ import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.RankBy;
 import com.google.sps.exceptions.PlacesException;
 import java.io.IOException;
-import java.util.List;
 
 /** Handles GET requests to the Google Places API */
 public class PlacesClientImpl implements PlacesClient {

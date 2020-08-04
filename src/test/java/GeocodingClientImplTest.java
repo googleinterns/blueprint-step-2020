@@ -55,8 +55,7 @@ public class GeocodingClientImplTest {
   public void convertValidAddressTypeToPlaceType() {
     // PlaceType is a subset of AddressType. AddressType here is in the PlaceType enum class, hence
     // the same AddressType in the form of PlaceType is expected.
-    PlaceType actualPlaceType =
-        GeocodingClient.convertToPlaceType("restaurant");
+    PlaceType actualPlaceType = GeocodingClient.convertToPlaceType("restaurant");
     Assert.assertEquals(PlaceType.RESTAURANT, actualPlaceType);
   }
 
@@ -64,8 +63,7 @@ public class GeocodingClientImplTest {
   public void convertInvalidAddressTypeToPlaceType() {
     // PlaceType is a subset of AddressType. AddressType here is not present in the PlaceType enum
     // class, hence null is expected.
-    PlaceType actualPlaceType =
-        GeocodingClient.convertToPlaceType("street address");
+    PlaceType actualPlaceType = GeocodingClient.convertToPlaceType("street address");
     Assert.assertNull(actualPlaceType);
   }
 

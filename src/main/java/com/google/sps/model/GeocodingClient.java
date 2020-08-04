@@ -14,14 +14,13 @@
 
 package com.google.sps.model;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.google.maps.model.AddressType;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceType;
 import com.google.sps.exceptions.GeocodingException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Contract for sending GET requests to the Google Geocoding API. Implement getGeocodingResult to

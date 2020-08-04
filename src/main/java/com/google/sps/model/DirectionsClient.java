@@ -58,13 +58,13 @@ public interface DirectionsClient {
 
   /**
    * Get total travel time of all legs in a DirectionsResult.
-   * 
-   * @param result  The DirectionsResult object to calculate total travel time from
+   *
+   * @param result The DirectionsResult object to calculate total travel time from
    */
   public static long getTotalTravelTime(DirectionsResult result) {
     return Arrays.asList(result.routes).stream()
         .flatMapToLong(
-            route ->
-                Arrays.asList(route.legs).stream().mapToLong(leg -> leg.duration.inSeconds)).sum();
+            route -> Arrays.asList(route.legs).stream().mapToLong(leg -> leg.duration.inSeconds))
+        .sum();
   }
 }

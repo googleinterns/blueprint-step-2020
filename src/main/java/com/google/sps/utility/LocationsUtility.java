@@ -61,8 +61,9 @@ public class LocationsUtility {
   }
 
   /**
-   * Generates all permutations of the lists recursively. Scope of method is public for testing purposes.
-   * 
+   * Generates all permutations of the lists recursively. Scope of method is public for testing
+   * purposes.
+   *
    * @param lists A list of lists to generate permutations for.
    * @param result A pointer to the result since the method is recursive.
    * @param depth An int which specifies the list in lists to traverse.

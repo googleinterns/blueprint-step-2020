@@ -16,8 +16,6 @@ package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.tasks.model.Task;
-import com.google.api.services.tasks.model.TaskList;
-import com.google.common.collect.ImmutableList;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
@@ -48,7 +46,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -81,10 +78,14 @@ public class GoServlet extends AuthenticatedHttpServlet {
    * Construct servlet with explicit implementation of DirectionsClient.
    *
    * @param factory A DirectionsClientFactory containing the implementation of
-   *                DirectionsClientFactory.
+   *     DirectionsClientFactory.
    */
-  public GoServlet(DirectionsClientFactory directionsClientFactory, PlacesClientFactory placesClientFactory,
-      TasksClientFactory tasksClientFactory, GeocodingClientFactory geocodingClientFactory, String apiKey) {
+  public GoServlet(
+      DirectionsClientFactory directionsClientFactory,
+      PlacesClientFactory placesClientFactory,
+      TasksClientFactory tasksClientFactory,
+      GeocodingClientFactory geocodingClientFactory,
+      String apiKey) {
     this.directionsClientFactory = directionsClientFactory;
     this.placesClientFactory = placesClientFactory;
     this.tasksClientFactory = tasksClientFactory;
@@ -95,15 +96,17 @@ public class GoServlet extends AuthenticatedHttpServlet {
   /**
    * Returns the most optimal order of travel between addresses.
    *
-   * @param request  HTTP request from the client.
+   * @param request HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws ServletException
    * @throws IOException
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+  public void doGet(
+      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
       throws ServletException, IOException {
-    assert googleCredential != null : "Null credentials (i.e. unauthenticated requests) should already be handled";
+    assert googleCredential != null
+        : "Null credentials (i.e. unauthenticated requests) should already be handled";
     // Get all tasks from user's tasks account TODO: Get relevant tasks using task
     // titles
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
@@ -125,9 +128,10 @@ public class GoServlet extends AuthenticatedHttpServlet {
     List<String> waypoints = LocationsUtility.getLocations("Location", tasks);
 
     try {
-      List<String> mostOptimalWaypointCombination = optimizeSearchNearbyWaypoints(origin, destination, waypoints);
-      DirectionsResult directionsResult = directionsClient.getDirections(origin, destination,
-          mostOptimalWaypointCombination);
+      List<String> mostOptimalWaypointCombination =
+          optimizeSearchNearbyWaypoints(origin, destination, waypoints);
+      DirectionsResult directionsResult =
+          directionsClient.getDirections(origin, destination, mostOptimalWaypointCombination);
       List<String> optimizedRoute = DirectionsClient.parseDirectionsResult(directionsResult);
       JsonUtility.sendJson(response, optimizedRoute);
     } catch (DirectionsException | GeocodingException | PlacesException | IOException e) {
@@ -136,15 +140,25 @@ public class GoServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Separate waypoints into street addresses and non street addresses. Street addresses are converted to coordinates and non street addresses are converted to place types. Scope of method is public for testing purposes.
-   * 
-   * @param waypoints A list of waypoints to filter into the two categories: street addresses and non street addresses.
-   * @param streetAddressWaypoints A pointer to the result for street address waypoints to achieve the effect of returning multiple types at once.
-   * @param streetAddressWaypointsAsCoordinates A pointer to the result for street address waypoints as coordinates to achieve the effect of returning multiple types at once.
-   * @param nonStreetAddressWaypointsAsPlaceTypes A pointer to the result for non street address waypoints as place types to achieve the effect of returning multiple types at once.
+   * Separate waypoints into street addresses and non street addresses. Street addresses are
+   * converted to coordinates and non street addresses are converted to place types. Scope of method
+   * is public for testing purposes.
+   *
+   * @param waypoints A list of waypoints to filter into the two categories: street addresses and
+   *     non street addresses.
+   * @param streetAddressWaypoints A pointer to the result for street address waypoints to achieve
+   *     the effect of returning multiple types at once.
+   * @param streetAddressWaypointsAsCoordinates A pointer to the result for street address waypoints
+   *     as coordinates to achieve the effect of returning multiple types at once.
+   * @param nonStreetAddressWaypointsAsPlaceTypes A pointer to the result for non street address
+   *     waypoints as place types to achieve the effect of returning multiple types at once.
    * @throws GeocodingException An exception thrown when an error occurs with the Geocoding API.
    */
-  public void separateWaypoints(List<String> waypoints, List<String> streetAddressWaypoints, List<LatLng> streetAddressWaypointsAsCoordinates, List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes)
+  public void separateWaypoints(
+      List<String> waypoints,
+      List<String> streetAddressWaypoints,
+      List<LatLng> streetAddressWaypointsAsCoordinates,
+      List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes)
       throws GeocodingException {
     for (String waypoint : waypoints) {
       GeocodingClient geocodingClient = geocodingClientFactory.getGeocodingClient(apiKey);
@@ -159,16 +173,21 @@ public class GoServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Search nearby every street address with known coordinates for a place type match.
-   * For example, if we know exactly where our houses are and we are looking for a restaurant, we search for a restaurant closest to your house and a restaurant closest to my house.
-   * In this case, the method should return [[restaurantOne, restaurantTwo]]. Scope of method is public for testing purposes.
-   * 
-   * @param nonStreetAddressWaypointsAsPlaceTypes A list of place types to call search for. (e.g. restaurant, supermarket, police station)
+   * Search nearby every street address with known coordinates for a place type match. For example,
+   * if we know exactly where our houses are and we are looking for a restaurant, we search for a
+   * restaurant closest to your house and a restaurant closest to my house. In this case, the method
+   * should return [[restaurantOne, restaurantTwo]]. Scope of method is public for testing purposes.
+   *
+   * @param nonStreetAddressWaypointsAsPlaceTypes A list of place types to call search for. (e.g.
+   *     restaurant, supermarket, police station)
    * @param streetAddressesAsCoordinates A list of coordinates to look for the place types around.
-   * @return A list of lists of place IDs where each list represents the search nearby result for every known coordinate.
+   * @return A list of lists of place IDs where each list represents the search nearby result for
+   *     every known coordinate.
    * @throws PlacesException An exception thrown when an error occurs with the Places API.
    */
-  public List<List<String>> searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes, List<LatLng> streetAddressesAsCoordinates)
+  public List<List<String>> searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(
+      List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes,
+      List<LatLng> streetAddressesAsCoordinates)
       throws PlacesException {
     List<List<String>> allSearchNearbyResults = new ArrayList<>();
     for (PlaceType nonStreetAddressWaypoint : nonStreetAddressWaypointsAsPlaceTypes) {
@@ -177,8 +196,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
         PlaceType placeType = nonStreetAddressWaypoint;
         RankBy rankBy = RankBy.DISTANCE;
         PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
-        String nearestMatch =
-            placesClient.searchNearby(coordinate, placeType, rankBy);
+        String nearestMatch = placesClient.searchNearby(coordinate, placeType, rankBy);
         if (nearestMatch != null) {
           searchNearbyResults.add("place_id:" + nearestMatch);
         }
@@ -189,23 +207,25 @@ public class GoServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Chooses the combination of waypoints that results in the shortest travel time possible. Scope of method is public for testing purposes.
+   * Chooses the combination of waypoints that results in the shortest travel time possible. Scope
+   * of method is public for testing purposes.
    *
    * @param origin The starting point of travel.
    * @param destination The ending point of travel.
-   * @param allWaypointCombinations A list of waypoint combinations to select between for the shortest travel time possible.
+   * @param allWaypointCombinations A list of waypoint combinations to select between for the
+   *     shortest travel time possible.
    * @return The most optimal combination of waypoint with the shortest travel time.
    * @throws DirectionsException An exception thrown when an error occurs with the Directions API.
    */
-  public List<String> chooseWaypointCombinationWithShortestTravelTime(String origin, String destination, List<List<String>> allWaypointCombinations)
+  public List<String> chooseWaypointCombinationWithShortestTravelTime(
+      String origin, String destination, List<List<String>> allWaypointCombinations)
       throws DirectionsException {
     long minTravelTime = 0;
     List<String> mostOptimalWaypointCombination = new ArrayList<String>();
     for (List<String> waypointCombination : allWaypointCombinations) {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       DirectionsResult directionsResult =
-          directionsClient.getDirections(
-              origin, destination, waypointCombination);
+          directionsClient.getDirections(origin, destination, waypointCombination);
       long travelTime = DirectionsClient.getTotalTravelTime(directionsResult);
       if (minTravelTime == 0 || travelTime < minTravelTime) {
         minTravelTime = travelTime;
@@ -216,32 +236,39 @@ public class GoServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Finds the most optimal route of travel between the origin and destination and a set of waypoints which if the exact location is not known, an exact location is determined and chosen based on the resulting travel time.
-   * Scope of method is public for testing purposes.
-   * 
+   * Finds the most optimal route of travel between the origin and destination and a set of
+   * waypoints which if the exact location is not known, an exact location is determined and chosen
+   * based on the resulting travel time. Scope of method is public for testing purposes.
+   *
    * @param origin The starting point of travel.
    * @param destination The ending point of travel.
-   * @param waypoints The waypoints that should be visited while travelling from the origin to the destination.
+   * @param waypoints The waypoints that should be visited while travelling from the origin to the
+   *     destination.
    * @return The most optimal set of waypoints between origin and destination.
-   * @throws GeocodingException  An exception thrown when an error occurs with the Geocoding API.
+   * @throws GeocodingException An exception thrown when an error occurs with the Geocoding API.
    * @throws PlacesException An exception thrown when an error occurs with the Places API.
-   * @throws DirectionsException  An exception thrown when an error occurs with the Directions API.
+   * @throws DirectionsException An exception thrown when an error occurs with the Directions API.
    */
-  public List<String> optimizeSearchNearbyWaypoints(String origin, String destination, List<String> waypoints)
+  public List<String> optimizeSearchNearbyWaypoints(
+      String origin, String destination, List<String> waypoints)
       throws GeocodingException, PlacesException, DirectionsException {
 
     LatLng originAsCoordinates =
-            GeocodingClient.getCoordinates(
-              geocodingClientFactory.getGeocodingClient(apiKey).getGeocodingResult(origin));
+        GeocodingClient.getCoordinates(
+            geocodingClientFactory.getGeocodingClient(apiKey).getGeocodingResult(origin));
 
     LatLng destinationAsCoordinates =
-            GeocodingClient.getCoordinates(
-              geocodingClientFactory.getGeocodingClient(apiKey).getGeocodingResult(destination));
+        GeocodingClient.getCoordinates(
+            geocodingClientFactory.getGeocodingClient(apiKey).getGeocodingResult(destination));
 
     List<String> streetAddressWaypoints = new ArrayList<>();
     List<LatLng> streetAddressWaypointsAsCoordinates = new ArrayList<>();
     List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes = new ArrayList<>();
-    separateWaypoints(waypoints, streetAddressWaypoints, streetAddressWaypointsAsCoordinates, nonStreetAddressWaypointsAsPlaceTypes);
+    separateWaypoints(
+        waypoints,
+        streetAddressWaypoints,
+        streetAddressWaypointsAsCoordinates,
+        nonStreetAddressWaypointsAsPlaceTypes);
 
     // All street address coordinates including origin and destination are collected
     List<LatLng> streetAddressesAsCoordinates = streetAddressWaypointsAsCoordinates;
@@ -249,16 +276,24 @@ public class GoServlet extends AuthenticatedHttpServlet {
     streetAddressesAsCoordinates.add(destinationAsCoordinates);
 
     // Remove all null entries of street address coordinates and non street address waypoints
-    streetAddressesAsCoordinates = streetAddressesAsCoordinates.stream().filter(Objects::nonNull).collect(Collectors.toList());
-    nonStreetAddressWaypointsAsPlaceTypes = nonStreetAddressWaypointsAsPlaceTypes.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    streetAddressesAsCoordinates =
+        streetAddressesAsCoordinates.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    nonStreetAddressWaypointsAsPlaceTypes =
+        nonStreetAddressWaypointsAsPlaceTypes.stream()
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
 
-    List<List<String>> allSearchNearbyResults = searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(nonStreetAddressWaypointsAsPlaceTypes, streetAddressesAsCoordinates);
+    List<List<String>> allSearchNearbyResults =
+        searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(
+            nonStreetAddressWaypointsAsPlaceTypes, streetAddressesAsCoordinates);
 
     List<List<String>> allWaypointCombinations = new ArrayList<List<String>>();
     LocationsUtility.generateCombinations(
         allSearchNearbyResults, allWaypointCombinations, 0, new ArrayList<String>());
 
-    List<String> mostOptimalWaypointCombination = chooseWaypointCombinationWithShortestTravelTime(origin, destination, allWaypointCombinations);
+    List<String> mostOptimalWaypointCombination =
+        chooseWaypointCombinationWithShortestTravelTime(
+            origin, destination, allWaypointCombinations);
     mostOptimalWaypointCombination.addAll(streetAddressWaypoints);
 
     return mostOptimalWaypointCombination;

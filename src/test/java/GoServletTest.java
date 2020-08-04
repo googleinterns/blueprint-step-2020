@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.api.services.tasks.model.Task;
 import com.google.common.collect.ImmutableList;
-import com.google.errorprone.annotations.Immutable;
 import com.google.maps.model.AddressType;
 import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsResult;
@@ -28,13 +26,12 @@ import com.google.maps.model.RankBy;
 import com.google.sps.model.DirectionsClient;
 import com.google.sps.model.DirectionsClientFactory;
 import com.google.sps.model.GeocodingClient;
+import com.google.sps.model.GeocodingClientFactory;
+import com.google.sps.model.PlacesClient;
 import com.google.sps.model.PlacesClientFactory;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
-import com.google.sps.model.GeocodingClientFactory;
-import com.google.sps.model.PlacesClient;
 import com.google.sps.servlets.GoServlet;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -107,7 +104,12 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     shorterResult.routes = new DirectionsRoute[] {shorterRoute};
 
     servlet =
-        new GoServlet(directionsClientFactory, placesClientFactory, tasksClientFactory, geocodingClientFactory, API_KEY);
+        new GoServlet(
+            directionsClientFactory,
+            placesClientFactory,
+            tasksClientFactory,
+            geocodingClientFactory,
+            API_KEY);
 
     Mockito.when(directionsClientFactory.getDirectionsClient(API_KEY)).thenReturn(directionsClient);
     Mockito.when(placesClientFactory.getPlacesClient(API_KEY)).thenReturn(placesClient);
@@ -119,38 +121,59 @@ public class GoServletTest extends AuthenticatedServletTestBase {
 
   @Test
   public void separateWaypoints() throws Exception {
-    // Street address should be converted into coordinates, restaurant should be converted into place type
+    // Street address should be converted into coordinates, restaurant should be converted into
+    // place type
     List<String> waypoints = ImmutableList.of("street address", "restaurant");
     List<String> streetAddressWaypoints = new ArrayList<String>();
     List<LatLng> streetAddressWaypointsAsCoordinates = new ArrayList<LatLng>();
     List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes = new ArrayList<PlaceType>();
 
-    Mockito.when(geocodingClient.getGeocodingResult("street address")).thenReturn(ImmutableList.of(streetAddressGeocodingResult));
-    Mockito.when(geocodingClient.getGeocodingResult("restaurant")).thenReturn(ImmutableList.of(restaurantGeocodingResult));
+    Mockito.when(geocodingClient.getGeocodingResult("street address"))
+        .thenReturn(ImmutableList.of(streetAddressGeocodingResult));
+    Mockito.when(geocodingClient.getGeocodingResult("restaurant"))
+        .thenReturn(ImmutableList.of(restaurantGeocodingResult));
 
-    servlet.separateWaypoints(waypoints, streetAddressWaypoints, streetAddressWaypointsAsCoordinates, nonStreetAddressWaypointsAsPlaceTypes);
+    servlet.separateWaypoints(
+        waypoints,
+        streetAddressWaypoints,
+        streetAddressWaypointsAsCoordinates,
+        nonStreetAddressWaypointsAsPlaceTypes);
 
     Assert.assertEquals(ImmutableList.of("street address"), streetAddressWaypoints);
-    Assert.assertEquals(ImmutableList.of(streetAddressCoordinates), streetAddressWaypointsAsCoordinates);
-    Assert.assertEquals(ImmutableList.of(PlaceType.RESTAURANT), nonStreetAddressWaypointsAsPlaceTypes);
+    Assert.assertEquals(
+        ImmutableList.of(streetAddressCoordinates), streetAddressWaypointsAsCoordinates);
+    Assert.assertEquals(
+        ImmutableList.of(PlaceType.RESTAURANT), nonStreetAddressWaypointsAsPlaceTypes);
   }
 
   @Test
   public void searchNearbyEveryKnownLocationForClosestPlaceTypeMatch() throws Exception {
-    // Search for one restaurant and one bank nearest to coordinate one, one restaurant and one bank nearest to coordinate two
-    List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes = ImmutableList.of(PlaceType.RESTAURANT, PlaceType.BANK);
+    // Search for one restaurant and one bank nearest to coordinate one, one restaurant and one bank
+    // nearest to coordinate two
+    List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes =
+        ImmutableList.of(PlaceType.RESTAURANT, PlaceType.BANK);
     LatLng coordinateOne = new LatLng(0, 0);
     LatLng coordinateTwo = new LatLng(0, 10);
     List<LatLng> streetAddressesAsCoordinates = ImmutableList.of(coordinateOne, coordinateTwo);
 
-    Mockito.when(placesClient.searchNearby(coordinateOne, PlaceType.RESTAURANT, RankBy.DISTANCE)).thenReturn(RESTAURANT_ONE);
-    Mockito.when(placesClient.searchNearby(coordinateTwo, PlaceType.RESTAURANT, RankBy.DISTANCE)).thenReturn(RESTAURANT_TWO);
-    Mockito.when(placesClient.searchNearby(coordinateOne, PlaceType.BANK, RankBy.DISTANCE)).thenReturn(BANK_ONE);
-    Mockito.when(placesClient.searchNearby(coordinateTwo, PlaceType.BANK, RankBy.DISTANCE)).thenReturn(BANK_TWO);
+    Mockito.when(placesClient.searchNearby(coordinateOne, PlaceType.RESTAURANT, RankBy.DISTANCE))
+        .thenReturn(RESTAURANT_ONE);
+    Mockito.when(placesClient.searchNearby(coordinateTwo, PlaceType.RESTAURANT, RankBy.DISTANCE))
+        .thenReturn(RESTAURANT_TWO);
+    Mockito.when(placesClient.searchNearby(coordinateOne, PlaceType.BANK, RankBy.DISTANCE))
+        .thenReturn(BANK_ONE);
+    Mockito.when(placesClient.searchNearby(coordinateTwo, PlaceType.BANK, RankBy.DISTANCE))
+        .thenReturn(BANK_TWO);
 
-    List<List<String>> actual = servlet.searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(nonStreetAddressWaypointsAsPlaceTypes, streetAddressesAsCoordinates);
+    List<List<String>> actual =
+        servlet.searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(
+            nonStreetAddressWaypointsAsPlaceTypes, streetAddressesAsCoordinates);
 
-    Assert.assertEquals(ImmutableList.of(ImmutableList.of("place_id:" + RESTAURANT_ONE, "place_id:" + RESTAURANT_TWO), ImmutableList.of("place_id:" + BANK_ONE, "place_id:" + BANK_TWO)), actual);
+    Assert.assertEquals(
+        ImmutableList.of(
+            ImmutableList.of("place_id:" + RESTAURANT_ONE, "place_id:" + RESTAURANT_TWO),
+            ImmutableList.of("place_id:" + BANK_ONE, "place_id:" + BANK_TWO)),
+        actual);
   }
 
   @Test
@@ -161,17 +184,24 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     List<String> longerTravelTimeWaypoints = ImmutableList.of("long", "long");
     List<String> shorterTravelTimeWaypoints = ImmutableList.of("short", "medium");
 
-    Mockito.when(directionsClient.getDirections(origin, destination, longerTravelTimeWaypoints)).thenReturn(longerResult);
-    Mockito.when(directionsClient.getDirections(origin, destination, shorterTravelTimeWaypoints)).thenReturn(shorterResult);
+    Mockito.when(directionsClient.getDirections(origin, destination, longerTravelTimeWaypoints))
+        .thenReturn(longerResult);
+    Mockito.when(directionsClient.getDirections(origin, destination, shorterTravelTimeWaypoints))
+        .thenReturn(shorterResult);
 
-    List<String> actual = servlet.chooseWaypointCombinationWithShortestTravelTime(origin, destination, ImmutableList.of(longerTravelTimeWaypoints, shorterTravelTimeWaypoints));
+    List<String> actual =
+        servlet.chooseWaypointCombinationWithShortestTravelTime(
+            origin,
+            destination,
+            ImmutableList.of(longerTravelTimeWaypoints, shorterTravelTimeWaypoints));
 
     Assert.assertEquals(shorterTravelTimeWaypoints, actual);
   }
 
   @Test
   public void optimizeSearchNearbyWaypoints() throws Exception {
-    // Optimize waypoints for one street address and one restaurant, street address is returned as it is, the nearest restaurant is found and returned
+    // Optimize waypoints for one street address and one restaurant, street address is returned as
+    // it is, the nearest restaurant is found and returned
     String origin = "A";
     String destination = "B";
     List<String> waypoints = ImmutableList.of("street address", "restaurant");
@@ -190,17 +220,32 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     destinationGeometry.location = destinationCoordinates;
     destinationResult.types = new AddressType[] {AddressType.STREET_ADDRESS};
 
-    Mockito.when(geocodingClient.getGeocodingResult(origin)).thenReturn(ImmutableList.of(originResult));
-    Mockito.when(geocodingClient.getGeocodingResult(destination)).thenReturn(ImmutableList.of(destinationResult));
+    Mockito.when(geocodingClient.getGeocodingResult(origin))
+        .thenReturn(ImmutableList.of(originResult));
+    Mockito.when(geocodingClient.getGeocodingResult(destination))
+        .thenReturn(ImmutableList.of(destinationResult));
 
-    Mockito.when(geocodingClient.getGeocodingResult("street address")).thenReturn(ImmutableList.of(streetAddressGeocodingResult));
-    Mockito.when(geocodingClient.getGeocodingResult("restaurant")).thenReturn(ImmutableList.of(restaurantGeocodingResult));
+    Mockito.when(geocodingClient.getGeocodingResult("street address"))
+        .thenReturn(ImmutableList.of(streetAddressGeocodingResult));
+    Mockito.when(geocodingClient.getGeocodingResult("restaurant"))
+        .thenReturn(ImmutableList.of(restaurantGeocodingResult));
 
-    Mockito.when(placesClient.searchNearby(originCoordinates, PlaceType.RESTAURANT, RankBy.DISTANCE)).thenReturn(RESTAURANT_ONE);
-    Mockito.when(placesClient.searchNearby(destinationCoordinates, PlaceType.RESTAURANT, RankBy.DISTANCE)).thenReturn(RESTAURANT_TWO);
+    Mockito.when(
+            placesClient.searchNearby(originCoordinates, PlaceType.RESTAURANT, RankBy.DISTANCE))
+        .thenReturn(RESTAURANT_ONE);
+    Mockito.when(
+            placesClient.searchNearby(
+                destinationCoordinates, PlaceType.RESTAURANT, RankBy.DISTANCE))
+        .thenReturn(RESTAURANT_TWO);
 
-    Mockito.when(directionsClient.getDirections(origin, destination, ImmutableList.of("place_id:" + RESTAURANT_ONE))).thenReturn(longerResult);
-    Mockito.when(directionsClient.getDirections(origin, destination, ImmutableList.of("place_id:" + RESTAURANT_TWO))).thenReturn(shorterResult);
+    Mockito.when(
+            directionsClient.getDirections(
+                origin, destination, ImmutableList.of("place_id:" + RESTAURANT_ONE)))
+        .thenReturn(longerResult);
+    Mockito.when(
+            directionsClient.getDirections(
+                origin, destination, ImmutableList.of("place_id:" + RESTAURANT_TWO)))
+        .thenReturn(shorterResult);
 
     List<String> actual = servlet.optimizeSearchNearbyWaypoints(origin, destination, waypoints);
 

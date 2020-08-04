@@ -19,9 +19,6 @@ import com.google.maps.model.PlaceType;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.RankBy;
 import com.google.sps.exceptions.PlacesException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Contract for sending GET requests to the Google Places API. Implement searchNearby to obtain
@@ -38,11 +35,11 @@ public interface PlacesClient {
    * @throws PlacesException A custom exception is thrown to signal an error pertaining to the
    *     Places API.
    */
-  String searchNearby(LatLng location, PlaceType placeType, RankBy rankBy)
-      throws PlacesException;
+  String searchNearby(LatLng location, PlaceType placeType, RankBy rankBy) throws PlacesException;
 
   /**
-   * Gets place ID of first result from the response from the Google Places API. Scope of method is public for testing purposes.
+   * Gets place ID of first result from the response from the Google Places API. Scope of method is
+   * public for testing purposes.
    *
    * @param response The PlacesSearchResponse object to get formatted addresses from
    */
