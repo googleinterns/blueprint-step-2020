@@ -19,9 +19,6 @@ import com.google.maps.model.PlaceType;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.RankBy;
 import com.google.sps.exceptions.PlacesException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Contract for sending GET requests to the Google Places API. Implement searchNearby to obtain
@@ -38,18 +35,18 @@ public interface PlacesClient {
    * @throws PlacesException A custom exception is thrown to signal an error pertaining to the
    *     Places API.
    */
-  List<String> searchNearby(LatLng location, PlaceType placeType, RankBy rankBy)
-      throws PlacesException;
+  String searchNearby(LatLng location, PlaceType placeType, RankBy rankBy) throws PlacesException;
 
   /**
-   * Gets all formatted addresses, as determined by the Google Places API (e.g. 51 Breithaupt St,
-   * Kitchener, ON N2H 5G5), from given response. Scope of method is public for testing purposes.
+   * Gets place ID of first result from the response from the Google Places API. Scope of method is
+   * public for testing purposes.
    *
-   * @param response The PlacesSeachResponse object to get formatted addresses from
+   * @param response The PlacesSearchResponse object to get formatted addresses from
    */
-  public static List<String> getFormattedAddresses(PlacesSearchResponse response) {
-    return Arrays.asList(response.results).stream()
-        .map(result -> result.formattedAddress)
-        .collect(Collectors.toList());
+  public static String getPlaceId(PlacesSearchResponse response) {
+    if (response.results.length != 0) {
+      return response.results[0].placeId;
+    }
+    return null;
   }
 }
