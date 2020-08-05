@@ -130,7 +130,9 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
       throws GmailMessageFormatException {
     String messageId = message.getId();
     String subject = GmailUtility.extractHeader(message, "Subject").getValue();
+    String sender =
+        GmailUtility.parseNameInFromHeader(GmailUtility.extractHeader(message, "From").getValue());
 
-    return new ActionableMessage(messageId, subject);
+    return new ActionableMessage(messageId, subject, sender);
   }
 }
