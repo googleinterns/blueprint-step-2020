@@ -34,6 +34,7 @@ import com.google.sps.model.TasksClientFactory;
 import com.google.sps.servlets.GoServlet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,8 +115,6 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     Mockito.when(directionsClientFactory.getDirectionsClient(API_KEY)).thenReturn(directionsClient);
     Mockito.when(placesClientFactory.getPlacesClient(API_KEY)).thenReturn(placesClient);
     Mockito.when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
-    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
     Mockito.when(geocodingClientFactory.getGeocodingClient(API_KEY)).thenReturn(geocodingClient);
   }
 
@@ -125,8 +124,9 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     // place type
     List<String> waypoints = ImmutableList.of("street address", "restaurant");
     List<String> streetAddressWaypoints = new ArrayList<String>();
-    List<LatLng> streetAddressWaypointsAsCoordinates = new ArrayList<LatLng>();
-    List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes = new ArrayList<PlaceType>();
+    List<Optional<LatLng>> streetAddressWaypointsAsCoordinates = new ArrayList<Optional<LatLng>>();
+    List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes =
+        new ArrayList<Optional<PlaceType>>();
 
     Mockito.when(geocodingClient.getGeocodingResult("street address"))
         .thenReturn(ImmutableList.of(streetAddressGeocodingResult));
@@ -141,9 +141,11 @@ public class GoServletTest extends AuthenticatedServletTestBase {
 
     Assert.assertEquals(ImmutableList.of("street address"), streetAddressWaypoints);
     Assert.assertEquals(
-        ImmutableList.of(streetAddressCoordinates), streetAddressWaypointsAsCoordinates);
+        ImmutableList.of(Optional.ofNullable(streetAddressCoordinates)),
+        streetAddressWaypointsAsCoordinates);
     Assert.assertEquals(
-        ImmutableList.of(PlaceType.RESTAURANT), nonStreetAddressWaypointsAsPlaceTypes);
+        ImmutableList.of(Optional.ofNullable(PlaceType.RESTAURANT)),
+        nonStreetAddressWaypointsAsPlaceTypes);
   }
 
   @Test
