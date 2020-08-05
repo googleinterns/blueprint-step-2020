@@ -12,54 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.model;
+package com.google.sps.utility;
 
+import com.google.maps.model.AddressType;
 import com.google.maps.model.GeocodingResult;
-import com.google.sps.exceptions.GeocodingException;
+import com.google.maps.model.LatLng;
+import com.google.maps.model.PlaceType;
+import java.util.Optional;
 
-/**
- * Contract for sending GET requests to the Google Geocoding API. Implement getGeocodingResult to
- * obtain the corresponding GeocodingResult of an address.
- */
-public interface GeocodingClient {
-  /**
-   * Sends a GET request to the Google Geocoding API to convert from address to GeocodingResult. The
-   * Geocoding API could return multiple results in case of partial matches and in that case, the
-   * first match is the best match hence it would be the result returned. No results would cause a
-   * GeocodingException to be thrown.
-   *
-   * @param address A String representing the address to geocode.
-   * @return A GeocodingResult returned from the Geocoding API.
-   * @throws GeocodingException A custom exception is thrown to signal an error pertaining to the
-   *     Geocoding API.
-   */
-  GeocodingResult getGeocodingResult(String address) throws GeocodingException;
-
+/** Utility class to extract data from GeocodingResult objects. */
+public class GeocodingResultUtility {
   /**
    * Parses for coordinates in a resulting call to the Geocoding API.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A LatLng representing coordinates.
    */
-  static LatLng getCoordinates(GeocodingResult result) {
+  public static LatLng getCoordinates(GeocodingResult result) {
     return result.geometry.location;
   }
 
   /**
    * Converts an AddressType to a PlaceType for the purpose of calling the Places API. PlaceType is
-   * a subset of AddressType and hence, not all AddressTypes are supported by the Places API. Null
-   * is returned for AddressTypes which are not supported and are to be filtered.
+   * a subset of AddressType and hence, not all AddressTypes are supported by the Places API.
    *
    * @param addressType An AddressType to convert to a PlaceType
    * @return A PlaceType corresponding to an AddressType if available, null if not available.
    */
-  static PlaceType convertAddressTypeToPlaceType(AddressType addressType) {
+  public static Optional<PlaceType> convertAddressTypeToPlaceType(AddressType addressType) {
     for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.toString().equals(addressType.toString())) {
-        return placeType;
+      if (placeType.name().equals(addressType.name())) {
+        return Optional.ofNullable(placeType);
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   /**
@@ -71,7 +57,7 @@ public interface GeocodingClient {
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return True if result is a partial match, false otherwise.
    */
-  static boolean isPartialMatch(GeocodingResult result) {
+  public static boolean isPartialMatch(GeocodingResult result) {
     return result.partialMatch;
   }
 
@@ -82,7 +68,7 @@ public interface GeocodingClient {
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A PlaceType representing the type or null if no corresponding PlaceType is found.
    */
-  static PlaceType getPlaceType(GeocodingResult result) {
+  public static Optional<PlaceType> getPlaceType(GeocodingResult result) {
     return convertAddressTypeToPlaceType(result.types[0]);
   }
 }

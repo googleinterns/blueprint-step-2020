@@ -17,7 +17,6 @@ import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
@@ -25,21 +24,17 @@ import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksServlet;
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
@@ -48,13 +43,9 @@ import org.mockito.Mockito;
  */
 @RunWith(JUnit4.class)
 public final class TasksServletTest extends AuthenticatedServletTestBase {
-  private AuthenticationVerifier authenticationVerifier;
   private TasksClientFactory tasksClientFactory;
   private TasksClient tasksClient;
   private TasksServlet servlet;
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
 
   private static final Gson gson = new Gson();
 
@@ -202,26 +193,11 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
   public void setUp() throws Exception {
     super.setUp();
 
-    authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
     tasksClientFactory = Mockito.mock(TasksClientFactory.class);
     tasksClient = Mockito.mock(TasksClient.class);
     servlet = new TasksServlet(authenticationVerifier, tasksClientFactory);
 
     Mockito.when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
-    // Authentication will always pass
-    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
-
-    // Writer used in get/post requests to capture HTTP response values
-    stringWriter = new StringWriter();
-
-    request = Mockito.mock(HttpServletRequest.class);
-    response =
-        Mockito.mock(
-            HttpServletResponse.class,
-            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
-
-    Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
   @Test
