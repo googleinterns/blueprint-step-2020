@@ -26,6 +26,7 @@ import com.google.sps.model.TasksClientFactory;
 import com.google.sps.model.TasksClientImpl;
 import com.google.sps.model.TasksResponse;
 import com.google.sps.utility.JsonUtility;
+import com.google.sps.utility.TasksUtility;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -89,10 +90,10 @@ public class TasksServlet extends AuthenticatedHttpServlet {
 
     String taskLists = request.getParameter("taskLists");
     if (taskLists == null) {
-      tasks = TasksClient.getAllTasksFromAllTaskLists(tasksClient);
+      tasks = TasksUtility.getAllTasksFromAllTaskLists(tasksClient);
     } else {
       Set<String> selectedTaskListIds = new HashSet<>(Arrays.asList(taskLists.split(",")));
-      tasks = TasksClient.getAllTasksFromSpecificTaskLists(tasksClient, selectedTaskListIds);
+      tasks = TasksUtility.getAllTasksFromSpecificTaskLists(tasksClient, selectedTaskListIds);
     }
 
     Map<String, String> taskListIdsToTitles = getTaskListIdsAndTitles(allTaskLists);
