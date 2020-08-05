@@ -47,7 +47,7 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
     gmailClientFactory = new GmailClientImpl.Factory();
   }
 
-  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
+  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject", "From");
 
   /**
    * Create new servlet instance (used for testing)
