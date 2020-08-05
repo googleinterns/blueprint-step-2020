@@ -25,15 +25,16 @@ import java.util.Optional;
 /** Utility class to extract data from GeocodingResult objects. */
 public class GeocodingResultUtility {
   /**
-   * Parses for the first coordinate found in a resulting call to the Geocoding API.
+   * Parses for the first coordinate which is of a street address type. If no street address type
+   * results are found, the coordinates of the first result is returned. found in a resulting call
+   * to the Geocoding API.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A LatLng representing coordinates.
    */
   public static LatLng getCoordinates(List<GeocodingResult> results) {
     for (GeocodingResult result : results) {
-      List<AddressType> types = Arrays.asList(result.types);
-      for (AddressType type : types) {
+      for (AddressType type : result.types) {
         if (type == AddressType.STREET_ADDRESS) {
           return result.geometry.location;
         }
@@ -51,7 +52,7 @@ public class GeocodingResultUtility {
    */
   public static Optional<PlaceType> convertToPlaceType(String location) {
     for (PlaceType placeType : PlaceType.values()) {
-      if ((placeType.name()).equals(location.toUpperCase().replace(" ", "_"))) {
+      if (placeType.name().equalsIgnoreCase(location.replace(" ", "_"))) {
         return Optional.ofNullable(placeType);
       }
     }
@@ -66,11 +67,8 @@ public class GeocodingResultUtility {
    */
   public static boolean hasStreetAddress(List<GeocodingResult> results) {
     for (GeocodingResult result : results) {
-      List<AddressType> types = Arrays.asList(result.types);
-      for (AddressType type : types) {
-        if (type == AddressType.STREET_ADDRESS) {
-          return true;
-        }
+      if (Arrays.asList(result.types).contains(AddressType.STREET_ADDRESS)) {
+        return true;
       }
     }
     return false;
@@ -87,7 +85,7 @@ public class GeocodingResultUtility {
   public static Optional<PlaceType> getPlaceType(GeocodingResult result) {
     AddressType addressType = result.types[0];
     for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.toString().equals(addressType.toString())) {
+      if (placeType.name().equals(addressType.name())) {
         return Optional.ofNullable(placeType);
       }
     }
