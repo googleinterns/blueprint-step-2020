@@ -32,15 +32,18 @@ public class GeocodingResultUtility {
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A LatLng representing coordinates.
    */
-  public static LatLng getCoordinates(List<GeocodingResult> results) {
+  public static Optional<LatLng> getCoordinates(List<GeocodingResult> results) {
     for (GeocodingResult result : results) {
       for (AddressType type : result.types) {
         if (type == AddressType.STREET_ADDRESS) {
-          return result.geometry.location;
+          return Optional.ofNullable(result.geometry.location);
         }
       }
     }
-    return results.get(0).geometry.location;
+    if (results.size() == 0) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(results.get(0).geometry.location);
   }
 
   /**

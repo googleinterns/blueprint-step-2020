@@ -40,8 +40,9 @@ public class GeocodingResultUtilityTest {
     geometry.location = expectedCoordinates;
     result.types = new AddressType[] {AddressType.STREET_ADDRESS};
     result.geometry = geometry;
-    LatLng actualCoordinates = GeocodingResultUtility.getCoordinates(ImmutableList.of(result));
-    Assert.assertEquals(expectedCoordinates, actualCoordinates);
+    Optional<LatLng> actualCoordinates =
+        GeocodingResultUtility.getCoordinates(ImmutableList.of(result));
+    Assert.assertEquals(expectedCoordinates, actualCoordinates.get());
   }
 
   @Test
