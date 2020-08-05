@@ -29,9 +29,7 @@ public interface ActionableMessageHelper {
    *     or FULL
    * @param userEmail the email address of the current user. Used to check if the email was actually
    *     sent to them or sent as a part of a mailing list
-   * @return 1 if messageOne has the higher priority, -1 is messageTwo has the higher priority 0 if
-   *     they have the same priority (very very rare - needs same internal date which is measured in
-   *     milliseconds)
+   * @return The priority of the message (HIGH, MEDIUM, LOW)
    * @throws com.google.sps.exceptions.GmailMessageFormatException if the message does not contain a
    *     "TO" header, which is mandatory, which implies the message is not of the correct format
    */

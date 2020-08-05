@@ -32,6 +32,8 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
    *
    * @param id the message id of the Message in the user's Gmail account
    * @param subject the subject line of the message from the user's Gmail account
+   * @param internalDate Timestamp of when the message was received in epoch milliseconds
+   * @param priority the priority of the message (HIGH, MEDIUM, or LOW)
    */
   public ActionableMessage(String id, String subject, long internalDate, MessagePriority priority) {
     this.id = id;
@@ -58,7 +60,7 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(7, 17)
+    return new HashCodeBuilder()
         .append(id)
         .append(subject)
         .append(internalDate)

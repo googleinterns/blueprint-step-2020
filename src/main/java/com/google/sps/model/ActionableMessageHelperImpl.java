@@ -53,9 +53,10 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
   }
 
   /**
-   * If the user's email is not in the "To" header, or if there are more than 15 recipients, the
-   * message is considered to be sent from a mailing list. This is somewhat of a naive approach,
-   * however it should still be relatively accurate (particularly based on the first check listed)
+   * If the user's email is not in the "To" header, or if there are more than
+   * MAILING_LIST_LOWER_BOUND recipients, the message is considered to be sent from a mailing list.
+   * This is somewhat of a naive approach, however it should still be relatively accurate
+   * (particularly based on the first check listed)
    *
    * @param message Message object to be checked
    * @param userEmail the email address of the current user. Used to check if the email was actually
@@ -81,27 +82,8 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
     }
 
     boolean userEmailInHeader =
-        recipientHeaders.stream().filter((header) -> userEmailInHeader(header, userEmail)).count()
-            == 1;
+        recipientHeaders.stream().anyMatch((header) -> header.contains(userEmail));
     return !userEmailInHeader;
-  }
-
-  /**
-   * Gets a sender's contact name or email address.
-   *
-   * <p>"To" header values have two possible formats: "<sampleemail@sample.com>" (if name is not
-   * available) OR "Sample Name <sampleemail@sample.com>" In either case, the email is checked
-   * against the userEmail passed
-   *
-   * @param headerValue the value of a "From" header from which a contact name / email should be
-   *     extracted
-   * @param userEmail the email address of the current user.
-   * @return true if the userEmail is in the header, false otherwise
-   */
-  private boolean userEmailInHeader(String headerValue, String userEmail) {
-    String emailInHeader = headerValue.split("<")[1].replace(">", "");
-
-    return emailInHeader.equals(userEmail);
   }
 
   /**
