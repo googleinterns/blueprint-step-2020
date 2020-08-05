@@ -17,7 +17,6 @@
 /* eslint-disable no-unused-vars */
 /* global signOut, AuthenticationError, Task, getDateInLocalTimeZone,
  encodeListForUrl */
-// TODO: Refactor so populate functions are done in parallel (Issue #26)
 
 /**
  * Populate Gmail container with user information
@@ -172,16 +171,38 @@ function populateCalendar() {
         }
         return response.json();
       })
-      .then((eventList) => {
-        // Convert JSON to string containing all event summaries
-        // and display it on client
-        // Handle case where user has no events to avoid unwanted behaviour
-        if (eventList.length !== 0) {
-          const events =
-              eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
-          calendarContainer.innerText = events;
-        } else {
-          calendarContainer.innerText = 'No events in the calendar';
+      .then((hoursJson) => {
+        // Display the days and the free hours for each one of them
+        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        const panelContent = document.querySelector('#panel-content');
+        panelContent.innerHTML = '';
+        for (const day in hoursJson.workTimeFree) {
+          if (typeof day == 'string') {
+            const panelContentEntry = document.createElement('div');
+            panelContentEntry.className = 'panel__content-entry';
+            const dayContainer = document.createElement('p');
+            dayContainer.className = 'panel__text-icon u-text-calendar';
+            dayContainer.innerText =
+                days[(hoursJson.startDay + parseInt(day)) % 7];
+            const timeContainer = document.createElement('div');
+            const workContainer = document.createElement('p');
+            workContainer.className = 'u-block';
+            workContainer.innerText =
+                hoursJson.workTimeFree[day].hours +
+                'h ' + hoursJson.workTimeFree[day].minutes +
+                'm free (working)';
+            const personalContainer = document.createElement('p');
+            personalContainer.className = 'u-block';
+            personalContainer.innerText =
+                hoursJson.personalTimeFree[day].hours +
+                'h ' + hoursJson.personalTimeFree[day].minutes +
+                'm free (personal)';
+            timeContainer.appendChild(workContainer);
+            timeContainer.appendChild(personalContainer);
+            panelContentEntry.appendChild(dayContainer);
+            panelContentEntry.appendChild(timeContainer);
+            panelContent.appendChild(panelContentEntry);
+          }
         }
       })
       .catch((e) => {
