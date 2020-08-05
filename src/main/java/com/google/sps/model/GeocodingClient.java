@@ -16,9 +16,7 @@ package com.google.sps.model;
 
 import com.google.maps.model.GeocodingResult;
 import com.google.sps.exceptions.GeocodingException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Contract for sending GET requests to the Google Geocoding API. Implement getGeocodingResult to

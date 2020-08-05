@@ -18,30 +18,40 @@ import com.google.maps.model.AddressType;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceType;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /** Utility class to extract data from GeocodingResult objects. */
 public class GeocodingResultUtility {
   /**
-   * Parses for coordinates in a resulting call to the Geocoding API.
+   * Parses for the first coordinate found in a resulting call to the Geocoding API.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A LatLng representing coordinates.
    */
-  public static LatLng getCoordinates(GeocodingResult result) {
-    return result.geometry.location;
+  public static LatLng getCoordinates(List<GeocodingResult> results) {
+    for (GeocodingResult result : results) {
+      List<AddressType> types = Arrays.asList(result.types);
+      for (AddressType type : types) {
+        if (type == AddressType.STREET_ADDRESS) {
+          return result.geometry.location;
+        }
+      }
+    }
+    return results.get(0).geometry.location;
   }
 
   /**
-   * Converts an AddressType to a PlaceType for the purpose of calling the Places API. PlaceType is
-   * a subset of AddressType and hence, not all AddressTypes are supported by the Places API.
+   * Converts a location to a PlaceType if it exists in the PlaceType enum class.
    *
-   * @param addressType An AddressType to convert to a PlaceType
-   * @return A PlaceType corresponding to an AddressType if available, null if not available.
+   * @param location A string representing a location.
+   * @return An optional containing a PlaceType if an equivalent is found for the location
+   *     specified, an empty optional otherwise.
    */
-  public static Optional<PlaceType> convertAddressTypeToPlaceType(AddressType addressType) {
+  public static Optional<PlaceType> convertToPlaceType(String location) {
     for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.name().equals(addressType.name())) {
+      if (placeType.toString().equals(location.toLowerCase().replace(" ", "_"))) {
         return Optional.ofNullable(placeType);
       }
     }
@@ -49,26 +59,38 @@ public class GeocodingResultUtility {
   }
 
   /**
-   * Determines if the address in which the Geocoding API is executed against is geocoded as an
-   * exact match or a partial match. An exact match includes a valid street address or a mistyped
-   * street address which is converted to the correct spelling by the Geocoding API. A partial match
-   * is everything else.
+   * Determines whether any of the results are street addresses.
    *
-   * @param result A GeocodingResult returned from the Geocoding API.
-   * @return True if result is a partial match, false otherwise.
+   * @param results A List of GeocodingResult returned from the Geocoding API.
+   * @return True if any of the results are street addresses, false otherwise.
    */
-  public static boolean isPartialMatch(GeocodingResult result) {
-    return result.partialMatch;
+  public static boolean hasStreetAddress(List<GeocodingResult> results) {
+    for (GeocodingResult result : results) {
+      List<AddressType> types = Arrays.asList(result.types);
+      for (AddressType type : types) {
+        if (type == AddressType.STREET_ADDRESS) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
-   * Parses for a address type and converts it to a place type if available. This place type is used
-   * to further determine a location which results in a route with the shortest travel time.
+   * Parses for an address type and converts it to a place type if available. This place type is
+   * used to further determine a location which results in a route with the shortest travel time.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
-   * @return A PlaceType representing the type or null if no corresponding PlaceType is found.
+   * @return An optional containing a PlaceType representing the type or an empty optional if no
+   *     corresponding PlaceType is found.
    */
   public static Optional<PlaceType> getPlaceType(GeocodingResult result) {
-    return convertAddressTypeToPlaceType(result.types[0]);
+    AddressType addressType = result.types[0];
+    for (PlaceType placeType : PlaceType.values()) {
+      if (placeType.toString().equals(addressType.toString())) {
+        return Optional.ofNullable(placeType);
+      }
+    }
+    return Optional.empty();
   }
 }
