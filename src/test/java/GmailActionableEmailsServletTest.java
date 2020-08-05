@@ -46,7 +46,7 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   private static final List<String> SUBJECT_LINE_PHRASES_LIST =
       Arrays.asList("Action Word One", "ActionWordTwo");
 
-  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
+  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject", "From");
 
   private static final String MESSAGE_ID_ONE = "messageOne";
   private static final String MESSAGE_ID_TWO = "messageTwo";
