@@ -16,17 +16,17 @@ package com.google.sps.model;
 
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceType;
-import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.RankBy;
 import com.google.sps.exceptions.PlacesException;
 
 /**
- * Contract for sending GET requests to the Google Places API. Implement searchNearby to obtain
- * formatted addresses of nearby locations satisfying criteria set in the parameters from the API.
+ * Contract for sending GET requests to the Google Places API. Implement searchNearby to obtain the
+ * Place ID of the first result satisfying criteria set in the parameters from the API.
  */
 public interface PlacesClient {
   /**
-   * Sends a GET request to the Google Places API for nearby locations. In the event of multiple results, 
+   * Sends a GET request to the Google Places API for nearby locations. In the event of multiple
+   * results, the Place ID of the first result is returned.
    *
    * @param location A LatLng with coordinates of the location to search nearby.
    * @param placeType A PlaceType representing the type of place to look for.

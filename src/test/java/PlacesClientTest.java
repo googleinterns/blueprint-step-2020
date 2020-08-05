@@ -14,9 +14,7 @@
 
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
-import com.google.sps.model.PlacesClient;
 import com.google.sps.model.PlacesClientImpl;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +23,7 @@ import org.junit.runners.JUnit4;
 
 /**
  * Test that PlacesClientImpl correctly converts a PlacesSearchResponse object obtained from the
- * Places API into a list of formatted addresses
+ * Places API into a list of Place IDs
  */
 @RunWith(JUnit4.class)
 public class PlacesClientTest {
