@@ -46,7 +46,7 @@ const taskNotesPrefix =
  */
 function initializeAssignFeatures() {
   const actionItemsCountElement =
-      document.getElementById('assignSuspectedActionItems');
+      document.getElementById('assign-suspected-action-items');
 
   return Promise.all(
       [
@@ -90,24 +90,17 @@ function parseEmailIdFromTaskNotes(task) {
     return null;
   }
 
-  let index = notes.length;
-  let emailIdValue = '';
-  while
-  (emailIdValue.substr(0, 'emailId:'.length) !== 'emailId:' && index > 0) {
-    emailIdValue = notes.charAt(index-1) + emailIdValue;
-    index--;
-  }
-  if (index < 0) {
+  const emailIdIndex = notes.lastIndexOf('emailId:');
+
+  if (emailIdIndex === -1) {
     console.log('No email ID found!');
     return null;
   }
-  return emailIdValue.split(':')[1];
+  return notes.substr(emailIdIndex).split(':')[1];
 }
-
 
 /**
  * Get the tasks for the assign panel from the server
- * TODO: Change when Tasks is refactored (Issue #133)
  *
  * @return {Promise<Object>} promise that will return an object containing
  *     1) the id of the relevant taskList for the assign panel and
@@ -119,6 +112,7 @@ function getAssignPanelTasks() {
         const assignTaskLists =
             response.taskLists
                 .filter((taskList) => taskList.title === assignTaskListTitle);
+
         if (assignTaskLists.length === 0) {
           return postNewTaskList(assignTaskListTitle).
               then((taskList) => {
@@ -127,15 +121,14 @@ function getAssignPanelTasks() {
                   'tasks': [],
                 };
               });
-        } else {
-          const assignTaskList = assignTaskLists[0];
-          const assignTaskListTasks = response.tasks[assignTaskList.id];
-
-          return {
-            'taskListId': assignTaskLists[0].id,
-            'tasks': assignTaskListTasks,
-          };
         }
+
+        const assignTaskList = assignTaskLists[0];
+        const assignTaskListTasks = response.tasks[assignTaskList.id];
+        return {
+          'taskListId': assignTaskLists[0].id,
+          'tasks': assignTaskListTasks,
+        };
       });
 }
 
@@ -144,17 +137,17 @@ function getAssignPanelTasks() {
  * present in the panel (will be the default values on sign-in)
  */
 function setUpAssign() {
-  const nDaysElement = document.getElementById('assignNDays');
+  const nDaysElement = document.getElementById('assign-n-days');
   nDays = parseInt(nDaysElement.innerText);
 
   const unreadOnlyContainerElement =
-      document.getElementById('assignUnreadOnlyIcon');
+      document.getElementById('assign-unread-only-icon');
   const unreadOnlyUnselectedElement =
       unreadOnlyContainerElement
           .querySelector('.panel__toggle-icon--unselected');
   unreadOnly = unreadOnlyUnselectedElement.hasAttribute('hidden');
 
-  const phrasesListElement = document.getElementById('assignList');
+  const phrasesListElement = document.getElementById('assign-list');
   const listElements =
       phrasesListElement.querySelectorAll('.panel__list-text');
   subjectLinePhrases = [];
@@ -170,11 +163,11 @@ function setUpAssign() {
  * assignPanel (i.e. ignore new changes - reset to old values)
  */
 function assignRevertSettings() {
-  const nDaysElement = document.getElementById('assignNDays');
+  const nDaysElement = document.getElementById('assign-n-days');
   nDaysElement.innerText = nDays;
 
   const unreadOnlyContainerElement =
-      document.getElementById('assignUnreadOnlyIcon');
+      document.getElementById('assign-unread-only-icon');
   const unreadOnlyUnselectedElement =
       unreadOnlyContainerElement
           .querySelector('.panel__toggle-icon--unselected');
@@ -189,11 +182,11 @@ function assignRevertSettings() {
     unreadOnlySelectedElement.setAttribute('hidden', '');
   }
 
-  const phrasesListElement = document.getElementById('assignList');
+  const phrasesListElement = document.getElementById('assign-list');
   phrasesListElement.innerHTML = '';
   subjectLinePhrases
       .forEach(
-          (phrase) => createTextListElementFromString(phrase, 'assignList'));
+          (phrase) => createTextListElementFromString(phrase, 'assign-list'));
 }
 
 /**
@@ -258,8 +251,8 @@ function assignSkipCurrentEmail() {
  */
 function assignDisplayNextEmail() {
   const actionItemsCountElement =
-      document.getElementById('assignSuspectedActionItems');
-  const subjectLineElement = document.getElementById('assignSubject');
+      document.getElementById('assign-suspected-action-items');
+  const subjectLineElement = document.getElementById('assign-subject');
 
   actionItemsCountElement.innerText = actionableEmails.length;
   if (actionableEmails.length === 0) {

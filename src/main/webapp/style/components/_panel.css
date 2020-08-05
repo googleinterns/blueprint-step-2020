@@ -116,7 +116,7 @@
   width: 100%;
 }
 
-#assignSettingsIcon {
+#assign-settings-icon {
   position: absolute;
   right: var(--panel-border-radius);
   top: var(--panel-border-radius);

@@ -59,7 +59,7 @@ function displayAssignContent() {
   rejectButton.addEventListener('click', assignSkipCurrentEmail);
 
   const assignStartResetButtonIcon =
-      document.getElementById('assignStartResetButton')
+      document.getElementById('assign-start-reset-button')
           .querySelector('.button-circle__ascii-icon');
 
   if (assignStartResetButtonIcon.innerText === '▶' ||
@@ -73,7 +73,7 @@ function displayAssignContent() {
  */
 function startAssign() {
   const assignStartResetButtonElement =
-      document.getElementById('assignStartResetButton');
+      document.getElementById('assign-start-reset-button');
   assignStartResetButtonElement
       .querySelector('.button-circle__ascii-icon')
       .innerText = '↻';
@@ -81,7 +81,7 @@ function startAssign() {
   assignStartResetButtonElement.addEventListener('click', restartAssign);
 
   const assignStartResetTextElement =
-      document.getElementById('assignStartResetText');
+      document.getElementById('assign-start-reset-text');
   assignStartResetTextElement.innerText = 'Click to Restart';
 
   enableAssignAcceptRejectButtons();
@@ -95,7 +95,7 @@ function startAssign() {
  */
 function restartAssign() {
   const assignStartResetButtonElement =
-      document.getElementById('assignStartResetButton');
+      document.getElementById('assign-start-reset-button');
   assignStartResetButtonElement
       .querySelector('.button-circle__ascii-icon')
       .innerText = '▶';
@@ -104,11 +104,11 @@ function restartAssign() {
   assignStartResetButtonElement.addEventListener('click', startAssign);
 
   const assignStartResetTextElement =
-      document.getElementById('assignStartResetText');
+      document.getElementById('assign-start-reset-text');
   assignStartResetTextElement.innerText = 'Click to Start';
 
   const assignSuspectedActionItemsElement =
-      document.getElementById('assignSuspectedActionItems');
+      document.getElementById('assign-suspected-action-items');
   assignSuspectedActionItemsElement.innerText = '-';
 
   disableAssignAcceptRejectButtons();
@@ -151,7 +151,7 @@ function disableAssignAcceptRejectButtons() {
  */
 function enableAssignStartResetButton() {
   const assignStartResetButtonElement =
-      document.getElementById('assignStartResetButton');
+      document.getElementById('assign-start-reset-button');
   assignStartResetButtonElement.classList.remove('u-button-disable');
 }
 
@@ -160,7 +160,7 @@ function enableAssignStartResetButton() {
  */
 function disableAssignStartResetButton() {
   const assignStartResetButtonElement =
-      document.getElementById('assignStartResetButton');
+      document.getElementById('assign-start-reset-button');
   assignStartResetButtonElement.classList.add('u-button-disable');
 }
 

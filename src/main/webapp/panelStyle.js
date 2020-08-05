@@ -102,7 +102,7 @@ function createTextListElement(inputElementId, listElementId) {
     inputElement.value = '';
     return;
   }
-  phrase = phrase.split(',').join('');
+  phrase = phrase.replace(',', '');
   inputElement.value = '';
 
   createTextListElementFromString(phrase, listElementId);
