@@ -124,6 +124,13 @@
   Add bold and underline to text
  */
 .u-bold-underline {
-  font-weight: var(--font-weight-bold);
-  text-decoration: underline solid;
+  font-weight: var(--font-weight-bold) !important;
+  text-decoration: underline solid !important;
+}
+
+/*
+  Right-align an object by setting the left margin to all the available space.
+ */
+.u-right-align {
+  margin-left: auto !important;
 }

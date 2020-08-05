@@ -75,6 +75,10 @@ public class GmailClientImpl implements GmailClient {
               .setPageToken(nextPageToken)
               .execute();
       newBatchUserMessages = response.getMessages();
+      if (newBatchUserMessages == null) {
+        break;
+      }
+
       nextPageToken = response.getNextPageToken();
       userMessages.addAll(newBatchUserMessages);
     } while (nextPageToken != null);
@@ -117,7 +121,7 @@ public class GmailClientImpl implements GmailClient {
     String unreadQuery = GmailClient.unreadEmailQuery(true);
     String searchQuery = GmailClient.combineSearchQueries(ageQuery, unreadQuery);
 
-    return listUserMessagesWithFormat(messageFormat, searchQuery);
+    return listUserMessagesWithFormat(searchQuery, messageFormat);
   }
 
   @Override
@@ -129,7 +133,24 @@ public class GmailClientImpl implements GmailClient {
     String subjectLineQuery = GmailClient.oneOfPhrasesInSubjectLineQuery(subjectLinePhrases);
     String searchQuery = GmailClient.combineSearchQueries(ageQuery, unreadQuery, subjectLineQuery);
 
-    return listUserMessagesWithMetadataHeaders(searchQuery, metadataHeaders);
+    return listUserMessagesWithFormat(searchQuery, MessageFormat.METADATA, metadataHeaders);
+  }
+
+  /**
+   * Lists out messages, but maps each user message to a specific message format. Uses batching,
+   * where there is a limit of 100 calls per batch request.
+   *
+   * @param searchQuery search query to filter which results are returned (see:
+   *     https://support.google.com/mail/answer/7190?hl=en)
+   * @param messageFormat GmailClient.MessageFormat setting that specifies how much information from
+   *     each email to retrieve
+   * @return list of messages with requested information
+   * @throws IOException if there is an issue with the GmailService
+   */
+  private List<Message> listUserMessagesWithFormat(
+      String searchQuery, GmailClient.MessageFormat messageFormat) throws IOException {
+
+    return listUserMessagesWithFormat(searchQuery, messageFormat, null);
   }
 
   /**
@@ -140,11 +161,13 @@ public class GmailClientImpl implements GmailClient {
    *     each email to retrieve
    * @param searchQuery search query to filter which results are returned (see:
    *     https://support.google.com/mail/answer/7190?hl=en)
+   * @param metadataHeaders list of names of headers (e.g. "From") that should be included
    * @return list of messages with requested information
    * @throws IOException if there is an issue with the GmailService
    */
   private List<Message> listUserMessagesWithFormat(
-      GmailClient.MessageFormat messageFormat, String searchQuery) throws IOException {
+      String searchQuery, GmailClient.MessageFormat messageFormat, List<String> metadataHeaders)
+      throws IOException {
     List<Message> userMessagesWithoutFormat = listUserMessages(searchQuery);
     List<Message> userMessagesWithFormat = new ArrayList<>();
 
@@ -165,48 +188,6 @@ public class GmailClientImpl implements GmailClient {
             .messages()
             .get("me", currentMessage.getId())
             .setFormat(messageFormat.formatValue)
-            .queue(batchRequest, batchCallback);
-        messageIndex++;
-      }
-
-      batchRequest.execute();
-    }
-
-    return userMessagesWithFormat;
-  }
-
-  /**
-   * Lists out messages, but maps each user message to the METADATA format with only the specified
-   * headers. Uses batching, where there is a limit of 100 calls per batch request.
-   *
-   * @param searchQuery search query to filter which results are returned (see:
-   *     https://support.google.com/mail/answer/7190?hl=en)
-   * @param metadataHeaders list of names of headers (e.g. "From") that should be included
-   * @return list of messages with requested information
-   * @throws IOException if there is an issue with the GmailService
-   */
-  private List<Message> listUserMessagesWithMetadataHeaders(
-      String searchQuery, List<String> metadataHeaders) throws IOException {
-    List<Message> userMessagesWithoutFormat = listUserMessages(searchQuery);
-    List<Message> userMessagesWithFormat = new ArrayList<>();
-
-    // When each message is retrieved, add them to the userMessagesWithFormat list
-    JsonBatchCallback<Message> batchCallback = addToListMessageCallback(userMessagesWithFormat);
-
-    // Add messages to a batch request, BATCH_REQUEST_CALL_LIMIT messages at a time
-    // At time of writing, the limit is 100 messages, so it will add 100 messages per request
-    int messageIndex = 0;
-    while (messageIndex < userMessagesWithoutFormat.size()) {
-      BatchRequest batchRequest = gmailService.batch();
-
-      while (messageIndex < userMessagesWithoutFormat.size()
-          && batchRequest.size() < BATCH_REQUEST_CALL_LIMIT) {
-        Message currentMessage = userMessagesWithoutFormat.get(messageIndex);
-        gmailService
-            .users()
-            .messages()
-            .get("me", currentMessage.getId())
-            .setFormat(MessageFormat.METADATA.formatValue)
             .setMetadataHeaders(metadataHeaders)
             .queue(batchRequest, batchCallback);
         messageIndex++;
