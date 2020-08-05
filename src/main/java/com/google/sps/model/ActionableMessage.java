@@ -48,9 +48,22 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
     return subject;
   }
 
+  public long getInternalDate() {
+    return internalDate;
+  }
+
+  public MessagePriority getPriority() {
+    return priority;
+  }
+
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(7, 17).append(id).append(subject).toHashCode();
+    return new HashCodeBuilder(7, 17)
+        .append(id)
+        .append(subject)
+        .append(internalDate)
+        .append(priority.getPriorityValue())
+        .toHashCode();
   }
 
   @Override
@@ -65,6 +78,8 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
     return new EqualsBuilder()
         .append(id, actionableMessage.getId())
         .append(subject, actionableMessage.getSubject())
+        .append(internalDate, actionableMessage.getInternalDate())
+        .append(priority.getPriorityValue(), actionableMessage.getPriority().getPriorityValue())
         .isEquals();
   }
 
