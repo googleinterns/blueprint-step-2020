@@ -397,6 +397,8 @@ function populatePlanMail() {
             intervalContainer.appendChild(liElement);
           }
         }
+      }
+}
     
 /**   
  * Set up the assign panel. For now, this just prints the response
