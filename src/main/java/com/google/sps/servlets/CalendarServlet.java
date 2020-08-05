@@ -125,8 +125,8 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Creates a new event when POST method called. Use the time boundaries given in the request
-   * for creating the event in the primary calendar. The summary for this event is Read emails.
+   * Creates a new event when POST method called. Use the time boundaries given in the request for
+   * creating the event in the primary calendar. The summary for this event is Read emails.
    *
    * @param request Http request from the client. Body contains start and end parameters
    * @param response 403 if user is not authenticated, or string saying the event has been created

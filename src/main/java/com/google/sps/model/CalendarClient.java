@@ -59,9 +59,9 @@ public interface CalendarClient {
    */
   Date getCurrentTime() throws IOException;
 
- /**
-   * Create an event on the calendar with the given calendarId. Use the given
-   * start and end periods and the summary provided in the parameters
+  /**
+   * Create an event on the calendar with the given calendarId. Use the given start and end periods
+   * and the summary provided in the parameters
    *
    * @param start the start time of the event
    * @param end the end time of the event
