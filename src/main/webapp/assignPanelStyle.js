@@ -35,7 +35,7 @@ function displayAssignSettings() {
   acceptButton.innerText = 'Confirm';
   rejectButton.innerText = 'Reset';
 
-  acceptButton.addEventListener('click', setUpAssign);
+  acceptButton.addEventListener('click', confirmSettingsAndShowPanel);
   rejectButton.addEventListener('click', assignRevertSettings);
   acceptButton.removeEventListener('click', assignAddCurrentEmail);
   rejectButton.removeEventListener('click', assignSkipCurrentEmail);
@@ -53,7 +53,7 @@ function displayAssignContent() {
   acceptButton.innerText = 'Add Task';
   rejectButton.innerText = 'Skip Item';
 
-  acceptButton.removeEventListener('click', setUpAssign);
+  acceptButton.removeEventListener('click', confirmSettingsAndShowPanel);
   rejectButton.removeEventListener('click', assignRevertSettings);
   acceptButton.addEventListener('click', assignAddCurrentEmail);
   rejectButton.addEventListener('click', assignSkipCurrentEmail);
@@ -111,6 +111,9 @@ function restartAssign() {
       document.getElementById('assign-suspected-action-items');
   assignSuspectedActionItemsElement.innerText = '-';
 
+  const subjectLineElement = document.getElementById('assign-subject');
+  subjectLineElement.innerText = '';
+
   disableAssignAcceptRejectButtons();
   disableAssignStartResetButton();
 
@@ -162,5 +165,17 @@ function disableAssignStartResetButton() {
   const assignStartResetButtonElement =
       document.getElementById('assign-start-reset-button');
   assignStartResetButtonElement.classList.add('u-button-disable');
+}
+
+/**
+ * Will confirm the settings entered by the user in the settings panel,
+ * and "click" the settings icon so the panel swtiches to the content view
+ * (and all associated side effects of clicking the button, etc, are handled)
+ */
+function confirmSettingsAndShowPanel() {
+  restartAssign();
+  const assignSettingsButton =
+      document.querySelector('#assign-settings-icon img:not([hidden])');
+  assignSettingsButton.click();
 }
 
