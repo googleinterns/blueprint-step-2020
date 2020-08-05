@@ -45,36 +45,46 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public class GoServletTest extends AuthenticatedServletTestBase {
 
-  private DirectionsClientFactory directionsClientFactory;
-  private DirectionsClient directionsClient;
-  private PlacesClientFactory placesClientFactory;
-  private PlacesClient placesClient;
-  private TasksClientFactory tasksClientFactory;
-  private TasksClient tasksClient;
-  private GeocodingClientFactory geocodingClientFactory;
-  private GeocodingClient geocodingClient;
-  private GoServlet servlet;
+  private static DirectionsClientFactory directionsClientFactory;
+  private static DirectionsClient directionsClient;
+  private static PlacesClientFactory placesClientFactory;
+  private static PlacesClient placesClient;
+  private static TasksClientFactory tasksClientFactory;
+  private static TasksClient tasksClient;
+  private static GeocodingClientFactory geocodingClientFactory;
+  private static GeocodingClient geocodingClient;
+  private static GoServlet servlet;
+
+  private static GeocodingResult streetAddressGeocodingResult = new GeocodingResult();
+  private static Geometry streetAddressGeometry = new Geometry();
+  private static LatLng streetAddressCoordinates = new LatLng(0, 0);
+  private static GeocodingResult restaurantGeocodingResult = new GeocodingResult();
+
+  private static Duration longerDuration = new Duration();
+  private static DirectionsLeg longerLeg = new DirectionsLeg();
+  private static DirectionsRoute longerRoute = new DirectionsRoute();
+  private static DirectionsResult longerResult = new DirectionsResult();
+
+  private static Duration shorterDuration = new Duration();
+  private static DirectionsLeg shorterLeg = new DirectionsLeg();
+  private static DirectionsRoute shorterRoute = new DirectionsRoute();
+  private static DirectionsResult shorterResult = new DirectionsResult();
 
   private static final String API_KEY = "fake api key";
+
+  private static final String ORIGIN = "A";
+  private static final String DESTINATION = "B";
+
   private static final String RESTAURANT_ONE = "restaurant near coordinate one";
   private static final String RESTAURANT_TWO = "restaurant near coordinate two";
   private static final String BANK_ONE = "bank near coordinate one";
   private static final String BANK_TWO = "bank near coordinate two";
 
-  private GeocodingResult streetAddressGeocodingResult = new GeocodingResult();
-  private Geometry streetAddressGeometry = new Geometry();
-  private LatLng streetAddressCoordinates = new LatLng(0, 0);
-  private GeocodingResult restaurantGeocodingResult = new GeocodingResult();
+  private static final long FIVE_SECONDS = 5;
+  private static final long TEN_SECONDS = 10;
 
-  private Duration longerDuration = new Duration();
-  private DirectionsLeg longerLeg = new DirectionsLeg();
-  private DirectionsRoute longerRoute = new DirectionsRoute();
-  private DirectionsResult longerResult = new DirectionsResult();
-
-  private Duration shorterDuration = new Duration();
-  private DirectionsLeg shorterLeg = new DirectionsLeg();
-  private DirectionsRoute shorterRoute = new DirectionsRoute();
-  private DirectionsResult shorterResult = new DirectionsResult();
+  private static final List<String> STREET_ADDRESS_AND_RESTAURANT_WAYPOINTS =
+      ImmutableList.of("street address", "restaurant");
 
   @Override
   @Before
@@ -94,12 +104,12 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     streetAddressGeocodingResult.types = new AddressType[] {AddressType.STREET_ADDRESS};
     restaurantGeocodingResult.types = new AddressType[] {AddressType.RESTAURANT};
 
-    longerDuration.inSeconds = 10;
+    longerDuration.inSeconds = TEN_SECONDS;
     longerLeg.duration = longerDuration;
     longerRoute.legs = new DirectionsLeg[] {longerLeg};
     longerResult.routes = new DirectionsRoute[] {longerRoute};
 
-    shorterDuration.inSeconds = 5;
+    shorterDuration.inSeconds = FIVE_SECONDS;
     shorterLeg.duration = shorterDuration;
     shorterRoute.legs = new DirectionsLeg[] {shorterLeg};
     shorterResult.routes = new DirectionsRoute[] {shorterRoute};
@@ -122,7 +132,6 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   public void separateWaypoints() throws Exception {
     // Street address should be converted into coordinates, restaurant should be converted into
     // place type
-    List<String> waypoints = ImmutableList.of("street address", "restaurant");
     List<String> streetAddressWaypoints = new ArrayList<String>();
     List<Optional<LatLng>> streetAddressWaypointsAsCoordinates = new ArrayList<Optional<LatLng>>();
     List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes =
@@ -134,7 +143,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
         .thenReturn(ImmutableList.of(restaurantGeocodingResult));
 
     servlet.separateWaypoints(
-        waypoints,
+        STREET_ADDRESS_AND_RESTAURANT_WAYPOINTS,
         streetAddressWaypoints,
         streetAddressWaypointsAsCoordinates,
         nonStreetAddressWaypointsAsPlaceTypes);
@@ -181,20 +190,18 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   @Test
   public void chooseWaypointCombinationWithShortestTravelTime() throws Exception {
     // Find the waypoints which result in the shorter travel time
-    String origin = "A";
-    String destination = "B";
     List<String> longerTravelTimeWaypoints = ImmutableList.of("long", "long");
     List<String> shorterTravelTimeWaypoints = ImmutableList.of("short", "medium");
 
-    Mockito.when(directionsClient.getDirections(origin, destination, longerTravelTimeWaypoints))
+    Mockito.when(directionsClient.getDirections(ORIGIN, DESTINATION, longerTravelTimeWaypoints))
         .thenReturn(longerResult);
-    Mockito.when(directionsClient.getDirections(origin, destination, shorterTravelTimeWaypoints))
+    Mockito.when(directionsClient.getDirections(ORIGIN, DESTINATION, shorterTravelTimeWaypoints))
         .thenReturn(shorterResult);
 
     List<String> actual =
         servlet.chooseWaypointCombinationWithShortestTravelTime(
-            origin,
-            destination,
+            ORIGIN,
+            DESTINATION,
             ImmutableList.of(longerTravelTimeWaypoints, shorterTravelTimeWaypoints));
 
     Assert.assertEquals(shorterTravelTimeWaypoints, actual);
@@ -204,10 +211,6 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   public void optimizeSearchNearbyWaypoints() throws Exception {
     // Optimize waypoints for one street address and one restaurant, street address is returned as
     // it is, the nearest restaurant is found and returned
-    String origin = "A";
-    String destination = "B";
-    List<String> waypoints = ImmutableList.of("street address", "restaurant");
-
     GeocodingResult originResult = new GeocodingResult();
     Geometry originGeometry = new Geometry();
     LatLng originCoordinates = new LatLng(-10, 10);
@@ -222,9 +225,9 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     destinationGeometry.location = destinationCoordinates;
     destinationResult.types = new AddressType[] {AddressType.STREET_ADDRESS};
 
-    Mockito.when(geocodingClient.getGeocodingResult(origin))
+    Mockito.when(geocodingClient.getGeocodingResult(ORIGIN))
         .thenReturn(ImmutableList.of(originResult));
-    Mockito.when(geocodingClient.getGeocodingResult(destination))
+    Mockito.when(geocodingClient.getGeocodingResult(DESTINATION))
         .thenReturn(ImmutableList.of(destinationResult));
 
     Mockito.when(geocodingClient.getGeocodingResult("street address"))
@@ -242,14 +245,16 @@ public class GoServletTest extends AuthenticatedServletTestBase {
 
     Mockito.when(
             directionsClient.getDirections(
-                origin, destination, ImmutableList.of("place_id:" + RESTAURANT_ONE)))
+                ORIGIN, DESTINATION, ImmutableList.of("place_id:" + RESTAURANT_ONE)))
         .thenReturn(longerResult);
     Mockito.when(
             directionsClient.getDirections(
-                origin, destination, ImmutableList.of("place_id:" + RESTAURANT_TWO)))
+                ORIGIN, DESTINATION, ImmutableList.of("place_id:" + RESTAURANT_TWO)))
         .thenReturn(shorterResult);
 
-    List<String> actual = servlet.optimizeSearchNearbyWaypoints(origin, destination, waypoints);
+    List<String> actual =
+        servlet.optimizeSearchNearbyWaypoints(
+            ORIGIN, DESTINATION, STREET_ADDRESS_AND_RESTAURANT_WAYPOINTS);
 
     Assert.assertEquals(ImmutableList.of("place_id:" + RESTAURANT_TWO, "street address"), actual);
   }

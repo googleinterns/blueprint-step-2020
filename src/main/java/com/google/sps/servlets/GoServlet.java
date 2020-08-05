@@ -100,6 +100,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
   /**
    * Returns the most optimal order of travel between addresses.
    *
+   * @param taskLists A String of comma separated task list IDs from the query string.
    * @param request HTTP request from the client.
    * @param response HTTP response to the client.
    * @throws ServletException
@@ -111,7 +112,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
       throws ServletException, IOException {
     assert googleCredential != null
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
-    // Get all tasks from user's tasks account
+    // Get all tasks from user's tasks account TODO: Allow user to pick specific task lists PR #149
     TasksClient tasksClient = tasksClientFactory.getTasksClient(googleCredential);
     DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
 
@@ -198,10 +199,10 @@ public class GoServlet extends AuthenticatedHttpServlet {
     for (PlaceType nonStreetAddressWaypoint : nonStreetAddressWaypointsAsPlaceTypes) {
       List<String> searchNearbyResults = new ArrayList<>();
       for (LatLng coordinate : streetAddressesAsCoordinates) {
-        PlaceType placeType = nonStreetAddressWaypoint;
-        RankBy rankBy = RankBy.DISTANCE;
+
         PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
-        String nearestMatch = placesClient.searchNearby(coordinate, placeType, rankBy);
+        String nearestMatch =
+            placesClient.searchNearby(coordinate, nonStreetAddressWaypoint, RankBy.DISTANCE);
         if (nearestMatch != null) {
           searchNearbyResults.add("place_id:" + nearestMatch);
         }
@@ -266,6 +267,10 @@ public class GoServlet extends AuthenticatedHttpServlet {
         GeocodingResultUtility.getCoordinates(
             geocodingClientFactory.getGeocodingClient(apiKey).getGeocodingResult(destination));
 
+    if (!originAsCoordinates.isPresent() || !destinationAsCoordinates.isPresent()) {
+      throw new GeocodingException("Origin or destination is invalid");
+    }
+
     List<String> streetAddressWaypoints = new ArrayList<>();
     List<Optional<LatLng>> streetAddressWaypointsAsCoordinates = new ArrayList<>();
     List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes = new ArrayList<>();
@@ -276,11 +281,13 @@ public class GoServlet extends AuthenticatedHttpServlet {
         nonStreetAddressWaypointsAsPlaceTypes);
 
     // All street address coordinates including origin and destination are collected
-    List<Optional<LatLng>> streetAddressesAsCoordinates = streetAddressWaypointsAsCoordinates;
+    List<Optional<LatLng>> streetAddressesAsCoordinates = new ArrayList<>();
+    streetAddressesAsCoordinates.addAll(streetAddressWaypointsAsCoordinates);
     streetAddressesAsCoordinates.add(originAsCoordinates);
     streetAddressesAsCoordinates.add(destinationAsCoordinates);
 
-    // Remove all null entries of street address coordinates and non street address waypoints
+    // Remove all optional empty entries of street address coordinates and non street address
+    // waypoints
     List<LatLng> nonEmptyStreetAddressesAsCoordinates =
         streetAddressesAsCoordinates.stream()
             .filter(coordinates -> !coordinates.equals(Optional.empty()))
