@@ -17,9 +17,7 @@ package com.google.sps.model;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /** Contract for trivial get requests from the Tasks API. */
 public interface TasksClient {
@@ -58,40 +56,4 @@ public interface TasksClient {
    * @throws IOException if an issue occurs with the tasksService
    */
   Task postTask(String parentTaskListId, Task task) throws IOException;
-
-  /**
-   * Get the all tasks in all the user's task lists
-   *
-   * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
-   * @return List of tasks from all task lists in user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  static List<Task> getAllTasksFromAllTaskLists(TasksClient tasksClient) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      tasks.addAll(tasksClient.listTasks(taskList));
-    }
-    return tasks;
-  }
-
-  /**
-   * Get the tasks in the user's task lists with the given task list IDs
-   *
-   * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
-   * @param taskListTitles List of task list IDs which tasks should be obtained from
-   * @return List of tasks from specified task lists in user's account
-   * @throws IOException if an issue occurs with the tasksService
-   */
-  static List<Task> getAllTasksFromSpecificTaskLists(
-      TasksClient tasksClient, Set<String> taskListIds) throws IOException {
-    List<TaskList> taskLists = tasksClient.listTaskLists();
-    List<Task> tasks = new ArrayList<>();
-    for (TaskList taskList : taskLists) {
-      if (taskListIds.contains(taskList.getId())) {
-        tasks.addAll(tasksClient.listTasks(taskList));
-      }
-    }
-    return tasks;
-  }
 }
