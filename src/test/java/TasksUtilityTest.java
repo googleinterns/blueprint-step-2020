@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-/** Test Authentication Utility functions */
+/** Test Tasks Utility functions */
 @RunWith(JUnit4.class)
 public final class TasksUtilityTest {
 
