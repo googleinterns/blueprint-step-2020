@@ -23,11 +23,13 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Optional;
 
 /** Verifies authentication information with Google */
 public class AuthenticationVerifierImpl implements AuthenticationVerifier {
   @Override
-  public boolean verifyUserToken(String idToken) throws GeneralSecurityException, IOException {
+  public Optional<String> getUserEmail(String idToken)
+      throws GeneralSecurityException, IOException {
     // OAuth 2.0 Client ID
     String clientId = AuthenticationVerifier.getClientId();
     // Build a verifier used to ensure the passed user ID is legitimate
@@ -41,6 +43,6 @@ public class AuthenticationVerifierImpl implements AuthenticationVerifier {
     // If the userToken is not null, the identity is verified and vice versa
     GoogleIdToken userToken = verifier.verify(idToken);
 
-    return userToken != null;
+    return Optional.ofNullable(userToken).map(t -> t.getPayload().getEmail());
   }
 }
