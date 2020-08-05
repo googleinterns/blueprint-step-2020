@@ -50,13 +50,6 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
   private static final String EVENT_SUMMARY_ONE = "test event one";
   private static final String EVENT_SUMMARY_TWO = "test event two";
   private static final int OFFSET_YEAR = 1900;
-  // private static final String EVENT_ONE_TWO_JSON =
-  //     String.format(
-  //         "[{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE, EVENT_SUMMARY_TWO);
-  // private static final String EVENT_ALL_JSON =
-  //     String.format(
-  //         "[{},{\"summary\":\"%s\"},{\"summary\":\"%s\"}]", EVENT_SUMMARY_ONE,
-  // EVENT_SUMMARY_TWO);
   private static final String EVENT_UNDEFINED_JSON = "[{}]";
   private static final String EMPTY_JSON = "[]";
   private static final CalendarListEntry PRIMARY = new CalendarListEntry().setId("primary");
@@ -95,9 +88,6 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
     servlet = new CalendarServlet(authenticationVerifier, calendarClientFactory);
 
     Mockito.when(calendarClientFactory.getCalendarClient(Mockito.any())).thenReturn(calendarClient);
-    // Authentication will always pass
-    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString())).thenReturn(true);
-
     // Writer used in get/post requests to capture HTTP response values
     stringWriter = new StringWriter();
 
@@ -136,7 +126,7 @@ public final class CalendarServletTest extends AuthenticatedServletTestBase {
   @Test
   public void twoCalendars() throws Exception {
     // Test case where there are two calendars with a defined event in each
-    // Event with 1 working hour and event with 2 personal hours.
+    // Event with 1 working hour and event overlapping 1 hour with personal time.
     Mockito.when(calendarClient.getCalendarList()).thenReturn(TWO_CALENDARS);
     Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
         .thenReturn(EVENT_ONE);
