@@ -405,8 +405,8 @@ function populatePlanMail() {
         }
       });
 }
-    
-/**   
+
+/** 
  * Set up the assign panel. For now, this just prints the response
  * from the server for /gmail-actionable-emails
  */
