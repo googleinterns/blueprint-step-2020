@@ -25,9 +25,9 @@ import java.util.Optional;
 /** Utility class to extract data from GeocodingResult objects. */
 public class GeocodingResultUtility {
   /**
-   * Parses for the first coordinate which is of a street address type. If no street address type
-   * results are found, the coordinates of the first result is returned. found in a resulting call
-   * to the Geocoding API.
+   * Parses for the first coordinate which is of a street address type in a result
+   * from the Geocoding API. If no street address type
+   * results are found, the coordinates of the first result is returned.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A LatLng representing coordinates.
@@ -75,7 +75,7 @@ public class GeocodingResultUtility {
   }
 
   /**
-   * Parses for an address type and converts it to a place type if available. This place type is
+   * Parses for an address type and converts it to a place type if an equivalent is available. This place type is
    * used to further determine a location which results in a route with the shortest travel time.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
