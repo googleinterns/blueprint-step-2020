@@ -34,8 +34,10 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -89,7 +91,7 @@ public class TasksServlet extends AuthenticatedHttpServlet {
     if (taskLists == null) {
       tasks = TasksClient.getAllTasksFromAllTaskLists(tasksClient);
     } else {
-      List<String> selectedTaskListIds = Arrays.asList(taskLists.split(","));
+      Set<String> selectedTaskListIds = new HashSet<>(Arrays.asList(taskLists.split(",")));
       tasks = TasksClient.getAllTasksFromSpecificTaskLists(tasksClient, selectedTaskListIds);
     }
 

@@ -19,6 +19,7 @@ import com.google.api.services.tasks.model.TaskList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /** Contract for trivial get requests from the Tasks API. */
 public interface TasksClient {
@@ -38,14 +39,6 @@ public interface TasksClient {
    * @throws IOException if an issue occurs with the TasksService
    */
   List<TaskList> listTaskLists() throws IOException;
-
-  /**
-   * Get all task lists in a user's Tasks account with the specified task list titles
-   *
-   * @return List of task lists with any of the given task list titles
-   * @throws IOException if an issue occurs with the TasksService
-   */
-  List<TaskList> listTaskLists(List<String> taskListTitles) throws IOException;
 
   /**
    * Add a new task list to user's Tasks account
@@ -91,7 +84,7 @@ public interface TasksClient {
    * @throws IOException if an issue occurs with the tasksService
    */
   static List<Task> getAllTasksFromSpecificTaskLists(
-      TasksClient tasksClient, List<String> taskListIds) throws IOException {
+      TasksClient tasksClient, Set<String> taskListIds) throws IOException {
     List<TaskList> taskLists = tasksClient.listTaskLists();
     List<Task> tasks = new ArrayList<>();
     for (TaskList taskList : taskLists) {

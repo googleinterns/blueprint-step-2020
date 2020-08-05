@@ -26,7 +26,6 @@ import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /** Handles basic GET/POST requests to and from the Google Tasks service */
 public class TasksClientImpl implements TasksClient {
@@ -46,7 +45,7 @@ public class TasksClientImpl implements TasksClient {
 
   @Override
   public List<Task> listTasks(TaskList taskList) throws IOException {
-    // Returns null if no tasks exist. Convert to empty list for ease.
+    // Empty list returned if no tasks exist.
     // setShowHidden indicates that hidden/completed tasks are retrieved as well.
     List<Task> tasks =
         tasksService.tasks().list(taskList.getId()).setShowHidden(true).execute().getItems();
@@ -56,21 +55,10 @@ public class TasksClientImpl implements TasksClient {
 
   @Override
   public List<TaskList> listTaskLists() throws IOException {
-    // returns null if no taskLists exist. Convert to empty list for ease.
+    // Empty list returned if no task lists exist.
     List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
 
     return taskLists != null ? taskLists : new ArrayList<>();
-  }
-
-  @Override
-  public List<TaskList> listTaskLists(List<String> taskListTitles) throws IOException {
-    // returns null if no taskLists exist. Convert to empty list for ease.
-    List<TaskList> taskLists = listTaskLists();
-    taskLists = taskLists != null ? taskLists : new ArrayList<>();
-    taskLists.stream()
-        .filter(taskList -> taskListTitles.contains(taskList.getTitle()))
-        .collect(Collectors.toList());
-    return taskLists;
   }
 
   @Override
