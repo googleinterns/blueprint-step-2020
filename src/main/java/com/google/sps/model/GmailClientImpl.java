@@ -125,7 +125,6 @@ public class GmailClientImpl implements GmailClient {
         .collect(Collectors.toList());
   }
 
-
   /**
    * Lists out messages, but maps each user message to the METADATA format with only the specified
    * headers.
