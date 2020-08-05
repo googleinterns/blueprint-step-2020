@@ -15,6 +15,8 @@
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
 import com.google.sps.model.PlacesClient;
+import com.google.sps.model.PlacesClientImpl;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +51,7 @@ public class PlacesClientTest {
   public void noPlaceResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {};
-    String actual = PlacesClient.getPlaceId(response);
+    String actual = PlacesClientImpl.getPlaceId(response);
     Assert.assertEquals("", actual);
   }
 
@@ -57,7 +59,7 @@ public class PlacesClientTest {
   public void onePlaceResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {googleKitchener};
-    String actual = PlacesClient.getPlaceId(response);
+    String actual = PlacesClientImpl.getPlaceId(response);
     Assert.assertEquals(GOOGLE_KITCHENER_PLACE_ID, actual);
   }
 
@@ -66,7 +68,7 @@ public class PlacesClientTest {
     // Only formatted address of first result is returned, second result is ignored
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {googleKitchener, googleMontreal};
-    String actual = PlacesClient.getPlaceId(response);
+    String actual = PlacesClientImpl.getPlaceId(response);
     Assert.assertEquals(GOOGLE_KITCHENER_PLACE_ID, actual);
   }
 }

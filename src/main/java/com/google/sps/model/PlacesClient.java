@@ -26,27 +26,14 @@ import com.google.sps.exceptions.PlacesException;
  */
 public interface PlacesClient {
   /**
-   * Sends a GET request to the Google Places API for nearby locations.
+   * Sends a GET request to the Google Places API for nearby locations. In the event of multiple results, 
    *
    * @param location A LatLng with coordinates of the location to search nearby.
    * @param placeType A PlaceType representing the type of place to look for.
    * @param rankBy A RankBy representing how to sort results. e.g. distance to location.
-   * @return A list of formatted addresses from the results of the GET request.
+   * @return A String representing the Place ID of the first result.
    * @throws PlacesException A custom exception is thrown to signal an error pertaining to the
    *     Places API.
    */
   String searchNearby(LatLng location, PlaceType placeType, RankBy rankBy) throws PlacesException;
-
-  /**
-   * Gets place ID of first result from the response from the Google Places API. Scope of method is
-   * public for testing purposes.
-   *
-   * @param response The PlacesSearchResponse object to get formatted addresses from
-   */
-  public static String getPlaceId(PlacesSearchResponse response) {
-    if (response.results.length != 0) {
-      return response.results[0].placeId;
-    }
-    return "";
-  }
 }
