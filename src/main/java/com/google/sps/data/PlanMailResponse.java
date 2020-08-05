@@ -20,10 +20,10 @@ import java.util.*;
 /** Class containing the response to be converted to Json. */
 public final class PlanMailResponse {
 
-  final int wordCount;
-  final int averageReadingSpeed;
-  final int minutesToRead;
-  final List<DateInterval> potentialEventTimes;
+  private final int wordCount;
+  private final int averageReadingSpeed;
+  private final int minutesToRead;
+  private final List<DateInterval> potentialMeetingTimes;
 
   /** Initialize the class with all the parameters required. */
   public PlanMailResponse(
@@ -38,22 +38,18 @@ public final class PlanMailResponse {
   }
 
   public int getWordCount() {
-    // Useful for testing purposes
     return wordCount;
   }
 
   public int getAverageReadingSpeed() {
-    // Useful for testing purposes
     return averageReadingSpeed;
   }
 
   public int getMinutesToRead() {
-    // Useful for testing purposes
     return minutesToRead;
   }
 
-  public List<DateInterval> getPotentialEventTimes() {
-    // Useful for testing purposes
-    return potentialEventTimes;
+  public List<DateInterval> getPotentialMeetingTimes() {
+    return potentialMeetingTimes;
   }
 }

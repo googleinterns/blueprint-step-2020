@@ -37,3 +37,12 @@ html {
 body {
   box-sizing: border-box;
 }
+
+/*
+  This makes hidden more powerful. Typically, if you use any display property on a
+  hidden element, it overrides the "hidden" property. This prevents that effect.
+ */
+[hidden],
+[hidden="true"] {
+  display: none !important;
+}

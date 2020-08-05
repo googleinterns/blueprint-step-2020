@@ -14,6 +14,7 @@
 
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
+import java.util.Optional;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import org.junit.Assert;
@@ -42,6 +43,7 @@ public class AuthenticatedHttpServletTest extends ServletTestBase {
   private static final String ID_TOKEN_VALUE = "sampleId";
   private static final String ACCESS_TOKEN_KEY = "accessToken";
   private static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
+  private static final String USER_EMAIL = "example@example.com";
 
   private static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
   private static final Cookie sampleAccessTokenCookie =
@@ -71,16 +73,14 @@ public class AuthenticatedHttpServletTest extends ServletTestBase {
   public void getRequestFakeIdToken() throws Exception {
     // If a fake (or empty, which is fake) idToken is present, ServletException should be thrown.
     // This is not an expected path, and indicates malicious behaviour.
-    Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_NOT_VERIFIED);
+    Mockito.when(authVerifier.getUserEmail(ID_TOKEN_VALUE)).thenReturn(Optional.empty());
     Mockito.when(request.getCookies()).thenReturn(validCookies);
     servlet.doGet(request, response);
   }
 
   @Test
   public void getRequestNoAccessToken() throws Exception {
-    Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
+    Mockito.when(authVerifier.getUserEmail(ID_TOKEN_VALUE)).thenReturn(Optional.of(USER_EMAIL));
     Mockito.when(request.getCookies()).thenReturn(noAccessTokenCookies);
     servlet.doGet(request, response);
     Assert.assertEquals(403, response.getStatus());
@@ -88,8 +88,7 @@ public class AuthenticatedHttpServletTest extends ServletTestBase {
 
   @Test
   public void getRequestProperAuthentication() throws Exception {
-    Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
+    Mockito.when(authVerifier.getUserEmail(ID_TOKEN_VALUE)).thenReturn(Optional.of(USER_EMAIL));
     Mockito.when(request.getCookies()).thenReturn(validCookies);
     servlet.doGet(request, response);
     // doGet's default implementation should return a 400 error to client to indicate request not
@@ -115,16 +114,14 @@ public class AuthenticatedHttpServletTest extends ServletTestBase {
   public void postRequestFakeIdToken() throws Exception {
     // If a fake (or empty, which is fake) idToken is present, ServletException should be thrown.
     // This is not an expected path, and indicates malicious behaviour.
-    Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_NOT_VERIFIED);
+    Mockito.when(authVerifier.getUserEmail(ID_TOKEN_VALUE)).thenReturn(Optional.empty());
     Mockito.when(request.getCookies()).thenReturn(validCookies);
     servlet.doPost(request, response);
   }
 
   @Test
   public void postRequestNoAccessToken() throws Exception {
-    Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
+    Mockito.when(authVerifier.getUserEmail(ID_TOKEN_VALUE)).thenReturn(Optional.of(USER_EMAIL));
     Mockito.when(request.getCookies()).thenReturn(noAccessTokenCookies);
     servlet.doPost(request, response);
     Assert.assertEquals(403, response.getStatus());
@@ -132,8 +129,7 @@ public class AuthenticatedHttpServletTest extends ServletTestBase {
 
   @Test
   public void postRequestProperAuthentication() throws Exception {
-    Mockito.when(authVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
+    Mockito.when(authVerifier.getUserEmail(ID_TOKEN_VALUE)).thenReturn(Optional.of(USER_EMAIL));
     Mockito.when(request.getCookies()).thenReturn(validCookies);
     servlet.doPost(request, response);
     // doPost's default implementation should return a 400 error to client to indicate request not

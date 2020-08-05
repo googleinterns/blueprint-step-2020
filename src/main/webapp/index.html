@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="style/abstracts/_utilities.css">
 <link rel="stylesheet" href="style/layout/_layout.css">
 <link rel="stylesheet" href="style/components/_panel.css">
+<link rel="stylesheet" href="style/components/_button-circle.css">
+<link rel="stylesheet" href="style/components/_button-1-of-2.css">
 <link rel="stylesheet" href="style/layout/_header.css">
 <link rel="stylesheet" href="style/layout/_footer.css">
 <link rel="stylesheet" href="style/base/_base.css">
@@ -19,6 +21,8 @@
 <script src="populateData.js"></script>
 <script src="task.js"></script>
 <script src="auth.js"></script>
+<script src="panelStyle.js" defer></script>
+<script src="assignPanelStyle.js" defer></script>
 <!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
 <script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
 <!-- Title container for page with log-in button -->
@@ -81,25 +85,26 @@
             </a>
             <h3 class="panel__section-heading">Tasks</h3>
           </div>
-          <p class="panel__section-subheading">Selected Tasks:
+          <p class="panel__section-subheading">Task Lists: 
+            <select name="panel__task-list-select" id="tasks-select" onchange="populateTasks()" size="2" multiple></select>
           <div class="panel__content">
             <div class="panel__content-entry">
               <div class="panel__rounded-number u-background-tasks">
-                <p id="panel__tasks-to-complete" class="panel__text-data-point u-text-white">
+                <p class="panel__text-data-point u-text-white" id="tasks-to-complete">
               </div>
               <p class="panel__text-data-point">Tasks to complete
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="clipboard-icon" src="assets/clipboard.png">
-              <p id="panel__tasks-due-today" class="panel__text-large">4 due today
+              <p class="panel__text-large" id="tasks-due-today">4 due today
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="checkmark-icon" src="assets/checkmark.png">
-              <p id="panel__tasks-completed-today" class="panel__text-large">2 completed today
+              <p class="panel__text-large" id="tasks-completed-today">2 completed today
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="exclamation-icon" src="assets/exclamation.png">
-              <p id="panel__tasks-overdue" class="panel__text-large">1 overdue
+              <p class="panel__text-large" id="tasks-overdue">1 overdue
             </div>
           </div>
         </div>
@@ -128,9 +133,80 @@
   <article>
     <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
     <div class="panel-row__content">
-      <div class="panel">Assign</div>
-      <!-- Plan panel container-->
-      <div class="panel" id="plan">Plan
+      <div class="panel u-border-assign">
+        <div class="panel__toggle-icon" id="assignSettingsIcon">
+          <img hidden class="panel__toggle-icon--selected" alt="settings-icon" src="assets/settings-selected.png" onclick="displayAssignContent()">
+          <img class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/settings-unselected.png" onclick="displayAssignSettings()">
+        </div>
+        <!-- Assign content section-->
+        <div class="panel__content-entry u-remove-top-margin assign-content">
+          <!-- TODO: Create JS to update search query based on inputted words (Issue #130) -->
+          <a class="panel__content-entry-link" target="_blank" href="https://mail.google.com/mail/u/0/#search/subject%3A(%22TODO+FILL+IN+SEARCH+QUERY%22)">
+            <img class="panel__logo" alt="assign-logo" src="assets/assign.png">
+          </a>
+          <h3 class="panel__section-heading">Assign</h3>
+        </div>
+        <p class="panel__section-subheading assign-content">Find tasks in your emails:</p>
+        <div class="panel__content-entry assign-content">
+          <div class="panel__rounded-number u-background-assign">
+            <p class="panel__text-data-point u-text-white" id="assignSuspectedActionItems">6
+          </div>
+          <p class="panel__text-data-point">Possible Items:</p>
+        </div>
+        <div class="panel__content-entry assign-content">
+          <a class="button-circle"><span class="play-icon">▶</span></a>
+          <!-- Will default to click to start. When started, will list item number (e.g. "Item 1/6") -->
+          <p class="panel__text-data-point" id="assignItemCount">Click to start
+        </div>
+        <!-- Container to hold subject line of actionable email -->
+        <div class="panel__text-body assign-content">
+          <p class="panel__text-large">
+            <span class="u-bold-underline">Subject:</span>
+            <span id="assignSubject"> Lorem ipsum emmet Lorem ipsum emmet Lorem ipsum emmet</span>
+        </div>
+        <!-- Settings section -->
+        <h3 hidden class="panel__section-heading u-remove-top-margin assign-settings">Settings:</h3>
+        <div hidden class="panel__text-body assign-settings">
+          <div class="panel__content-entry u-remove-top-margin">
+            <p class="panel__text-large">Search <span class="u-bold-underline" id="assignNDays">7</span> days of email
+            <div class="panel__two-buttons-incremental u-right-align">
+              <a class="panel__button-incremental" onclick="incrementElement('assignNDays')"><span>+</span></a>
+              <a class="panel__button-incremental" onclick="decrementElement('assignNDays')"><span>-</span></a>
+            </div>
+          </div>
+          <div class="panel__content-entry">
+            <p class="panel__text-large">Use unread emails only
+            <div class="panel__toggle-icon u-right-align" id="assignUnreadOnlyIcon">
+              <img class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/checkbox-unselected.png">
+              <img hidden class="panel__toggle-icon--selected" alt="settings-icon" src="assets/checkbox-selected.png">
+            </div>
+          </div>
+          <div class="panel__list">
+            <p class="panel__text-large u-bold-underline">Search Phrases:
+            <ul class="panel__list-unordered" id="assignList">
+              <li class="panel__content-entry--list">
+                <p class="panel__list-text">Action Required</p>
+                <a class="panel__button-incremental--small u-right-align"><span>-</span></a>
+              </li>
+              <li class="panel__content-entry--list">
+                <p class="panel__list-text">Action Requested</p>
+                <a class="panel__button-incremental--small u-right-align"><span>-</span></a>
+              </li>
+            </ul>
+            <div class="panel__content-entry">
+              <input type="text" class="panel__text-entry" placeholder="New Phrase..." id="assignListTextInput">
+              <a class="panel__button-incremental--small" onclick="createTextListElement('assignListTextInput', 'assignList')"><span>+</span></a>
+            </div>
+          </div>
+        </div>
+        <!-- Change to CONFIRM and CANCEL for settings, YES and NO otherwise -->
+        <div class="panel__buttons">
+          <a class="button-1-of-2 panel__green-button" id="assign-accept-button">Add Task</a>
+          <a class="button-1-of-2 panel__red-button" id="assign-reject-button">Skip Task</a>
+        </div>
+        <div id="assign"></div>
+      </div>
+      <div class="panel">Plan
         <p> Your unread emails contain <b id="word-count"></b> words
         <p>Average reply: <b id="average-reply"></b> words
         <p>Time needed: <b id="time-needed"></b> minutes

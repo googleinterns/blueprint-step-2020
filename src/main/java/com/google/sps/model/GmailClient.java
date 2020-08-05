@@ -42,17 +42,17 @@ public interface GmailClient {
    */
   Message getUserMessage(String messageId, MessageFormat format) throws IOException;
 
-  // /**
-  //  * Get the number of words in a message body
-  //  *
-  //  * @param message the message we want to get the size from
-  //  * @return the number of words in the body of the message
-  //  * @throws IOException if an issue occurs with the Gmail service
-  //  */
-  // int getMessageSize(Message message) throws IOException, MessagingException;
-
-  // String getTextFromMultiPartAlternative(Multipart multipart) throws IOException,
-  // MessagingException;
+  /**
+   * Gets a message from a user's Gmail account. Format assumed to be METADATA. Returned message
+   * will only include email message ID, labels, and specified headers
+   *
+   * @param messageId messageID (retrieved from listUserMessages) of the desired Message
+   * @param metadataHeaders list of names of headers (e.g. "From") that should be included
+   * @return a Message object with the requested information
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  Message getUserMessageWithMetadataHeaders(String messageId, List<String> metadataHeaders)
+      throws IOException;
 
   /**
    * Encapsulates possible values for the "format" query parameter in the Gmail GET message method
@@ -106,6 +106,23 @@ public interface GmailClient {
    * @throws IOException if an issue occurs with the Gmail service
    */
   List<Message> getUnreadEmailsFromNDays(GmailClient.MessageFormat messageFormat, int nDays)
+      throws IOException;
+
+  /**
+   * Get list of actionable emails that meet specified criteria. Format assumed to be METADATA,
+   * Returned message will only include email message ID, labels, and specified headers
+   *
+   * @param subjectLinePhrases list of words that gmail should look for in the subject line. Emails
+   *     will be returned as long as one of the passed phrases are present.
+   * @param unreadOnly true if emails must be unread, false otherwise
+   * @param nDays emails from the last nDays days will be returned. (Goes by time, not date. E.g. if
+   *     nDays is 1, emails from last 24 hours will be returned)
+   * @param metadataHeaders list of names of headers (e.g. "From") that should be included
+   * @return List of messages that match above criteria
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  List<Message> getActionableEmails(
+      List<String> subjectLinePhrases, boolean unreadOnly, int nDays, List<String> metadataHeaders)
       throws IOException;
 
   /**
