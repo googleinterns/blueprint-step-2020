@@ -46,7 +46,7 @@ public final class TasksUtility {
    * Get the tasks in the user's task lists with the given task list IDs
    *
    * @param tasksClient Either a mock TaskClient or a taskClient with a valid credential
-   * @param taskListTitles List of task list IDs which tasks should be obtained from
+   * @param taskListTitles Set of task list IDs which tasks should be obtained from
    * @return List of tasks from specified task lists in user's account
    * @throws IOException if an issue occurs with the tasksService
    */
