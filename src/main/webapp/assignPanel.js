@@ -37,6 +37,7 @@ const taskNotesPrefix =
     'Thank you for your understanding. ' +
     '***' +
     '\n';
+const emailIdPrefix = 'emailId:';
 
 /**
  * Process for initializing the assign panel after login or a change in settings
@@ -85,18 +86,16 @@ function initializeAssignFeatures() {
 function parseEmailIdFromTaskNotes(task) {
   // Get emailId from end of message
   const notes = task.notes;
-  const minimumLength = 'emailId:'.length;
-  if (notes == null || notes.length < minimumLength) {
+  if (notes == null) {
     return null;
   }
 
-  const emailIdIndex = notes.lastIndexOf('emailId:');
-
+  const emailIdIndex = notes.lastIndexOf(emailIdPrefix);
   if (emailIdIndex === -1) {
     console.log('No email ID found!');
     return null;
   }
-  return notes.substr(emailIdIndex).split(':')[1];
+  return notes.substr(emailIdIndex + emailIdPrefix.length);
 }
 
 /**
@@ -230,7 +229,7 @@ function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
  */
 function assignAddCurrentEmail() {
   const currentEmail = actionableEmails.shift();
-  const newTaskNotes = taskNotesPrefix + 'emailId:' + currentEmail.id;
+  const newTaskNotes = taskNotesPrefix + emailIdPrefix + currentEmail.id;
   const newTask = new Task(currentEmail.subject, newTaskNotes);
 
   postNewTask(assignTaskListId, newTask);
