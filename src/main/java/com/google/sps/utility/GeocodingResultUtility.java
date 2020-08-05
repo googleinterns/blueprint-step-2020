@@ -25,21 +25,25 @@ import java.util.Optional;
 /** Utility class to extract data from GeocodingResult objects. */
 public class GeocodingResultUtility {
   /**
-   * Parses for the first coordinate found in a resulting call to the Geocoding API.
+   * Parses for the first coordinate which is of a street address type in a result from the
+   * Geocoding API. If no street address type results are found, the coordinates of the first result
+   * is returned.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return A LatLng representing coordinates.
    */
-  public static LatLng getCoordinates(List<GeocodingResult> results) {
+  public static Optional<LatLng> getCoordinates(List<GeocodingResult> results) {
     for (GeocodingResult result : results) {
-      List<AddressType> types = Arrays.asList(result.types);
-      for (AddressType type : types) {
+      for (AddressType type : result.types) {
         if (type == AddressType.STREET_ADDRESS) {
-          return result.geometry.location;
+          return Optional.ofNullable(result.geometry.location);
         }
       }
     }
-    return results.get(0).geometry.location;
+    if (results.size() == 0) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(results.get(0).geometry.location);
   }
 
   /**
@@ -51,7 +55,7 @@ public class GeocodingResultUtility {
    */
   public static Optional<PlaceType> convertToPlaceType(String location) {
     for (PlaceType placeType : PlaceType.values()) {
-      if ((placeType.name()).equals(location.toUpperCase().replace(" ", "_"))) {
+      if (placeType.name().equalsIgnoreCase(location.replace(" ", "_"))) {
         return Optional.ofNullable(placeType);
       }
     }
@@ -66,19 +70,17 @@ public class GeocodingResultUtility {
    */
   public static boolean hasStreetAddress(List<GeocodingResult> results) {
     for (GeocodingResult result : results) {
-      List<AddressType> types = Arrays.asList(result.types);
-      for (AddressType type : types) {
-        if (type == AddressType.STREET_ADDRESS) {
-          return true;
-        }
+      if (Arrays.asList(result.types).contains(AddressType.STREET_ADDRESS)) {
+        return true;
       }
     }
     return false;
   }
 
   /**
-   * Parses for an address type and converts it to a place type if available. This place type is
-   * used to further determine a location which results in a route with the shortest travel time.
+   * Parses for an address type and converts it to a place type if an equivalent is available. This
+   * place type is used to further determine a location which results in a route with the shortest
+   * travel time.
    *
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return An optional containing a PlaceType representing the type or an empty optional if no
@@ -87,7 +89,7 @@ public class GeocodingResultUtility {
   public static Optional<PlaceType> getPlaceType(GeocodingResult result) {
     AddressType addressType = result.types[0];
     for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.toString().equals(addressType.toString())) {
+      if (placeType.name().equals(addressType.name())) {
         return Optional.ofNullable(placeType);
       }
     }
