@@ -421,7 +421,6 @@ function populatePlanMail() {
 }
 
 /**
-<<<<<<< HEAD
  * Call a post request to create a new event in the calendar, then display the
  * updated information in calendar and plan panels
  *
@@ -435,7 +434,9 @@ function createEvent(eventStart, eventEnd) {
   fetch('/calendar', {method: 'POST', body: params});
   populateCalendar();
   populatePlanMail();
-=======
+}
+
+/**
  * Set up the assign panel. For now, this just prints the response
  * from the server for /gmail-actionable-emails
  */
@@ -493,5 +494,4 @@ function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
             throw new Error(response.status + ' ' + response.statusText);
         }
       });
->>>>>>> 498ccc670ad8e08c63d8af30dca43ff3b0b1f964
 }

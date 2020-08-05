@@ -23,7 +23,7 @@ public final class PlanMailResponse {
   private final int wordCount;
   private final int averageReadingSpeed;
   private final int minutesToRead;
-  private final List<DateInterval> potentialMeetingTimes;
+  private final List<DateInterval> potentialEventTimes;
 
   /** Initialize the class with all the parameters required. */
   public PlanMailResponse(
@@ -49,7 +49,7 @@ public final class PlanMailResponse {
     return minutesToRead;
   }
 
-  public List<DateInterval> getPotentialMeetingTimes() {
-    return potentialMeetingTimes;
+  public List<DateInterval> getPotentialEventTimes() {
+    return potentialEventTimes;
   }
 }
