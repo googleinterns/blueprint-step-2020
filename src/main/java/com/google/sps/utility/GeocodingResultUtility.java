@@ -51,7 +51,7 @@ public class GeocodingResultUtility {
    */
   public static Optional<PlaceType> convertToPlaceType(String location) {
     for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.name().equals(location.toLowerCase().replace(" ", "_"))) {
+      if ((placeType.name()).equals(location.toUpperCase().replace(" ", "_"))) {
         return Optional.ofNullable(placeType);
       }
     }
