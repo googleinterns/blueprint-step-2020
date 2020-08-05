@@ -23,7 +23,7 @@ import org.junit.runners.JUnit4;
 
 /**
  * Test that PlacesClientImpl correctly converts a PlacesSearchResponse object obtained from the
- * Places API into a list of Place IDs
+ * Places API into a list of Place IDs.
  */
 @RunWith(JUnit4.class)
 public class PlacesClientTest {

@@ -46,7 +46,7 @@ public class PlacesClientImpl implements PlacesClient {
    * Gets place ID of first result from the response from the Google Places API. Scope of method is
    * public for testing purposes.
    *
-   * @param response The PlacesSearchResponse object to get formatted addresses from
+   * @param response The PlacesSearchResponse object to Place IDs from
    */
   public static String getPlaceId(PlacesSearchResponse response) {
     if (response.results.length != 0) {
