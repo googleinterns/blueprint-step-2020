@@ -42,18 +42,6 @@ public interface GmailClient {
    */
   Message getUserMessage(String messageId, MessageFormat format) throws IOException;
 
-  // /**
-  //  * Get the number of words in a message body
-  //  *
-  //  * @param message the message we want to get the size from
-  //  * @return the number of words in the body of the message
-  //  * @throws IOException if an issue occurs with the Gmail service
-  //  */
-  // int getMessageSize(Message message) throws IOException, MessagingException;
-
-  // String getTextFromMultiPartAlternative(Multipart multipart) throws IOException,
-  // MessagingException;
-
   /**
    * Gets a message from a user's Gmail account. Format assumed to be METADATA. Returned message
    * will only include email message ID, labels, and specified headers
