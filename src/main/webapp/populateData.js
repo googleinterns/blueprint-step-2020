@@ -397,7 +397,13 @@ function populatePlanMail() {
             intervalContainer.appendChild(liElement);
           }
         }
-      }
+      })
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
+      });
 }
     
 /**   
