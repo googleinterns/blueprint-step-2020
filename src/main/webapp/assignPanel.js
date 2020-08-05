@@ -261,5 +261,6 @@ function assignDisplayNextEmail() {
     return;
   }
 
-  subjectLineElement.innerText = actionableEmails[0].subject;
+  subjectLineElement.innerText =
+      `${actionableEmails[0].subject} (From: ${actionableEmails[0].sender})`;
 }
