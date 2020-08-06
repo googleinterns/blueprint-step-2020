@@ -19,6 +19,8 @@ import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.sps.exceptions.GmailMessageFormatException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Contains helper methods for Gmail Message objects */
 public final class GmailUtility {
@@ -63,10 +65,21 @@ public final class GmailUtility {
    * @param fromHeaderValue the value of a "From" header from which a contact name / email should be
    *     extracted
    * @return A contact name if available, or an email if it is not
+   * @throws IllegalArgumentException If value could not be parsed from header
    */
   public static String parseNameInFromHeader(String fromHeaderValue) {
-    return fromHeaderValue.charAt(0) == '<'
-        ? fromHeaderValue.substring(1, fromHeaderValue.length() - 1)
-        : fromHeaderValue.split("<")[0].trim();
+    Pattern withNamePattern = Pattern.compile("(.*) <.*>");
+    Matcher withNameMatcher = withNamePattern.matcher(fromHeaderValue);
+    if (withNameMatcher.find()) {
+      return withNameMatcher.group(1);
+    }
+
+    Pattern withoutNamePattern = Pattern.compile("<(.*)>");
+    Matcher withoutNameMatcher = withoutNamePattern.matcher(fromHeaderValue);
+    if (withoutNameMatcher.find()) {
+      return withoutNameMatcher.group(1);
+    }
+
+    throw new IllegalArgumentException("Value could not be parsed. Check format");
   }
 }

@@ -53,7 +53,7 @@ public class ActionableMessage {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(7, 17).append(id).append(subject).append(sender).toHashCode();
+    return new HashCodeBuilder().append(id).append(subject).append(sender).toHashCode();
   }
 
   @Override
