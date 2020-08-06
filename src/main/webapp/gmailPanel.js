@@ -17,6 +17,9 @@
 
 // Script for handling the behaviour of the Mail panel's features
 
+let gmailNDays;
+let gmailMHours;
+
 /**
  * Populate Gmail container with user information
  */
@@ -26,8 +29,8 @@ function populateGmail() {
       document.querySelector('#gmail-settings-n-days');
   const mHoursSettingsContainer =
       document.querySelector('#gmail-settings-m-hours');
-  const gmailNDays = parseInt(nDaysSettingsContainer.innerText);
-  const gmailMHours = parseInt(mHoursSettingsContainer.innerText);
+  gmailNDays = parseInt(nDaysSettingsContainer.innerText);
+  gmailMHours = parseInt(mHoursSettingsContainer.innerText);
 
   // Get containers for all gmail fields
   const nDaysContainer = document.querySelector('#gmail-n-days');
@@ -88,4 +91,16 @@ function populateGmail() {
           signOut();
         }
       });
+}
+
+/**
+ * Reset the values for nDays and mHours in the settings panel
+ */
+function gmailRevertSettings() {
+  const nDaysSettingsContainer =
+      document.querySelector('#gmail-settings-n-days');
+  const mHoursSettingsContainer =
+      document.querySelector('#gmail-settings-m-hours');
+  nDaysSettingsContainer.innerText = gmailNDays;
+  mHoursSettingsContainer.innerText = gmailMHours;
 }

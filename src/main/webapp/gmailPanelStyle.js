@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /* eslint-disable no-unused-vars */
-/* global show, hide */
+/* global show, hide, populateGmail */
 
 // Script for handling the behaviour of the Mail panel's layout
 
@@ -44,16 +44,3 @@ function confirmSettingsAndShowGmailPanel() {
       document.querySelector('#gmail-settings-icon img:not([hidden])');
   assignSettingsButton.click();
 }
-
-/**
- * Reset the values for nDays and mHours in the settings panel
- */
-function gmailRevertSettings() {
-  const nDaysSettingsContainer =
-      document.querySelector('#gmail-settings-n-days');
-  const mHoursSettingsContainer =
-      document.querySelector('#gmail-settings-m-hours');
-  nDaysSettingsContainer.innerText = gmailNDays;
-  mHoursSettingsContainer.innerText = gmailMHours;
-}
-
