@@ -13,9 +13,17 @@
 // limitations under the License.
 
 /* eslint-disable no-unused-vars */
-/* global show, hide */
+/* global show, hide, setUpAssign, assignRevertSettings, assignAddCurrentEmail,
+ assignSkipCurrentEmail, setUpAssign, assignDisplayNextEmail,
+ actionableEmails */
 
 // Script for handling the behaviour of the Assign panel's layout
+
+// Add default event listeners
+const acceptButton = document.getElementById('assign-accept-button');
+const rejectButton = document.getElementById('assign-reject-button');
+acceptButton.addEventListener('click', assignAddCurrentEmail);
+rejectButton.addEventListener('click', assignSkipCurrentEmail);
 
 /**
  * Display the settings in the Assign panel (and hide the content)
@@ -24,11 +32,15 @@ function displayAssignSettings() {
   show('assign-settings');
   hide('assign-content');
 
-  const acceptButton = document.getElementById('assign-accept-button');
-  const rejectButton = document.getElementById('assign-reject-button');
-
   acceptButton.innerText = 'Confirm';
   rejectButton.innerText = 'Reset';
+
+  acceptButton.addEventListener('click', confirmSettingsAndShowPanel);
+  rejectButton.addEventListener('click', assignRevertSettings);
+  acceptButton.removeEventListener('click', assignAddCurrentEmail);
+  rejectButton.removeEventListener('click', assignSkipCurrentEmail);
+
+  enableAssignAcceptRejectButtons();
 }
 
 /**
@@ -38,10 +50,132 @@ function displayAssignContent() {
   show('assign-content');
   hide('assign-settings');
 
-  const acceptButton = document.getElementById('assign-accept-button');
-  const rejectButton = document.getElementById('assign-reject-button');
-
   acceptButton.innerText = 'Add Task';
   rejectButton.innerText = 'Skip Item';
+
+  acceptButton.removeEventListener('click', confirmSettingsAndShowPanel);
+  rejectButton.removeEventListener('click', assignRevertSettings);
+  acceptButton.addEventListener('click', assignAddCurrentEmail);
+  rejectButton.addEventListener('click', assignSkipCurrentEmail);
+
+  const assignStartResetButtonIcon =
+      document.getElementById('assign-start-reset-button')
+          .querySelector('.button-circle__ascii-icon');
+
+  if (assignStartResetButtonIcon.innerText === '▶' ||
+      actionableEmails.length === 0) {
+    disableAssignAcceptRejectButtons();
+  }
+}
+
+/**
+ * Start the process of presenting emails to the user
+ */
+function startAssign() {
+  const assignStartResetButtonElement =
+      document.getElementById('assign-start-reset-button');
+  assignStartResetButtonElement
+      .querySelector('.button-circle__ascii-icon')
+      .innerText = '↻';
+  assignStartResetButtonElement.removeEventListener('click', startAssign);
+  assignStartResetButtonElement.addEventListener('click', restartAssign);
+
+  const assignStartResetTextElement =
+      document.getElementById('assign-start-reset-text');
+  assignStartResetTextElement.innerText = 'Click to Restart';
+
+  enableAssignAcceptRejectButtons();
+
+  assignDisplayNextEmail();
+}
+
+/**
+ * Restart the process of presenting emails to the user. Disable the
+ * start button while the messages load
+ */
+function restartAssign() {
+  const assignStartResetButtonElement =
+      document.getElementById('assign-start-reset-button');
+  assignStartResetButtonElement
+      .querySelector('.button-circle__ascii-icon')
+      .innerText = '▶';
+  assignStartResetButtonElement
+      .removeEventListener('click', restartAssign);
+  assignStartResetButtonElement.addEventListener('click', startAssign);
+
+  const assignStartResetTextElement =
+      document.getElementById('assign-start-reset-text');
+  assignStartResetTextElement.innerText = 'Click to Start';
+
+  const assignSuspectedActionItemsElement =
+      document.getElementById('assign-suspected-action-items');
+  assignSuspectedActionItemsElement.innerText = '-';
+
+  const subjectLineElement = document.getElementById('assign-subject');
+  subjectLineElement.innerText = '';
+
+  disableAssignAcceptRejectButtons();
+  disableAssignStartResetButton();
+
+  setUpAssign();
+}
+
+/**
+ * Enable the accept and reject buttons for the assign panel.
+ * Done when there are emails to assign and the user has pressed play,
+ * or the user is toggling settings.
+ */
+function enableAssignAcceptRejectButtons() {
+  const assignAcceptButtonElement =
+      document.getElementById('assign-accept-button');
+  const assignRejectButtonElement =
+      document.getElementById('assign-reject-button');
+  assignAcceptButtonElement.classList.remove('u-button-disable');
+  assignRejectButtonElement.classList.remove('u-button-disable');
+}
+
+/**
+ * Disable the accept and reject buttons for the assign panel.
+ * Done when there are no emails left to assign, or the user has not yet
+ * pressed play
+ */
+function disableAssignAcceptRejectButtons() {
+  const assignAcceptButtonElement =
+      document.getElementById('assign-accept-button');
+  const assignRejectButtonElement =
+      document.getElementById('assign-reject-button');
+  assignAcceptButtonElement.classList.add('u-button-disable');
+  assignRejectButtonElement.classList.add('u-button-disable');
+}
+
+/**
+ * Disable the start button for the assign panel. Done while the messages
+ * are loading
+ */
+function enableAssignStartResetButton() {
+  const assignStartResetButtonElement =
+      document.getElementById('assign-start-reset-button');
+  assignStartResetButtonElement.classList.remove('u-button-disable');
+}
+
+/**
+ * Disable the start button for the assign panel. Done when the messages load
+ */
+function disableAssignStartResetButton() {
+  const assignStartResetButtonElement =
+      document.getElementById('assign-start-reset-button');
+  assignStartResetButtonElement.classList.add('u-button-disable');
+}
+
+/**
+ * Will confirm the settings entered by the user in the settings panel,
+ * and "click" the settings icon so the panel swtiches to the content view
+ * (and all associated side effects of clicking the button, etc, are handled)
+ */
+function confirmSettingsAndShowPanel() {
+  restartAssign();
+  const assignSettingsButton =
+      document.querySelector('#assign-settings-icon img:not([hidden])');
+  assignSettingsButton.click();
 }
 
