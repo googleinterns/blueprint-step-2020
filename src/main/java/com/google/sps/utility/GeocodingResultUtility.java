@@ -55,12 +55,9 @@ public class GeocodingResultUtility {
    *     specified, an empty optional otherwise.
    */
   public static Optional<PlaceType> convertToPlaceType(String location) {
-    for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.name().equalsIgnoreCase(location.replace(" ", "_"))) {
-        return Optional.ofNullable(placeType);
-      }
-    }
-    return Optional.empty();
+    return Arrays.asList(PlaceType.values()).stream()
+        .filter(placeType -> placeType.name().equalsIgnoreCase(location.replace(" ", "_")))
+        .findFirst();
   }
 
   /**
@@ -93,11 +90,8 @@ public class GeocodingResultUtility {
       throw new GeocodingException("No place types in geocoding result");
     }
     AddressType addressType = result.types[0];
-    for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.name().equals(addressType.name())) {
-        return Optional.ofNullable(placeType);
-      }
-    }
-    return Optional.empty();
+    return Arrays.asList(PlaceType.values()).stream()
+        .filter(placeType -> placeType.name().equals(addressType.name()))
+        .findFirst();
   }
 }
