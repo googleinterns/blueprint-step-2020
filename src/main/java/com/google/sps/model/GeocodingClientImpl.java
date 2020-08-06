@@ -47,7 +47,7 @@ public class GeocodingClientImpl implements GeocodingClient {
     try {
       GeocodingResult[] response = geocodingService.address(address).await();
       return Arrays.asList(response);
-    } catch (ApiException | InterruptedException | IOException | IndexOutOfBoundsException e) {
+    } catch (ApiException | InterruptedException | IOException e) {
       throw new GeocodingException("Failed to geocode address", e);
     }
   }

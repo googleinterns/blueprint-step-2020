@@ -85,6 +85,22 @@
 }
 
 /*
+  Adds border to panel in dark red material color
+  Overrides other non-important border settings
+ */
+.u-border-assign {
+  border-color: var(--color-assign) !important;
+}
+
+/*
+  Background color set to dark red material color
+  Overrides other non-important background settings
+ */
+.u-background-assign {
+  background-color: var(--color-assign) !important;
+}
+
+/*
   Utility to set a single element to block display setting
  */
 .u-block {
@@ -110,4 +126,19 @@
  */
 .u-text-shadow {
   text-shadow: -.5rem .5rem 3rem var(--color-shadow);
+}
+
+/*
+  Add bold and underline to text
+ */
+.u-bold-underline {
+  font-weight: var(--font-weight-bold) !important;
+  text-decoration: underline solid !important;
+}
+
+/*
+  Right-align an object by setting the left margin to all the available space.
+ */
+.u-right-align {
+  margin-left: auto !important;
 }

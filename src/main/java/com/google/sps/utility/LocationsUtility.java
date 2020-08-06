@@ -22,9 +22,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class LocationsUtility {
+public final class LocationsUtility {
+
+  private LocationsUtility() {}
+
   /**
-   * Parses for locations in Tasks.
+   * Parses for locations in Tasks. Missing, empty and duplicate locations are ignored.
    *
    * @param prefix String which represents the prefix wrapped in square brackets to look for. (e.g.
    *     Location if looking for [Location: ])
@@ -32,44 +35,46 @@ public class LocationsUtility {
    * @return List of strings representing the locations.
    */
   public static List<String> getLocations(String prefix, List<Task> tasks) {
-    return tasks.stream()
-        .map(task -> task.getNotes())
-        .filter(Objects::nonNull)
-        .map(notes -> getLocation(prefix, notes))
-        .filter(place -> !place.equals("No " + prefix))
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * Parses for string enclosed in [prefix: ] in notes of a task
-   *
-   * @param prefix String to look for in the square brackets
-   * @param taskNotes String to parse from, usually in the form "... [prefix: ... ] ..."
-   * @return String enclosed in [prefix: ] or No prefix if no enclosure found
-   */
-  private static String getLocation(String prefix, String taskNotes) {
     // Regular expression matches the characters [prefix: and ] literally, (.*?) signifies the 1st
     // capturing group which matches any character except for line terminators
     String regex = "\\[" + prefix + ": (.*?)\\]";
     Pattern pattern = Pattern.compile(regex);
+    return tasks.stream()
+        .map(task -> task.getNotes())
+        .filter(Objects::nonNull)
+        .map(notes -> getLocation(pattern, prefix, notes))
+        .filter(place -> !place.equals(""))
+        .distinct()
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Parses for string enclosed in [prefix: ] in notes of a task. Only the 1st match is returned.
+   * All other matches are ignored.
+   *
+   * @param prefix String to look for in the square brackets
+   * @param taskNotes String to parse from, usually in the form "... [prefix: ... ] ..."
+   * @return String enclosed in [prefix: ] or an empty string if no enclosure found
+   */
+  private static String getLocation(Pattern pattern, String prefix, String taskNotes) {
     Matcher matcher = pattern.matcher(taskNotes);
     if (matcher.find()) {
       // Return the 1st captured group obtained from executing the regular expression
       return matcher.group(1);
     }
-    return "No " + prefix;
+    return "";
   }
 
   /**
-   * Generates all permutations of the lists recursively. Scope of method is public for testing
-   * purposes.
+   * Generates permutations of the lists and appends them to the result parameter.
    *
    * @param lists A list of lists to generate permutations for.
-   * @param result A pointer to the result since the method is recursive.
-   * @param depth An int which specifies the list in lists to traverse.
-   * @param current A list which represents the result for the current recursive stack.
+   * @param result A pointer to a list to contain the generated permutations.
+   * @param depth An int to represent the index of the list that is currently being traversed in the
+   *     recursive call.
+   * @param current A list containing the permutation built so far at the recursive call.
    */
-  public static void generateCombinations(
+  private static void generateCombinationsHelper(
       List<List<String>> lists, List<List<String>> result, int depth, List<String> current) {
     if (depth == lists.size()) {
       result.add(new ArrayList<>(current));
@@ -79,7 +84,19 @@ public class LocationsUtility {
       List<String> next = new ArrayList<>();
       next.addAll(current);
       next.add(lists.get(depth).get(i));
-      generateCombinations(lists, result, depth + 1, next);
+      generateCombinationsHelper(lists, result, depth + 1, next);
     }
+  }
+
+  /**
+   * Generates all permutations of the lists recursively. Scope of method is public for testing
+   * purposes.
+   *
+   * @param lists A list of lists to generate permutations for.
+   */
+  public static List<List<String>> generateCombinations(List<List<String>> lists) {
+    List<List<String>> combinations = new ArrayList<>();
+    generateCombinationsHelper(lists, combinations, 0, new ArrayList<>());
+    return combinations;
   }
 }

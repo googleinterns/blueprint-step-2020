@@ -60,9 +60,7 @@ public class DirectionsClientTest {
     DirectionsRoute[] routes = {route};
     DirectionsResult directionsResult = new DirectionsResult();
 
-    durationOne.humanReadable = "6 seconds";
     durationOne.inSeconds = 6;
-    durationTwo.humanReadable = "12 seconds";
     durationTwo.inSeconds = 12;
     legOne.duration = durationOne;
     legTwo.duration = durationTwo;
@@ -71,6 +69,6 @@ public class DirectionsClientTest {
 
     long actual = DirectionsClient.getTotalTravelTime(directionsResult);
 
-    Assert.assertEquals(18, actual);
+    Assert.assertEquals(durationOne.inSeconds + durationTwo.inSeconds, actual);
   }
 }

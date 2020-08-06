@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import com.google.sps.model.AuthenticationVerifier;
+import java.util.Optional;
 import javax.servlet.http.Cookie;
 import org.junit.Before;
 import org.mockito.Mockito;
@@ -24,11 +25,11 @@ import org.mockito.Mockito;
 public abstract class AuthenticatedServletTestBase extends ServletTestBase {
   protected AuthenticationVerifier authenticationVerifier;
 
-  protected static final boolean AUTHENTICATION_VERIFIED = true;
   protected static final String ID_TOKEN_KEY = "idToken";
   protected static final String ID_TOKEN_VALUE = "sampleId";
   protected static final String ACCESS_TOKEN_KEY = "accessToken";
   protected static final String ACCESS_TOKEN_VALUE = "sampleAccessToken";
+  protected static final String USER_EMAIL = "example@example.com";
 
   protected static final Cookie sampleIdTokenCookie = new Cookie(ID_TOKEN_KEY, ID_TOKEN_VALUE);
   protected static final Cookie sampleAccessTokenCookie =
@@ -43,8 +44,8 @@ public abstract class AuthenticatedServletTestBase extends ServletTestBase {
     authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
 
     // Authentication will always pass
-    Mockito.when(authenticationVerifier.verifyUserToken(ID_TOKEN_VALUE))
-        .thenReturn(AUTHENTICATION_VERIFIED);
+    Mockito.when(authenticationVerifier.getUserEmail(ID_TOKEN_VALUE))
+        .thenReturn(Optional.of(USER_EMAIL));
 
     Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
