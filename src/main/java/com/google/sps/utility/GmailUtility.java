@@ -29,7 +29,7 @@ public final class GmailUtility {
   private static final Pattern fromHeaderPattern = Pattern.compile("(.*)?<(.*)>");
 
   /**
-   * Given a list of message headers, extract a single header with the specified name
+   * Given a message object, extract a single header with the specified name
    *
    * @param message a Gmail message object. Must be METADATA or FULL format
    * @param headerName name of header that should be extracted
@@ -55,6 +55,26 @@ public final class GmailUtility {
             () ->
                 new GmailMessageFormatException(
                     String.format("%s Header not present!", headerName)));
+  }
+
+  /**
+   * Given a message object, check if a header is present
+   *
+   * @param message a Gmail message object to be checked
+   * @param headerName name of the header that should be queried
+   * @return true if present, false otherwise
+   */
+  public static boolean hasHeader(Message message, String headerName) {
+    MessagePart payload = message.getPayload();
+    if (payload == null) {
+      return false;
+    }
+    List<MessagePartHeader> headers = payload.getHeaders();
+    if (headers == null || headers.isEmpty()) {
+      return false;
+    }
+
+    return headers.stream().anyMatch((header) -> header.getName().equals(headerName));
   }
 
   /**
