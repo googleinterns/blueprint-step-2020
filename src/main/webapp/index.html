@@ -24,6 +24,8 @@
 <script src="assignPanel.js"></script>
 <script src="panelStyle.js" defer></script>
 <script src="assignPanelStyle.js" defer></script>
+<script src="gmailPanel.js" defer></script>
+<script src="gmailPanelStyle.js" defer></script>
 <!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
 <script src="https://apis.google.com/js/platform.js" onload="init()" async defer></script>
 <!-- Title container for page with log-in button -->
@@ -45,36 +47,61 @@
     <div class="panel-row__content">
       <!-- Gmail container -->
       <div class="panel u-border-mail">
-        <div class="panel__header">
+        <div class="panel__toggle-icon--settings" id="gmail-settings-icon">
+          <img hidden class="panel__toggle-icon--selected" alt="settings-icon" src="assets/settings-selected.png" onclick="displayGmailContent()">
+          <img class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/settings-unselected.png" onclick="displayGmailSettings()">
+        </div>
+        <div class="panel__content-entry u-remove-top-margin gmail-content">
+          <a class="panel__content-entry-link" target="_blank" href="https://www.gmail.com">
+            <img class="panel__logo" alt="mail-logo" src="assets/mail.png">
+          </a>
+          <h3 class="panel__section-heading">Mail</h3>
+        </div>
+        <p class="panel__section-subheading gmail-content">From the last <span id="gmail-n-days"></span> days:
+        <div class="panel__content gmail-content">
+          <div class="panel__content-entry">
+            <div class="panel__rounded-number u-background-mail">
+              <p class="panel__text-data-point u-text-white" id="gmail-unread-emails-days">
+            </div>
+            <p class="panel__text-data-point">Unread Emails:
+          </div>
+          <div class="panel__content-entry">
+            <img class="panel__content-icon" alt="clock-icon" src="assets/clock.png">
+            <p class="panel__text-large"><span id="gmail-unread-emails-hours"></span> from the last <span id="gmail-m-hours"></span> hours
+          </div>
+          <div class="panel__content-entry">
+            <img class="panel__content-icon" alt="flag-icon" src="assets/flag.png">
+            <p class="panel__text-large"><span id="gmail-unread-important-emails"></span> marked important
+          </div>
+          <div class="panel__content-entry">
+            <div class="panel__round-letter">
+              <p class="panel__text-data-point u-text-white" id="gmail-sender-initial">
+            </div>
+            <p class="panel__text-large"><span id="gmail-sender"></span> sent the most unread emails
+          </div>
+        </div>
+        <!-- Settings section -->
+        <h3 hidden class="panel__section-heading u-remove-top-margin gmail-settings">Settings:</h3>
+        <div hidden class="panel__text-body gmail-settings">
           <div class="panel__content-entry u-remove-top-margin">
-            <a class="panel__content-entry-link" target="_blank" href="https://www.gmail.com">
-              <img class="panel__logo" alt="mail-logo" src="assets/mail.png">
-            </a>
-            <h3 class="panel__section-heading">Mail</h3>
-          </div>
-          <p class="panel__section-subheading">From the last <span id="gmailNDays">...</span> days:
-          <div class="panel__content">
-            <div class="panel__content-entry">
-              <div class="panel__rounded-number u-background-mail">
-                <p class="panel__text-data-point u-text-white" id="gmailUnreadEmailsDays">...
-              </div>
-              <p class="panel__text-data-point">Unread Emails:
-            </div>
-            <div class="panel__content-entry">
-              <img class="panel__content-icon" alt="clock-icon" src="assets/clock.png">
-              <p class="panel__text-large"><span id="gmailUnreadEmailsHours">...</span> from the last <span id="gmailMHours"></span> hours
-            </div>
-            <div class="panel__content-entry">
-              <img class="panel__content-icon" alt="flag-icon" src="assets/flag.png">
-              <p class="panel__text-large"><span id="gmailUnreadImportantEmails">...</span> marked important
-            </div>
-            <div class="panel__content-entry">
-              <div class="panel__round-letter">
-                <p class="panel__text-data-point u-text-white" id="gmailSenderInitial">-
-              </div>
-              <p class="panel__text-large"><span id="gmailSender">...</span> sent the most unread emails
+            <p class="panel__text-large">Search <span class="u-bold-underline" id="gmail-settings-n-days">7</span> days of email
+            <div class="panel__two-buttons-incremental u-right-align">
+              <a class="panel__button-incremental" id="gmail-n-days-increment-button" onclick="incrementElement('gmail-settings-n-days', 30, 1, 'gmail-n-days-increment-button', 'gmail-n-days-decrement-button')"><span>+</span></a>
+              <a class="panel__button-incremental" id="gmail-n-days-decrement-button" onclick="decrementElement('gmail-settings-n-days', 1, 30, 'gmail-n-days-increment-button', 'gmail-n-days-decrement-button')"><span>-</span></a>
             </div>
           </div>
+          <div class="panel__content-entry">
+            <p class="panel__text-large">Search <span class="u-bold-underline" id="gmail-settings-m-hours">3</span> hours of recent email
+            <div class="panel__two-buttons-incremental u-right-align">
+              <a class="panel__button-incremental" id="gmail-m-hours-increment-button" onclick="incrementElement('gmail-settings-m-hours', 23, 1, 'gmail-m-hours-increment-button', 'gmail-m-hours-decrement-button')"><span>+</span></a>
+              <a class="panel__button-incremental" id="gmail-m-hours-decrement-button" onclick="decrementElement('gmail-settings-m-hours', 1, 23, 'gmail-m-hours-increment-button', 'gmail-m-hours-decrement-button')"><span>-</span></a>
+            </div>
+          </div>
+        </div>
+        <!-- Change to CONFIRM and CANCEL for settings, YES and NO otherwise -->
+        <div hidden class="panel__buttons gmail-settings">
+          <a class="button-1-of-2 panel__green-button" onclick="confirmSettingsAndShowGmailPanel()">Confirm</a>
+          <a class="button-1-of-2 panel__red-button" onclick="gmailRevertSettings()">Reset</a>
         </div>
       </div>
       <!-- Tasks container -->
@@ -133,7 +160,7 @@
     <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
     <div class="panel-row__content">
       <div class="panel u-border-assign">
-        <div class="panel__toggle-icon" id="assign-settings-icon">
+        <div class="panel__toggle-icon--settings" id="assign-settings-icon">
           <img hidden class="panel__toggle-icon--selected" alt="settings-icon" src="assets/settings-selected.png" onclick="displayAssignContent()">
           <img class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/settings-unselected.png" onclick="displayAssignSettings()">
         </div>

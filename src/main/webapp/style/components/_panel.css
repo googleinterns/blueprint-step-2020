@@ -104,7 +104,8 @@
   overflow: hidden;
 }
 
-.panel__toggle-icon {
+.panel__toggle-icon,
+.panel__toggle-icon--settings {
   cursor: pointer;
   height: var(--panel-toggle-icon-size);
   width: var(--panel-toggle-icon-size);
@@ -116,7 +117,7 @@
   width: 100%;
 }
 
-#assign-settings-icon {
+.panel__toggle-icon--settings {
   position: absolute;
   right: var(--panel-border-radius);
   top: var(--panel-border-radius);
