@@ -96,4 +96,9 @@ public final class GmailUtilityTest {
 
     Assert.assertEquals(senderEmail, actual);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void extractNameInFromHeaderWhenHeaderInvalid() {
+    GmailUtility.parseNameInFromHeader("");
+  }
 }
