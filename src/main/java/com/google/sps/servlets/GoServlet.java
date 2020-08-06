@@ -69,7 +69,11 @@ public class GoServlet extends AuthenticatedHttpServlet {
     List<String> streetAddressWaypoints;
     List<Optional<LatLng>> streetAddressWaypointsAsCoordinates;
     List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes;
-    GoResponse(List<String> streetAddressWaypoints, List<Optional<LatLng>> streetAddressWaypointsAsCoordinates, List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes) {
+
+    GoResponse(
+        List<String> streetAddressWaypoints,
+        List<Optional<LatLng>> streetAddressWaypointsAsCoordinates,
+        List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes) {
       this.streetAddressWaypoints = streetAddressWaypoints;
       this.streetAddressWaypointsAsCoordinates = streetAddressWaypointsAsCoordinates;
       this.nonStreetAddressWaypointsAsPlaceTypes = nonStreetAddressWaypointsAsPlaceTypes;
@@ -175,9 +179,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
    *     non street addresses.
    * @throws GeocodingException An exception thrown when an error occurs with the Geocoding API.
    */
-  public GoResponse separateWaypoints(
-      List<String> waypoints)
-      throws GeocodingException {
+  public GoResponse separateWaypoints(List<String> waypoints) throws GeocodingException {
     List<String> streetAddressWaypoints = new ArrayList<>();
     List<Optional<LatLng>> streetAddressWaypointsAsCoordinates = new ArrayList<>();
     List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes = new ArrayList<>();
@@ -193,7 +195,10 @@ public class GoServlet extends AuthenticatedHttpServlet {
             GeocodingResultUtility.convertToPlaceType(waypoint));
       }
     }
-    return new GoResponse(streetAddressWaypoints, streetAddressWaypointsAsCoordinates, nonStreetAddressWaypointsAsPlaceTypes);
+    return new GoResponse(
+        streetAddressWaypoints,
+        streetAddressWaypointsAsCoordinates,
+        nonStreetAddressWaypointsAsPlaceTypes);
   }
 
   /**

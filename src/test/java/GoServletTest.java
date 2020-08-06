@@ -33,8 +33,6 @@ import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.servlets.GoServlet;
 import com.google.sps.servlets.GoServlet.GoResponse;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Assert;
