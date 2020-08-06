@@ -40,8 +40,6 @@ public class ActionableMessageHelperImplTest {
   private static final String TO_HEADER_VALUE_USER_EMAIL = String.format("<%s>", USER_EMAIL);
   private static final String TO_HEADER_VALUE_NOT_USER_EMAIL =
       String.format("<%s>", NOT_USER_EMAIL);
-  private static final String TO_HEADER_VALUE_UNDISCLOSED_RECIPIENTS =
-      ActionableMessageHelperImpl.UNDISCLOSED_RECIPIENTS_TO_HEADER;
   private static final String TO_HEADER_VALUE_TOO_MANY_RECIPIENTS =
       createHeaderWithNRecipients(
           ActionableMessageHelperImpl.MAILING_LIST_LOWER_BOUND, TO_HEADER_VALUE_USER_EMAIL, ", ");
@@ -49,35 +47,32 @@ public class ActionableMessageHelperImplTest {
       new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_USER_EMAIL);
   private static final MessagePartHeader toHeaderNotUserEmail =
       new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_NOT_USER_EMAIL);
-  private static final MessagePartHeader toHeaderUndisclosedRecipients =
-      new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_UNDISCLOSED_RECIPIENTS);
   private static final MessagePartHeader toHeaderTooManyRecipients =
       new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_TOO_MANY_RECIPIENTS);
+  private static final MessagePartHeader listIdHeader =
+    new MessagePartHeader().setName("List-ID").setValue("<sample-header>");
 
   private static final Message starredMessage =
       new Message()
-          .setPayload(new MessagePart().setHeaders(Collections.singletonList(toHeaderNotUserEmail)))
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderNotUserEmail)))
           .setLabelIds(LABELS_STARRED);
   private static final Message importantMessage =
       new Message()
-          .setPayload(new MessagePart().setHeaders(Collections.singletonList(toHeaderNotUserEmail)))
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderNotUserEmail)))
           .setLabelIds(LABELS_IMPORTANT);
-  private static final Message undisclosedRecipientsMessage =
-      new Message()
-          .setPayload(
-              new MessagePart()
-                  .setHeaders(Collections.singletonList(toHeaderUndisclosedRecipients)));
   private static final Message tooManyRecipientsMessage =
       new Message()
           .setPayload(
-              new MessagePart().setHeaders(Collections.singletonList(toHeaderTooManyRecipients)));
+              new MessagePart().setHeaders(ImmutableList.of(toHeaderTooManyRecipients)));
   private static final Message notUserEmailMessage =
       new Message()
           .setPayload(
-              new MessagePart().setHeaders(Collections.singletonList(toHeaderNotUserEmail)));
+              new MessagePart().setHeaders(ImmutableList.of(toHeaderNotUserEmail)));
   private static final Message userEmailMessage =
       new Message()
-          .setPayload(new MessagePart().setHeaders(Collections.singletonList(toHeaderUserEmail)));
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderUserEmail)));
+  private static final Message mailingListMessage =
+      new Message().setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderUserEmail, listIdHeader)));
   private static final Message messageWithoutToHeader = new Message();
 
   private static String createHeaderWithNRecipients(int n, String headerValue, String delimiter) {
@@ -123,9 +118,9 @@ public class ActionableMessageHelperImplTest {
   }
 
   @Test
-  public void getPriorityUndisclosedRecipientsMessage() {
+  public void getPriorityMailingListUserMessage() {
     ActionableMessage.MessagePriority actualPriority =
-        actionableMessageHelperImpl.assignMessagePriority(undisclosedRecipientsMessage, USER_EMAIL);
+        actionableMessageHelperImpl.assignMessagePriority(mailingListMessage, USER_EMAIL);
     Assert.assertEquals(ActionableMessage.MessagePriority.LOW, actualPriority);
   }
 

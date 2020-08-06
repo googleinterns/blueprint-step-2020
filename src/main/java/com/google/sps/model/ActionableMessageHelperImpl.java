@@ -24,7 +24,6 @@ import java.util.List;
 /** Contains methods that help create the non-trivial fields in an ActionableMessage. */
 public final class ActionableMessageHelperImpl implements ActionableMessageHelper {
   // Public for testing purposes
-  public static final String UNDISCLOSED_RECIPIENTS_TO_HEADER = "undisclosed-recipients:;";
   public static final int MAILING_LIST_LOWER_BOUND = 15;
 
   @Override
@@ -34,7 +33,7 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
       return ActionableMessage.MessagePriority.HIGH;
     }
 
-    if (!isFromMailingList(message, userEmail) || isImportant(message)) {
+    if (!isBulkMail(message, userEmail) || isImportant(message)) {
       return ActionableMessage.MessagePriority.MEDIUM;
     }
 
@@ -53,29 +52,24 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
   }
 
   /**
-   * If the user's email is not in the "To" header, or if there are more than
-   * MAILING_LIST_LOWER_BOUND recipients, the message is considered to be sent from a mailing list.
-   * This is somewhat of a naive approach, however it should still be relatively accurate
-   * (particularly based on the first check listed)
+   * If the user's email is not in the "To" header, a "List-ID" header is present, or if there are
+   * more than MAILING_LIST_LOWER_BOUND recipients, the message is considered to be bulk mail. This
+   * is somewhat of a naive approach, however it should still be relatively accurate (particularly
+   * based on the first check listed)
    *
    * @param message Message object to be checked
    * @param userEmail the email address of the current user. Used to check if the email was actually
-   *     sent to them or sent as a part of a mailing list
-   * @return true if from mailing list, false otherwise
+   *     sent to them or sent as a part of bulk-mail
+   * @return true if bulk-mail, false otherwise
    * @throws GmailMessageFormatException if the message does not contain a "To" header (which is a
    *     mandatory header, indicating the Message object is not of the correct type [METADATA with
    *     correct header settings, or FULL])
    */
-  private boolean isFromMailingList(Message message, String userEmail) {
+  private boolean isBulkMail(Message message, String userEmail) {
     MessagePartHeader toHeader = GmailUtility.extractHeader(message, "To");
-    if (toHeader == null) {
-      throw new GmailMessageFormatException(
-          "'To' header not present. Check message format. Message ID:" + message.getId());
-    }
     String headerValue = toHeader.getValue();
-    if (headerValue.equals(UNDISCLOSED_RECIPIENTS_TO_HEADER)) {
-      return true;
-    }
+
+
 
     List<String> recipientHeaders = Arrays.asList(headerValue.split(","));
     if (recipientHeaders.size() >= MAILING_LIST_LOWER_BOUND) {
