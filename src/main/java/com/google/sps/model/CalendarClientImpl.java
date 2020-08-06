@@ -19,12 +19,14 @@ import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /** Handles basic GET/POST requests to and from the Google Calendar service */
@@ -58,6 +60,28 @@ public class CalendarClientImpl implements CalendarClient {
     List<Event> events = calendarService.events().list(calendarList.getId()).execute().getItems();
 
     return events != null ? events : new ArrayList<>();
+  }
+
+  @Override
+  public List<Event> getUpcomingEvents(CalendarListEntry calendarList, Date timeMin, Date timeMax)
+      throws IOException {
+    // returns null if there are no upcoming events in the next week. Convert to empty list for
+    // ease.
+    List<Event> events =
+        calendarService
+            .events()
+            .list(calendarList.getId())
+            .setTimeMin(new DateTime(timeMin))
+            .setTimeMax(new DateTime(timeMax))
+            .execute()
+            .getItems();
+
+    return events != null ? events : new ArrayList<>();
+  }
+
+  @Override
+  public Date getCurrentTime() throws IOException {
+    return new Date();
   }
 
   /** Factory to create a CalendarClientImpl instance with given credential */
