@@ -17,6 +17,7 @@ package com.google.sps.model;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /** Interface to handle get requests to the Calendar API. */
@@ -36,4 +37,25 @@ public interface CalendarClient {
    * @throws IOException thrown when an issue occurs
    */
   List<Event> getCalendarEvents(CalendarListEntry calendarList) throws IOException;
+
+  /**
+   * Get the events in the specified time boundary. The API returns evens if they are fully or
+   * partially within the boundaries.
+   *
+   * @param calendarList the calendar to get events from
+   * @param timeMin the minimum time to get the events.
+   * @param timeMax the maximum time to get the events.
+   * @return the list of Event from a calendar.
+   * @throws IOException thrown when an issue occurs.
+   */
+  List<Event> getUpcomingEvents(CalendarListEntry calendarList, Date timeMin, Date timeMax)
+      throws IOException;
+
+  /**
+   * Get the current time from the system.
+   *
+   * @return the Date object created
+   * @throws IOException thrown when an issue occurs
+   */
+  Date getCurrentTime() throws IOException;
 }
