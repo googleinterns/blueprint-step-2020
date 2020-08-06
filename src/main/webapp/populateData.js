@@ -40,8 +40,14 @@ function populateGmail() {
   const nDays = 7;
   const mHours = 3;
 
+  // Set known values and placeholders while loading
   nDaysContainer.innerText = nDays;
   mHoursContainer.innerText = mHours;
+  unreadEmailsContainer.innerText = '...';
+  unreadEmailsThreeHrsContainer.innerText = '...';
+  importantEmailsContainer.innerText = '...';
+  senderInitialContainer.innerText = '...';
+  senderContainer.innerText = '...';
 
   // Get GmailResponse object that reflects user's gmail account
   // Should contain a field for each datapoint in the Gmail panel
@@ -102,6 +108,17 @@ function populateTasks() {
     fetchFrom = '/tasks?taskLists=' + selectedOptions.join();
   }
 
+  // Set default values while loading
+  const tasksToCompleteElement = document.getElementById('tasks-to-complete');
+  const tasksDueTodayElement = document.getElementById('tasks-due-today');
+  const tasksCompletedTodayElement =
+      document.getElementById('tasks-completed-today');
+  const tasksOverdueElement = document.getElementById('tasks-overdue');
+  tasksToCompleteElement.innerText = '...';
+  tasksDueTodayElement.innerText = '...';
+  tasksCompletedTodayElement.innerText = '...';
+  tasksOverdueElement.innerText = '...';
+
   fetch(fetchFrom)
       .then((response) => {
         // If response is a 403, user is not authenticated
@@ -125,21 +142,14 @@ function populateTasks() {
             }
           }
         }
-        document
-            .querySelector('#tasks-to-complete')
+        tasksToCompleteElement
             .innerText = tasksResponse['tasksToCompleteCount'];
-        document
-            .querySelector('#tasks-due-today')
-            .innerText = tasksResponse['tasksDueTodayCount'] +
-                            ' due today';
-        document
-            .querySelector('#tasks-completed-today')
-            .innerText = tasksResponse['tasksCompletedTodayCount'] +
-                            ' completed today';
-        document
-            .querySelector('#tasks-overdue')
-            .innerText = tasksResponse['tasksOverdueCount'] +
-                            ' overdue';
+        tasksDueTodayElement
+            .innerText = tasksResponse['tasksDueTodayCount'];
+        tasksCompletedTodayElement
+            .innerText = tasksResponse['tasksCompletedTodayCount'];
+        tasksOverdueElement
+            .innerText = tasksResponse['tasksOverdueCount'];
       })
       .catch((e) => {
         console.log(e);
