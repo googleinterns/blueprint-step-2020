@@ -332,6 +332,8 @@ function populateGo() {
     }
   });
 
+  goContainer.innerText = '• • •';
+
   fetch('/go?taskLists=' + selectedOptions.join() +
           '&origin=' + origin +
           '&destination=' + destination)
