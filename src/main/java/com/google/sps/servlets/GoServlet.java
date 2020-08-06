@@ -51,6 +51,8 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -264,11 +266,9 @@ public class GoServlet extends AuthenticatedHttpServlet {
     return optimalWaypointCombination;
   }
 
-  // How to make this work for all objects?
-  private List<LatLng> filterNonNull(List<Optional<LatLng>> objects) {
+  private <T> List<T> filterNonNull(List<Optional<T>> objects) {
     return objects.stream()
-        .filter(object -> object.isPresent())
-        .map(object -> object.get())
+        .flatMap(object -> object.isPresent() ? Stream.of(object.get()) : Stream.empty())
         .collect(Collectors.toList());
   }
 
@@ -313,11 +313,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
     // Remove all optional empty entries of street address coordinates and non street address
     // waypoints
     List<LatLng> nonEmptyStreetAddressesAsCoordinates = filterNonNull(streetAddressesAsCoordinates);
-    List<PlaceType> nonEmptynonStreetAddressWaypointsAsPlaceTypes =
-        separatedWaypoints.nonStreetAddressWaypointsAsPlaceTypes.stream()
-            .filter(waypoint -> !waypoint.equals(Optional.empty()))
-            .map(waypoint -> waypoint.get())
-            .collect(Collectors.toList());
+    List<PlaceType> nonEmptynonStreetAddressWaypointsAsPlaceTypes = filterNonNull(separatedWaypoints.nonStreetAddressWaypointsAsPlaceTypes);
 
     List<List<String>> allSearchNearbyResults =
         searchForPlacesNearLocations(
