@@ -69,7 +69,8 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
   private boolean isFromMailingList(Message message, String userEmail) {
     MessagePartHeader toHeader = GmailUtility.extractHeader(message, "To");
     if (toHeader == null) {
-      throw new GmailMessageFormatException("'To' header not present. Check message format");
+      throw new GmailMessageFormatException(
+          "'To' header not present. Check message format. Message ID:" + message.getId());
     }
     String headerValue = toHeader.getValue();
     if (headerValue.equals(UNDISCLOSED_RECIPIENTS_TO_HEADER)) {

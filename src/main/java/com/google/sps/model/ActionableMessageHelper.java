@@ -21,9 +21,7 @@ public interface ActionableMessageHelper {
   /**
    * Priority is determined by a series of arbitrary factors. If a message is starred by a user, it
    * is considered high priority. Then, if a message is not from a mailing list or marked important,
-   * it is marked medium priority Otherwise, the message is of low priority. higher priority than a
-   * message where both of these are false. Finally, if a message was sent later than another
-   * message, it is considered to be of higher priority.
+   * it is marked medium priority Otherwise, the message is of low priority.
    *
    * @param message Message object to be assigned. Should be of type METADATA (with the "TO" header)
    *     or FULL
