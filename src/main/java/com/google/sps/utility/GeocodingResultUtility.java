@@ -18,6 +18,7 @@ import com.google.maps.model.AddressType;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceType;
+import com.google.sps.exceptions.GeocodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -54,12 +55,9 @@ public class GeocodingResultUtility {
    *     specified, an empty optional otherwise.
    */
   public static Optional<PlaceType> convertToPlaceType(String location) {
-    for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.name().equalsIgnoreCase(location.replace(" ", "_"))) {
-        return Optional.ofNullable(placeType);
-      }
-    }
-    return Optional.empty();
+    return Arrays.asList(PlaceType.values()).stream()
+        .filter(placeType -> placeType.name().equalsIgnoreCase(location.replace(" ", "_")))
+        .findFirst();
   }
 
   /**
@@ -85,14 +83,15 @@ public class GeocodingResultUtility {
    * @param result A GeocodingResult returned from the Geocoding API.
    * @return An optional containing a PlaceType representing the type or an empty optional if no
    *     corresponding PlaceType is found.
+   * @throws GeocodingException An exception thrown when an error occurs with the Geocoding API.
    */
-  public static Optional<PlaceType> getPlaceType(GeocodingResult result) {
-    AddressType addressType = result.types[0];
-    for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.name().equals(addressType.name())) {
-        return Optional.ofNullable(placeType);
-      }
+  public static Optional<PlaceType> getPlaceType(GeocodingResult result) throws GeocodingException {
+    if (result.types.length == 0) {
+      throw new GeocodingException("No place types in geocoding result");
     }
-    return Optional.empty();
+    AddressType addressType = result.types[0];
+    return Arrays.asList(PlaceType.values()).stream()
+        .filter(placeType -> placeType.name().equals(addressType.name()))
+        .findFirst();
   }
 }
