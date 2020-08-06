@@ -51,13 +51,6 @@ input[type="text"] {
   width: var(--panel-icon-width);
 }
 
-.panel__optimize-button {
-  border-radius: 6px;
-  border: 2px solid black;
-  font-size: 12px;
-  padding: 6px;
-}
-
 .panel__list-text {
   font-size: 1.6rem;
   font-weight: var(--font-weight-regular);

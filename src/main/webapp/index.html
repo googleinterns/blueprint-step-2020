@@ -247,10 +247,9 @@
           <img class="panel__content-icon" alt="maps-icon" src="assets/maps.png">
           <h3 class="panel__section-heading">Go</h3>
         </div>
-        <div class="panel__content-entry">
+        <div class="panel__content-entry u-remove-top-margin">
           <p class="panel__section-subheading">Task Lists: 
           <select name="panel__task-list-select" id="go-select" size="2" multiple></select>
-          <button class="panel__optimize-button" onclick="populateGo()">Optimize</button>
         </div>
         <div class="panel__content">
           <div class="panel__content-entry">
@@ -262,9 +261,11 @@
             <input type="text" id="go-destination" name="go-destination" required>
           </div>
           <div class="panel__content-entry">
-            <p class="panel__section-subheading">Optimized route: 
+            <button class="button-1-of-2 panel__red-button" onclick="populateGo()">Optimize</button>
           </div>
-          <div id="go"></div>
+          <div class="panel__content-entry">
+            <div id="go"></div>
+          </div>
         </div>
       </div>
     </div>

@@ -32,7 +32,7 @@
   Adds border to panel in color of Maps logo.
   Overrides other non-important border settings.
  */
- .u-border-go {
+.u-border-go {
   border-color: var(--color-dark-yellow) !important;
 }
 
