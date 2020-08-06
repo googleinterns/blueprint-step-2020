@@ -24,16 +24,19 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public class ActionableMessage {
   private final String id;
   private final String subject;
+  private final String sender;
 
   /**
    * Creates an ActionableMessage
    *
    * @param id the message id of the Message in the user's Gmail account
    * @param subject the subject line of the message from the user's Gmail account
+   * @param sender the name, (or email address if name is not available), of the sender
    */
-  public ActionableMessage(String id, String subject) {
+  public ActionableMessage(String id, String subject, String sender) {
     this.id = id;
     this.subject = subject;
+    this.sender = sender;
   }
 
   public String getId() {
@@ -44,9 +47,13 @@ public class ActionableMessage {
     return subject;
   }
 
+  public String getSender() {
+    return sender;
+  }
+
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(7, 17).append(id).append(subject).toHashCode();
+    return new HashCodeBuilder().append(id).append(subject).append(sender).toHashCode();
   }
 
   @Override
@@ -61,6 +68,7 @@ public class ActionableMessage {
     return new EqualsBuilder()
         .append(id, actionableMessage.getId())
         .append(subject, actionableMessage.getSubject())
+        .append(sender, actionableMessage.getSender())
         .isEquals();
   }
 }
