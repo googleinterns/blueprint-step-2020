@@ -60,7 +60,7 @@ public final class TasksUtilityTest {
   public void getAllTasksFromNoTaskLists() throws Exception {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(NO_TASK_LISTS);
     List<Task> actual = TasksUtility.getAllTasksFromAllTaskLists(tasksClient);
-    Assert.assertEquals(ImmutableList.of(), actual);
+    Assert.assertTrue(actual.isEmpty());
   }
 
   @Test
@@ -69,7 +69,8 @@ public final class TasksUtilityTest {
     Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(NO_TASKS);
     Mockito.when(tasksClient.listTasks(TASK_LIST_TWO)).thenReturn(NO_TASKS);
     List<Task> actual = TasksUtility.getAllTasksFromAllTaskLists(tasksClient);
-    Assert.assertEquals(NO_TASKS, actual);
+    Assert.assertTrue(NO_TASKS.containsAll(actual));
+    Assert.assertTrue(actual.containsAll(NO_TASKS));
   }
 
   @Test
@@ -78,7 +79,9 @@ public final class TasksUtilityTest {
     Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ONE_TASK);
     Mockito.when(tasksClient.listTasks(TASK_LIST_TWO)).thenReturn(SOME_TASKS);
     List<Task> actual = TasksUtility.getAllTasksFromAllTaskLists(tasksClient);
-    Assert.assertEquals(ImmutableList.of(TASK_ONE, TASK_ONE, TASK_TWO), actual);
+    List<Task> expected = ImmutableList.of(TASK_ONE, TASK_ONE, TASK_TWO);
+    Assert.assertTrue(expected.containsAll(actual));
+    Assert.assertTrue(actual.containsAll(expected));
   }
 
   @Test
@@ -86,7 +89,8 @@ public final class TasksUtilityTest {
     Mockito.when(tasksClient.listTaskLists()).thenReturn(SOME_TASK_LISTS);
     List<Task> actual =
         TasksUtility.getAllTasksFromSpecificTaskLists(tasksClient, ImmutableSet.of());
-    Assert.assertEquals(NO_TASKS, actual);
+    Assert.assertTrue(NO_TASKS.containsAll(actual));
+    Assert.assertTrue(actual.containsAll(NO_TASKS));
   }
 
   @Test
@@ -97,6 +101,7 @@ public final class TasksUtilityTest {
     List<Task> actual =
         TasksUtility.getAllTasksFromSpecificTaskLists(
             tasksClient, ImmutableSet.of(TASK_LIST_ID_ONE));
-    Assert.assertEquals(SOME_TASKS, actual);
+    Assert.assertTrue(SOME_TASKS.containsAll(actual));
+    Assert.assertTrue(actual.containsAll(SOME_TASKS));
   }
 }
