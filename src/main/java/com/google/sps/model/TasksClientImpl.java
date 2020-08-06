@@ -45,7 +45,7 @@ public class TasksClientImpl implements TasksClient {
 
   @Override
   public List<Task> listTasks(TaskList taskList) throws IOException {
-    // Returns null if no tasks exist. Convert to empty list for ease.
+    // Empty list returned if no tasks exist.
     // setShowHidden indicates that hidden/completed tasks are retrieved as well.
     List<Task> tasks =
         tasksService.tasks().list(taskList.getId()).setShowHidden(true).execute().getItems();
@@ -55,7 +55,7 @@ public class TasksClientImpl implements TasksClient {
 
   @Override
   public List<TaskList> listTaskLists() throws IOException {
-    // returns null if no taskLists exist. Convert to empty list for ease.
+    // Empty list returned if no task lists exist.
     List<TaskList> taskLists = tasksService.tasklists().list().execute().getItems();
 
     return taskLists != null ? taskLists : new ArrayList<>();
