@@ -12,26 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable no-unused-vars */
+package com.google.sps.utility;
 
-/**
- * A class to encapsulate some of the values from a Google Tasks task, as well
- * as the parent taskList name
- * https://developers.google.com/tasks/v1/reference/tasks
- */
-class Task {
+import java.util.*;
+
+/** Class implementing an Interval Data Structure. */
+public final class DateInterval {
+
+  private final Date start;
+  private final Date end;
+
   /**
-   * Creates a Task object with a due date
+   * Constructor for the class
    *
-   * @param {string} title a title for the task
-   * @param {string} notes messages associated with a given task
-   * @param {Date} due a Date object / undefined if not present
+   * @param start the start time of the interval
+   * @param end the end time of the interval
    */
-  constructor(title, notes, due) {
-    this.title = title;
-    this.notes = notes;
-    if (due != null) {
-      this.due = due.toISOString();
-    }
+  public DateInterval(Date start, Date end) {
+    this.start = start;
+    this.end = end;
+  }
+
+  public Date getStart() {
+    return this.start;
+  }
+
+  public Date getEnd() {
+    return this.end;
   }
 }
