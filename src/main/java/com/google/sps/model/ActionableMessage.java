@@ -26,6 +26,7 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
   private final String subject;
   private final long internalDate;
   private final MessagePriority priority;
+  private final String sender;
 
   /**
    * Creates an ActionableMessage
@@ -34,12 +35,15 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
    * @param subject the subject line of the message from the user's Gmail account
    * @param internalDate Timestamp of when the message was received in epoch milliseconds
    * @param priority the priority of the message (HIGH, MEDIUM, or LOW)
+   * @param sender the name, (or email address if name is not available), of the sender
    */
-  public ActionableMessage(String id, String subject, long internalDate, MessagePriority priority) {
+  public ActionableMessage(
+      String id, String subject, long internalDate, MessagePriority priority, String sender) {
     this.id = id;
     this.subject = subject;
     this.internalDate = internalDate;
     this.priority = priority;
+    this.sender = sender;
   }
 
   public String getId() {
@@ -58,6 +62,10 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
     return priority;
   }
 
+  public String getSender() {
+    return sender;
+  }
+
   @Override
   public int hashCode() {
     return new HashCodeBuilder()
@@ -65,6 +73,7 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
         .append(subject)
         .append(internalDate)
         .append(priority.getPriorityValue())
+        .append(sender)
         .toHashCode();
   }
 
@@ -82,6 +91,7 @@ public class ActionableMessage implements Comparable<ActionableMessage> {
         .append(subject, actionableMessage.getSubject())
         .append(internalDate, actionableMessage.getInternalDate())
         .append(priority.getPriorityValue(), actionableMessage.getPriority().getPriorityValue())
+        .append(sender, actionableMessage.getSender())
         .isEquals();
   }
 

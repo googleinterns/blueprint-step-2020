@@ -21,6 +21,7 @@
 <script src="populateData.js"></script>
 <script src="task.js"></script>
 <script src="auth.js"></script>
+<script src="assignPanel.js"></script>
 <script src="panelStyle.js" defer></script>
 <script src="assignPanelStyle.js" defer></script>
 <!-- TODO: Refactor JavaScript to cleanly handle the display of all data, and implement a main js file (Issue #26) -->
@@ -51,27 +52,27 @@
             </a>
             <h3 class="panel__section-heading">Mail</h3>
           </div>
-          <p class="panel__section-subheading">From the last <span id="gmailNDays"></span> days:
+          <p class="panel__section-subheading">From the last <span id="gmailNDays">...</span> days:
           <div class="panel__content">
             <div class="panel__content-entry">
               <div class="panel__rounded-number u-background-mail">
-                <p class="panel__text-data-point u-text-white" id="gmailUnreadEmailsDays">
+                <p class="panel__text-data-point u-text-white" id="gmailUnreadEmailsDays">...
               </div>
               <p class="panel__text-data-point">Unread Emails:
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="clock-icon" src="assets/clock.png">
-              <p class="panel__text-large"><span id="gmailUnreadEmailsHours"></span> from the last <span id="gmailMHours"></span> hours
+              <p class="panel__text-large"><span id="gmailUnreadEmailsHours">...</span> from the last <span id="gmailMHours"></span> hours
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="flag-icon" src="assets/flag.png">
-              <p class="panel__text-large"><span id="gmailUnreadImportantEmails"></span> marked important
+              <p class="panel__text-large"><span id="gmailUnreadImportantEmails">...</span> marked important
             </div>
             <div class="panel__content-entry">
               <div class="panel__round-letter">
-                <p class="panel__text-data-point u-text-white" id="gmailSenderInitial">
+                <p class="panel__text-data-point u-text-white" id="gmailSenderInitial">-
               </div>
-              <p class="panel__text-large"><span id="gmailSender"></span> sent the most unread emails
+              <p class="panel__text-large"><span id="gmailSender">...</span> sent the most unread emails
             </div>
           </div>
         </div>
@@ -90,26 +91,24 @@
           <div class="panel__content">
             <div class="panel__content-entry">
               <div class="panel__rounded-number u-background-tasks">
-                <p class="panel__text-data-point u-text-white" id="tasks-to-complete">
+                <p class="panel__text-data-point u-text-white" id="tasks-to-complete">...
               </div>
               <p class="panel__text-data-point">Tasks to complete
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="clipboard-icon" src="assets/clipboard.png">
-              <p class="panel__text-large" id="tasks-due-today">4 due today
+              <p class="panel__text-large"><span id="tasks-due-today">...</span> due today
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="checkmark-icon" src="assets/checkmark.png">
-              <p class="panel__text-large" id="tasks-completed-today">2 completed today
+              <p class="panel__text-large"><span id="tasks-completed-today">...</span> completed today
             </div>
             <div class="panel__content-entry">
               <img class="panel__content-icon" alt="exclamation-icon" src="assets/exclamation.png">
-              <p class="panel__text-large" id="tasks-overdue">1 overdue
+              <p class="panel__text-large"><span id="tasks-overdue">...</span> overdue
             </div>
           </div>
         </div>
-        <!-- Container to display prototype data. TODO: Delete prototype containers once panel's complete (Issue #74) -->
-        <div id="tasks"></div>
       </div>
       <!-- Calendar container -->
       <div class="panel u-border-calendar">
@@ -129,12 +128,12 @@
       </div>
     </div>
   </article>
-  <!-- Placeholder panels for features built in future -->
+  <!-- Panels for cross-product features -->
   <article>
     <h2 class="panel-row__header u-align-with-first-panel">Build your plan:</h2>
     <div class="panel-row__content">
       <div class="panel u-border-assign">
-        <div class="panel__toggle-icon" id="assignSettingsIcon">
+        <div class="panel__toggle-icon" id="assign-settings-icon">
           <img hidden class="panel__toggle-icon--selected" alt="settings-icon" src="assets/settings-selected.png" onclick="displayAssignContent()">
           <img class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/settings-unselected.png" onclick="displayAssignSettings()">
         </div>
@@ -149,41 +148,47 @@
         <p class="panel__section-subheading assign-content">Find tasks in your emails:</p>
         <div class="panel__content-entry assign-content">
           <div class="panel__rounded-number u-background-assign">
-            <p class="panel__text-data-point u-text-white" id="assignSuspectedActionItems">6
+            <p class="panel__text-data-point u-text-white" id="assign-suspected-action-items">-
           </div>
           <p class="panel__text-data-point">Possible Items:</p>
         </div>
         <div class="panel__content-entry assign-content">
-          <a class="button-circle"><span class="play-icon">▶</span></a>
+          <a class="button-circle u-button-disable" id="assign-start-reset-button" onclick="startAssign()">
+            <span class="button-circle__ascii-icon">▶</span>
+          </a>
           <!-- Will default to click to start. When started, will list item number (e.g. "Item 1/6") -->
-          <p class="panel__text-data-point" id="assignItemCount">Click to start
+          <p class="panel__text-data-point" id="assign-start-reset-text">Click to start
         </div>
         <!-- Container to hold subject line of actionable email -->
         <div class="panel__text-body assign-content">
-          <p class="panel__text-large">
-            <span class="u-bold-underline">Subject:</span>
-            <span id="assignSubject"> Lorem ipsum emmet Lorem ipsum emmet Lorem ipsum emmet</span>
+          <p>
+            <span class="u-bold-underline panel__text-large">Subject:</span>
+            <span id="assign-subject" class="panel__text-medium"></span>
         </div>
         <!-- Settings section -->
         <h3 hidden class="panel__section-heading u-remove-top-margin assign-settings">Settings:</h3>
         <div hidden class="panel__text-body assign-settings">
           <div class="panel__content-entry u-remove-top-margin">
-            <p class="panel__text-large">Search <span class="u-bold-underline" id="assignNDays">7</span> days of email
+            <p class="panel__text-large">Search <span class="u-bold-underline" id="assign-n-days">7</span> days of email
             <div class="panel__two-buttons-incremental u-right-align">
-              <a class="panel__button-incremental" onclick="incrementElement('assignNDays')"><span>+</span></a>
-              <a class="panel__button-incremental" onclick="decrementElement('assignNDays')"><span>-</span></a>
+              <a class="panel__button-incremental" id="assign-n-days-increment-button" onclick="incrementElement('assign-n-days', 30, 1,'assign-n-days-increment-button', 'assign-n-days-decrement-button')">
+                <span>+</span>
+              </a>
+              <a class="panel__button-incremental" id="assign-n-days-decrement-button" onclick="decrementElement('assign-n-days', 1, 30,'assign-n-days-increment-button', 'assign-n-days-decrement-button')">
+                <span>-</span>
+              </a>
             </div>
           </div>
           <div class="panel__content-entry">
             <p class="panel__text-large">Use unread emails only
-            <div class="panel__toggle-icon u-right-align" id="assignUnreadOnlyIcon">
-              <img class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/checkbox-unselected.png">
-              <img hidden class="panel__toggle-icon--selected" alt="settings-icon" src="assets/checkbox-selected.png">
+            <div class="panel__toggle-icon u-right-align" id="assign-unread-only-icon">
+              <img hidden class="panel__toggle-icon--unselected" alt="settings-icon" src="assets/checkbox-unselected.png">
+              <img class="panel__toggle-icon--selected" alt="settings-icon" src="assets/checkbox-selected.png">
             </div>
           </div>
           <div class="panel__list">
             <p class="panel__text-large u-bold-underline">Search Phrases:
-            <ul class="panel__list-unordered" id="assignList">
+            <ul class="panel__list-unordered" id="assign-list">
               <li class="panel__content-entry--list">
                 <p class="panel__list-text">Action Required</p>
                 <a class="panel__button-incremental--small u-right-align"><span>-</span></a>
@@ -194,17 +199,18 @@
               </li>
             </ul>
             <div class="panel__content-entry">
-              <input type="text" class="panel__text-entry" placeholder="New Phrase..." id="assignListTextInput">
-              <a class="panel__button-incremental--small" onclick="createTextListElement('assignListTextInput', 'assignList')"><span>+</span></a>
+              <input type="text" class="panel__text-entry" placeholder="New Phrase..." id="assign-list-text-input">
+              <a class="panel__button-incremental--small" onclick="createTextListElement('assign-list-text-input', 'assign-list')">
+                <span>+</span>
+              </a>
             </div>
           </div>
         </div>
-        <!-- Change to CONFIRM and CANCEL for settings, YES and NO otherwise -->
+        <!-- Change to Confirm and Reset for settings, Add Task and Skip Task otherwise -->
         <div class="panel__buttons">
-          <a class="button-1-of-2 panel__green-button" id="assign-accept-button">Add Task</a>
-          <a class="button-1-of-2 panel__red-button" id="assign-reject-button">Skip Task</a>
+          <a class="button-1-of-2 panel__green-button u-button-disable" id="assign-accept-button">Add Task</a>
+          <a class="button-1-of-2 panel__red-button u-button-disable" id="assign-reject-button">Skip Task</a>
         </div>
-        <div id="assign"></div>
       </div>
       <div class="panel">Plan</div>
       <div class="panel">Go

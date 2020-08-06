@@ -52,7 +52,7 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
     actionableMessageHelper = new ActionableMessageHelperImpl();
   }
 
-  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
+  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject", "From");
 
   /**
    * Create new servlet instance (used for testing)
@@ -148,6 +148,8 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
     long internalDate = message.getInternalDate();
     ActionableMessage.MessagePriority priority =
         actionableMessageHelper.assignMessagePriority(message, userEmail);
-    return new ActionableMessage(messageId, subject, internalDate, priority);
+    String sender =
+        GmailUtility.parseNameInFromHeader(GmailUtility.extractHeader(message, "From").getValue());
+    return new ActionableMessage(messageId, subject, internalDate, priority, sender);
   }
 }

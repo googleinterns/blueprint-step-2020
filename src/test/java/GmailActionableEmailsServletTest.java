@@ -25,7 +25,6 @@ import com.google.sps.model.GmailClientFactory;
 import com.google.sps.servlets.GmailActionableEmailsServlet;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,7 +48,7 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   private static final List<String> SUBJECT_LINE_PHRASES_LIST =
       Arrays.asList("Action Word One", "ActionWordTwo");
 
-  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
+  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject", "From");
 
   private static final String MESSAGE_ID_OLD = "messageOne";
   private static final String MESSAGE_ID_NEW = "messageTwo";
@@ -57,10 +56,14 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   private static final String MESSAGE_ID_HIGH_PRIORITY = "messageTwo";
   private static final String SUBJECT_VALUE_ONE = "subjectValueOne";
   private static final String SUBJECT_VALUE_TWO = "subjectValueTwo";
+  private static final String SENDER_EMAIl = "example@example.com";
   private static final MessagePartHeader subjectHeaderOne =
       new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_ONE);
   private static final MessagePartHeader subjectHeaderTwo =
       new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_TWO);
+  private static final MessagePartHeader fromHeader =
+      new MessagePartHeader().setName("From").setValue(String.format("<%s>", SENDER_EMAIl));
+
   private static final long INTERNAL_DATE_EARLY = 1;
   private static final long INTERNAL_DATE_LATE = 2;
 
@@ -72,22 +75,22 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   private static final Message messageOld =
       new Message()
           .setId(MESSAGE_ID_OLD)
-          .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderOne)))
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(subjectHeaderOne, fromHeader)))
           .setInternalDate(INTERNAL_DATE_EARLY);
   private static final Message messageNew =
       new Message()
           .setId(MESSAGE_ID_NEW)
-          .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderTwo)))
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(subjectHeaderTwo, fromHeader)))
           .setInternalDate(INTERNAL_DATE_LATE);
   private static final Message messageLowPriority =
       new Message()
           .setId(MESSAGE_ID_LOW_PRIORITY)
-          .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderOne)))
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(subjectHeaderOne, fromHeader)))
           .setInternalDate(INTERNAL_DATE_LATE);
   private static final Message messageHighPriority =
       new Message()
           .setId(MESSAGE_ID_LOW_PRIORITY)
-          .setPayload(new MessagePart().setHeaders(Collections.singletonList(subjectHeaderTwo)))
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(subjectHeaderTwo, fromHeader)))
           .setInternalDate(INTERNAL_DATE_LATE);
 
   private static final List<Message> MESSAGES_OLDEST_TO_NEWEST =
@@ -98,21 +101,31 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   private static final List<ActionableMessage> actionableMessagesNewestToOldest =
       ImmutableList.of(
           new ActionableMessage(
-              MESSAGE_ID_NEW, SUBJECT_VALUE_TWO, INTERNAL_DATE_LATE, DEFAULT_PRIORITY),
+              MESSAGE_ID_NEW,
+              SUBJECT_VALUE_TWO,
+              INTERNAL_DATE_LATE,
+              DEFAULT_PRIORITY,
+              SENDER_EMAIl),
           new ActionableMessage(
-              MESSAGE_ID_OLD, SUBJECT_VALUE_ONE, INTERNAL_DATE_EARLY, DEFAULT_PRIORITY));
+              MESSAGE_ID_OLD,
+              SUBJECT_VALUE_ONE,
+              INTERNAL_DATE_EARLY,
+              DEFAULT_PRIORITY,
+              SENDER_EMAIl));
   private static final List<ActionableMessage> actionableMessagesPriorityHighestToLowest =
       ImmutableList.of(
           new ActionableMessage(
               MESSAGE_ID_HIGH_PRIORITY,
               SUBJECT_VALUE_TWO,
               INTERNAL_DATE_LATE,
-              ActionableMessage.MessagePriority.HIGH),
+              ActionableMessage.MessagePriority.HIGH,
+              SENDER_EMAIl),
           new ActionableMessage(
               MESSAGE_ID_LOW_PRIORITY,
               SUBJECT_VALUE_ONE,
               INTERNAL_DATE_LATE,
-              ActionableMessage.MessagePriority.LOW));
+              ActionableMessage.MessagePriority.LOW,
+              SENDER_EMAIl));
 
   @Override
   @Before
