@@ -174,8 +174,12 @@
           <div class="panel__content-entry u-remove-top-margin">
             <p class="panel__text-large">Search <span class="u-bold-underline" id="assign-n-days">7</span> days of email
             <div class="panel__two-buttons-incremental u-right-align">
-              <a class="panel__button-incremental" onclick="incrementElement('assign-n-days')"><span>+</span></a>
-              <a class="panel__button-incremental" onclick="decrementElement('assign-n-days')"><span>-</span></a>
+              <a class="panel__button-incremental" id="assign-n-days-increment-button" onclick="incrementElement('assign-n-days', 30, 1,'assign-n-days-increment-button', 'assign-n-days-decrement-button')">
+                <span>+</span>
+              </a>
+              <a class="panel__button-incremental" id="assign-n-days-decrement-button" onclick="decrementElement('assign-n-days', 1, 30,'assign-n-days-increment-button', 'assign-n-days-decrement-button')">
+                <span>-</span>
+              </a>
             </div>
           </div>
           <div class="panel__content-entry">
