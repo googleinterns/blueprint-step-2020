@@ -399,12 +399,13 @@ function populatePlanMail() {
               buttonElement.innerText =
                 `${planMailResponse.potentialEventTimes[index].start} to \
                 ${planMailResponse.potentialEventTimes[index].end}`;
-              buttonElement.name =
-                  planMailResponse.potentialEventTimes[index].start;
-              buttonElement.value =
-                  planMailResponse.potentialEventTimes[index].end;
+              buttonElement.setAttribute('start',
+                  planMailResponse.potentialEventTimes[index].start);
+              buttonElement.setAttribute('end',
+                  planMailResponse.potentialEventTimes[index].end);
               buttonElement.addEventListener('click', () => {
-                createEvent(buttonElement.name, buttonElement.value);
+                createEvent(buttonElement.getAttribute('start'),
+                    buttonElement.getAttribute('end'));
               });
               intervalContainer.appendChild(buttonElement);
             }
