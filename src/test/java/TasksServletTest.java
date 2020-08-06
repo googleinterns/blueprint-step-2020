@@ -16,7 +16,7 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.common.collect.ImmutableList;
-import com.google.sps.model.AuthenticationVerifier;
+import com.google.common.collect.ImmutableMap;
 import com.google.sps.model.GmailResponse;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
@@ -24,20 +24,17 @@ import com.google.sps.model.TasksResponse;
 import com.google.sps.servlets.TasksServlet;
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 /**
@@ -46,13 +43,9 @@ import org.mockito.Mockito;
  */
 @RunWith(JUnit4.class)
 public final class TasksServletTest extends AuthenticatedServletTestBase {
-  private AuthenticationVerifier authenticationVerifier;
   private TasksClientFactory tasksClientFactory;
   private TasksClient tasksClient;
   private TasksServlet servlet;
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
 
   private static final Gson gson = new Gson();
 
@@ -61,24 +54,25 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
   private static final String TASK_TITLE_THREE = "task three";
   private static final String TASK_TITLE_FOUR = "task four";
   private static final String TASK_TITLE_FIVE = "task five";
-  private static final String TASK_LIST_TITLE_ONE = "task list one";
-  private static final String TASK_LIST_TITLE_TWO = "task list two";
+  private static final String TASK_LIST_TITLE_ONE = "task list title one";
+  private static final String TASK_LIST_TITLE_TWO = "task list title two";
+  private static final String TASK_LIST_ID_ONE = "task list id one";
+  private static final String TASK_LIST_ID_TWO = "task list id two";
 
   private static final TaskList TASK_LIST_ONE =
-      new TaskList().setTitle(TASK_LIST_TITLE_ONE).setId("taskListOne");
+      new TaskList().setTitle(TASK_LIST_TITLE_ONE).setId(TASK_LIST_ID_ONE);
   private static final TaskList TASK_LIST_TWO =
-      new TaskList().setTitle(TASK_LIST_TITLE_TWO).setId("taskListTwo");
-
-  private static final String TASK_LIST_ID_ONE = "taskListOne";
+      new TaskList().setTitle(TASK_LIST_TITLE_TWO).setId(TASK_LIST_ID_TWO);
 
   private static final List<TaskList> NO_TASK_LISTS = ImmutableList.of();
   private static final List<TaskList> ONE_TASK_LIST = ImmutableList.of(TASK_LIST_ONE);
   private static final List<TaskList> TWO_TASK_LISTS =
       ImmutableList.of(TASK_LIST_ONE, TASK_LIST_TWO);
-  private static final List<String> NO_TASK_LISTS_TITLES = ImmutableList.of();
-  private static final List<String> ONE_TASK_LIST_TITLES = ImmutableList.of(TASK_LIST_TITLE_ONE);
-  private static final List<String> TWO_TASK_LISTS_TITLES =
-      ImmutableList.of(TASK_LIST_TITLE_ONE, TASK_LIST_TITLE_TWO);
+  private static final Map<String, String> NO_TASK_LIST_IDS_TO_TITLES = ImmutableMap.of();
+  private static final Map<String, String> ONE_TASK_LIST_IDS_TO_TITLES =
+      ImmutableMap.of(TASK_LIST_ID_ONE, TASK_LIST_TITLE_ONE);
+  private static final Map<String, String> TWO_TASK_LIST_IDS_TO_TITLES =
+      ImmutableMap.of(TASK_LIST_ID_ONE, TASK_LIST_TITLE_ONE, TASK_LIST_ID_TWO, TASK_LIST_TITLE_TWO);
 
   private static final DateTimeFormatter FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX").withZone(ZoneId.systemDefault());
@@ -123,7 +117,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
 
   private static final TasksResponse NO_TASK_LISTS_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(NO_TASK_LISTS_TITLES)
+          .taskListIdsToTitles(NO_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(0)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -131,7 +125,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse NO_TASKS_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(0)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -139,7 +133,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_DUE_YESTERDAY_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(1)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -147,7 +141,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_DUE_TODAY_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(1)
           .tasksDueTodayCount(1)
           .tasksCompletedTodayCount(0)
@@ -155,7 +149,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_DUE_TOMORROW_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(1)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -163,7 +157,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_COMPLETED_YESTERDAY_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(0)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(0)
@@ -171,7 +165,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse TASKS_COMPLETED_TODAY_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(0)
           .tasksDueTodayCount(0)
           .tasksCompletedTodayCount(1)
@@ -179,7 +173,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse ALL_TASKS_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(ONE_TASK_LIST_TITLES)
+          .taskListIdsToTitles(ONE_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(3)
           .tasksDueTodayCount(1)
           .tasksCompletedTodayCount(1)
@@ -187,7 +181,7 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
           .build();
   private static final TasksResponse MULTIPLE_TASK_LISTS_RESPONSE =
       TasksResponse.builder()
-          .taskListTitles(TWO_TASK_LISTS_TITLES)
+          .taskListIdsToTitles(TWO_TASK_LIST_IDS_TO_TITLES)
           .tasksToCompleteCount(6)
           .tasksDueTodayCount(2)
           .tasksCompletedTodayCount(2)
@@ -199,26 +193,11 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
   public void setUp() throws Exception {
     super.setUp();
 
-    authenticationVerifier = Mockito.mock(AuthenticationVerifier.class);
     tasksClientFactory = Mockito.mock(TasksClientFactory.class);
     tasksClient = Mockito.mock(TasksClient.class);
     servlet = new TasksServlet(authenticationVerifier, tasksClientFactory);
 
     Mockito.when(tasksClientFactory.getTasksClient(Mockito.any())).thenReturn(tasksClient);
-    // Authentication will always pass
-    Mockito.when(authenticationVerifier.verifyUserToken(Mockito.anyString()))
-        .thenReturn(AUTHENTICATION_VERIFIED);
-
-    // Writer used in get/post requests to capture HTTP response values
-    stringWriter = new StringWriter();
-
-    request = Mockito.mock(HttpServletRequest.class);
-    response =
-        Mockito.mock(
-            HttpServletResponse.class,
-            AdditionalAnswers.delegatesTo(new HttpServletResponseFake(stringWriter)));
-
-    Mockito.when(request.getCookies()).thenReturn(validCookies);
   }
 
   @Test
@@ -366,5 +345,39 @@ public final class TasksServletTest extends AuthenticatedServletTestBase {
     Task postedTask = gson.fromJson(stringWriter.toString(), Task.class);
 
     Assert.assertEquals(validTask, postedTask);
+  }
+
+  @Test
+  public void noTaskListSelected() throws Exception {
+    // No task lists selected is equivalent to all task lists selected
+    Mockito.when(request.getParameter("taskLists")).thenReturn(null);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(TWO_TASK_LISTS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_TWO)).thenReturn(ALL_TASKS);
+    servlet.doGet(request, response);
+    TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+    Assert.assertEquals(MULTIPLE_TASK_LISTS_RESPONSE, actual);
+  }
+
+  @Test
+  public void oneTaskListSelected() throws Exception {
+    Mockito.when(request.getParameter("taskLists")).thenReturn(TASK_LIST_ID_ONE);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(ONE_TASK_LIST);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
+    servlet.doGet(request, response);
+    TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+    Assert.assertEquals(ALL_TASKS_RESPONSE, actual);
+  }
+
+  @Test
+  public void allTaskListsSelected() throws Exception {
+    Mockito.when(request.getParameter("taskLists"))
+        .thenReturn(TASK_LIST_ID_ONE + "," + TASK_LIST_ID_TWO);
+    Mockito.when(tasksClient.listTaskLists()).thenReturn(TWO_TASK_LISTS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_ONE)).thenReturn(ALL_TASKS);
+    Mockito.when(tasksClient.listTasks(TASK_LIST_TWO)).thenReturn(ALL_TASKS);
+    servlet.doGet(request, response);
+    TasksResponse actual = gson.fromJson(stringWriter.toString(), TasksResponse.class);
+    Assert.assertEquals(MULTIPLE_TASK_LISTS_RESPONSE, actual);
   }
 }

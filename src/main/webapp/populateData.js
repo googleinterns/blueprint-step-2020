@@ -15,7 +15,8 @@
 // Script to handle populating data in the panels
 
 /* eslint-disable no-unused-vars */
-/* global signOut, AuthenticationError, Task, getDateInLocalTimeZone */
+/* global signOut, AuthenticationError, Task, getDateInLocalTimeZone,
+ encodeListForUrl */
 // TODO: Refactor so populate functions are done in parallel (Issue #26)
 
 // Stores the last retrieved copy of the user's taskLists and tasks
@@ -90,12 +91,24 @@ function populateGmail() {
  * Populate Tasks container with user information
  */
 function populateTasks() {
-  // Get Container for Tasks content
-  const tasksContainer = document.querySelector('#tasks');
+  let fetchFrom;
+  const select = document.querySelector('#tasks-select');
+  // Cast from HTMLOptionsCollection to Array
+  const options = Array(...select.options);
 
-  // Get list of tasks from user's Tasks account
-  // and display the task titles from all task lists on the screen
-  fetch('/tasks')
+  if (options.length === 0) {
+    fetchFrom = '/tasks';
+  } else {
+    const selectedOptions = [];
+    options.forEach((option) => {
+      if (option.selected) {
+        selectedOptions.push(option.value);
+      }
+    });
+    fetchFrom = '/tasks?taskLists=' + selectedOptions.join();
+  }
+
+  fetch(fetchFrom)
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
@@ -104,19 +117,33 @@ function populateTasks() {
         return response.json();
       })
       .then((tasksResponse) => {
+        if (options.length === 0) {
+          const taskListIdsToTitles = tasksResponse['taskListIdsToTitles'];
+          select.innerText = '';
+          for (const taskListId in taskListIdsToTitles) {
+            if (Object.prototype
+                .hasOwnProperty
+                .call(taskListIdsToTitles, taskListId)) {
+              const option = document.createElement('option');
+              option.value = taskListId;
+              option.innerText = taskListIdsToTitles[taskListId];
+              select.append(option);
+            }
+          }
+        }
         document
-            .querySelector('#panel__tasks-to-complete')
+            .querySelector('#tasks-to-complete')
             .innerText = tasksResponse['tasksToCompleteCount'];
         document
-            .querySelector('#panel__tasks-due-today')
+            .querySelector('#tasks-due-today')
             .innerText = tasksResponse['tasksDueTodayCount'] +
                             ' due today';
         document
-            .querySelector('#panel__tasks-completed-today')
+            .querySelector('#tasks-completed-today')
             .innerText = tasksResponse['tasksCompletedTodayCount'] +
                             ' completed today';
         document
-            .querySelector('#panel__tasks-overdue')
+            .querySelector('#tasks-overdue')
             .innerText = tasksResponse['tasksOverdueCount'] +
                             ' overdue';
       })
@@ -371,15 +398,15 @@ function populatePlanMail() {
               const buttonElement = document.createElement('button');
               buttonElement.className = 'button plan__button';
               buttonElement.innerText =
-                planMailResponse.potentialEventTimes[index].start +
-                ' to ' +
-                planMailResponse.potentialEventTimes[index].end;
-              buttonElement.name =
-                  planMailResponse.potentialEventTimes[index].start;
-              buttonElement.value =
-                  planMailResponse.potentialEventTimes[index].end;
+                `${planMailResponse.potentialEventTimes[index].start} to \
+                ${planMailResponse.potentialEventTimes[index].end}`;
+              buttonElement.setAttribute('start',
+                  planMailResponse.potentialEventTimes[index].start);
+              buttonElement.setAttribute('end',
+                  planMailResponse.potentialEventTimes[index].end);
               buttonElement.addEventListener('click', () => {
-                createEvent(buttonElement.name, buttonElement.value);
+                createEvent(buttonElement.getAttribute('start'),
+                    buttonElement.getAttribute('end'));
               });
               intervalContainer.appendChild(buttonElement);
             }
@@ -408,4 +435,64 @@ function createEvent(eventStart, eventEnd) {
   fetch('/calendar', {method: 'POST', body: params});
   populateCalendar();
   populatePlanMail();
+}
+
+/**
+ * Set up the assign panel. For now, this just prints the response
+ * from the server for /gmail-actionable-emails
+ */
+function setUpAssign() {
+  const assignContent = document.querySelector('#assign');
+
+  const subjectLinePhrases = ['Action Required', 'Action Requested'];
+  const unreadOnly = true;
+  const nDays = 7;
+  fetchActionableEmails(subjectLinePhrases, unreadOnly, nDays)
+      .then((response) => {
+        assignContent.innerText = response
+            .map((obj) => obj.subject)
+            .join('\n');
+      })
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof AuthenticationError) {
+          signOut();
+        }
+      });
+}
+
+/**
+ * Get actionable emails from server. Used for assign panel
+ *
+ * @param {string[]} listOfPhrases list of words/phrases that the subject line
+ *     of user's emails should be queried for
+ * @param {boolean} unreadOnly true if only unread emails should be returned,
+ *     false otherwise
+ * @param {number} nDays number of days to check unread emails for.
+ *     Should be an integer > 0
+ * @return {Promise<Object>} returns promise that returns the JSON response
+ *     from client. Should be list of Gmail Message Objects. Will throw
+ *     AuthenticationError in the case of a 403, or generic Error in
+ *     case of other error code
+ */
+function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
+  const listOfPhrasesString = encodeListForUrl(listOfPhrases);
+  const unreadOnlyString = unreadOnly.toString();
+  const nDaysString = nDays.toString();
+
+  const queryString =
+      `/gmail-actionable-emails?subjectLinePhrases=${listOfPhrasesString}` +
+      `&unreadOnly=${unreadOnlyString}&nDays=${nDaysString}`;
+
+  return fetch(queryString)
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 403:
+            throw new AuthenticationError();
+          default:
+            throw new Error(response.status + ' ' + response.statusText);
+        }
+      });
 }
