@@ -1,4 +1,3 @@
-
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -98,7 +96,8 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
     calendarClient = Mockito.mock(CalendarClient.class);
     GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
     gmailClient = Mockito.mock(GmailClient.class);
-    servlet = new FreeTimeServlet(authenticationVerifier, calendarClientFactory, gmailClientFactory);
+    servlet =
+        new FreeTimeServlet(authenticationVerifier, calendarClientFactory, gmailClientFactory);
     Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
     Mockito.when(calendarClientFactory.getCalendarClient(Mockito.any())).thenReturn(calendarClient);
     // Writer used in get/post requests to capture HTTP response values
@@ -115,7 +114,7 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
   @Test
   public void noPotentialEvent() throws Exception {
     // Test case where there are no unread emails
-    //We should get no proposed potential event times
+    // We should get no proposed potential event times
     Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
     Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
         .thenReturn(NO_EVENT);
@@ -145,8 +144,10 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
     Assert.assertEquals(10, actual.getMinutesToRead());
     Assert.assertEquals(startHour.size(), actual.getPotentialEventTimes().size());
     for (int index = 0; index < startHour.size(); index++) {
-      Assert.assertTrue(startHour.get(index).equals(actual.getPotentialEventTimes().get(index).getStart()));
-      Assert.assertTrue(endHour.get(index).equals(actual.getPotentialEventTimes().get(index).getEnd()));
+      Assert.assertTrue(
+          startHour.get(index).equals(actual.getPotentialEventTimes().get(index).getStart()));
+      Assert.assertTrue(
+          endHour.get(index).equals(actual.getPotentialEventTimes().get(index).getEnd()));
     }
   }
 
@@ -173,22 +174,30 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
   public void splitPotentialEvent() throws Exception {
     // Test case where there are unread emails that will take 10 minutes to read
     // and an event that splits the time interval required in two parts
-    // We should get 2 proposed events of 10 minutes each. 
+    // We should get 2 proposed events of 10 minutes each.
     Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
     Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
         .thenReturn(EVENT_THREE);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
     Mockito.when(gmailClient.getWordCount(7)).thenReturn(500);
     PlanMailResponse actual = getServletResponse();
-    List<Date> startHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 0), new Date(2020 - OFFSET_YEAR, 4, 19, 10, 30));
-    List<Date> endHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 5), new Date(2020 - OFFSET_YEAR, 4, 19, 10, 35));
+    List<Date> startHour =
+        Arrays.asList(
+            new Date(2020 - OFFSET_YEAR, 4, 19, 10, 0),
+            new Date(2020 - OFFSET_YEAR, 4, 19, 10, 30));
+    List<Date> endHour =
+        Arrays.asList(
+            new Date(2020 - OFFSET_YEAR, 4, 19, 10, 5),
+            new Date(2020 - OFFSET_YEAR, 4, 19, 10, 35));
     Assert.assertEquals(500, actual.getWordCount());
     Assert.assertEquals(50, actual.getAverageReadingSpeed());
     Assert.assertEquals(10, actual.getMinutesToRead());
     Assert.assertEquals(startHour.size(), actual.getPotentialEventTimes().size());
     for (int index = 0; index < startHour.size(); index++) {
-      Assert.assertTrue(startHour.get(index).equals(actual.getPotentialEventTimes().get(index).getStart()));
-      Assert.assertTrue(endHour.get(index).equals(actual.getPotentialEventTimes().get(index).getEnd()));
+      Assert.assertTrue(
+          startHour.get(index).equals(actual.getPotentialEventTimes().get(index).getStart()));
+      Assert.assertTrue(
+          endHour.get(index).equals(actual.getPotentialEventTimes().get(index).getEnd()));
     }
   }
 

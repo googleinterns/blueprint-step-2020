@@ -55,8 +55,8 @@ public interface GmailClient {
       throws IOException;
 
   /**
-   * Gets the word count in the unread emails from the past days. The period length to go
-   * through the emails is specified in the parameter passed in the method
+   * Gets the word count in the unread emails from the past days. The period length to go through
+   * the emails is specified in the parameter passed in the method
    *
    * @param numberDaysUnread the number of days to look through the emails
    * @return an integer representing the word count in the unread emails
