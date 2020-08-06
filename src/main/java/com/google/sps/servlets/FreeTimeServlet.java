@@ -16,12 +16,9 @@ package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.util.DateTime;
-import com.google.api.client.util.StringUtils;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.gmail.model.Message;
-import com.google.api.services.gmail.model.MessagePart;
-import com.google.common.io.BaseEncoding;
 import com.google.sps.data.PlanMailResponse;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
@@ -39,10 +36,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import javax.mail.MessagingException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -90,6 +84,7 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
+    GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
     Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
@@ -125,7 +120,8 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
       freeTimeUtility.addEvent(eventStart, eventEnd);
     }
 
-    int wordCount = getWordCount(googleCredential);
+    int numberDaysUnread = 7;
+    int wordCount = gmailClient.getWordCount(numberDaysUnread);
     int averageReadingSpeed = 50;
     int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
@@ -160,27 +156,6 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
     return potentialEventTimes;
   }
 
-  private int getWordCount(Credential googleCredential) {
-    GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
-    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
-    int numberDays = 7;
-    int wordCount = 0;
-    List<Message> unreadMessages = new ArrayList<>();
-    try {
-      unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, numberDays);
-    } catch (IOException e) {
-      System.out.println(e);
-    }
-    for (Message message : unreadMessages) {
-      try {
-        wordCount += getMessageSize(message);
-      } catch (MessagingException | IOException e) {
-        System.out.println(e);
-      }
-    }
-    return wordCount;
-  }
-
   /**
    * Get the events in the user's calendars
    *
@@ -198,24 +173,5 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
       events.addAll(calendarClient.getUpcomingEvents(calendar, timeMin, timeMax));
     }
     return events;
-  }
-
-  private int getMessageSize(Message message) throws MessagingException, IOException {
-    List<MessagePart> messageParts = message.getPayload().getParts();
-    List<MessagePart> messageBody =
-        messageParts.stream()
-            .filter((messagePart) -> messagePart.getMimeType().equals("text/plain"))
-            .collect(Collectors.toList());
-    int size = 0;
-    if (messageBody.isEmpty()) {
-      return size;
-    }
-    for (MessagePart part : messageBody) {
-      byte[] messageBytes = BaseEncoding.base64Url().decode(part.getBody().getData());
-      String messageString = StringUtils.newStringUtf8(messageBytes);
-      StringTokenizer tokens = new StringTokenizer(messageString);
-      size += tokens.countTokens();
-    }
-    return size;
   }
 }

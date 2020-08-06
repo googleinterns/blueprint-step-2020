@@ -55,6 +55,16 @@ public interface GmailClient {
       throws IOException;
 
   /**
+   * Gets the word count in the unread emails from the past days. The period length to go
+   * through the emails is specified in the parameter passed in the method
+   *
+   * @param numberDaysUnread the number of days to look through the emails
+   * @return an integer representing the word count in the unread emails
+   * @throws IOException if an issue occurs with the Gmail service
+   */
+  int getWordCount(int numberDaysUnread) throws IOException;
+
+  /**
    * Encapsulates possible values for the "format" query parameter in the Gmail GET message method
    */
   enum MessageFormat {

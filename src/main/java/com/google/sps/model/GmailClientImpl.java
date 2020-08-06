@@ -23,9 +23,14 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.common.io.BaseEncoding;
+import com.google.api.client.util.StringUtils;
+import java.util.StringTokenizer;
 
 /** Handles GET requests from Gmail API */
 public class GmailClientImpl implements GmailClient {
@@ -123,6 +128,48 @@ public class GmailClientImpl implements GmailClient {
               }
             })
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public int getWordCount(int numberDaysUnread) {
+    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
+    int wordCount = 0;
+    List<Message> unreadMessages = new ArrayList<>();
+    try {
+      unreadMessages = getUnreadEmailsFromNDays(messageFormat, numberDaysUnread);
+    } catch (IOException e) {
+      System.out.println(e);
+    }
+    for (Message message : unreadMessages) {
+      try {
+        wordCount += getMessageSize(message);
+      } catch (MessagingException | IOException e) {
+        System.out.println(e);
+      }
+    }
+    return wordCount;
+  }
+
+  /**
+   * Private method to get the individual word count of a single email
+   */
+  private int getMessageSize(Message message) throws MessagingException, IOException {
+    List<MessagePart> messageParts = message.getPayload().getParts();
+    List<MessagePart> messageBody =
+        messageParts.stream()
+            .filter((messagePart) -> messagePart.getMimeType().equals("text/plain"))
+            .collect(Collectors.toList());
+    int size = 0;
+    if (messageBody.isEmpty()) {
+      return size;
+    }
+    for (MessagePart part : messageBody) {
+      byte[] messageBytes = BaseEncoding.base64Url().decode(part.getBody().getData());
+      String messageString = StringUtils.newStringUtf8(messageBytes);
+      StringTokenizer tokens = new StringTokenizer(messageString);
+      size += tokens.countTokens();
+    }
+    return size;
   }
 
   /**
