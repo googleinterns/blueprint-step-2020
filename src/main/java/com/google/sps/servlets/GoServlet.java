@@ -52,7 +52,6 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -313,7 +312,8 @@ public class GoServlet extends AuthenticatedHttpServlet {
     // Remove all optional empty entries of street address coordinates and non street address
     // waypoints
     List<LatLng> nonEmptyStreetAddressesAsCoordinates = filterNonNull(streetAddressesAsCoordinates);
-    List<PlaceType> nonEmptynonStreetAddressWaypointsAsPlaceTypes = filterNonNull(separatedWaypoints.nonStreetAddressWaypointsAsPlaceTypes);
+    List<PlaceType> nonEmptynonStreetAddressWaypointsAsPlaceTypes =
+        filterNonNull(separatedWaypoints.nonStreetAddressWaypointsAsPlaceTypes);
 
     List<List<String>> allSearchNearbyResults =
         searchForPlacesNearLocations(
