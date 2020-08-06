@@ -50,6 +50,12 @@ public final class GmailUtilityTest {
   private static final Message messageWithoutHeaderName =
       new Message().setPayload(new MessagePart().setHeaders(HEADERS_WITHOUT_HEADER_NAME));
 
+  private static final String senderName = "Sample Sender";
+  private static final String senderEmail = "sample@sample.com";
+  private static final String sampleFromHeaderNamePresent =
+      String.format("%s <%s>", senderName, senderEmail);
+  private static final String sampleFromHeaderNameNotPresent = String.format("<%s>", senderEmail);
+
   @Test(expected = GmailMessageFormatException.class)
   public void extractHeaderFromMessageWithNoPayload() {
     GmailUtility.extractHeader(messageNoPayload, HEADER_NAME);
@@ -70,10 +76,29 @@ public final class GmailUtilityTest {
     GmailUtility.extractHeader(messageWithoutHeaderName, HEADER_NAME);
   }
 
-  @Test()
+  @Test
   public void extractHeaderFromMessageWithDesiredHeader() {
     MessagePartHeader actualHeader = GmailUtility.extractHeader(messageWithHeaderName, HEADER_NAME);
 
     Assert.assertEquals(headerWithHeaderValue, actualHeader);
+  }
+
+  @Test
+  public void extractNameInFromHeaderWhenNameIsPresent() {
+    String actual = GmailUtility.parseNameInFromHeader(sampleFromHeaderNamePresent);
+
+    Assert.assertEquals(senderName, actual);
+  }
+
+  @Test
+  public void extractNameInFromHeaderWhenNameIsNotPresent() {
+    String actual = GmailUtility.parseNameInFromHeader(sampleFromHeaderNameNotPresent);
+
+    Assert.assertEquals(senderEmail, actual);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void extractNameInFromHeaderWhenHeaderInvalid() {
+    GmailUtility.parseNameInFromHeader("");
   }
 }
