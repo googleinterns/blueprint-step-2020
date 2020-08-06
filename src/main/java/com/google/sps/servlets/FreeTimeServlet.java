@@ -123,7 +123,8 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
     int numberDaysUnread = 7;
     int wordCount = gmailClient.getWordCount(numberDaysUnread);
     int averageReadingSpeed = 50;
-    int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
+    int minutesToRead;
+    minutesToRead = wordCount == 0 ? 0 : (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
     timeNeeded = Math.max(0, timeNeeded - preAssignedTime);
     List<DateInterval> potentialTimes;
