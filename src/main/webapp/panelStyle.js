@@ -17,7 +17,8 @@
 // Script for handling the behaviour of the panels' layout
 
 // Add appropriate event listeners to all toggle icons
-document.querySelectorAll('.panel__toggle-icon')
+document.querySelectorAll(
+    '.panel__toggle-icon, .panel__toggle-icon--settings')
     .forEach((element) =>
       element.addEventListener(
           'click',
