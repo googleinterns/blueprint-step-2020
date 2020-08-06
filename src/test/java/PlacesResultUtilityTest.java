@@ -14,7 +14,7 @@
 
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
-import com.google.sps.model.PlacesClientImpl;
+import com.google.sps.utility.PlacesResultUtility;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
  * Places API into a list of Place IDs.
  */
 @RunWith(JUnit4.class)
-public class PlacesClientTest {
+public class PlacesResultUtilityTest {
 
   private static PlacesSearchResult googleKitchener;
   private static PlacesSearchResult googleMontreal;
@@ -49,7 +49,7 @@ public class PlacesClientTest {
   public void noPlaceResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {};
-    String actual = PlacesClientImpl.getPlaceId(response);
+    String actual = PlacesResultUtility.getPlaceId(response);
     Assert.assertEquals("", actual);
   }
 
@@ -57,7 +57,7 @@ public class PlacesClientTest {
   public void onePlaceResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {googleKitchener};
-    String actual = PlacesClientImpl.getPlaceId(response);
+    String actual = PlacesResultUtility.getPlaceId(response);
     Assert.assertEquals(GOOGLE_KITCHENER_PLACE_ID, actual);
   }
 
@@ -66,7 +66,7 @@ public class PlacesClientTest {
     // Only formatted address of first result is returned, second result is ignored
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {googleKitchener, googleMontreal};
-    String actual = PlacesClientImpl.getPlaceId(response);
+    String actual = PlacesResultUtility.getPlaceId(response);
     Assert.assertEquals(GOOGLE_KITCHENER_PLACE_ID, actual);
   }
 }
