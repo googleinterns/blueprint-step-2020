@@ -52,7 +52,7 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
     actionableMessageHelper = new ActionableMessageHelperImpl();
   }
 
-  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject", "From");
+  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject", "From", "To");
 
   /**
    * Create new servlet instance (used for testing)
