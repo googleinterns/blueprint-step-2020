@@ -57,13 +57,13 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
   private static final String MESSAGE_ID_HIGH_PRIORITY = "messageTwo";
   private static final String SUBJECT_VALUE_ONE = "subjectValueOne";
   private static final String SUBJECT_VALUE_TWO = "subjectValueTwo";
-  private static final String SENDER_EMAIl = "example@example.com";
+  private static final String SENDER_EMAIL = "example@example.com";
   private static final MessagePartHeader subjectHeaderOne =
       new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_ONE);
   private static final MessagePartHeader subjectHeaderTwo =
       new MessagePartHeader().setName("Subject").setValue(SUBJECT_VALUE_TWO);
   private static final MessagePartHeader fromHeader =
-      new MessagePartHeader().setName("From").setValue(String.format("<%s>", SENDER_EMAIl));
+      new MessagePartHeader().setName("From").setValue(String.format("<%s>", SENDER_EMAIL));
 
   private static final long INTERNAL_DATE_EARLY = 1;
   private static final long INTERNAL_DATE_LATE = 2;
@@ -106,13 +106,13 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
               SUBJECT_VALUE_TWO,
               INTERNAL_DATE_LATE,
               DEFAULT_PRIORITY,
-              SENDER_EMAIl),
+              SENDER_EMAIL),
           new ActionableMessage(
               MESSAGE_ID_OLD,
               SUBJECT_VALUE_ONE,
               INTERNAL_DATE_EARLY,
               DEFAULT_PRIORITY,
-              SENDER_EMAIl));
+              SENDER_EMAIL));
   private static final List<ActionableMessage> actionableMessagesPriorityHighestToLowest =
       ImmutableList.of(
           new ActionableMessage(
@@ -120,13 +120,13 @@ public class GmailActionableEmailsServletTest extends AuthenticatedServletTestBa
               SUBJECT_VALUE_TWO,
               INTERNAL_DATE_LATE,
               ActionableMessage.MessagePriority.HIGH,
-              SENDER_EMAIl),
+              SENDER_EMAIL),
           new ActionableMessage(
               MESSAGE_ID_LOW_PRIORITY,
               SUBJECT_VALUE_ONE,
               INTERNAL_DATE_LATE,
               ActionableMessage.MessagePriority.LOW,
-              SENDER_EMAIl));
+              SENDER_EMAIL));
 
   @Override
   @Before

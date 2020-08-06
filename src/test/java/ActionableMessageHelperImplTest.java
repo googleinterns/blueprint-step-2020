@@ -20,7 +20,6 @@ import com.google.sps.exceptions.GmailMessageFormatException;
 import com.google.sps.model.ActionableMessage;
 import com.google.sps.model.ActionableMessageHelper;
 import com.google.sps.model.ActionableMessageHelperImpl;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +34,8 @@ public class ActionableMessageHelperImplTest {
 
   private static final List<String> LABELS_STARRED = ImmutableList.of("STARRED");
   private static final List<String> LABELS_IMPORTANT = ImmutableList.of("IMPORTANT");
+  private static final List<String> LABELS_STARRED_AND_IMPORTANT =
+      ImmutableList.of("STARRED", "IMPORTANT");
   private static final String USER_EMAIL = "example@example.com";
   private static final String NOT_USER_EMAIL = "fake@fake.com";
   private static final String TO_HEADER_VALUE_USER_EMAIL = String.format("<%s>", USER_EMAIL);
@@ -50,7 +51,7 @@ public class ActionableMessageHelperImplTest {
   private static final MessagePartHeader toHeaderTooManyRecipients =
       new MessagePartHeader().setName("To").setValue(TO_HEADER_VALUE_TOO_MANY_RECIPIENTS);
   private static final MessagePartHeader listIdHeader =
-    new MessagePartHeader().setName("List-ID").setValue("<sample-header>");
+      new MessagePartHeader().setName("List-ID").setValue("<sample-header>");
 
   private static final Message starredMessage =
       new Message()
@@ -62,17 +63,20 @@ public class ActionableMessageHelperImplTest {
           .setLabelIds(LABELS_IMPORTANT);
   private static final Message tooManyRecipientsMessage =
       new Message()
-          .setPayload(
-              new MessagePart().setHeaders(ImmutableList.of(toHeaderTooManyRecipients)));
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderTooManyRecipients)));
   private static final Message notUserEmailMessage =
       new Message()
-          .setPayload(
-              new MessagePart().setHeaders(ImmutableList.of(toHeaderNotUserEmail)));
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderNotUserEmail)));
   private static final Message userEmailMessage =
-      new Message()
-          .setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderUserEmail)));
+      new Message().setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderUserEmail)));
   private static final Message mailingListMessage =
-      new Message().setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderUserEmail, listIdHeader)));
+      new Message()
+          .setPayload(
+              new MessagePart().setHeaders(ImmutableList.of(toHeaderUserEmail, listIdHeader)));
+  private static final Message starredImportantMessage =
+      new Message()
+          .setPayload(new MessagePart().setHeaders(ImmutableList.of(toHeaderNotUserEmail)))
+          .setLabelIds(LABELS_STARRED_AND_IMPORTANT);
   private static final Message messageWithoutToHeader = new Message();
 
   private static String createHeaderWithNRecipients(int n, String headerValue, String delimiter) {
@@ -90,21 +94,25 @@ public class ActionableMessageHelperImplTest {
   }
 
   @Test
-  public void getPriorityStarredMessage() {
+  public void getPriorityStarredUnimportantBulkmailMessage() {
+    // Starred (High priority) should take precedence over being unimportant & bulk-mail
+    // (Low priority)
     ActionableMessage.MessagePriority actualPriority =
         actionableMessageHelperImpl.assignMessagePriority(starredMessage, USER_EMAIL);
     Assert.assertEquals(ActionableMessage.MessagePriority.HIGH, actualPriority);
   }
 
   @Test
-  public void getPriorityImportantMessage() {
+  public void getPriorityImportantBulkMailMessage() {
+    // Important (Medium priority) should take precedence over being bulk mail (Low priority)
     ActionableMessage.MessagePriority actualPriority =
         actionableMessageHelperImpl.assignMessagePriority(importantMessage, USER_EMAIL);
     Assert.assertEquals(ActionableMessage.MessagePriority.MEDIUM, actualPriority);
   }
 
   @Test
-  public void getPrioritySentToUserMessage() {
+  public void getPriorityUnimportantSentToUserMessage() {
+    // Non-Bulk mail (Medium Priority) should take precedence over being unimportant (Low priority)
     ActionableMessage.MessagePriority actualPriority =
         actionableMessageHelperImpl.assignMessagePriority(userEmailMessage, USER_EMAIL);
     Assert.assertEquals(ActionableMessage.MessagePriority.MEDIUM, actualPriority);
@@ -129,5 +137,13 @@ public class ActionableMessageHelperImplTest {
     ActionableMessage.MessagePriority actualPriority =
         actionableMessageHelperImpl.assignMessagePriority(tooManyRecipientsMessage, USER_EMAIL);
     Assert.assertEquals(ActionableMessage.MessagePriority.LOW, actualPriority);
+  }
+
+  @Test
+  public void getPriorityStarredAndImportant() {
+    // Starred (High priority) should take precedence over being important (Medium priority)
+    ActionableMessage.MessagePriority actualPriority =
+        actionableMessageHelperImpl.assignMessagePriority(starredImportantMessage, USER_EMAIL);
+    Assert.assertEquals(ActionableMessage.MessagePriority.HIGH, actualPriority);
   }
 }

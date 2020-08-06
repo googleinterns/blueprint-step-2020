@@ -69,7 +69,9 @@ public final class ActionableMessageHelperImpl implements ActionableMessageHelpe
     MessagePartHeader toHeader = GmailUtility.extractHeader(message, "To");
     String headerValue = toHeader.getValue();
 
-
+    if (GmailUtility.hasHeader(message, "List-ID")) {
+      return true;
+    }
 
     List<String> recipientHeaders = Arrays.asList(headerValue.split(","));
     if (recipientHeaders.size() >= MAILING_LIST_LOWER_BOUND) {
