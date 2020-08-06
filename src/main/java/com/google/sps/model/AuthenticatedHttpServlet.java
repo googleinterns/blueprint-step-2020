@@ -67,8 +67,9 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
         response.sendError(403, ERROR_403);
         return;
       }
+      String userEmail = getUserEmail(request);
       Credential googleCredential = getGoogleCredential(request);
-      doGet(request, response, googleCredential);
+      doGet(request, response, googleCredential, userEmail);
     } catch (CredentialVerificationException e) {
       throw new ServletException(e.getMessage());
     } catch (GeneralSecurityException e) {
@@ -94,13 +95,34 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
         response.sendError(403, ERROR_403);
         return;
       }
+      String userEmail = getUserEmail(request);
       Credential googleCredential = getGoogleCredential(request);
-      doPost(request, response, googleCredential);
+      doPost(request, response, googleCredential, userEmail);
     } catch (CredentialVerificationException e) {
       throw new ServletException(e.getMessage(), e);
     } catch (GeneralSecurityException e) {
       throw new ServletException(ERROR_500, e);
     }
+  }
+
+  /**
+   * Handle GET request. Only override this method if the servlet needs access to the user's email
+   * Public for testing purposes
+   *
+   * @param request HTTP request from client
+   * @param response Http response to be sent to client
+   * @param googleCredential valid, verified google credential object
+   * @param userEmail the email address of the user
+   * @throws IOException if a read/write issue arises while processing the request
+   * @throws ServletException if the request cannot be handled due to unexpected errors
+   */
+  public void doGet(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Credential googleCredential,
+      String userEmail)
+      throws IOException, ServletException {
+    doGet(request, response, googleCredential);
   }
 
   /**
@@ -119,6 +141,26 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   }
 
   /**
+   * Handle POST request. Only override this method if the servlet needs access to the user's email
+   * Public for testing purposes
+   *
+   * @param request HTTP request from client
+   * @param response Http response to be sent to client
+   * @param googleCredential valid, verified google credential object
+   * @param userEmail the email address of the user
+   * @throws IOException if a read/write issue arises while processing the request
+   * @throws ServletException if the request cannot be handled due to unexpected errors
+   */
+  public void doPost(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Credential googleCredential,
+      String userEmail)
+      throws IOException, ServletException {
+    doPost(request, response, googleCredential);
+  }
+
+  /**
    * Handle POST request. Public for testing purposes
    *
    * @param request HTTP request from client
@@ -134,26 +176,44 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
   }
 
   /**
-   * Get a Google Credential object from the authentication cookies (idToken & accessToken) in the
-   * HTTP Request
+   * Get the email of the authenticated user. If the passed idToken is invalid, this will throw an
+   * exception.
    *
    * @param request Http Request sent from client
-   * @return Credential object with accessToken.
-   * @throws CredentialVerificationException if the credentials are invalid / not present
+   * @return email of authenticated user
+   * @throws CredentialVerificationException if the idToken is invalid / not present
    * @throws GeneralSecurityException if an issue occurs with Google's verification service
    * @throws IOException if an issue occurs with Google's verification service
    */
-  private Credential getGoogleCredential(HttpServletRequest request)
+  private String getUserEmail(HttpServletRequest request)
       throws CredentialVerificationException, GeneralSecurityException, IOException {
     Cookie idTokenCookie;
-    Cookie accessTokenCookie;
-
     try {
       idTokenCookie = ServletUtility.getCookie(request, "idToken");
     } catch (CookieParseException e) {
       throw new CredentialVerificationException("idToken is not present / cannot be parsed!", e);
     }
 
+    String idToken = idTokenCookie.getValue();
+
+    return authenticationVerifier
+        .getUserEmail(idToken)
+        .orElseThrow(
+            () ->
+                new CredentialVerificationException(
+                    String.format("idToken (value=%s) is invalid!", idToken)));
+  }
+
+  /**
+   * Get a Google Credential object from the accessToken cookie in the HTTP Request
+   *
+   * @param request Http Request sent from client
+   * @throws CredentialVerificationException if the accessToken is invalid / not present
+   * @return Credential object with accessToken.
+   */
+  private Credential getGoogleCredential(HttpServletRequest request)
+      throws CredentialVerificationException {
+    Cookie accessTokenCookie;
     try {
       accessTokenCookie = ServletUtility.getCookie(request, "accessToken");
     } catch (CookieParseException e) {
@@ -161,13 +221,7 @@ public abstract class AuthenticatedHttpServlet extends HttpServlet {
           "accessToken is not present / cannot be parsed!", e);
     }
 
-    String idToken = idTokenCookie.getValue();
     String accessToken = accessTokenCookie.getValue();
-
-    if (!authenticationVerifier.verifyUserToken(idToken)) {
-      throw new CredentialVerificationException(
-          String.format("idToken (value=%s) is invalid!", idToken));
-    }
 
     // Build Google credential with verified authentication information
     Credential.AccessMethod accessMethod = BearerToken.authorizationHeaderAccessMethod();
