@@ -18,10 +18,6 @@ import com.google.appengine.repackaged.com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.model.TasksClient;
 import com.google.sps.utility.TasksUtility;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
