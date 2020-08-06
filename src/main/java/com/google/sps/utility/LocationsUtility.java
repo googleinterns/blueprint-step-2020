@@ -87,8 +87,7 @@ public final class LocationsUtility {
   }
 
   /**
-   * Generates all combinations of the lists recursively. Scope of method is public for testing
-   * purposes.
+   * Generates all combinations of the lists recursively.
    *
    * @param lists A list of lists to generate combinations for.
    */
