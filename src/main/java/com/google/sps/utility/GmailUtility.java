@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 public final class GmailUtility {
   private GmailUtility() {}
 
+  private static final Pattern fromHeaderPattern = Pattern.compile("(.*)?<(.*)>");
+
   /**
    * Given a list of message headers, extract a single header with the specified name
    *
@@ -68,18 +70,16 @@ public final class GmailUtility {
    * @throws IllegalArgumentException If value could not be parsed from header
    */
   public static String parseNameInFromHeader(String fromHeaderValue) {
-    Pattern withNamePattern = Pattern.compile("(.*) <.*>");
-    Matcher withNameMatcher = withNamePattern.matcher(fromHeaderValue);
-    if (withNameMatcher.find()) {
-      return withNameMatcher.group(1);
+    Matcher fromHeaderMatcher = fromHeaderPattern.matcher(fromHeaderValue);
+    if (!fromHeaderMatcher.find()) {
+      throw new IllegalArgumentException("Value could not be parsed. Check format");
     }
 
-    Pattern withoutNamePattern = Pattern.compile("<(.*)>");
-    Matcher withoutNameMatcher = withoutNamePattern.matcher(fromHeaderValue);
-    if (withoutNameMatcher.find()) {
-      return withoutNameMatcher.group(1);
+    String name = fromHeaderMatcher.group(1).trim();
+    String email = fromHeaderMatcher.group(2);
+    if (name.isEmpty()) {
+      return email;
     }
-
-    throw new IllegalArgumentException("Value could not be parsed. Check format");
+    return name;
   }
 }
