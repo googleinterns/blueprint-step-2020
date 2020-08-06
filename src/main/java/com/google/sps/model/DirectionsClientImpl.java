@@ -21,10 +21,7 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.DirectionsResult;
 import com.google.sps.exceptions.DirectionsException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /** Handles GET requests to the Google Directions API */
 public class DirectionsClientImpl implements DirectionsClient {
@@ -44,25 +41,8 @@ public class DirectionsClientImpl implements DirectionsClient {
     }
   }
 
-  /**
-   * Converts DirectionsResult into a List of String. Scope of method is public for testing
-   * purposes.
-   *
-   * @param result The DirectionsResult object to convert into a List<String>
-   */
-  public static List<String> parseDirectionsResult(DirectionsResult result) {
-    return Arrays.asList(result.routes).stream()
-        .map(
-            route ->
-                Arrays.asList(route.legs).stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList()))
-        .flatMap(Collection::stream)
-        .collect(Collectors.toList());
-  }
-
   @Override
-  public List<String> getDirections(String origin, String destination, List<String> waypoints)
+  public DirectionsResult getDirections(String origin, String destination, List<String> waypoints)
       throws DirectionsException {
     try {
       DirectionsResult result =
@@ -72,7 +52,7 @@ public class DirectionsClientImpl implements DirectionsClient {
               .waypoints(waypoints.toArray(new String[0]))
               .optimizeWaypoints(true)
               .await();
-      return parseDirectionsResult(result);
+      return result;
     } catch (ApiException | InterruptedException | IOException e) {
       throw new DirectionsException("Failed to get directions", e);
     }
