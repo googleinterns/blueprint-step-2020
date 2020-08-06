@@ -149,7 +149,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   }
 
   @Test
-  public void searchNearbyEveryKnownLocationForClosestPlaceTypeMatch() throws Exception {
+  public void searchForPlacesNearLocations() throws Exception {
     // Search for one restaurant and one bank nearest to coordinate one, one restaurant and one bank
     // nearest to coordinate two
     List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes =
@@ -168,7 +168,7 @@ public class GoServletTest extends AuthenticatedServletTestBase {
         .thenReturn(BANK_TWO);
 
     List<List<String>> actual =
-        servlet.searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(
+        servlet.searchForPlacesNearLocations(
             nonStreetAddressWaypointsAsPlaceTypes, streetAddressesAsCoordinates);
 
     Assert.assertEquals(

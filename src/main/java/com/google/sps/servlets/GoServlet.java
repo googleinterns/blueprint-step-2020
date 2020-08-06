@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
@@ -214,15 +215,15 @@ public class GoServlet extends AuthenticatedHttpServlet {
    *     every known coordinate.
    * @throws PlacesException An exception thrown when an error occurs with the Places API.
    */
-  public List<List<String>> searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(
+  public List<List<String>> searchForPlacesNearLocations(
       List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes,
       List<LatLng> streetAddressesAsCoordinates)
       throws PlacesException {
     List<List<String>> allSearchNearbyResults = new ArrayList<>();
     for (PlaceType nonStreetAddressWaypoint : nonStreetAddressWaypointsAsPlaceTypes) {
       List<String> searchNearbyResults = new ArrayList<>();
-      PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
       for (LatLng coordinate : streetAddressesAsCoordinates) {
+        PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
         String nearestMatch =
             placesClient.searchNearby(coordinate, nonStreetAddressWaypoint, RankBy.DISTANCE);
         if (nearestMatch != null) {
@@ -248,19 +249,27 @@ public class GoServlet extends AuthenticatedHttpServlet {
   public List<String> chooseWaypointCombinationWithShortestTravelTime(
       String origin, String destination, List<List<String>> allWaypointCombinations)
       throws DirectionsException {
-    long minTravelTime = 0;
+    OptionalLong minTravelTime = OptionalLong.empty();
     List<String> optimalWaypointCombination = new ArrayList<String>();
     for (List<String> waypointCombination : allWaypointCombinations) {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       DirectionsResult directionsResult =
           directionsClient.getDirections(origin, destination, waypointCombination);
       long travelTime = DirectionsClient.getTotalTravelTime(directionsResult);
-      if (minTravelTime == 0 || travelTime < minTravelTime) {
-        minTravelTime = travelTime;
+      if (!minTravelTime.isPresent() || travelTime < minTravelTime.getAsLong()) {
+        minTravelTime = OptionalLong.of(travelTime);
         optimalWaypointCombination = waypointCombination;
       }
     }
     return optimalWaypointCombination;
+  }
+
+  // How to make this work for all objects?
+  private List<LatLng> filterNonNull(List<Optional<LatLng>> objects) {
+    return objects.stream()
+        .filter(object -> object.isPresent())
+        .map(object -> object.get())
+        .collect(Collectors.toList());
   }
 
   /**
@@ -303,11 +312,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
 
     // Remove all optional empty entries of street address coordinates and non street address
     // waypoints
-    List<LatLng> nonEmptyStreetAddressesAsCoordinates =
-        streetAddressesAsCoordinates.stream()
-            .filter(coordinates -> !coordinates.equals(Optional.empty()))
-            .map(coordinates -> coordinates.get())
-            .collect(Collectors.toList());
+    List<LatLng> nonEmptyStreetAddressesAsCoordinates = filterNonNull(streetAddressesAsCoordinates);
     List<PlaceType> nonEmptynonStreetAddressWaypointsAsPlaceTypes =
         separatedWaypoints.nonStreetAddressWaypointsAsPlaceTypes.stream()
             .filter(waypoint -> !waypoint.equals(Optional.empty()))
@@ -315,7 +320,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
             .collect(Collectors.toList());
 
     List<List<String>> allSearchNearbyResults =
-        searchNearbyEveryKnownLocationForClosestPlaceTypeMatch(
+        searchForPlacesNearLocations(
             nonEmptynonStreetAddressWaypointsAsPlaceTypes, nonEmptyStreetAddressesAsCoordinates);
 
     List<List<String>> allWaypointCombinations =
