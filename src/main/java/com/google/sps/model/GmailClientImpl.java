@@ -49,10 +49,7 @@ public class GmailClientImpl implements GmailClient {
   }
 
   /**
-   * List the messages in a user's Gmail account that match the passed query. Results are returned
-   * in batches of 100 from the Gmail API, though a next page token is included if another batch
-   * still exists. This method will use these tokens to get all of the emails that match the query,
-   * even if that is in excess of 100.
+   * List the messages in a user's Gmail account that match the passed query.
    *
    * @param query search query to filter which results are returned (see:
    *     https://support.google.com/mail/answer/7190?hl=en)
@@ -61,8 +58,10 @@ public class GmailClientImpl implements GmailClient {
    */
   @Override
   public List<Message> listUserMessages(String query) throws IOException {
+    // Results are returned in batches of 100 from the Gmail API, though a next page token is
+    // included if another batch still exists. This method will use these tokens to get all of the
+    // emails that match the query, even if that is in excess of 100.
     List<Message> userMessages = new ArrayList<>();
-    List<Message> newBatchUserMessages;
     String nextPageToken = null;
 
     do {
@@ -74,7 +73,7 @@ public class GmailClientImpl implements GmailClient {
               .setQ(query)
               .setPageToken(nextPageToken)
               .execute();
-      newBatchUserMessages = response.getMessages();
+      List<Message> newBatchUserMessages = response.getMessages();
       if (newBatchUserMessages == null) {
         break;
       }
