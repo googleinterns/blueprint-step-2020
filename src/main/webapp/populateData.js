@@ -49,11 +49,11 @@ function populateGmail() {
   // Set known values and placeholders while loading
   nDaysContainer.innerText = nDays;
   mHoursContainer.innerText = mHours;
-  unreadEmailsContainer.innerText = '-';
-  unreadEmailsThreeHrsContainer.innerText = '-';
-  importantEmailsContainer.innerText = '-';
-  senderInitialContainer.innerText = '-';
-  senderContainer.innerText = '-';
+  unreadEmailsContainer.innerText = '...';
+  unreadEmailsThreeHrsContainer.innerText = '...';
+  importantEmailsContainer.innerText = '...';
+  senderInitialContainer.innerText = '...';
+  senderContainer.innerText = '...';
 
   // Get GmailResponse object that reflects user's gmail account
   // Should contain a field for each datapoint in the Gmail panel
@@ -119,11 +119,11 @@ function populateTasks() {
   const tasksDueTodayElement = document.getElementById('tasks-due-today');
   const tasksCompletedTodayElement =
       document.getElementById('tasks-completed-today');
-  const tasksOverdueElement = document.getElementById('tasks-completed-today');
-  tasksToCompleteElement.innerText = '-';
-  tasksDueTodayElement.innerText = '-';
-  tasksCompletedTodayElement.innerText = '-';
-  tasksOverdueElement.innerText = '-';
+  const tasksOverdueElement = document.getElementById('tasks-overdue');
+  tasksToCompleteElement.innerText = '...';
+  tasksDueTodayElement.innerText = '...';
+  tasksCompletedTodayElement.innerText = '...';
+  tasksOverdueElement.innerText = '...';
 
   fetch(fetchFrom)
       .then((response) => {
