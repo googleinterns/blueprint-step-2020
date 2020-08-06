@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import com.google.common.collect.ImmutableList;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
-import com.google.sps.model.PlacesClient;
-import java.util.List;
+import com.google.sps.utility.PlacesResultUtility;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,19 +23,17 @@ import org.junit.runners.JUnit4;
 
 /**
  * Test that PlacesClientImpl correctly converts a PlacesSearchResponse object obtained from the
- * Places API into a list of formatted addresses
+ * Places API into a list of Place IDs.
  */
 @RunWith(JUnit4.class)
-public class PlacesClientImplTest {
+public class PlacesResultUtilityTest {
 
   private static PlacesSearchResult googleKitchener;
   private static PlacesSearchResult googleMontreal;
   private static final String GOOGLE_KITCHENER_NAME = "Google Kitchener";
   private static final String GOOGLE_MONTREAL_NAME = "Google Montreal";
-  private static final String GOOGLE_KITCHENER_FORMATTED_ADDRESS =
-      "51 Breithaupt St, Kitchener, ON N2H 5G5";
-  private static final String GOOGLE_MONTREAL_FORMATTED_ADDRESS =
-      "1253 McGill College Ave, Montreal, Quebec H3B 2Y5";
+  private static final String GOOGLE_KITCHENER_PLACE_ID = "Google Kitchener Place ID";
+  private static final String GOOGLE_MONTREAL_PLACE_ID = "Google Montreal Place ID";
 
   @Before
   public void setUp() {
@@ -45,33 +41,32 @@ public class PlacesClientImplTest {
     googleMontreal = new PlacesSearchResult();
     googleKitchener.name = GOOGLE_KITCHENER_NAME;
     googleMontreal.name = GOOGLE_MONTREAL_NAME;
-    googleKitchener.formattedAddress = GOOGLE_KITCHENER_FORMATTED_ADDRESS;
-    googleMontreal.formattedAddress = GOOGLE_MONTREAL_FORMATTED_ADDRESS;
+    googleKitchener.placeId = GOOGLE_KITCHENER_PLACE_ID;
+    googleMontreal.placeId = GOOGLE_MONTREAL_PLACE_ID;
   }
 
   @Test
   public void noPlaceResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {};
-    List<String> actual = PlacesClient.getFormattedAddresses(response);
-    Assert.assertEquals(ImmutableList.of(), actual);
+    String actual = PlacesResultUtility.getPlaceId(response);
+    Assert.assertEquals("", actual);
   }
 
   @Test
   public void onePlaceResult() throws Exception {
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {googleKitchener};
-    List<String> actual = PlacesClient.getFormattedAddresses(response);
-    Assert.assertEquals(ImmutableList.of(GOOGLE_KITCHENER_FORMATTED_ADDRESS), actual);
+    String actual = PlacesResultUtility.getPlaceId(response);
+    Assert.assertEquals(GOOGLE_KITCHENER_PLACE_ID, actual);
   }
 
   @Test
   public void multiplePlacesResult() throws Exception {
+    // Only formatted address of first result is returned, second result is ignored
     PlacesSearchResponse response = new PlacesSearchResponse();
     response.results = new PlacesSearchResult[] {googleKitchener, googleMontreal};
-    List<String> actual = PlacesClient.getFormattedAddresses(response);
-    Assert.assertEquals(
-        ImmutableList.of(GOOGLE_KITCHENER_FORMATTED_ADDRESS, GOOGLE_MONTREAL_FORMATTED_ADDRESS),
-        actual);
+    String actual = PlacesResultUtility.getPlaceId(response);
+    Assert.assertEquals(GOOGLE_KITCHENER_PLACE_ID, actual);
   }
 }

@@ -12,26 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable no-unused-vars */
+package com.google.sps.model;
 
 /**
- * A class to encapsulate some of the values from a Google Tasks task, as well
- * as the parent taskList name
- * https://developers.google.com/tasks/v1/reference/tasks
+ * Contract for creating a GeocodingClient with a given API key. Implement getGeocodingClient to
+ * obtain an instance of GeocodingClient.
  */
-class Task {
+public interface GeocodingClientFactory {
   /**
-   * Creates a Task object with a due date
+   * Gets a GeocodingClient which executes against the given API key.
    *
-   * @param {string} title a title for the task
-   * @param {string} notes messages associated with a given task
-   * @param {Date} due a Date object / undefined if not present
+   * @param apiKey A string representing the API key to authenticate a Google Geocoding API call.
+   * @return GeocodingClientImpl instance which executes against the given API key.
    */
-  constructor(title, notes, due) {
-    this.title = title;
-    this.notes = notes;
-    if (due != null) {
-      this.due = due.toISOString();
-    }
-  }
+  GeocodingClient getGeocodingClient(String apiKey);
 }

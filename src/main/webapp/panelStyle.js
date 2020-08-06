@@ -58,13 +58,29 @@ function toggleIconHandler(event) {
  *
  * @param {string} elementId the ID of the element containing the integer value
  * @param {number} max the maximum integer the text element should increase to.
- *     30 by default
+ * @param {number} min the minimum integer the text element should decrease to.
+ * @param {string} incrementButtonElementId the ID of the increment button.
+ * @param {string} decrementButtonElementId the ID of the decrement button.
  */
-function incrementElement(elementId, max = 30) {
+function incrementElement(
+    elementId, max, min,
+    incrementButtonElementId, decrementButtonElementId) {
   const targetElement = document.getElementById(elementId);
-  const currentValue = parseInt(targetElement.innerText);
+  const newValue = parseInt(targetElement.innerText) + 1;
 
-  targetElement.innerText = Math.min(max, currentValue + 1);
+  targetElement.innerText = Math.min(max, newValue);
+
+  if (newValue > min) {
+    const decrementButtonElement =
+        document.getElementById(decrementButtonElementId);
+    decrementButtonElement.classList.remove('u-button-disable');
+  }
+
+  if (newValue === max) {
+    const incrementButtonElement =
+        document.getElementById(incrementButtonElementId);
+    incrementButtonElement.classList.add('u-button-disable');
+  }
 }
 
 /**
@@ -73,13 +89,29 @@ function incrementElement(elementId, max = 30) {
  *
  * @param {string} elementId the ID of the element containing the integer value
  * @param {number} min the minimum integer the text element should decrease to.
- *     1 by default
+ * @param {number} max the maximum integer the text element should increase to.
+ * @param {string} incrementButtonElementId the ID of the increment button.
+ * @param {string} decrementButtonElementId the ID of the decrement button.
  */
-function decrementElement(elementId, min = 1) {
+function decrementElement(
+    elementId, min, max,
+    incrementButtonElementId, decrementButtonElementId) {
   const targetElement = document.getElementById(elementId);
-  const currentValue = parseInt(targetElement.innerText);
+  const newValue = parseInt(targetElement.innerText) - 1;
 
-  targetElement.innerText = Math.max(min, currentValue - 1);
+  targetElement.innerText = Math.max(min, newValue);
+
+  if (newValue < max) {
+    const incrementButtonElement =
+        document.getElementById(incrementButtonElementId);
+    incrementButtonElement.classList.remove('u-button-disable');
+  }
+
+  if (newValue === min) {
+    const decrementButtonElement =
+        document.getElementById(decrementButtonElementId);
+    decrementButtonElement.classList.add('u-button-disable');
+  }
 }
 
 /**
@@ -93,8 +125,7 @@ function createTextListElement(inputElementId, listElementId) {
   const inputElement = document.getElementById(inputElementId);
 
   // Remove commas from phrase, since this is currently the delimiter
-  // for query strings and they are not recognized in search queries for
-  // Gmail or other google services
+  // for query strings and they are not recognized by most Google services
   // TODO: Nicer client-side validation (tell user why this isn't permitted)
   // (Issue #135)
   let phrase = inputElement.value;
@@ -107,6 +138,17 @@ function createTextListElement(inputElementId, listElementId) {
   phrase = phrase.replace(',', '');
   inputElement.value = '';
 
+  createTextListElementFromString(phrase, listElementId);
+}
+
+/**
+ * Add a panel__content-entry-list entry to a list with text and a
+ * remove button (to delete the entry)
+ *
+ * @param {string} phrase the value of the phrase to be added
+ * @param {string} listElementId the id of the list that contains the entries
+ */
+function createTextListElementFromString(phrase, listElementId) {
   const list = document.getElementById(listElementId);
 
   const listEntry = document.createElement('li');

@@ -33,3 +33,27 @@ function displayGmailContent() {
   hide('gmail-settings');
 }
 
+/**
+ * Will confirm the settings entered by the user in the settings panel,
+ * and "click" the settings icon so the panel swtiches to the content view
+ * (and all associated side effects of clicking the button, etc, are handled)
+ */
+function confirmSettingsAndShowGmailPanel() {
+  populateGmail();
+  const assignSettingsButton =
+      document.querySelector('#gmail-settings-icon img:not([hidden])');
+  assignSettingsButton.click();
+}
+
+/**
+ * Reset the values for nDays and mHours in the settings panel
+ */
+function gmailRevertSettings() {
+  const nDaysSettingsContainer =
+      document.querySelector('#gmail-settings-n-days');
+  const mHoursSettingsContainer =
+      document.querySelector('#gmail-settings-m-hours');
+  nDaysSettingsContainer.innerText = gmailNDays;
+  mHoursSettingsContainer.innerText = gmailMHours;
+}
+

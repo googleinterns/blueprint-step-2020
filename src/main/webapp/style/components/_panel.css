@@ -89,10 +89,6 @@
   display: flex;
 }
 
-.play-icon {
-  margin-left: var(--play-icon-right-offset);
-}
-
 .panel__buttons {
   display: flex;
   flex-direction: row;
@@ -183,6 +179,13 @@
 .panel__button-incremental:active,
 .panel__button-incremental--small:active {
   color: var(--color-button-dark-black);
+}
+
+.panel__button-incremental .disabled,
+.panel__button-incremental--small .disabled {
+  pointer-events: none;
+  cursor: none;
+  opacity: .6;
 }
 
 .panel__list {

@@ -12,26 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable no-unused-vars */
+package com.google.sps.utility;
 
-/**
- * A class to encapsulate some of the values from a Google Tasks task, as well
- * as the parent taskList name
- * https://developers.google.com/tasks/v1/reference/tasks
- */
-class Task {
+import com.google.maps.model.PlacesSearchResponse;
+
+public class PlacesResultUtility {
   /**
-   * Creates a Task object with a due date
+   * Gets place ID of first result from the response from the Google Places API. Scope of method is
+   * public for testing purposes.
    *
-   * @param {string} title a title for the task
-   * @param {string} notes messages associated with a given task
-   * @param {Date} due a Date object / undefined if not present
+   * @param response The PlacesSearchResponse object to Place IDs from
    */
-  constructor(title, notes, due) {
-    this.title = title;
-    this.notes = notes;
-    if (due != null) {
-      this.due = due.toISOString();
+  public static String getPlaceId(PlacesSearchResponse response) {
+    if (response.results.length != 0) {
+      return response.results[0].placeId;
     }
+    return "";
   }
 }

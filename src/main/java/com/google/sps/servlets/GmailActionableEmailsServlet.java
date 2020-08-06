@@ -47,7 +47,7 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
     gmailClientFactory = new GmailClientImpl.Factory();
   }
 
-  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
+  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject", "From");
 
   /**
    * Create new servlet instance (used for testing)
@@ -130,7 +130,9 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
       throws GmailMessageFormatException {
     String messageId = message.getId();
     String subject = GmailUtility.extractHeader(message, "Subject").getValue();
+    String sender =
+        GmailUtility.parseNameInFromHeader(GmailUtility.extractHeader(message, "From").getValue());
 
-    return new ActionableMessage(messageId, subject);
+    return new ActionableMessage(messageId, subject, sender);
   }
 }
