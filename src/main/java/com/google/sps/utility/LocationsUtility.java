@@ -66,13 +66,13 @@ public final class LocationsUtility {
   }
 
   /**
-   * Generates permutations of the lists and appends them to the result parameter.
+   * Generates combinations of the lists and appends them to the result parameter.
    *
-   * @param lists A list of lists to generate permutations for.
-   * @param result A pointer to a list to contain the generated permutations.
+   * @param lists A list of lists to generate combinations for.
+   * @param result A pointer to a list to contain the generated combinations.
    * @param depth An int to represent the index of the list that is currently being traversed in the
    *     recursive call.
-   * @param current A list containing the permutation built so far at the recursive call.
+   * @param current A list containing the combination built so far at the recursive call.
    */
   private static void generateCombinationsHelper(
       List<List<String>> lists, List<List<String>> result, int depth, List<String> current) {
@@ -89,10 +89,10 @@ public final class LocationsUtility {
   }
 
   /**
-   * Generates all permutations of the lists recursively. Scope of method is public for testing
+   * Generates all combinations of the lists recursively. Scope of method is public for testing
    * purposes.
    *
-   * @param lists A list of lists to generate permutations for.
+   * @param lists A list of lists to generate combinations for.
    */
   public static List<List<String>> generateCombinations(List<List<String>> lists) {
     List<List<String>> combinations = new ArrayList<>();

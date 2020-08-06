@@ -65,6 +65,33 @@ public class GoServlet extends AuthenticatedHttpServlet {
   private final GeocodingClientFactory geocodingClientFactory;
   private final String apiKey;
 
+  public class GoResponse {
+    List<String> streetAddressWaypoints;
+    List<Optional<LatLng>> streetAddressWaypointsAsCoordinates;
+    List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes;
+
+    GoResponse(
+        List<String> streetAddressWaypoints,
+        List<Optional<LatLng>> streetAddressWaypointsAsCoordinates,
+        List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes) {
+      this.streetAddressWaypoints = streetAddressWaypoints;
+      this.streetAddressWaypointsAsCoordinates = streetAddressWaypointsAsCoordinates;
+      this.nonStreetAddressWaypointsAsPlaceTypes = nonStreetAddressWaypointsAsPlaceTypes;
+    }
+
+    public List<String> getStreetAddressWaypoints() {
+      return streetAddressWaypoints;
+    }
+
+    public List<Optional<LatLng>> getStreetAddressWaypointsAsCoordinates() {
+      return streetAddressWaypointsAsCoordinates;
+    }
+
+    public List<Optional<PlaceType>> getNonStreetAddressWaypointsAsPlaceTypes() {
+      return nonStreetAddressWaypointsAsPlaceTypes;
+    }
+  }
+
   /**
    * Construct servlet with default DirectionsClient.
    *
@@ -132,10 +159,10 @@ public class GoServlet extends AuthenticatedHttpServlet {
     List<String> waypoints = LocationsUtility.getLocations("Location", tasks);
 
     try {
-      List<String> mostOptimalWaypointCombination =
+      List<String> optimalWaypointCombination =
           optimizeSearchNearbyWaypoints(origin, destination, waypoints);
       DirectionsResult directionsResult =
-          directionsClient.getDirections(origin, destination, mostOptimalWaypointCombination);
+          directionsClient.getDirections(origin, destination, optimalWaypointCombination);
       List<String> optimizedRoute = DirectionsClient.parseDirectionsResult(directionsResult);
       JsonUtility.sendJson(response, optimizedRoute);
     } catch (DirectionsException | GeocodingException | PlacesException | IOException e) {
@@ -150,20 +177,12 @@ public class GoServlet extends AuthenticatedHttpServlet {
    *
    * @param waypoints A list of waypoints to filter into the two categories: street addresses and
    *     non street addresses.
-   * @param streetAddressWaypoints A pointer to the result for street address waypoints to achieve
-   *     the effect of returning multiple types at once.
-   * @param streetAddressWaypointsAsCoordinates A pointer to the result for street address waypoints
-   *     as coordinates to achieve the effect of returning multiple types at once.
-   * @param nonStreetAddressWaypointsAsPlaceTypes A pointer to the result for non street address
-   *     waypoints as place types to achieve the effect of returning multiple types at once.
    * @throws GeocodingException An exception thrown when an error occurs with the Geocoding API.
    */
-  public void separateWaypoints(
-      List<String> waypoints,
-      List<String> streetAddressWaypoints,
-      List<Optional<LatLng>> streetAddressWaypointsAsCoordinates,
-      List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes)
-      throws GeocodingException {
+  public GoResponse separateWaypoints(List<String> waypoints) throws GeocodingException {
+    List<String> streetAddressWaypoints = new ArrayList<>();
+    List<Optional<LatLng>> streetAddressWaypointsAsCoordinates = new ArrayList<>();
+    List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes = new ArrayList<>();
     for (String waypoint : waypoints) {
       GeocodingClient geocodingClient = geocodingClientFactory.getGeocodingClient(apiKey);
       List<GeocodingResult> geocodingResult = geocodingClient.getGeocodingResult(waypoint);
@@ -176,6 +195,10 @@ public class GoServlet extends AuthenticatedHttpServlet {
             GeocodingResultUtility.convertToPlaceType(waypoint));
       }
     }
+    return new GoResponse(
+        streetAddressWaypoints,
+        streetAddressWaypointsAsCoordinates,
+        nonStreetAddressWaypointsAsPlaceTypes);
   }
 
   /**
@@ -198,9 +221,8 @@ public class GoServlet extends AuthenticatedHttpServlet {
     List<List<String>> allSearchNearbyResults = new ArrayList<>();
     for (PlaceType nonStreetAddressWaypoint : nonStreetAddressWaypointsAsPlaceTypes) {
       List<String> searchNearbyResults = new ArrayList<>();
+      PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
       for (LatLng coordinate : streetAddressesAsCoordinates) {
-
-        PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
         String nearestMatch =
             placesClient.searchNearby(coordinate, nonStreetAddressWaypoint, RankBy.DISTANCE);
         if (nearestMatch != null) {
@@ -227,7 +249,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
       String origin, String destination, List<List<String>> allWaypointCombinations)
       throws DirectionsException {
     long minTravelTime = 0;
-    List<String> mostOptimalWaypointCombination = new ArrayList<String>();
+    List<String> optimalWaypointCombination = new ArrayList<String>();
     for (List<String> waypointCombination : allWaypointCombinations) {
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       DirectionsResult directionsResult =
@@ -235,10 +257,10 @@ public class GoServlet extends AuthenticatedHttpServlet {
       long travelTime = DirectionsClient.getTotalTravelTime(directionsResult);
       if (minTravelTime == 0 || travelTime < minTravelTime) {
         minTravelTime = travelTime;
-        mostOptimalWaypointCombination = waypointCombination;
+        optimalWaypointCombination = waypointCombination;
       }
     }
-    return mostOptimalWaypointCombination;
+    return optimalWaypointCombination;
   }
 
   /**
@@ -271,18 +293,11 @@ public class GoServlet extends AuthenticatedHttpServlet {
       throw new GeocodingException("Origin or destination is invalid");
     }
 
-    List<String> streetAddressWaypoints = new ArrayList<>();
-    List<Optional<LatLng>> streetAddressWaypointsAsCoordinates = new ArrayList<>();
-    List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes = new ArrayList<>();
-    separateWaypoints(
-        waypoints,
-        streetAddressWaypoints,
-        streetAddressWaypointsAsCoordinates,
-        nonStreetAddressWaypointsAsPlaceTypes);
+    GoResponse separatedWaypoints = separateWaypoints(waypoints);
 
     // All street address coordinates including origin and destination are collected
     List<Optional<LatLng>> streetAddressesAsCoordinates = new ArrayList<>();
-    streetAddressesAsCoordinates.addAll(streetAddressWaypointsAsCoordinates);
+    streetAddressesAsCoordinates.addAll(separatedWaypoints.streetAddressWaypointsAsCoordinates);
     streetAddressesAsCoordinates.add(originAsCoordinates);
     streetAddressesAsCoordinates.add(destinationAsCoordinates);
 
@@ -294,7 +309,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
             .map(coordinates -> coordinates.get())
             .collect(Collectors.toList());
     List<PlaceType> nonEmptynonStreetAddressWaypointsAsPlaceTypes =
-        nonStreetAddressWaypointsAsPlaceTypes.stream()
+        separatedWaypoints.nonStreetAddressWaypointsAsPlaceTypes.stream()
             .filter(waypoint -> !waypoint.equals(Optional.empty()))
             .map(waypoint -> waypoint.get())
             .collect(Collectors.toList());
@@ -306,11 +321,11 @@ public class GoServlet extends AuthenticatedHttpServlet {
     List<List<String>> allWaypointCombinations =
         LocationsUtility.generateCombinations(allSearchNearbyResults);
 
-    List<String> mostOptimalWaypointCombination =
+    List<String> optimalWaypointCombination =
         chooseWaypointCombinationWithShortestTravelTime(
             origin, destination, allWaypointCombinations);
-    mostOptimalWaypointCombination.addAll(streetAddressWaypoints);
+    optimalWaypointCombination.addAll(separatedWaypoints.streetAddressWaypoints);
 
-    return mostOptimalWaypointCombination;
+    return optimalWaypointCombination;
   }
 }

@@ -43,8 +43,7 @@ public class LocationsUtilityTest {
   @Test
   public void getLocationNoTasks() {
     // Obtain locations in the the task notes of no tasks.
-    Assert.assertEquals(
-        ImmutableList.of(), LocationsUtility.getLocations(PREFIX, ImmutableList.of()));
+    Assert.assertTrue(LocationsUtility.getLocations(PREFIX, ImmutableList.of()).isEmpty());
   }
 
   @Test
@@ -94,9 +93,9 @@ public class LocationsUtilityTest {
   public void getEmptyLocation() {
     // Obtain location in the task notes of one task with one location with [Location: ] tag but
     // nothing inside of it.
-    Assert.assertEquals(
-        ImmutableList.of(),
-        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_EMPTY_LOCATION)));
+    Assert.assertTrue(
+        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_EMPTY_LOCATION))
+            .isEmpty());
   }
 
   @Test

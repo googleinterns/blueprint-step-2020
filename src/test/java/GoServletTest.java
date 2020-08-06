@@ -32,7 +32,7 @@ import com.google.sps.model.PlacesClientFactory;
 import com.google.sps.model.TasksClient;
 import com.google.sps.model.TasksClientFactory;
 import com.google.sps.servlets.GoServlet;
-import java.util.ArrayList;
+import com.google.sps.servlets.GoServlet.GoResponse;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Assert;
@@ -132,29 +132,20 @@ public class GoServletTest extends AuthenticatedServletTestBase {
   public void separateWaypoints() throws Exception {
     // Street address should be converted into coordinates, restaurant should be converted into
     // place type
-    List<String> streetAddressWaypoints = new ArrayList<String>();
-    List<Optional<LatLng>> streetAddressWaypointsAsCoordinates = new ArrayList<Optional<LatLng>>();
-    List<Optional<PlaceType>> nonStreetAddressWaypointsAsPlaceTypes =
-        new ArrayList<Optional<PlaceType>>();
-
     Mockito.when(geocodingClient.getGeocodingResult("street address"))
         .thenReturn(ImmutableList.of(streetAddressGeocodingResult));
     Mockito.when(geocodingClient.getGeocodingResult("restaurant"))
         .thenReturn(ImmutableList.of(restaurantGeocodingResult));
 
-    servlet.separateWaypoints(
-        STREET_ADDRESS_AND_RESTAURANT_WAYPOINTS,
-        streetAddressWaypoints,
-        streetAddressWaypointsAsCoordinates,
-        nonStreetAddressWaypointsAsPlaceTypes);
+    GoResponse actual = servlet.separateWaypoints(STREET_ADDRESS_AND_RESTAURANT_WAYPOINTS);
 
-    Assert.assertEquals(ImmutableList.of("street address"), streetAddressWaypoints);
+    Assert.assertEquals(ImmutableList.of("street address"), actual.getStreetAddressWaypoints());
     Assert.assertEquals(
         ImmutableList.of(Optional.ofNullable(streetAddressCoordinates)),
-        streetAddressWaypointsAsCoordinates);
+        actual.getStreetAddressWaypointsAsCoordinates());
     Assert.assertEquals(
         ImmutableList.of(Optional.ofNullable(PlaceType.RESTAURANT)),
-        nonStreetAddressWaypointsAsPlaceTypes);
+        actual.getNonStreetAddressWaypointsAsPlaceTypes());
   }
 
   @Test
