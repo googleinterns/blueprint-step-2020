@@ -18,6 +18,7 @@ import com.google.maps.model.AddressType;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceType;
+import java.util.Arrays;
 import java.util.Optional;
 
 /** Utility class to extract data from GeocodingResult objects. */
@@ -40,12 +41,9 @@ public class GeocodingResultUtility {
    * @return A PlaceType corresponding to an AddressType if available, null if not available.
    */
   public static Optional<PlaceType> convertAddressTypeToPlaceType(AddressType addressType) {
-    for (PlaceType placeType : PlaceType.values()) {
-      if (placeType.name().equals(addressType.name())) {
-        return Optional.ofNullable(placeType);
-      }
-    }
-    return Optional.empty();
+    return Arrays.asList(PlaceType.values()).stream()
+        .filter(placeType -> placeType.name().equals(addressType.name()))
+        .findFirst();
   }
 
   /**
