@@ -52,10 +52,9 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
   private static final Gson gson = new Gson();
 
   private static final String EVENT_SUMMARY_ONE = "test event one";
-  private static final String EVENT_SUMMARY_TWO = "test event two";
+  private static final String EVENT_SUMMARY_TO_READ = "Read emails";
+  private static final String EVENT_SUMMARY_THREE = "test event three";
   private static final int OFFSET_YEAR = 1900;
-  private static final String EVENT_UNDEFINED_JSON = "[{}]";
-  private static final String EMPTY_JSON = "[]";
   private static final CalendarListEntry PRIMARY = new CalendarListEntry().setId("primary");
   private static final CalendarListEntry SECONDARY = new CalendarListEntry().setId("secondary");
   private static final List<CalendarListEntry> ONE_CALENDAR = ImmutableList.of(PRIMARY);
@@ -66,6 +65,8 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
   private static final Date EVENT_ONE_END = new Date(2020 - OFFSET_YEAR, 4, 19, 16, 0);
   private static final Date EVENT_TWO_START = new Date(2020 - OFFSET_YEAR, 4, 20, 6, 0);
   private static final Date EVENT_TWO_END = new Date(2020 - OFFSET_YEAR, 4, 20, 8, 0);
+  private static final Date EVENT_THREE_START = new Date(2020 - OFFSET_YEAR, 4, 19, 10, 5);
+  private static final Date EVENT_THREE_END = new Date(2020 - OFFSET_YEAR, 4, 19, 10, 30);
   private static final EventDateTime START_ONE =
       new EventDateTime().setDateTime(new DateTime(EVENT_ONE_START));
   private static final EventDateTime END_ONE =
@@ -74,14 +75,20 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
       new EventDateTime().setDateTime(new DateTime(EVENT_TWO_START));
   private static final EventDateTime END_TWO =
       new EventDateTime().setDateTime(new DateTime(EVENT_TWO_END));
+  private static final EventDateTime START_THREE =
+      new EventDateTime().setDateTime(new DateTime(EVENT_THREE_START));
+  private static final EventDateTime END_THREE =
+      new EventDateTime().setDateTime(new DateTime(EVENT_THREE_END));
   private static final List<Event> NO_EVENT = ImmutableList.of();
   private static final List<Event> EVENT_ONE =
       ImmutableList.of(
           new Event().setSummary(EVENT_SUMMARY_ONE).setStart(START_ONE).setEnd(END_ONE));
   private static final List<Event> EVENT_TWO =
       ImmutableList.of(
-          new Event().setSummary(EVENT_SUMMARY_TWO).setStart(START_TWO).setEnd(END_TWO));
-  private static final long hour = TimeUnit.HOURS.toMillis(1);
+          new Event().setSummary(EVENT_SUMMARY_TO_READ).setStart(START_TWO).setEnd(END_TWO));
+  private static final List<Event> EVENT_THREE =
+      ImmutableList.of(
+          new Event().setSummary(EVENT_SUMMARY_THREE).setStart(START_THREE).setEnd(END_THREE));
 
   @Override
   @Before
@@ -106,9 +113,9 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
   }
 
   @Test
-  public void noCalendarEvent() throws Exception {
-    // Test case where there are no events in the user's calendar
-    // The result should be that all hours are free
+  public void noPotentialEvent() throws Exception {
+    // Test case where there are no unread emails
+    //We should get no proposed potential event times
     Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
     Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
         .thenReturn(NO_EVENT);
@@ -121,31 +128,69 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
     Assert.assertTrue(actual.getPotentialEventTimes().isEmpty());
   }
 
-  // @Test
-  // public void twoCalendars() throws Exception {
-  //   // Test case where there are two calendars with a defined event in each
-  //   // Event with 1 working hour and event overlapping 1 hour with personal time.
-  //   Mockito.when(calendarClient.getCalendarList()).thenReturn(TWO_CALENDARS);
-  //   Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
-  //       .thenReturn(EVENT_ONE);
-  //   Mockito.when(calendarClient.getUpcomingEvents(SECONDARY, CURRENT_TIME, END_TIME))
-  //       .thenReturn(EVENT_TWO);
-  //   Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
-  //   PlanMailResponse actual = getServletResponse();
-  //   List<Integer> workHoursPerDay = Arrays.asList(7, 8, 8, 8, 8);
-  //   List<Integer> personalHoursPerDay = Arrays.asList(6, 7, 8, 8, 8);
-  //   Assert.assertEquals(2, actual.getStartDay());
-  //   Assert.assertEquals(5, actual.getWorkTimeFree().size());
-  //   Assert.assertEquals(5, actual.getPersonalTimeFree().size());
-  //   for (int index = 0; index < workHoursPerDay.size(); index++) {
-  //     Assert.assertEquals(
-  //         (int) workHoursPerDay.get(index), actual.getWorkTimeFree().get(index).getHours());
-  //     Assert.assertEquals(0, actual.getWorkTimeFree().get(index).getMinutes());
-  //     Assert.assertEquals(
-  //         (int) personalHoursPerDay.get(index), actual.getPersonalTimeFree().get(index).getHours());
-  //     Assert.assertEquals(0, actual.getPersonalTimeFree().get(index).getMinutes());
-  //   }
-  // }
+  @Test
+  public void onePotentialEvent() throws Exception {
+    // Test case where there are unread emails that will take 10 minutes to read
+    // We should get 1 proposed event that takes 10 minutes
+    Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
+    Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
+        .thenReturn(EVENT_ONE);
+    Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
+    Mockito.when(gmailClient.getWordCount(7)).thenReturn(500);
+    PlanMailResponse actual = getServletResponse();
+    List<Date> startHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 0));
+    List<Date> endHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 10));
+    Assert.assertEquals(500, actual.getWordCount());
+    Assert.assertEquals(50, actual.getAverageReadingSpeed());
+    Assert.assertEquals(10, actual.getMinutesToRead());
+    Assert.assertEquals(startHour.size(), actual.getPotentialEventTimes().size());
+    for (int index = 0; index < startHour.size(); index++) {
+      Assert.assertTrue(startHour.get(index).equals(actual.getPotentialEventTimes().get(index).getStart()));
+      Assert.assertTrue(endHour.get(index).equals(actual.getPotentialEventTimes().get(index).getEnd()));
+    }
+  }
+
+  @Test
+  public void alreadyCreatedEvent() throws Exception {
+    // Test case where there are unread emails that will take 10 minutes to read
+    // But an event (event 2) has already been created to go through them
+    // We should get no proposed potential event
+    Mockito.when(calendarClient.getCalendarList()).thenReturn(TWO_CALENDARS);
+    Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
+        .thenReturn(EVENT_ONE);
+    Mockito.when(calendarClient.getUpcomingEvents(SECONDARY, CURRENT_TIME, END_TIME))
+        .thenReturn(EVENT_TWO);
+    Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
+    Mockito.when(gmailClient.getWordCount(7)).thenReturn(500);
+    PlanMailResponse actual = getServletResponse();
+    Assert.assertEquals(500, actual.getWordCount());
+    Assert.assertEquals(50, actual.getAverageReadingSpeed());
+    Assert.assertEquals(10, actual.getMinutesToRead());
+    Assert.assertTrue(actual.getPotentialEventTimes().isEmpty());
+  }
+
+  @Test
+  public void splitPotentialEvent() throws Exception {
+    // Test case where there are unread emails that will take 10 minutes to read
+    // and an event that splits the time interval required in two parts
+    // We should get 2 proposed events of 10 minutes each. 
+    Mockito.when(calendarClient.getCalendarList()).thenReturn(ONE_CALENDAR);
+    Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
+        .thenReturn(EVENT_THREE);
+    Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
+    Mockito.when(gmailClient.getWordCount(7)).thenReturn(500);
+    PlanMailResponse actual = getServletResponse();
+    List<Date> startHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 0), new Date(2020 - OFFSET_YEAR, 4, 19, 10, 30));
+    List<Date> endHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 5), new Date(2020 - OFFSET_YEAR, 4, 19, 10, 35));
+    Assert.assertEquals(500, actual.getWordCount());
+    Assert.assertEquals(50, actual.getAverageReadingSpeed());
+    Assert.assertEquals(10, actual.getMinutesToRead());
+    Assert.assertEquals(startHour.size(), actual.getPotentialEventTimes().size());
+    for (int index = 0; index < startHour.size(); index++) {
+      Assert.assertTrue(startHour.get(index).equals(actual.getPotentialEventTimes().get(index).getStart()));
+      Assert.assertTrue(endHour.get(index).equals(actual.getPotentialEventTimes().get(index).getEnd()));
+    }
+  }
 
   private PlanMailResponse getServletResponse() throws IOException, ServletException {
     // Method that handles the request once the Calendar Client has been mocked
