@@ -49,12 +49,12 @@ import javax.servlet.http.HttpServletResponse;
 
 /** GET function responds JSON string containing potential events to read mail. */
 @WebServlet("/plan-mail")
-public class FreeTimeServlet extends AuthenticatedHttpServlet {
+public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
-  public FreeTimeServlet() {
+  public PlanMailServlet() {
     calendarClientFactory = new CalendarClientImpl.Factory();
     gmailClientFactory = new GmailClientImpl.Factory();
   }
@@ -65,7 +65,7 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
    * @param authenticationVerifier implementation of AuthenticationVerifier
    * @param calendarClientFactory implementation of CalendarClientFactory
    */
-  public FreeTimeServlet(
+  public PlanMailServlet(
       AuthenticationVerifier authenticationVerifier,
       CalendarClientFactory calendarClientFactory,
       GmailClientFactory gmailClientFactory) {
