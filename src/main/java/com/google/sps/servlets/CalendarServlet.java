@@ -39,6 +39,13 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/calendar")
 public class CalendarServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
+  private static final int personalBeginHour = 7;
+  private static final int workBeginHour = 10;
+  private static final int workEndHour = 18;
+  private static final int personalEndHour = 23;
+  private static final int numDays = 5;
+  private static final String summary = "Read emails";
+  private static final String calendarId = "primary";
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
   public CalendarServlet() {
@@ -74,14 +81,9 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
-    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
+    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(numDays)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
 
-    int personalBeginHour = 7;
-    int workBeginHour = 10;
-    int workEndHour = 18;
-    int personalEndHour = 23;
-    int numDays = 5;
     FreeTimeUtility freeTimeUtility =
         new FreeTimeUtility(
             timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
@@ -129,7 +131,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
    * creating the event in the primary calendar. The summary for this event is Read emails.
    *
    * @param request Http request from the client. Body contains start and end parameters
-   * @param response 403 if user is not authenticated, or string saying the event has been created
+   * @param response String saying the event has been created
    * @throws IOException if an issue arises while processing the request
    */
   @Override
@@ -142,8 +144,6 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     Date start = new Date(request.getParameter("start"));
     Date end = new Date(request.getParameter("end"));
-    String summary = "Read emails";
-    String calendarId = "primary";
     calendarClient.createNewEvent(start, end, summary, calendarId);
 
     JsonUtility.sendJson(response, "Event created");
