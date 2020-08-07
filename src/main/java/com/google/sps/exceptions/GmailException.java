@@ -12,26 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable no-unused-vars */
+package com.google.sps.exceptions;
 
 /**
- * A class to encapsulate some of the values from a Google Tasks task, as well
- * as the parent taskList name
- * https://developers.google.com/tasks/v1/reference/tasks
+ * Used for when the Gmail service returns a GoogleJsonError due to being unable to retrieve an
+ * email from the server.
  */
-class Task {
+public class GmailException extends RuntimeException {
   /**
-   * Creates a Task object with a due date
+   * Creates GmailException instance
    *
-   * @param {string} title a title for the task
-   * @param {string} notes messages associated with a given task
-   * @param {Date} due a Date object / undefined if not present
+   * @param message reason for throwing error
    */
-  constructor(title, notes, due) {
-    this.title = title;
-    this.notes = notes;
-    if (due != null) {
-      this.due = due.toISOString();
-    }
+  public GmailException(String message) {
+    super(message);
+  }
+
+  /**
+   * Creates GmailException instance
+   *
+   * @param message reason for throwing error
+   * @param cause initial error that caused the exception
+   */
+  public GmailException(String message, Exception cause) {
+    super(message, cause);
   }
 }
