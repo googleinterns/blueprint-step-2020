@@ -42,6 +42,9 @@ import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.KeyProvider;
 import com.google.sps.utility.LocationsUtility;
 import com.google.sps.utility.TasksUtility;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -150,7 +153,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
     List<Task> tasks;
 
     String taskLists = request.getParameter("taskLists");
-    if (taskLists.isEmpty()) {
+    if (StringUtils.isEmpty(taskLists)) {
       tasks = TasksUtility.getAllTasksFromAllTaskLists(tasksClient);
     } else {
       Set<String> selectedTaskListIds = new HashSet<>(Arrays.asList(taskLists.split(",")));
