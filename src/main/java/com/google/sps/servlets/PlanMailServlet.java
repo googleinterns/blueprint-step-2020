@@ -21,6 +21,7 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
+import com.google.common.base.Throwables;
 import com.google.common.io.BaseEncoding;
 import com.google.sps.data.PlanMailResponse;
 import com.google.sps.model.AuthenticatedHttpServlet;
@@ -47,12 +48,22 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** GET function responds JSON string containing potential events to read mail. */
+/**
+ * GET function responds JSON string containing potential events to read mail. The servlet proposes
+ * all possible event times until it is not possible. For now, the user does not get an indication
+ * if the events proposed are sufficient to go through the emails.
+ */
 @WebServlet("/plan-mail")
 public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
   private static final int averageReadingSpeed = 50;
+  private static final int personalBeginHour = 7;
+  private static final int workBeginHour = 10;
+  private static final int workEndHour = 18;
+  private static final int personalEndHour = 23;
+  private static final int numDays = 5;
+  private static final String eventSummary = "Read emails";
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
   public PlanMailServlet() {
@@ -93,21 +104,19 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
-    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
+    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(numDays)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
     // Initialize the freeTime utility. Keep track of the free time in the next 5 days, with
     // work hours as defined between 10am and 6 pm. The rest of the time between 7 am and 11 pm
     // should be considered personal time.
-    int personalBeginHour = 7;
-    int workBeginHour = 10;
-    int workEndHour = 18;
-    int personalEndHour = 23;
-    int numDays = 5;
+
     FreeTimeUtility freeTimeUtility =
         new FreeTimeUtility(
             timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
     long preAssignedTime = 0;
-    String eventSummary = "Read emails";
+    // The summary for the events we are creating is the same as the defined eventSummary
+    // For now this is the check we are using. We assume that the user will not create
+    // events with the same summary if they are not related to reading emails.
     for (Event event : calendarEvents) {
       DateTime start = event.getStart().getDateTime();
       start = start == null ? event.getStart().getDate() : start;
@@ -145,6 +154,14 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     JsonUtility.sendJson(response, planMailResponse);
   }
 
+  /**
+   * Get the list of date intervals necessary for the time needed If there is not enough time,
+   * return the maximum possible date intervals
+   *
+   * @param freeTimeUtility the utility to get all free date intervals
+   * @param timeNeeded the unix time of the time length needed
+   * @return The list of date intervals necessary
+   */
   private List<DateInterval> getPotentialTimes(FreeTimeUtility freeTimeUtility, long timeNeeded) {
     List<DateInterval> workFreeInterval = freeTimeUtility.getWorkFreeInterval();
     List<DateInterval> potentialEventTimes = new ArrayList<>();
@@ -162,6 +179,14 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     return potentialEventTimes;
   }
 
+  /**
+   * Get the unread emails from the last week, and perform a word count for the body of each message
+   *
+   * @param googleCredential the credential to creare a gmailClient with
+   * @return The final word count
+   * @throws IOException if an issue occurs in the method
+   * @throws MessagingException if an issue occurs in the method
+   */
   private int getWordCount(Credential googleCredential) {
     GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
     GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
@@ -171,13 +196,13 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     try {
       unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, numberDays);
     } catch (IOException e) {
-      System.out.println(e);
+      throw Throwables.propagate(e);
     }
     for (Message message : unreadMessages) {
       try {
         wordCount += getMessageSize(message);
       } catch (MessagingException | IOException e) {
-        System.out.println(e);
+        throw Throwables.propagate(e);
       }
     }
     return wordCount;
@@ -202,6 +227,13 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     return events;
   }
 
+  /**
+   * Get the word-count in an individual message.
+   *
+   * @param message the message given for which to find a word count
+   * @throws IOException if an issue occurs in the method
+   * @throws MessagingException if an issue occurs in the method
+   */
   private int getMessageSize(Message message) throws MessagingException, IOException {
     List<MessagePart> messageParts = message.getPayload().getParts();
     List<MessagePart> messageBody =
