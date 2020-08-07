@@ -86,7 +86,6 @@ function handleAuthenticationState() {
 
     // Populate magic feature panels at the bottom of the dashboard
     populatePlanMail();
-    populateGo();
     setUpAssign();
   } else {
     // User is not logged in.
