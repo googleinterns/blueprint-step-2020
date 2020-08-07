@@ -101,4 +101,24 @@ public final class GmailUtilityTest {
   public void extractNameInFromHeaderWhenHeaderInvalid() {
     GmailUtility.parseNameInFromHeader("");
   }
+
+  @Test
+  public void hasHeaderMessageHasNoPayload() {
+    Assert.assertEquals(false, GmailUtility.hasHeader(messageNoPayload, HEADER_NAME));
+  }
+
+  @Test
+  public void hasHeaderMessageHasNoHeaders() {
+    Assert.assertEquals(false, GmailUtility.hasHeader(messageNoHeaders, HEADER_NAME));
+  }
+
+  @Test
+  public void hasHeaderIsNotPresent() {
+    Assert.assertEquals(false, GmailUtility.hasHeader(messageWithoutHeaderName, HEADER_NAME));
+  }
+
+  @Test
+  public void hasHeaderIsPresent() {
+    Assert.assertEquals(true, GmailUtility.hasHeader(messageWithHeaderName, HEADER_NAME));
+  }
 }
