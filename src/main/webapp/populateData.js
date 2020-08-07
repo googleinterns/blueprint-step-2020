@@ -365,14 +365,13 @@ function createEvent(eventStart, eventEnd) {
   params.append('start', eventStart);
   params.append('end', eventEnd);
   fetch('/calendar', {method: 'POST', body: params})
-  .then((response) => {
-    populateCalendar();
-    populatePlanMail();
-  })
-  .catch((e) => {
-    console.log(e);
-    
-  });
+      .then((response) => {
+        populateCalendar();
+        populatePlanMail();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
 }
 
 /**
