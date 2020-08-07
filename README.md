@@ -113,7 +113,7 @@ project), YOUR_PROJECT_ID.appspot.com (the appengine domain), etc.)
 8) Copy the API Key into the pom.xml file.
 
 ### Set up the GCloud SDK (if you're new to using the GCloud SDK)
-1) Run `gcloud init` and configure GCloud on your computer. When prompted, please enter the numeric choice that 
+1) Run `gcloud init` and configure GCloud on your computer. When prompted, please enter the numeric choice that
 corresponds to the project ID you just created.
 
 2) Run `gcloud app create` to create an appengine project. Select any region you'd like, though it is suggested to
