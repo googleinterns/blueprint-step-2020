@@ -52,4 +52,48 @@ public final class PlanMailResponse {
   public List<DateInterval> getPotentialEventTimes() {
     return potentialEventTimes;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+
+    if (!(o instanceof PlanMailResponse)) {
+      return false;
+    }
+
+    PlanMailResponse planMailResponse = (PlanMailResponse) o;
+
+    List<DateInterval> otherEventTimes = planMailResponse.getPotentialEventTimes();
+
+    boolean comparison = true;
+    comparison = comparison && this.wordCount == planMailResponse.getWordCount();
+    comparison =
+        comparison && this.averageReadingSpeed == planMailResponse.getAverageReadingSpeed();
+    comparison = comparison && this.minutesToRead == planMailResponse.getMinutesToRead();
+    comparison = comparison && this.potentialEventTimes.size() == otherEventTimes.size();
+
+    // To avoid running into errors when the two potential event times are not of the same length
+    // We can return directly at this point if the comparison is no longer true;
+    if (!comparison) {
+      return comparison;
+    }
+
+    for (int index = 0; index < this.potentialEventTimes.size(); index++) {
+      comparison =
+          comparison
+              && this.potentialEventTimes
+                  .get(index)
+                  .getStart()
+                  .equals(otherEventTimes.get(index).getStart());
+      comparison =
+          comparison
+              && this.potentialEventTimes
+                  .get(index)
+                  .getEnd()
+                  .equals(otherEventTimes.get(index).getEnd());
+    }
+    return comparison;
+  }
 }
