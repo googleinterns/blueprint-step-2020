@@ -183,19 +183,29 @@ public class GoServletTest extends AuthenticatedServletTestBase {
     // Find the waypoints which result in the shorter travel time
     List<String> longerTravelTimeWaypoints = ImmutableList.of("long", "long");
     List<String> shorterTravelTimeWaypoints = ImmutableList.of("short", "medium");
+    List<String> streetAddressWaypoints = ImmutableList.of("street address");
+    List<String> longerTravelTimeWaypointsWithStreetAddress =
+        ImmutableList.of("long", "long", "street address");
+    List<String> shorterTravelTimeWaypointsWithStreetAddress =
+        ImmutableList.of("short", "medium", "street address");
 
-    Mockito.when(directionsClient.getDirections(ORIGIN, DESTINATION, longerTravelTimeWaypoints))
+    Mockito.when(
+            directionsClient.getDirections(
+                ORIGIN, DESTINATION, longerTravelTimeWaypointsWithStreetAddress))
         .thenReturn(longerResult);
-    Mockito.when(directionsClient.getDirections(ORIGIN, DESTINATION, shorterTravelTimeWaypoints))
+    Mockito.when(
+            directionsClient.getDirections(
+                ORIGIN, DESTINATION, shorterTravelTimeWaypointsWithStreetAddress))
         .thenReturn(shorterResult);
 
     List<String> actual =
         servlet.chooseWaypointCombinationWithShortestTravelTime(
             ORIGIN,
             DESTINATION,
-            ImmutableList.of(longerTravelTimeWaypoints, shorterTravelTimeWaypoints));
+            ImmutableList.of(longerTravelTimeWaypoints, shorterTravelTimeWaypoints),
+            streetAddressWaypoints);
 
-    Assert.assertEquals(shorterTravelTimeWaypoints, actual);
+    Assert.assertEquals(shorterTravelTimeWaypointsWithStreetAddress, actual);
   }
 
   @Test
@@ -236,11 +246,15 @@ public class GoServletTest extends AuthenticatedServletTestBase {
 
     Mockito.when(
             directionsClient.getDirections(
-                ORIGIN, DESTINATION, ImmutableList.of("place_id:" + RESTAURANT_ONE)))
+                ORIGIN,
+                DESTINATION,
+                ImmutableList.of("place_id:" + RESTAURANT_ONE, "street address")))
         .thenReturn(longerResult);
     Mockito.when(
             directionsClient.getDirections(
-                ORIGIN, DESTINATION, ImmutableList.of("place_id:" + RESTAURANT_TWO)))
+                ORIGIN,
+                DESTINATION,
+                ImmutableList.of("place_id:" + RESTAURANT_TWO, "street address")))
         .thenReturn(shorterResult);
 
     List<String> actual =

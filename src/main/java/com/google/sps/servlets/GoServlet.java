@@ -45,6 +45,7 @@ import com.google.sps.utility.TasksUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -244,22 +245,31 @@ public class GoServlet extends AuthenticatedHttpServlet {
    * @param destination The ending point of travel.
    * @param allWaypointCombinations A list of waypoint combinations to select between for the
    *     shortest travel time possible.
+   * @param streetAddressWaypoints A list of street address waypoints to be included in every
+   *     waypoint combination.
    * @return The most optimal combination of waypoint with the shortest travel time.
    * @throws DirectionsException An exception thrown when an error occurs with the Directions API.
    */
   public List<String> chooseWaypointCombinationWithShortestTravelTime(
-      String origin, String destination, List<List<String>> allWaypointCombinations)
+      String origin,
+      String destination,
+      List<List<String>> allWaypointCombinations,
+      List<String> streetAddressWaypoints)
       throws DirectionsException {
     OptionalLong minTravelTime = OptionalLong.empty();
     List<String> optimalWaypointCombination = new ArrayList<String>();
     for (List<String> waypointCombination : allWaypointCombinations) {
+      List<String> waypoints =
+          Stream.of(waypointCombination, streetAddressWaypoints)
+              .flatMap(Collection::stream)
+              .collect(Collectors.toList());
       DirectionsClient directionsClient = directionsClientFactory.getDirectionsClient(apiKey);
       DirectionsResult directionsResult =
-          directionsClient.getDirections(origin, destination, waypointCombination);
+          directionsClient.getDirections(origin, destination, waypoints);
       long travelTime = DirectionsClient.getTotalTravelTime(directionsResult);
       if (!minTravelTime.isPresent() || travelTime < minTravelTime.getAsLong()) {
         minTravelTime = OptionalLong.of(travelTime);
-        optimalWaypointCombination = waypointCombination;
+        optimalWaypointCombination = waypoints;
       }
     }
     return optimalWaypointCombination;
@@ -312,20 +322,22 @@ public class GoServlet extends AuthenticatedHttpServlet {
     // Remove all optional empty entries of street address coordinates and non street address
     // waypoints
     List<LatLng> nonEmptyStreetAddressesAsCoordinates = filterNonNull(streetAddressesAsCoordinates);
-    List<PlaceType> nonEmptynonStreetAddressWaypointsAsPlaceTypes =
+    List<PlaceType> nonEmptyNonStreetAddressWaypointsAsPlaceTypes =
         filterNonNull(separatedWaypoints.nonStreetAddressWaypointsAsPlaceTypes);
 
     List<List<String>> allSearchNearbyResults =
         searchForPlacesNearLocations(
-            nonEmptynonStreetAddressWaypointsAsPlaceTypes, nonEmptyStreetAddressesAsCoordinates);
+            nonEmptyNonStreetAddressWaypointsAsPlaceTypes, nonEmptyStreetAddressesAsCoordinates);
 
     List<List<String>> allWaypointCombinations =
         LocationsUtility.generateCombinations(allSearchNearbyResults);
 
     List<String> optimalWaypointCombination =
         chooseWaypointCombinationWithShortestTravelTime(
-            origin, destination, allWaypointCombinations);
-    optimalWaypointCombination.addAll(separatedWaypoints.streetAddressWaypoints);
+            origin,
+            destination,
+            allWaypointCombinations,
+            separatedWaypoints.streetAddressWaypoints);
 
     return optimalWaypointCombination;
   }
