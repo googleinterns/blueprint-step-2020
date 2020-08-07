@@ -124,7 +124,8 @@ function populateCalendar() {
         const panelContent = document.querySelector('#panel-content');
         panelContent.innerHTML = '';
         for (const day in hoursJson.workTimeFree) {
-          if (typeof day === 'string') {
+          if (Object.prototype.hasOwnProperty
+              .call(hoursJson.workTimeFree, day)) {
             const panelContentEntry = document.createElement('div');
             panelContentEntry.className = 'panel__content-entry';
             const dayContainer = document.createElement('p');
@@ -299,7 +300,7 @@ function populateGo() {
  */
 function populatePlanMail() {
   const planContainer = document.querySelector('#plan');
-  fetch('/plan-mail')
+  fetch('/plan-mail?summary=Read emails')
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
@@ -363,9 +364,16 @@ function createEvent(eventStart, eventEnd) {
   const params = new URLSearchParams();
   params.append('start', eventStart);
   params.append('end', eventEnd);
-  fetch('/calendar', {method: 'POST', body: params});
-  populateCalendar();
-  populatePlanMail();
+  params.append('summary', 'Read emails');
+  params.append('id', 'primary');
+  fetch('/calendar', {method: 'POST', body: params})
+      .then((response) => {
+        populateCalendar();
+        populatePlanMail();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
 }
 
 /**
