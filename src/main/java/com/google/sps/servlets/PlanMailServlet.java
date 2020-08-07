@@ -211,7 +211,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     try {
       unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, numberDaysUnread);
     } catch (IOException e) {
-      throw Throwables.propagate(e);;
+      throw Throwables.propagate(e);
     }
     return planMailResponseHelper.getWordCount(unreadMessages);
   }
