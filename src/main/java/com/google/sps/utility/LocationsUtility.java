@@ -70,33 +70,30 @@ public final class LocationsUtility {
    *
    * @param lists A list of lists to generate combinations for.
    * @param result A pointer to a list to contain the generated combinations.
-   * @param depth An int to represent the index of the list that is currently being traversed in the
-   *     recursive call.
    * @param current A list containing the combination built so far at the recursive call.
    */
   private static void generateCombinationsHelper(
-      List<List<String>> lists, List<List<String>> result, int depth, List<String> current) {
+      List<List<String>> lists, List<List<String>> result, List<String> current) {
+    int depth = current.size();
     if (depth == lists.size()) {
       result.add(new ArrayList<>(current));
       return;
     }
     for (int i = 0; i < lists.get(depth).size(); i++) {
-      List<String> next = new ArrayList<>();
-      next.addAll(current);
-      next.add(lists.get(depth).get(i));
-      generateCombinationsHelper(lists, result, depth + 1, next);
+      current.add(lists.get(depth).get(i));
+      generateCombinationsHelper(lists, result, current);
+      current.remove(depth);
     }
   }
 
   /**
-   * Generates all combinations of the lists recursively. Scope of method is public for testing
-   * purposes.
+   * Generates all combinations of the lists recursively.
    *
    * @param lists A list of lists to generate combinations for.
    */
   public static List<List<String>> generateCombinations(List<List<String>> lists) {
     List<List<String>> combinations = new ArrayList<>();
-    generateCombinationsHelper(lists, combinations, 0, new ArrayList<>());
+    generateCombinationsHelper(lists, combinations, new ArrayList<>());
     return combinations;
   }
 }

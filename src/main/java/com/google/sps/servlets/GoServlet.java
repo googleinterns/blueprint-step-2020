@@ -211,24 +211,23 @@ public class GoServlet extends AuthenticatedHttpServlet {
    * restaurant closest to your house and a restaurant closest to my house. In this case, the method
    * should return [[restaurantOne, restaurantTwo]]. Scope of method is public for testing purposes.
    *
-   * @param nonStreetAddressWaypointsAsPlaceTypes A list of place types to call search for. (e.g.
-   *     restaurant, supermarket, police station)
-   * @param streetAddressesAsCoordinates A list of coordinates to look for the place types around.
+   * @param placeTypeWaypoints A list of place types to call search for. (e.g. restaurant,
+   *     supermarket, police station)
+   * @param streetAddressWaypoints A list of coordinates to look for place type matches around.
    * @return A list of lists of place IDs where each list represents the search nearby result for
    *     every known coordinate.
    * @throws PlacesException An exception thrown when an error occurs with the Places API.
    */
   public List<List<String>> searchForPlacesNearLocations(
-      List<PlaceType> nonStreetAddressWaypointsAsPlaceTypes,
-      List<LatLng> streetAddressesAsCoordinates)
+      List<PlaceType> placeTypeWaypoints, List<LatLng> streetAddressWaypoints)
       throws PlacesException {
     List<List<String>> allSearchNearbyResults = new ArrayList<>();
-    for (PlaceType nonStreetAddressWaypoint : nonStreetAddressWaypointsAsPlaceTypes) {
+    for (PlaceType placeTypeWaypoint : placeTypeWaypoints) {
       List<String> searchNearbyResults = new ArrayList<>();
-      for (LatLng coordinate : streetAddressesAsCoordinates) {
+      for (LatLng streetAddressWaypoint : streetAddressWaypoints) {
         PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
         String nearestMatch =
-            placesClient.searchNearby(coordinate, nonStreetAddressWaypoint, RankBy.DISTANCE);
+            placesClient.searchNearby(streetAddressWaypoint, placeTypeWaypoint, RankBy.DISTANCE);
         if (nearestMatch != null) {
           searchNearbyResults.add("place_id:" + nearestMatch);
         }

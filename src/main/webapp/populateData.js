@@ -17,75 +17,6 @@
 /* eslint-disable no-unused-vars */
 /* global signOut, AuthenticationError, Task, getDateInLocalTimeZone,
  encodeListForUrl */
-// TODO: Refactor so populate functions are done in parallel (Issue #26)
-
-// Stores the last retrieved copy of the user's taskLists and tasks
-// (mapped by taskListId)
-let taskLists = [];
-let tasks = {};
-
-/**
- * Populate Gmail container with user information
- */
-function populateGmail() {
-  // Get containers for all gmail fields
-  const nDaysContainer = document.querySelector('#gmailNDays');
-  const mHoursContainer = document.querySelector('#gmailMHours');
-  const unreadEmailsContainer =
-      document.querySelector('#gmailUnreadEmailsDays');
-  const unreadEmailsThreeHrsContainer =
-      document.querySelector('#gmailUnreadEmailsHours');
-  const importantEmailsContainer =
-      document.querySelector('#gmailUnreadImportantEmails');
-  const senderInitialContainer =
-      document.querySelector('#gmailSenderInitial');
-  const senderContainer =
-      document.querySelector('#gmailSender');
-
-  // TODO: Allow user to select query parameters (Issue #83)
-  const nDays = 7;
-  const mHours = 3;
-
-  nDaysContainer.innerText = nDays;
-  mHoursContainer.innerText = mHours;
-
-  // Get GmailResponse object that reflects user's gmail account
-  // Should contain a field for each datapoint in the Gmail panel
-  fetch(`/gmail?nDays=${nDays}&mHours=${mHours}`)
-      .then((response) => {
-        switch (response.status) {
-          case 200:
-            return response.json();
-          case 403:
-            throw new AuthenticationError();
-          default:
-            throw new Error(response.status + ' ' + response.statusText);
-        }
-      })
-      .then((gmailResponse) => {
-        unreadEmailsContainer.innerText =
-            gmailResponse['unreadEmailsDays'];
-        unreadEmailsThreeHrsContainer.innerText =
-            gmailResponse['unreadEmailsHours'];
-        importantEmailsContainer.innerText =
-            gmailResponse['unreadImportantEmails'];
-        if (parseInt(gmailResponse['unreadEmailsDays']) !== 0) {
-          senderContainer.innerText =
-              gmailResponse['sender'];
-          senderInitialContainer.innerText =
-              gmailResponse['sender'][0].toUpperCase();
-        } else {
-          senderContainer.innerText = 'N/A';
-          senderInitialContainer.innerText = '-';
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        if (e instanceof AuthenticationError) {
-          signOut();
-        }
-      });
-}
 
 /**
  * Populate Tasks container with user information
@@ -108,6 +39,17 @@ function populateTasks() {
     });
     fetchFrom = '/tasks?taskLists=' + selectedOptions.join();
   }
+
+  // Set default values while loading
+  const tasksToCompleteElement = document.getElementById('tasks-to-complete');
+  const tasksDueTodayElement = document.getElementById('tasks-due-today');
+  const tasksCompletedTodayElement =
+      document.getElementById('tasks-completed-today');
+  const tasksOverdueElement = document.getElementById('tasks-overdue');
+  tasksToCompleteElement.innerText = '...';
+  tasksDueTodayElement.innerText = '...';
+  tasksCompletedTodayElement.innerText = '...';
+  tasksOverdueElement.innerText = '...';
 
   fetch(fetchFrom)
       .then((response) => {
@@ -137,21 +79,14 @@ function populateTasks() {
             }
           }
         }
-        document
-            .querySelector('#tasks-to-complete')
+        tasksToCompleteElement
             .innerText = tasksResponse['tasksToCompleteCount'];
-        document
-            .querySelector('#tasks-due-today')
-            .innerText = tasksResponse['tasksDueTodayCount'] +
-                            ' due today';
-        document
-            .querySelector('#tasks-completed-today')
-            .innerText = tasksResponse['tasksCompletedTodayCount'] +
-                            ' completed today';
-        document
-            .querySelector('#tasks-overdue')
-            .innerText = tasksResponse['tasksOverdueCount'] +
-                            ' overdue';
+        tasksDueTodayElement
+            .innerText = tasksResponse['tasksDueTodayCount'];
+        tasksCompletedTodayElement
+            .innerText = tasksResponse['tasksCompletedTodayCount'];
+        tasksOverdueElement
+            .innerText = tasksResponse['tasksOverdueCount'];
       })
       .catch((e) => {
         console.log(e);
@@ -159,6 +94,15 @@ function populateTasks() {
           signOut();
         }
       });
+}
+
+/**
+ * Will reset the tasklists selector and populate the panel again,
+ * giving the system the chance to add new tasklists to the tasklists options.
+ */
+function resetTasks() {
+  document.querySelector('#tasks-select').options.length = 0;
+  populateTasks();
 }
 
 /**
@@ -174,16 +118,38 @@ function populateCalendar() {
         }
         return response.json();
       })
-      .then((eventList) => {
-        // Convert JSON to string containing all event summaries
-        // and display it on client
-        // Handle case where user has no events to avoid unwanted behaviour
-        if (eventList.length !== 0) {
-          const events =
-              eventList.map((a) => a.summary).reduce((a, b) => a + '\n' + b);
-          calendarContainer.innerText = events;
-        } else {
-          calendarContainer.innerText = 'No events in the calendar';
+      .then((hoursJson) => {
+        // Display the days and the free hours for each one of them
+        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        const panelContent = document.querySelector('#panel-content');
+        panelContent.innerHTML = '';
+        for (const day in hoursJson.workTimeFree) {
+          if (typeof day == 'string') {
+            const panelContentEntry = document.createElement('div');
+            panelContentEntry.className = 'panel__content-entry';
+            const dayContainer = document.createElement('p');
+            dayContainer.className = 'panel__text-icon u-text-calendar';
+            dayContainer.innerText =
+                days[(hoursJson.startDay + parseInt(day)) % 7];
+            const timeContainer = document.createElement('div');
+            const workContainer = document.createElement('p');
+            workContainer.className = 'u-block';
+            workContainer.innerText =
+                hoursJson.workTimeFree[day].hours +
+                'h ' + hoursJson.workTimeFree[day].minutes +
+                'm free (working)';
+            const personalContainer = document.createElement('p');
+            personalContainer.className = 'u-block';
+            personalContainer.innerText =
+                hoursJson.personalTimeFree[day].hours +
+                'h ' + hoursJson.personalTimeFree[day].minutes +
+                'm free (personal)';
+            timeContainer.appendChild(workContainer);
+            timeContainer.appendChild(personalContainer);
+            panelContentEntry.appendChild(dayContainer);
+            panelContentEntry.appendChild(timeContainer);
+            panelContent.appendChild(panelContentEntry);
+          }
         }
       })
       .catch((e) => {
@@ -191,39 +157,6 @@ function populateCalendar() {
         if (e instanceof AuthenticationError) {
           signOut();
         }
-      });
-}
-
-/**
- * Function to test getting taskLists, adding a new taskList, and then getting
- * a new task.
- *
- * Will 1) request a new taskList be made with a default name (current time)
- * then, 2) add a task to the new taskList and
- * 3) get the new list of taskLists and log them in the console.
- */
-function postAndGetTaskList() {
-  const sampleTitle =
-      getDateInLocalTimeZone().getTime().toString();
-
-  postNewTaskList(sampleTitle)
-      .then((taskList) => {
-        const sampleTask =
-                  new Task(
-                      'test',
-                      'This is a test',
-                      getDateInLocalTimeZone()
-                  );
-        const taskListId = taskList.id;
-
-        postNewTask(taskListId, sampleTask)
-            .then(() => {
-              getTaskListsAndTasks()
-                  .then(() => {
-                    console.log(tasks);
-                    console.log(taskLists);
-                  });
-            });
       });
 }
 
@@ -249,6 +182,7 @@ function postNewTask(taskListId, taskObject) {
       .then((response) => {
         switch (response.status) {
           case 200:
+            resetTasks();
             return response.json();
           case 403:
             throw new AuthenticationError();
@@ -277,8 +211,7 @@ function getTaskListsAndTasks() {
         }
       })
       .then((response) => {
-        tasks = response.tasks;
-        taskLists = response.taskLists;
+        return response;
       });
 }
 
@@ -300,6 +233,7 @@ function postNewTaskList(title) {
       .then((response) => {
         switch (response.status) {
           case 200:
+            resetTasks();
             return response.json();
           case 403:
             throw new AuthenticationError();
@@ -356,66 +290,6 @@ function populateGo() {
         console.log(e);
         if (e instanceof AuthenticationError) {
           signOut();
-        }
-      });
-}
-
-/**
- * Set up the assign panel. For now, this just prints the response
- * from the server for /gmail-actionable-emails
- */
-function setUpAssign() {
-  const assignContent = document.querySelector('#assign');
-
-  const subjectLinePhrases = ['Action Required', 'Action Requested'];
-  const unreadOnly = true;
-  const nDays = 7;
-  fetchActionableEmails(subjectLinePhrases, unreadOnly, nDays)
-      .then((response) => {
-        assignContent.innerText = response
-            .map((obj) => obj.subject)
-            .join('\n');
-      })
-      .catch((e) => {
-        console.log(e);
-        if (e instanceof AuthenticationError) {
-          signOut();
-        }
-      });
-}
-
-/**
- * Get actionable emails from server. Used for assign panel
- *
- * @param {string[]} listOfPhrases list of words/phrases that the subject line
- *     of user's emails should be queried for
- * @param {boolean} unreadOnly true if only unread emails should be returned,
- *     false otherwise
- * @param {number} nDays number of days to check unread emails for.
- *     Should be an integer > 0
- * @return {Promise<Object>} returns promise that returns the JSON response
- *     from client. Should be list of Gmail Message Objects. Will throw
- *     AuthenticationError in the case of a 403, or generic Error in
- *     case of other error code
- */
-function fetchActionableEmails(listOfPhrases, unreadOnly, nDays) {
-  const listOfPhrasesString = encodeListForUrl(listOfPhrases);
-  const unreadOnlyString = unreadOnly.toString();
-  const nDaysString = nDays.toString();
-
-  const queryString =
-      `/gmail-actionable-emails?subjectLinePhrases=${listOfPhrasesString}` +
-      `&unreadOnly=${unreadOnlyString}&nDays=${nDaysString}`;
-
-  return fetch(queryString)
-      .then((response) => {
-        switch (response.status) {
-          case 200:
-            return response.json();
-          case 403:
-            throw new AuthenticationError();
-          default:
-            throw new Error(response.status + ' ' + response.statusText);
         }
       });
 }

@@ -46,7 +46,7 @@ public class GeocodingResultUtilityTest {
   }
 
   @Test
-  public void getPlaceType() {
+  public void getPlaceType() throws Exception {
     GeocodingResult result = new GeocodingResult();
     result.types = new AddressType[] {AddressType.ACCOUNTING};
     Optional<PlaceType> actualPlaceType = GeocodingResultUtility.getPlaceType(result);
