@@ -52,7 +52,7 @@ import javax.servlet.http.HttpServletResponse;
 public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
-  private final int averageReadingSpeed = 50;
+  private static final int averageReadingSpeed = 50;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
   public PlanMailServlet() {
