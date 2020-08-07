@@ -21,6 +21,7 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
+import com.google.common.base.Throwables;
 import com.google.common.io.BaseEncoding;
 import com.google.sps.data.PlanMailResponse;
 import com.google.sps.model.AuthenticatedHttpServlet;
@@ -46,12 +47,11 @@ import javax.mail.MessagingException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.common.base.Throwables;
 
 /**
- * GET function responds JSON string containing potential events to read mail.
- * The servlet proposes all possible event times until it is not possible.
- * For now, the user does not get an indication if the events proposed are sufficient to go through the emails.
+ * GET function responds JSON string containing potential events to read mail. The servlet proposes
+ * all possible event times until it is not possible. For now, the user does not get an indication
+ * if the events proposed are sufficient to go through the emails.
  */
 @WebServlet("/plan-mail")
 public class PlanMailServlet extends AuthenticatedHttpServlet {
@@ -139,8 +139,8 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
   }
 
   /**
-   * Get the list of date intervals necessary for the time needed
-   * If there is not enough time, return the maximum possible date intervals
+   * Get the list of date intervals necessary for the time needed If there is not enough time,
+   * return the maximum possible date intervals
    *
    * @param freeTimeUtility the utility to get all free date intervals
    * @param timeNeeded the unix time of the time length needed
