@@ -287,23 +287,23 @@ function populatePlanMail() {
       })
       .then((planMailResponse) => {
         // Display the potential times to create events
-        const numWordsContainer = document.querySelector('#word-count');
-        numWordsContainer.innerText = planMailResponse.wordCount;
-        const averageReplyContainer = document.querySelector('#average-reply');
-        averageReplyContainer.innerText = planMailResponse.averageReadingSpeed;
-        const timeNeededContainer = document.querySelector('#time-needed');
-        timeNeededContainer.innerText = planMailResponse.minutesToRead;
+        document.querySelector('#word-count').innerText =
+            planMailResponse.wordCount;
+        document.querySelector('#average-reply').innerText =
+            planMailResponse.averageReadingSpeed;
+        document.querySelector('#time-needed').innerText =
+            planMailResponse.minutesToRead;
         const intervalContainer = document.querySelector('#free-interval');
         intervalContainer.innerHTML = '';
         for (const index in planMailResponse.potentialMeetingTimes) {
-          if (typeof index == 'string') {
+          //if (typeof index == 'string') {
             const liElement = document.createElement('li');
             liElement.innerText =
               planMailResponse.potentialMeetingTimes[index].start +
               ' ' +
               planMailResponse.potentialMeetingTimes[index].end;
             intervalContainer.appendChild(liElement);
-          }
+          //}
         }
       })
       .catch((e) => {
