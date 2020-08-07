@@ -42,9 +42,6 @@ import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.KeyProvider;
 import com.google.sps.utility.LocationsUtility;
 import com.google.sps.utility.TasksUtility;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +57,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 
 /** Serves key information from optimizing between addresses. */
 @WebServlet("/go")
