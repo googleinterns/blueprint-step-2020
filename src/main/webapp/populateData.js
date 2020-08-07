@@ -365,7 +365,7 @@ function createEvent(eventStart, eventEnd) {
   params.append('start', eventStart);
   params.append('end', eventEnd);
   params.append('summary', 'Read emails');
-  params.append('id','primary');
+  params.append('id', 'primary');
   fetch('/calendar', {method: 'POST', body: params})
       .then((response) => {
         populateCalendar();
