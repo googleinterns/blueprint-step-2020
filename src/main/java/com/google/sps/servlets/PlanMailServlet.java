@@ -49,6 +49,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
   private final PlanMailResponseHelper planMailResponseHelper;
+  private static final int averageReadingSpeed = 50;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
   public PlanMailServlet() {
@@ -97,7 +98,9 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     Date timeMin = calendarClient.getCurrentTime();
     Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
-
+    // Initialize the freeTime utility. Keep track of the free time in the next 5 days, with
+    // work hours as defined between 10am and 6 pm. The rest of the time between 7 am and 11 pm
+    // should be considered personal time.
     int personalBeginHour = 7;
     int workBeginHour = 10;
     int workEndHour = 18;
@@ -129,7 +132,6 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     }
 
     int wordCount = getWordCount(googleCredential);
-    int averageReadingSpeed = 50;
     int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
     timeNeeded = Math.max(0, timeNeeded - preAssignedTime);

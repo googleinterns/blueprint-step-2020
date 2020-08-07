@@ -15,7 +15,7 @@
 package com.google.sps.data;
 
 import com.google.sps.utility.DateInterval;
-import java.util.*;
+import java.util.List;
 
 /** Class containing the response to be converted to Json. */
 public final class PlanMailResponse {
