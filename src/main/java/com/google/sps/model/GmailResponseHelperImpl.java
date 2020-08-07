@@ -71,29 +71,12 @@ public final class GmailResponseHelperImpl implements GmailResponseHelper {
             .map(Map.Entry::getKey)
             .get();
 
-    return Optional.of(parseNameInFromHeader(mostFrequentSender));
+    return Optional.of(GmailUtility.parseNameInFromHeader(mostFrequentSender));
   }
 
   @Override
   public int countEmailsFromNDays(List<Message> unreadEmailsFromLastNDays) {
     return unreadEmailsFromLastNDays.size();
-  }
-
-  /**
-   * Gets a sender's contact name or email address.
-   *
-   * <p>"From" header values have two possible formats: "<sampleemail@sample.com>" (if name is not
-   * available) OR "Sample Name <sampleemail@sample.com>" If a name is available, this is extracted.
-   * Otherwise, the email is extracted
-   *
-   * @param fromHeaderValue the value of a "From" header from which a contact name / email should be
-   *     extracted
-   * @return A contact name if available, or an email if it is not
-   */
-  private String parseNameInFromHeader(String fromHeaderValue) {
-    return fromHeaderValue.charAt(0) == '<'
-        ? fromHeaderValue.substring(1, fromHeaderValue.length() - 1)
-        : fromHeaderValue.split("<")[0].trim();
   }
 
   /**

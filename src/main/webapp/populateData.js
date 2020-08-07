@@ -17,75 +17,6 @@
 /* eslint-disable no-unused-vars */
 /* global signOut, AuthenticationError, Task, getDateInLocalTimeZone,
  encodeListForUrl */
-// TODO: Refactor so populate functions are done in parallel (Issue #26)
-
-// Stores the last retrieved copy of the user's taskLists and tasks
-// (mapped by taskListId)
-let taskLists = [];
-let tasks = {};
-
-/**
- * Populate Gmail container with user information
- */
-function populateGmail() {
-  // Get containers for all gmail fields
-  const nDaysContainer = document.querySelector('#gmailNDays');
-  const mHoursContainer = document.querySelector('#gmailMHours');
-  const unreadEmailsContainer =
-      document.querySelector('#gmailUnreadEmailsDays');
-  const unreadEmailsThreeHrsContainer =
-      document.querySelector('#gmailUnreadEmailsHours');
-  const importantEmailsContainer =
-      document.querySelector('#gmailUnreadImportantEmails');
-  const senderInitialContainer =
-      document.querySelector('#gmailSenderInitial');
-  const senderContainer =
-      document.querySelector('#gmailSender');
-
-  // TODO: Allow user to select query parameters (Issue #83)
-  const nDays = 7;
-  const mHours = 3;
-
-  nDaysContainer.innerText = nDays;
-  mHoursContainer.innerText = mHours;
-
-  // Get GmailResponse object that reflects user's gmail account
-  // Should contain a field for each datapoint in the Gmail panel
-  fetch(`/gmail?nDays=${nDays}&mHours=${mHours}`)
-      .then((response) => {
-        switch (response.status) {
-          case 200:
-            return response.json();
-          case 403:
-            throw new AuthenticationError();
-          default:
-            throw new Error(response.status + ' ' + response.statusText);
-        }
-      })
-      .then((gmailResponse) => {
-        unreadEmailsContainer.innerText =
-            gmailResponse['unreadEmailsDays'];
-        unreadEmailsThreeHrsContainer.innerText =
-            gmailResponse['unreadEmailsHours'];
-        importantEmailsContainer.innerText =
-            gmailResponse['unreadImportantEmails'];
-        if (parseInt(gmailResponse['unreadEmailsDays']) !== 0) {
-          senderContainer.innerText =
-              gmailResponse['sender'];
-          senderInitialContainer.innerText =
-              gmailResponse['sender'][0].toUpperCase();
-        } else {
-          senderContainer.innerText = 'N/A';
-          senderInitialContainer.innerText = '-';
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        if (e instanceof AuthenticationError) {
-          signOut();
-        }
-      });
-}
 
 /**
  * Populate Tasks container with user information
@@ -107,6 +38,17 @@ function populateTasks() {
     });
     fetchFrom = '/tasks?taskLists=' + selectedOptions.join();
   }
+
+  // Set default values while loading
+  const tasksToCompleteElement = document.getElementById('tasks-to-complete');
+  const tasksDueTodayElement = document.getElementById('tasks-due-today');
+  const tasksCompletedTodayElement =
+      document.getElementById('tasks-completed-today');
+  const tasksOverdueElement = document.getElementById('tasks-overdue');
+  tasksToCompleteElement.innerText = '...';
+  tasksDueTodayElement.innerText = '...';
+  tasksCompletedTodayElement.innerText = '...';
+  tasksOverdueElement.innerText = '...';
 
   fetch(fetchFrom)
       .then((response) => {
@@ -131,21 +73,14 @@ function populateTasks() {
             }
           }
         }
-        document
-            .querySelector('#tasks-to-complete')
+        tasksToCompleteElement
             .innerText = tasksResponse['tasksToCompleteCount'];
-        document
-            .querySelector('#tasks-due-today')
-            .innerText = tasksResponse['tasksDueTodayCount'] +
-                            ' due today';
-        document
-            .querySelector('#tasks-completed-today')
-            .innerText = tasksResponse['tasksCompletedTodayCount'] +
-                            ' completed today';
-        document
-            .querySelector('#tasks-overdue')
-            .innerText = tasksResponse['tasksOverdueCount'] +
-                            ' overdue';
+        tasksDueTodayElement
+            .innerText = tasksResponse['tasksDueTodayCount'];
+        tasksCompletedTodayElement
+            .innerText = tasksResponse['tasksCompletedTodayCount'];
+        tasksOverdueElement
+            .innerText = tasksResponse['tasksOverdueCount'];
       })
       .catch((e) => {
         console.log(e);
@@ -153,6 +88,15 @@ function populateTasks() {
           signOut();
         }
       });
+}
+
+/**
+ * Will reset the tasklists selector and populate the panel again,
+ * giving the system the chance to add new tasklists to the tasklists options.
+ */
+function resetTasks() {
+  document.querySelector('#tasks-select').options.length = 0;
+  populateTasks();
 }
 
 /**
@@ -211,43 +155,6 @@ function populateCalendar() {
 }
 
 /**
- * Function to test getting taskLists and adding a new taskList.
- * Will 1) request a new taskList be made with a default name (the current time)
- * and 2) get the new list of taskLists and log them in the console.
-
- * Function to test getting taskLists, adding a new taskList, and then getting
- * a new task.
- *
- * Will 1) request a new taskList be made with a default name (current time)
- * then, 2) add a task to the new taskList and
- * 3) get the new list of taskLists and log them in the console.
- */
-function postAndGetTaskList() {
-  const sampleTitle =
-      getDateInLocalTimeZone().getTime().toString();
-
-  postNewTaskList(sampleTitle)
-      .then((taskList) => {
-        const sampleTask =
-                  new Task(
-                      'test',
-                      'This is a test',
-                      getDateInLocalTimeZone()
-                  );
-        const taskListId = taskList.id;
-
-        postNewTask(taskListId, sampleTask)
-            .then(() => {
-              getTaskListsAndTasks()
-                  .then(() => {
-                    console.log(tasks);
-                    console.log(taskLists);
-                  });
-            });
-      });
-}
-
-/**
  * Post a new task to a given taskList
  *
  * @param {string} taskListId the id of the taskList that the new task should
@@ -269,6 +176,7 @@ function postNewTask(taskListId, taskObject) {
       .then((response) => {
         switch (response.status) {
           case 200:
+            resetTasks();
             return response.json();
           case 403:
             throw new AuthenticationError();
@@ -297,8 +205,7 @@ function getTaskListsAndTasks() {
         }
       })
       .then((response) => {
-        tasks = response.tasks;
-        taskLists = response.taskLists;
+        return response;
       });
 }
 
@@ -320,6 +227,7 @@ function postNewTaskList(title) {
       .then((response) => {
         switch (response.status) {
           case 200:
+            resetTasks();
             return response.json();
           case 403:
             throw new AuthenticationError();
