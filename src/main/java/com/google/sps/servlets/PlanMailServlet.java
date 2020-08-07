@@ -57,12 +57,12 @@ import javax.servlet.http.HttpServletResponse;
 public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
-  private static final int averageReadingSpeed = 50;
-  private static final int personalBeginHour = 7;
-  private static final int workBeginHour = 10;
-  private static final int workEndHour = 18;
-  private static final int personalEndHour = 23;
-  private static final int numDays = 5;
+  private static final int AVERAGE_READING_SPEED = 50;
+  private static final int PERSONAL_BEGIN_HOUR = 7;
+  private static final int WORK_BEGIN_HOUR = 10;
+  private static final int WORK_END_HOUR = 18;
+  private static final int PERSONAL_END_HOUR = 23;
+  private static final int NUM_DAYS = 5;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
   public PlanMailServlet() {
@@ -103,21 +103,36 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
-    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(numDays)));
+    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(NUM_DAYS)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
     // Initialize the freeTime utility. Keep track of the free time in the next 5 days, with
     // work hours as defined between 10am and 6 pm. The rest of the time between 7 am and 11 pm
     // should be considered personal time.
+
     FreeTimeUtility freeTimeUtility =
         new FreeTimeUtility(
-            timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
+            timeMin,
+            PERSONAL_BEGIN_HOUR,
+            WORK_BEGIN_HOUR,
+            WORK_END_HOUR,
+            PERSONAL_END_HOUR,
+            NUM_DAYS);
+    long preAssignedTime = 0;
+    // The summary for the events we are creating is the same as the defined eventSummary
+    // For now this is the check we are using. We assume that the user will not create
+    // events with the same summary if they are not related to reading emails.
+    String eventSummary = request.getParameter("summary");
     for (Event event : calendarEvents) {
       DateTime start = event.getStart().getDateTime();
       start = start == null ? event.getStart().getDate() : start;
       DateTime end = event.getEnd().getDateTime();
       end = end == null ? event.getEnd().getDate() : end;
+      if (event.getSummary().equals(eventSummary)) {
+        preAssignedTime += end.getValue() - start.getValue();
+      }
       Date eventStart = new Date(start.getValue());
       Date eventEnd = new Date(end.getValue());
+
       if (eventStart.before(timeMin)) {
         eventStart = timeMin;
       }
@@ -128,12 +143,18 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     }
 
     int wordCount = getWordCount(googleCredential);
-    int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
+    int minutesToRead = (int) Math.ceil((double) wordCount / AVERAGE_READING_SPEED);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
-    List<DateInterval> potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
+    timeNeeded = Math.max(0, timeNeeded - preAssignedTime);
+    List<DateInterval> potentialTimes;
+    if (timeNeeded > 0) {
+      potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
+    } else {
+      potentialTimes = new ArrayList<>();
+    }
 
     PlanMailResponse planMailResponse =
-        new PlanMailResponse(wordCount, averageReadingSpeed, minutesToRead, potentialTimes);
+        new PlanMailResponse(wordCount, AVERAGE_READING_SPEED, minutesToRead, potentialTimes);
     // Convert event list to JSON and print to response
     JsonUtility.sendJson(response, planMailResponse);
   }
