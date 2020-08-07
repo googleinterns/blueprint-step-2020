@@ -25,15 +25,15 @@ We are NOT aiming to store any user information that might be displayed on our d
 we are simply extracting useful details from the information to digest and display back to the user.
 However, this could turn out to be a stretch goal if we wish to cache information to handle large amounts of data.
 
-# Get Started
+## Get Started
 This project is configured to deploy on Google App Engine.
 
-## Prerequisites
+### Prerequisites
 You must have Java 8 or above, Apache Maven, and the Google Cloud SDK installed and configured on your local machine.
 Here's how to install [Maven](https://maven.apache.org/install.html), [Java](https://java.com/en/download/help/download_options.xml)
 and [The Google Cloud SDK](https://cloud.google.com/sdk/install).
 
-## Google Cloud Platform
+### Google Cloud Platform
 1) To get started, begin by proceeding to [Google Cloud Console](https://console.cloud.google.com) and creating an account.
 
 2) Proceed to "Create an Empty Project". You can give the project any name you'd like.
@@ -76,7 +76,7 @@ Replace the `artifactId` with your project ID.
    `mvn package appengine:deploy -Dapp.deploy.version=<VERSION> -Dapp.deploy..projectId=<PROJECT_ID>`
    This would remove the need for the above configuration.
 
-## Enable APIs
+### Enable APIs
 To enable an API, navigate to "APIs & Services" -> "Library" -> "<The API>" and press "Enable".
 Complete these steps for the following APIs:
 
@@ -88,7 +88,7 @@ Complete these steps for the following APIs:
 6) Directions API
 7) Secret Manager API
 
-## API Key Generation
+### API Key Generation
 1) In the `src/main/resources` directory, create a new file called `KEYS.json`. It should have the following format:
     ```$xslt
     {
@@ -113,14 +113,14 @@ project), YOUR_PROJECT_ID.appspot.com (the appengine domain), etc.)
 
 8) Copy the API Key into the pom.xml file.
 
-## Set up the GCloud SDK (if you're new to using the GCloud SDK)
+### Set up the GCloud SDK (if you're new to using the GCloud SDK)
 1) Run `gcloud init` and configure GCloud on your computer. When prompted, please enter the numeric choice that
 corresponds to the project ID you just created.
 
 2) Run `gcloud app create` to create an appengine project. Select any region you'd like, though it is suggested to
 select a region close to you. For more information, check this [link](https://cloud.google.com/appengine/docs/locations).
 
-## Running Application
+### Running Application
 1) Run `mvn clean install` in the project root directory
 
 2) Run `mvn package appengine:deploy` to deploy the website
@@ -128,11 +128,11 @@ select a region close to you. For more information, check this [link](https://cl
 3) Navigate to "YOUR_PROJECT_ID.appspot.com". You should see a deployed version of Blueprint!
 Note that the following format "YOUR_PROJECT_ID.REGION_ID.r.appspot.com" will also work.
 
-# Contributors
+## Contributors
 A special thanks to the original creators of Blueprint, @austinteshuba, @tttzach, @AymarMuhikira, @antmar,
 and @gbuenoandrade.
 
-# Licence
+## Licence
 This project is released under the conditions of [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 **This is not an officially supported Google product.**
