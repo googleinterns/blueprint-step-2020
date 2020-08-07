@@ -101,7 +101,6 @@ public final class TasksUtilityTest {
     List<Task> actual =
         TasksUtility.getAllTasksFromSpecificTaskLists(
             tasksClient, ImmutableSet.of(TASK_LIST_ID_ONE));
-    Assert.assertEquals(SOME_TASKS, actual);
     Assert.assertTrue(SOME_TASKS.containsAll(actual));
     Assert.assertTrue(actual.containsAll(SOME_TASKS));
   }
