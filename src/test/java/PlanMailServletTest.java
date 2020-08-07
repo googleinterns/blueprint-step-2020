@@ -40,6 +40,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
+import com.google.sps.utility.DateInterval;
 
 /** Test Calendar Servlet responds to client with correctly parsed Events. */
 @RunWith(JUnit4.class)
@@ -135,10 +136,8 @@ public final class PlanMailServletTest extends AuthenticatedServletTestBase {
         .thenReturn(MESSAGES);
     Mockito.when(planMailResponseHelper.getWordCount(Mockito.any())).thenReturn(0);
     PlanMailResponse actual = getServletResponse();
-    Assert.assertEquals(0, actual.getWordCount());
-    Assert.assertEquals(50, actual.getAverageReadingSpeed());
-    Assert.assertEquals(0, actual.getMinutesToRead());
-    Assert.assertTrue(actual.getPotentialEventTimes().isEmpty());
+    PlanMailResponse expected = new PlanMailResponse(0, 50, 0, new ArrayList<>());
+    Assert.assertEquals(expected, actual);
   }
 
   @Test
@@ -155,16 +154,12 @@ public final class PlanMailServletTest extends AuthenticatedServletTestBase {
     PlanMailResponse actual = getServletResponse();
     List<Date> startHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 0));
     List<Date> endHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 10));
-    Assert.assertEquals(500, actual.getWordCount());
-    Assert.assertEquals(50, actual.getAverageReadingSpeed());
-    Assert.assertEquals(10, actual.getMinutesToRead());
-    Assert.assertEquals(startHour.size(), actual.getPotentialEventTimes().size());
+    List<DateInterval> meetingTimes = new ArrayList<>();
     for (int index = 0; index < startHour.size(); index++) {
-      Assert.assertTrue(
-          startHour.get(index).equals(actual.getPotentialEventTimes().get(index).getStart()));
-      Assert.assertTrue(
-          endHour.get(index).equals(actual.getPotentialEventTimes().get(index).getEnd()));
+        meetingTimes.add(new DateInterval(startHour.get(index), endHour.get(index)));
     }
+    PlanMailResponse expected = new PlanMailResponse(500, 50, 10, meetingTimes);
+    Assert.assertEquals(expected, actual);
   }
 
   @Test
@@ -182,10 +177,8 @@ public final class PlanMailServletTest extends AuthenticatedServletTestBase {
         .thenReturn(MESSAGES);
     Mockito.when(planMailResponseHelper.getWordCount(Mockito.any())).thenReturn(TEST_WORD_COUNT);
     PlanMailResponse actual = getServletResponse();
-    Assert.assertEquals(500, actual.getWordCount());
-    Assert.assertEquals(50, actual.getAverageReadingSpeed());
-    Assert.assertEquals(10, actual.getMinutesToRead());
-    Assert.assertTrue(actual.getPotentialEventTimes().isEmpty());
+    PlanMailResponse expected = new PlanMailResponse(500, 50, 10, new ArrayList<>());
+    Assert.assertEquals(expected, actual);
   }
 
   @Test
@@ -210,15 +203,12 @@ public final class PlanMailServletTest extends AuthenticatedServletTestBase {
             new Date(2020 - OFFSET_YEAR, 4, 19, 10, 5),
             new Date(2020 - OFFSET_YEAR, 4, 19, 10, 35));
     Assert.assertEquals(500, actual.getWordCount());
-    Assert.assertEquals(50, actual.getAverageReadingSpeed());
-    Assert.assertEquals(10, actual.getMinutesToRead());
-    Assert.assertEquals(startHour.size(), actual.getPotentialEventTimes().size());
+    List<DateInterval> meetingTimes = new ArrayList<>();
     for (int index = 0; index < startHour.size(); index++) {
-      Assert.assertTrue(
-          startHour.get(index).equals(actual.getPotentialEventTimes().get(index).getStart()));
-      Assert.assertTrue(
-          endHour.get(index).equals(actual.getPotentialEventTimes().get(index).getEnd()));
+        meetingTimes.add(new DateInterval(startHour.get(index), endHour.get(index)));
     }
+    PlanMailResponse expected = new PlanMailResponse(500, 50, 10, meetingTimes);
+    Assert.assertEquals(expected, actual);
   }
 
   private PlanMailResponse getServletResponse() throws IOException, ServletException {
