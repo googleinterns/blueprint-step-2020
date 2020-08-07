@@ -79,7 +79,7 @@ function handleAuthenticationState() {
     // Populate information panels at top of dashboard
     populateGmail();
     populateTasks();
-    // populateCalendar();
+    populateCalendar();
     // TEMPORARY: Commenting this out since it adds tasks to user's
     // Tasks account on every run.
     // postAndGetTaskList();
