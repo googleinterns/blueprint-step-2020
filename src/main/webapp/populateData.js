@@ -293,6 +293,8 @@ function populatePlanMail() {
             planMailResponse.averageReadingSpeed;
         document.querySelector('#time-needed').innerText =
             planMailResponse.minutesToRead;
+        const messageEventContainer = document.querySelector('#message-event');
+        messageEventContainer.innerHTML = '';
         const intervalContainer = document.querySelector('#free-interval');
         intervalContainer.innerHTML = '';
         if (planMailResponse.potentialEventTimes.length === 0) {
@@ -300,7 +302,8 @@ function populatePlanMail() {
         } else {
           messageEventContainer.innerText = 'Click to schedule';
           for (const index in planMailResponse.potentialEventTimes) {
-            if (typeof index === 'string') {
+            if (Object.prototype.hasOwnProperty
+              .call(planMailResponse.potentialEventTimes, index)) {
               const buttonElement = document.createElement('button');
               buttonElement.className = 'button plan__button';
               buttonElement.innerText =
