@@ -58,6 +58,11 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
   private static final int averageReadingSpeed = 50;
+  private static final int personalBeginHour = 7;
+  private static final int workBeginHour = 10;
+  private static final int workEndHour = 18;
+  private static final int personalEndHour = 23;
+  private static final int numDays = 5;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
   public PlanMailServlet() {
@@ -98,16 +103,11 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
-    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
+    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(numDays)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
     // Initialize the freeTime utility. Keep track of the free time in the next 5 days, with
     // work hours as defined between 10am and 6 pm. The rest of the time between 7 am and 11 pm
     // should be considered personal time.
-    int personalBeginHour = 7;
-    int workBeginHour = 10;
-    int workEndHour = 18;
-    int personalEndHour = 23;
-    int numDays = 5;
     FreeTimeUtility freeTimeUtility =
         new FreeTimeUtility(
             timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);

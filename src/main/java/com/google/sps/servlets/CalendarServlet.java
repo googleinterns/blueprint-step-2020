@@ -39,6 +39,11 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/calendar")
 public class CalendarServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
+  private static final int personalBeginHour = 7;
+  private static final int workBeginHour = 10;
+  private static final int workEndHour = 18;
+  private static final int personalEndHour = 23;
+  private static final int numDays = 5;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
   public CalendarServlet() {
@@ -74,14 +79,9 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
-    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
+    Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(numDays)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
 
-    int personalBeginHour = 7;
-    int workBeginHour = 10;
-    int workEndHour = 18;
-    int personalEndHour = 23;
-    int numDays = 5;
     FreeTimeUtility freeTimeUtility =
         new FreeTimeUtility(
             timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
