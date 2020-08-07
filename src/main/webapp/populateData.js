@@ -124,7 +124,8 @@ function populateCalendar() {
         const panelContent = document.querySelector('#panel-content');
         panelContent.innerHTML = '';
         for (const day in hoursJson.workTimeFree) {
-          if (typeof day === 'string') {
+          if (Object.prototype.hasOwnProperty
+              .call(hoursJson.workTimeFree, day)) {
             const panelContentEntry = document.createElement('div');
             panelContentEntry.className = 'panel__content-entry';
             const dayContainer = document.createElement('p');
@@ -299,7 +300,7 @@ function populateGo() {
  */
 function populatePlanMail() {
   const planContainer = document.querySelector('#plan');
-  fetch('/plan-mail')
+  fetch('/plan-mail?summary=Read emails')
       .then((response) => {
         // If response is a 403, user is not authenticated
         if (response.status === 403) {
@@ -315,17 +316,32 @@ function populatePlanMail() {
             planMailResponse.averageReadingSpeed;
         document.querySelector('#time-needed').innerText =
             planMailResponse.minutesToRead;
+        const messageEventContainer = document.querySelector('#message-event');
+        messageEventContainer.innerHTML = '';
         const intervalContainer = document.querySelector('#free-interval');
         intervalContainer.innerHTML = '';
-        for (const index in planMailResponse.potentialMeetingTimes) {
-          if (Object.prototype.hasOwnProperty
-              .call(planMailResponse.potentialMeetingTimes, index)) {
-            const liElement = document.createElement('li');
-            liElement.innerText =
-              planMailResponse.potentialMeetingTimes[index].start +
-              ' ' +
-              planMailResponse.potentialMeetingTimes[index].end;
-            intervalContainer.appendChild(liElement);
+        if (planMailResponse.potentialEventTimes.length === 0) {
+          messageEventContainer.innerText = 'No new events needed';
+        } else {
+          messageEventContainer.innerText = 'Click to schedule';
+          for (const index in planMailResponse.potentialEventTimes) {
+            if (Object.prototype.hasOwnProperty
+                .call(planMailResponse.potentialEventTimes, index)) {
+              const buttonElement = document.createElement('button');
+              buttonElement.className = 'button plan__button';
+              buttonElement.innerText =
+                `${planMailResponse.potentialEventTimes[index].start} to \
+                ${planMailResponse.potentialEventTimes[index].end}`;
+              buttonElement.setAttribute('start',
+                  planMailResponse.potentialEventTimes[index].start);
+              buttonElement.setAttribute('end',
+                  planMailResponse.potentialEventTimes[index].end);
+              buttonElement.addEventListener('click', () => {
+                createEvent(buttonElement.getAttribute('start'),
+                    buttonElement.getAttribute('end'));
+              });
+              intervalContainer.appendChild(buttonElement);
+            }
           }
         }
       })
@@ -348,9 +364,15 @@ function createEvent(eventStart, eventEnd) {
   const params = new URLSearchParams();
   params.append('start', eventStart);
   params.append('end', eventEnd);
-  fetch('/calendar', {method: 'POST', body: params});
-  populateCalendar();
-  populatePlanMail();
+  fetch('/calendar', {method: 'POST', body: params})
+  .then((response) => {
+    populateCalendar();
+    populatePlanMail();
+  })
+  .catch((e) => {
+    console.log(e);
+    
+  });
 }
 
 /**
