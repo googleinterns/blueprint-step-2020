@@ -46,8 +46,13 @@ import javax.mail.MessagingException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.common.base.Throwables;
 
-/** GET function responds JSON string containing potential events to read mail. */
+/**
+ * GET function responds JSON string containing potential events to read mail.
+ * The servlet proposes all possible event times until it is not possible.
+ * For now, the user does not get an indication if the events proposed are sufficient to go through the emails.
+ */
 @WebServlet("/plan-mail")
 public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
@@ -133,6 +138,14 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     JsonUtility.sendJson(response, planMailResponse);
   }
 
+  /**
+   * Get the list of date intervals necessary for the time needed
+   * If there is not enough time, return the maximum possible date intervals
+   *
+   * @param freeTimeUtility the utility to get all free date intervals
+   * @param timeNeeded the unix time of the time length needed
+   * @return The list of date intervals necessary
+   */
   private List<DateInterval> getPotentialTimes(FreeTimeUtility freeTimeUtility, long timeNeeded) {
     List<DateInterval> workFreeInterval = freeTimeUtility.getWorkFreeInterval();
     List<DateInterval> potentialEventTimes = new ArrayList<>();
@@ -150,6 +163,14 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     return potentialEventTimes;
   }
 
+  /**
+   * Get the unread emails from the last week, and perform a word count for the body of each message
+   *
+   * @param googleCredential the credential to creare a gmailClient with
+   * @return The final word count
+   * @throws IOException if an issue occurs in the method
+   * @throws MessagingException if an issue occurs in the method
+   */
   private int getWordCount(Credential googleCredential) {
     GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
     GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
@@ -159,13 +180,13 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     try {
       unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, numberDays);
     } catch (IOException e) {
-      System.out.println(e);
+      throw Throwables.propagate(e);
     }
     for (Message message : unreadMessages) {
       try {
         wordCount += getMessageSize(message);
       } catch (MessagingException | IOException e) {
-        System.out.println(e);
+        throw Throwables.propagate(e);
       }
     }
     return wordCount;
@@ -190,6 +211,13 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     return events;
   }
 
+  /**
+   * Get the word-count in an individual message.
+   *
+   * @param message the message given for which to find a word count
+   * @throws IOException if an issue occurs in the method
+   * @throws MessagingException if an issue occurs in the method
+   */
   private int getMessageSize(Message message) throws MessagingException, IOException {
     List<MessagePart> messageParts = message.getPayload().getParts();
     List<MessagePart> messageBody =
