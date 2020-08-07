@@ -26,6 +26,7 @@ import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.PlanMailResponseHelper;
 import com.google.sps.servlets.PlanMailServlet;
+import com.google.sps.utility.DateInterval;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
@@ -40,7 +41,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
-import com.google.sps.utility.DateInterval;
 
 /** Test Calendar Servlet responds to client with correctly parsed Events. */
 @RunWith(JUnit4.class)
@@ -156,7 +156,7 @@ public final class PlanMailServletTest extends AuthenticatedServletTestBase {
     List<Date> endHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 10));
     List<DateInterval> meetingTimes = new ArrayList<>();
     for (int index = 0; index < startHour.size(); index++) {
-        meetingTimes.add(new DateInterval(startHour.get(index), endHour.get(index)));
+      meetingTimes.add(new DateInterval(startHour.get(index), endHour.get(index)));
     }
     PlanMailResponse expected = new PlanMailResponse(500, 50, 10, meetingTimes);
     Assert.assertEquals(expected, actual);
@@ -205,7 +205,7 @@ public final class PlanMailServletTest extends AuthenticatedServletTestBase {
     Assert.assertEquals(500, actual.getWordCount());
     List<DateInterval> meetingTimes = new ArrayList<>();
     for (int index = 0; index < startHour.size(); index++) {
-        meetingTimes.add(new DateInterval(startHour.get(index), endHour.get(index)));
+      meetingTimes.add(new DateInterval(startHour.get(index), endHour.get(index)));
     }
     PlanMailResponse expected = new PlanMailResponse(500, 50, 10, meetingTimes);
     Assert.assertEquals(expected, actual);
