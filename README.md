@@ -1,7 +1,5 @@
 # blueprint-step-2020
 
-**This is not an officially supported Google product.**
-
 ## Welcome to Blueprint
 Blueprint is a centralized dashboard which introduces cross-features between our favorite Google products: Gmail, Tasks,
 and Calendar. These features are designed to enhance power users’ ability to plan and work effectively.
@@ -26,7 +24,6 @@ creating our own Google Tasks, or making our own calendar.
 We are NOT aiming to store any user information that might be displayed on our dashboard -
 we are simply extracting useful details from the information to digest and display back to the user.
 However, this could turn out to be a stretch goal if we wish to cache information to handle large amounts of data.
-
 
 ## Get Started
 This project is configured to deploy on Google App Engine.
@@ -74,6 +71,10 @@ Replace the `artifactId` with your project ID.
    </plugin>
    ```
    Replace `YOUR_PROJECT_ID` with your project ID.
+   
+   It's also worth noting that setting the project ID and version during each deploy using this command also works:
+   `mvn package appengine:deploy -Dapp.deploy.version=<VERSION> -Dapp.deploy..projectId=<PROJECT_ID>`
+   This would remove the need for the above configuration.
 
 ### Enable APIs
 To enable an API, navigate to "APIs & Services" -> "Library" -> "<The API>" and press "Enable".
@@ -122,9 +123,10 @@ select a region close to you. For more information, check this [link](https://cl
 ### Running Application
 1) Run `mvn clean install` in the project root directory
 
-2) Run `appengine:deploy` to deploy the website
+2) Run `mvn package appengine:deploy` to deploy the website
 
 3) Navigate to "YOUR_PROJECT_ID.appspot.com". You should see a deployed version of Blueprint!
+Note that the following format "YOUR_PROJECT_ID.REGION_ID.r.appspot.com" will also work.
 
 ## Contributors
 A special thanks to the original creators of Blueprint, @austinteshuba, @tttzach, @AymarMuhikira, @antmar,
@@ -132,3 +134,5 @@ and @gbuenoandrade.
 
 ## Licence
 This project is released under the conditions of [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+**This is not an officially supported Google product.**
