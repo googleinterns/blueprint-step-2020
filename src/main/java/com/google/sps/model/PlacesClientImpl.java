@@ -22,6 +22,7 @@ import com.google.maps.model.PlaceType;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.RankBy;
 import com.google.sps.exceptions.PlacesException;
+import com.google.sps.utility.PlacesResultUtility;
 import java.io.IOException;
 
 /** Handles GET requests to the Google Places API */
@@ -61,7 +62,7 @@ public class PlacesClientImpl implements PlacesClient {
     try {
       PlacesSearchResponse response =
           placesService.location(location).type(placeType).rankby(rankBy).await();
-      return getPlaceId(response);
+      return PlacesResultUtility.getPlaceId(response);
     } catch (ApiException | InterruptedException | IOException e) {
       throw new PlacesException("Failed to get directions", e);
     }

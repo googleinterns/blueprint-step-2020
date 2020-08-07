@@ -19,13 +19,17 @@ import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.google.sps.exceptions.GmailMessageFormatException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Contains helper methods for Gmail Message objects */
 public final class GmailUtility {
   private GmailUtility() {}
 
+  private static final Pattern fromHeaderPattern = Pattern.compile("(.*)?<(.*)>");
+
   /**
-   * Given a list of message headers, extract a single header with the specified name
+   * Given a message object, extract a single header with the specified name
    *
    * @param message a Gmail message object. Must be METADATA or FULL format
    * @param headerName name of header that should be extracted
@@ -51,5 +55,51 @@ public final class GmailUtility {
             () ->
                 new GmailMessageFormatException(
                     String.format("%s Header not present!", headerName)));
+  }
+
+  /**
+   * Given a message object, check if a header is present
+   *
+   * @param message a Gmail message object to be checked
+   * @param headerName name of the header that should be queried
+   * @return true if present, false otherwise
+   */
+  public static boolean hasHeader(Message message, String headerName) {
+    MessagePart payload = message.getPayload();
+    if (payload == null) {
+      return false;
+    }
+    List<MessagePartHeader> headers = payload.getHeaders();
+    if (headers == null || headers.isEmpty()) {
+      return false;
+    }
+
+    return headers.stream().anyMatch((header) -> header.getName().equals(headerName));
+  }
+
+  /**
+   * Gets a sender's contact name or email address.
+   *
+   * <p>"From" header values have two possible formats: "<sampleemail@sample.com>" (if name is not
+   * available) OR "Sample Name <sampleemail@sample.com>" If a name is available, this is extracted.
+   * Otherwise, the email is extracted
+   *
+   * @param fromHeaderValue the value of a "From" header from which a contact name / email should be
+   *     extracted
+   * @return A contact name if available, or an email if it is not
+   * @throws IllegalArgumentException If value could not be parsed from header
+   */
+  public static String parseNameInFromHeader(String fromHeaderValue) {
+    Matcher fromHeaderMatcher = fromHeaderPattern.matcher(fromHeaderValue);
+    if (!fromHeaderMatcher.find()) {
+      throw new IllegalArgumentException("Value could not be parsed. Check format");
+    }
+
+    String name = fromHeaderMatcher.group(1).trim();
+    String email = fromHeaderMatcher.group(2);
+    if (name.isEmpty()) {
+      return email;
+    }
+    return name;
   }
 }

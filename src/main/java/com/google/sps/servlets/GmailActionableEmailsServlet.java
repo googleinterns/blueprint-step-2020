@@ -19,6 +19,8 @@ import com.google.api.services.gmail.model.Message;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.exceptions.GmailMessageFormatException;
 import com.google.sps.model.ActionableMessage;
+import com.google.sps.model.ActionableMessageHelper;
+import com.google.sps.model.ActionableMessageHelperImpl;
 import com.google.sps.model.AuthenticatedHttpServlet;
 import com.google.sps.model.AuthenticationVerifier;
 import com.google.sps.model.GmailClient;
@@ -28,6 +30,7 @@ import com.google.sps.utility.GmailUtility;
 import com.google.sps.utility.JsonUtility;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
@@ -40,25 +43,32 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/gmail-actionable-emails")
 public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
-  private GmailClientFactory gmailClientFactory;
+  private final GmailClientFactory gmailClientFactory;
+  private final ActionableMessageHelper actionableMessageHelper;
 
   /** Create new servlet instance (called by java during HttpRequest handling */
   public GmailActionableEmailsServlet() {
     gmailClientFactory = new GmailClientImpl.Factory();
+    actionableMessageHelper = new ActionableMessageHelperImpl();
   }
 
-  private static final List<String> METADATA_HEADERS = ImmutableList.of("Subject");
+  private static final List<String> METADATA_HEADERS =
+      ImmutableList.of("Subject", "From", "To", "List-ID");
 
   /**
    * Create new servlet instance (used for testing)
    *
    * @param authenticationVerifier implementation of AuthenticationVerifier interface
    * @param gmailClientFactory implementation of GmailClientFactory interface
+   * @param actionableMessageHelper implementation of ActionableMessageHelper interface
    */
   public GmailActionableEmailsServlet(
-      AuthenticationVerifier authenticationVerifier, GmailClientFactory gmailClientFactory) {
+      AuthenticationVerifier authenticationVerifier,
+      GmailClientFactory gmailClientFactory,
+      ActionableMessageHelper actionableMessageHelper) {
     super(authenticationVerifier);
     this.gmailClientFactory = gmailClientFactory;
+    this.actionableMessageHelper = actionableMessageHelper;
   }
 
   /**
@@ -75,11 +85,15 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
    * @param response Http response to be sent to client. Will contain a list of messages that are
    *     deemed actionable by the above criteria.
    * @param googleCredential valid, verified google credential object
+   * @param userEmail the email address of the user
    * @throws IOException If a read/write issue arises while processing the request
    */
   @Override
   public void doGet(
-      HttpServletRequest request, HttpServletResponse response, Credential googleCredential)
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Credential googleCredential,
+      String userEmail)
       throws IOException {
     GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
 
@@ -113,7 +127,8 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
     List<ActionableMessage> actionableEmails =
         gmailClient.getActionableEmails(subjectLinePhrases, unreadOnly, nDays, METADATA_HEADERS)
             .stream()
-            .map(this::createActionableMessage)
+            .map((message) -> createActionableMessage(message, userEmail))
+            .sorted(Comparator.reverseOrder())
             .collect(Collectors.toList());
     JsonUtility.sendJson(response, actionableEmails);
   }
@@ -122,15 +137,20 @@ public class GmailActionableEmailsServlet extends AuthenticatedHttpServlet {
    * Creates an ActionableMessage object from a Gmail Message
    *
    * @param message Message object from user's Gmail account
+   * @param userEmail the email address of the current user. Used for assigning priority
    * @return ActionableMessage object with information from Gmail Message object
    * @throws GmailMessageFormatException if the "Subject" header is not present (despite filtering
    *     for this in the search query).
    */
-  private ActionableMessage createActionableMessage(Message message)
+  private ActionableMessage createActionableMessage(Message message, String userEmail)
       throws GmailMessageFormatException {
     String messageId = message.getId();
     String subject = GmailUtility.extractHeader(message, "Subject").getValue();
-
-    return new ActionableMessage(messageId, subject);
+    long internalDate = message.getInternalDate();
+    ActionableMessage.MessagePriority priority =
+        actionableMessageHelper.assignMessagePriority(message, userEmail);
+    String sender =
+        GmailUtility.parseNameInFromHeader(GmailUtility.extractHeader(message, "From").getValue());
+    return new ActionableMessage(messageId, subject, internalDate, priority, sender);
   }
 }
