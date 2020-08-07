@@ -325,7 +325,7 @@ function populatePlanMail() {
           messageEventContainer.innerText = 'Click to schedule';
           for (const index in planMailResponse.potentialEventTimes) {
             if (Object.prototype.hasOwnProperty
-              .call(planMailResponse.potentialEventTimes, index)) {
+                .call(planMailResponse.potentialEventTimes, index)) {
               const buttonElement = document.createElement('button');
               buttonElement.className = 'button plan__button';
               buttonElement.innerText =
