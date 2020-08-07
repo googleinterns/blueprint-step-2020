@@ -23,7 +23,8 @@ import com.google.sps.model.CalendarClient;
 import com.google.sps.model.CalendarClientFactory;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
-import com.google.sps.servlets.FreeTimeServlet;
+import com.google.sps.model.PlanMailResponseHelper;
+import com.google.sps.servlets.PlanMailServlet;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
@@ -38,14 +39,22 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
+import com.google.api.services.gmail.model.Message;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+import java.io.ByteArrayOutputStream;
+import javax.mail.MessagingException;
 
 /** Test Calendar Servlet responds to client with correctly parsed Events. */
 @RunWith(JUnit4.class)
-public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
+public final class PlanMailServletTest extends AuthenticatedServletTestBase {
   private CalendarClientFactory calendarClientFactory;
   private CalendarClient calendarClient;
   private GmailClient gmailClient;
-  private FreeTimeServlet servlet;
+  private PlanMailResponseHelper planMailResponseHelper;
+  private PlanMailServlet servlet;
 
   private static final Gson gson = new Gson();
 
@@ -53,6 +62,9 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
   private static final String EVENT_SUMMARY_TO_READ = "Read emails";
   private static final String EVENT_SUMMARY_THREE = "test event three";
   private static final int OFFSET_YEAR = 1900;
+  private static final int NUMBER_DAYS_UNREAD = 7;
+  private static final int TEST_WORD_COUNT = 500;
+  private static final GmailClient.MessageFormat MESSAGE_FORMAT = GmailClient.MessageFormat.FULL;
   private static final CalendarListEntry PRIMARY = new CalendarListEntry().setId("primary");
   private static final CalendarListEntry SECONDARY = new CalendarListEntry().setId("secondary");
   private static final List<CalendarListEntry> ONE_CALENDAR = ImmutableList.of(PRIMARY);
@@ -87,6 +99,7 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
   private static final List<Event> EVENT_THREE =
       ImmutableList.of(
           new Event().setSummary(EVENT_SUMMARY_THREE).setStart(START_THREE).setEnd(END_THREE));
+  private static final List<Message> MESSAGES = ImmutableList.of();
 
   @Override
   @Before
@@ -96,8 +109,9 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
     calendarClient = Mockito.mock(CalendarClient.class);
     GmailClientFactory gmailClientFactory = Mockito.mock(GmailClientFactory.class);
     gmailClient = Mockito.mock(GmailClient.class);
+    planMailResponseHelper = Mockito.mock(PlanMailResponseHelper.class);
     servlet =
-        new FreeTimeServlet(authenticationVerifier, calendarClientFactory, gmailClientFactory);
+        new PlanMailServlet(authenticationVerifier, calendarClientFactory, gmailClientFactory, planMailResponseHelper);
     Mockito.when(gmailClientFactory.getGmailClient(Mockito.any())).thenReturn(gmailClient);
     Mockito.when(calendarClientFactory.getCalendarClient(Mockito.any())).thenReturn(calendarClient);
     // Writer used in get/post requests to capture HTTP response values
@@ -119,7 +133,9 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
     Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
         .thenReturn(NO_EVENT);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
-    Mockito.when(gmailClient.getWordCount(7)).thenReturn(0);
+    Mockito.when(gmailClient.getUnreadEmailsFromNDays(MESSAGE_FORMAT, NUMBER_DAYS_UNREAD)).thenReturn(MESSAGES);
+    Mockito.when(planMailResponseHelper.getWordCount(Mockito.any()))
+        .thenReturn(0);
     PlanMailResponse actual = getServletResponse();
     Assert.assertEquals(0, actual.getWordCount());
     Assert.assertEquals(50, actual.getAverageReadingSpeed());
@@ -135,7 +151,9 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
     Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
         .thenReturn(EVENT_ONE);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
-    Mockito.when(gmailClient.getWordCount(7)).thenReturn(500);
+    Mockito.when(gmailClient.getUnreadEmailsFromNDays(MESSAGE_FORMAT, NUMBER_DAYS_UNREAD)).thenReturn(MESSAGES);
+    Mockito.when(planMailResponseHelper.getWordCount(Mockito.any()))
+        .thenReturn(TEST_WORD_COUNT);
     PlanMailResponse actual = getServletResponse();
     List<Date> startHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 0));
     List<Date> endHour = Arrays.asList(new Date(2020 - OFFSET_YEAR, 4, 19, 10, 10));
@@ -162,7 +180,9 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
     Mockito.when(calendarClient.getUpcomingEvents(SECONDARY, CURRENT_TIME, END_TIME))
         .thenReturn(EVENT_TWO);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
-    Mockito.when(gmailClient.getWordCount(7)).thenReturn(500);
+     Mockito.when(gmailClient.getUnreadEmailsFromNDays(MESSAGE_FORMAT, NUMBER_DAYS_UNREAD)).thenReturn(MESSAGES);
+    Mockito.when(planMailResponseHelper.getWordCount(Mockito.any()))
+        .thenReturn(TEST_WORD_COUNT);
     PlanMailResponse actual = getServletResponse();
     Assert.assertEquals(500, actual.getWordCount());
     Assert.assertEquals(50, actual.getAverageReadingSpeed());
@@ -179,7 +199,9 @@ public final class FreeTimeServletTest extends AuthenticatedServletTestBase {
     Mockito.when(calendarClient.getUpcomingEvents(PRIMARY, CURRENT_TIME, END_TIME))
         .thenReturn(EVENT_THREE);
     Mockito.when(calendarClient.getCurrentTime()).thenReturn(CURRENT_TIME);
-    Mockito.when(gmailClient.getWordCount(7)).thenReturn(500);
+     Mockito.when(gmailClient.getUnreadEmailsFromNDays(MESSAGE_FORMAT, NUMBER_DAYS_UNREAD)).thenReturn(MESSAGES);
+    Mockito.when(planMailResponseHelper.getWordCount(Mockito.any()))
+        .thenReturn(TEST_WORD_COUNT);
     PlanMailResponse actual = getServletResponse();
     List<Date> startHour =
         Arrays.asList(

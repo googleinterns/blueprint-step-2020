@@ -15,6 +15,7 @@
 package com.google.sps.servlets;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.services.gmail.model.Message;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
@@ -27,6 +28,8 @@ import com.google.sps.model.CalendarClientImpl;
 import com.google.sps.model.GmailClient;
 import com.google.sps.model.GmailClientFactory;
 import com.google.sps.model.GmailClientImpl;
+import com.google.sps.model.PlanMailResponseHelper;
+import com.google.sps.model.PlanMailResponseHelperImpl;
 import com.google.sps.utility.DateInterval;
 import com.google.sps.utility.FreeTimeUtility;
 import com.google.sps.utility.JsonUtility;
@@ -42,29 +45,36 @@ import javax.servlet.http.HttpServletResponse;
 
 /** GET function responds JSON string containing potential events to read mail. */
 @WebServlet("/plan-mail")
-public class FreeTimeServlet extends AuthenticatedHttpServlet {
+public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
+  private final PlanMailResponseHelper planMailResponseHelper;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
-  public FreeTimeServlet() {
+  public PlanMailServlet() {
     calendarClientFactory = new CalendarClientImpl.Factory();
     gmailClientFactory = new GmailClientImpl.Factory();
+    planMailResponseHelper = new PlanMailResponseHelperImpl();
   }
 
   /**
-   * Create servlet with explicit implementations of CalendarClient and AuthenticationVerifier
+   * Create servlet with explicit implementations of CalendarClient, AuthenticationVerifier
+   * GmailClient, and PlanMailResponseHelper
    *
    * @param authenticationVerifier implementation of AuthenticationVerifier
    * @param calendarClientFactory implementation of CalendarClientFactory
+   * @param gmailClientFactory implementation of GmailClientFactory
+   * @param planMailResponseHelper implementation of PlanMailResponseHelper
    */
-  public FreeTimeServlet(
+  public PlanMailServlet(
       AuthenticationVerifier authenticationVerifier,
       CalendarClientFactory calendarClientFactory,
-      GmailClientFactory gmailClientFactory) {
+      GmailClientFactory gmailClientFactory,
+      PlanMailResponseHelper planMailResponseHelper) {
     super(authenticationVerifier);
     this.calendarClientFactory = calendarClientFactory;
     this.gmailClientFactory = gmailClientFactory;
+    this.planMailResponseHelper = planMailResponseHelper;
   }
 
   /**
@@ -72,7 +82,7 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
    * created
    *
    * @param request Http request from the client. Should contain idToken and accessToken
-   * @param response 403 if user is not authenticated, or Json string with the user's events
+   * @param response Json string with the user's events
    * @throws IOException if an issue arises while processing the request
    */
   @Override
@@ -83,7 +93,6 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
         : "Null credentials (i.e. unauthenticated requests) should already be handled";
 
     CalendarClient calendarClient = calendarClientFactory.getCalendarClient(googleCredential);
-    GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
     long fiveDaysInMillis = TimeUnit.DAYS.toMillis(5);
     Date timeMin = calendarClient.getCurrentTime();
     Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
@@ -119,11 +128,9 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
       freeTimeUtility.addEvent(eventStart, eventEnd);
     }
 
-    int numberDaysUnread = 7;
-    int wordCount = gmailClient.getWordCount(numberDaysUnread);
+    int wordCount = getWordCount(googleCredential);
     int averageReadingSpeed = 50;
-    int minutesToRead;
-    minutesToRead = wordCount == 0 ? 0 : (int) Math.ceil((double) wordCount / averageReadingSpeed);
+    int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
     timeNeeded = Math.max(0, timeNeeded - preAssignedTime);
     List<DateInterval> potentialTimes;
@@ -173,5 +180,18 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
       events.addAll(calendarClient.getUpcomingEvents(calendar, timeMin, timeMax));
     }
     return events;
+  }
+
+  private int getWordCount(Credential googleCredential) {
+    GmailClient gmailClient = gmailClientFactory.getGmailClient(googleCredential);
+    GmailClient.MessageFormat messageFormat = GmailClient.MessageFormat.FULL;
+    int numberDaysUnread = 7;
+    List<Message> unreadMessages = new ArrayList<>();
+    try {
+      unreadMessages = gmailClient.getUnreadEmailsFromNDays(messageFormat, numberDaysUnread);
+    } catch (IOException e) {
+      System.out.println(e);
+    }
+    return planMailResponseHelper.getWordCount(unreadMessages);
   }
 }
