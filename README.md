@@ -71,7 +71,7 @@ Replace the `artifactId` with your project ID.
    </plugin>
    ```
    Replace `YOUR_PROJECT_ID` with your project ID.
-   
+
    It's also worth noting that setting the project ID and version during each deploy using this command also works:
    `mvn package appengine:deploy -Dapp.deploy.version=<VERSION> -Dapp.deploy..projectId=<PROJECT_ID>`
    This would remove the need for the above configuration.
