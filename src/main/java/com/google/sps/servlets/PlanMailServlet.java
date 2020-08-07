@@ -52,6 +52,7 @@ import javax.servlet.http.HttpServletResponse;
 public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
+  private final int averageReadingSpeed = 50;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
   public PlanMailServlet() {
@@ -122,7 +123,6 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     }
 
     int wordCount = getWordCount(googleCredential);
-    int averageReadingSpeed = 50;
     int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
     List<DateInterval> potentialTimes = getPotentialTimes(freeTimeUtility, timeNeeded);
