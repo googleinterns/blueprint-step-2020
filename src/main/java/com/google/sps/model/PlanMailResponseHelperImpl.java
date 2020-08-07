@@ -14,19 +14,15 @@
 
 package com.google.sps.model;
 
+import com.google.api.client.util.StringUtils;
 import com.google.api.services.gmail.model.Message;
-import com.google.api.services.gmail.model.MessagePartHeader;
-import com.google.sps.exceptions.GmailMessageFormatException;
 import com.google.api.services.gmail.model.MessagePart;
 import com.google.common.io.BaseEncoding;
-import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import javax.mail.MessagingException;
-import com.google.api.client.util.StringUtils;
 
 /** Contains business logic to compute the word count in unread emails for the PlanMailServlet */
 public final class PlanMailResponseHelperImpl implements PlanMailResponseHelper {

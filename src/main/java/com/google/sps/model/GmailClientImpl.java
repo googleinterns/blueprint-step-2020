@@ -19,18 +19,13 @@ import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.StringUtils;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
-import com.google.api.services.gmail.model.MessagePart;
-import com.google.common.io.BaseEncoding;
 import com.google.sps.utility.ServletUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.stream.Collectors;
-import javax.mail.MessagingException;
 
 /** Handles GET requests from Gmail API */
 public class GmailClientImpl implements GmailClient {
