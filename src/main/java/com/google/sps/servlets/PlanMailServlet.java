@@ -109,7 +109,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
     // Initialize the freeTime utility. Keep track of the free time in the next 5 days, with
     // work hours as defined between 10am and 6 pm. The rest of the time between 7 am and 11 pm
     // should be considered personal time.
-    
+
     FreeTimeUtility freeTimeUtility =
         new FreeTimeUtility(
             timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);

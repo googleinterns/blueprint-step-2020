@@ -84,7 +84,7 @@ public class CalendarServlet extends AuthenticatedHttpServlet {
     Date timeMin = calendarClient.getCurrentTime();
     Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(numDays)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
-    
+
     FreeTimeUtility freeTimeUtility =
         new FreeTimeUtility(
             timeMin, personalBeginHour, workBeginHour, workEndHour, personalEndHour, numDays);
