@@ -79,7 +79,7 @@ public class PlanMailServlet extends AuthenticatedHttpServlet {
    * created
    *
    * @param request Http request from the client. Should contain idToken and accessToken
-   * @param response 403 if user is not authenticated, or Json string with the user's events
+   * @param response Json string with the user's events
    * @throws IOException if an issue arises while processing the request
    */
   @Override

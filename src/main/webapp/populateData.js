@@ -296,7 +296,8 @@ function populatePlanMail() {
         const intervalContainer = document.querySelector('#free-interval');
         intervalContainer.innerHTML = '';
         for (const index in planMailResponse.potentialMeetingTimes) {
-          if (Object.prototype.hasOwnProperty.call(planMailResponse.potentialMeetingTimes, index)) {
+          if (Object.prototype.hasOwnProperty
+                .call(planMailResponse.potentialMeetingTimes, index)) {
             const liElement = document.createElement('li');
             liElement.innerText =
               planMailResponse.potentialMeetingTimes[index].start +
