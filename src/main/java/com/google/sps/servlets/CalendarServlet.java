@@ -39,7 +39,6 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/calendar")
 public class CalendarServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
-  private static final int averageReadingSpeed = 50;
   private static final int personalBeginHour = 7;
   private static final int workBeginHour = 10;
   private static final int workEndHour = 18;
