@@ -15,6 +15,7 @@
 import com.google.api.services.tasks.model.Task;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.utility.LocationsUtility;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,8 +43,7 @@ public class LocationsUtilityTest {
   @Test
   public void getLocationNoTasks() {
     // Obtain locations in the the task notes of no tasks.
-    Assert.assertEquals(
-        ImmutableList.of(), LocationsUtility.getLocations(PREFIX, ImmutableList.of()));
+    Assert.assertTrue(LocationsUtility.getLocations(PREFIX, ImmutableList.of()).isEmpty());
   }
 
   @Test
@@ -93,9 +93,9 @@ public class LocationsUtilityTest {
   public void getEmptyLocation() {
     // Obtain location in the task notes of one task with one location with [Location: ] tag but
     // nothing inside of it.
-    Assert.assertEquals(
-        ImmutableList.of(),
-        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_EMPTY_LOCATION)));
+    Assert.assertTrue(
+        LocationsUtility.getLocations(PREFIX, ImmutableList.of(TASK_WITH_EMPTY_LOCATION))
+            .isEmpty());
   }
 
   @Test
@@ -105,5 +105,30 @@ public class LocationsUtilityTest {
         ImmutableList.of(LOCATION_ONE, LOCATION_TWO),
         LocationsUtility.getLocations(
             PREFIX, ImmutableList.of(TASK_WITH_LOCATION_ONE, TASK_WITH_LOCATION_TWO)));
+  }
+
+  @Test
+  public void getCombinationsNoLists() {
+    List<List<String>> noLists = ImmutableList.of();
+    List<List<String>> actual = LocationsUtility.generateCombinations(noLists);
+    Assert.assertEquals(ImmutableList.of(ImmutableList.of()), actual);
+  }
+
+  @Test
+  public void getCombinationsOneList() {
+    List<List<String>> oneList = ImmutableList.of(ImmutableList.of("1", "2", "3"));
+    List<List<String>> actual = LocationsUtility.generateCombinations(oneList);
+    Assert.assertEquals(
+        ImmutableList.of(ImmutableList.of("1"), ImmutableList.of("2"), ImmutableList.of("3")),
+        actual);
+  }
+
+  @Test
+  public void getCombinationsTwoLists() {
+    List<List<String>> twoLists =
+        ImmutableList.of(ImmutableList.of("1", "2"), ImmutableList.of("3"));
+    List<List<String>> actual = LocationsUtility.generateCombinations(twoLists);
+    Assert.assertEquals(
+        ImmutableList.of(ImmutableList.of("1", "3"), ImmutableList.of("2", "3")), actual);
   }
 }

@@ -44,6 +44,11 @@ input[type="text"] {
   font-weight: var(--font-weight-regular);
 }
 
+.panel__text-medium {
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-light);
+}
+
 .panel__text-icon {
   display: inline-block;
   font-size: var(--font-size-data-point);

@@ -150,3 +150,12 @@
 .u-right-align {
   margin-left: auto !important;
 }
+
+/*
+  Disables a button and gives it the 'disabled' appearance
+ */
+.u-button-disable {
+  cursor: none;
+  pointer-events: none;
+  opacity: var(--button-disabled-opacity) !important;
+}

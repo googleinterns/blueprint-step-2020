@@ -15,6 +15,7 @@
 package com.google.sps.utility;
 
 import com.google.api.services.tasks.model.Task;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -62,5 +63,37 @@ public final class LocationsUtility {
       return matcher.group(1);
     }
     return "";
+  }
+
+  /**
+   * Generates combinations of the lists and appends them to the result parameter.
+   *
+   * @param lists A list of lists to generate combinations for.
+   * @param result A pointer to a list to contain the generated combinations.
+   * @param current A list containing the combination built so far at the recursive call.
+   */
+  private static void generateCombinationsHelper(
+      List<List<String>> lists, List<List<String>> result, List<String> current) {
+    int depth = current.size();
+    if (depth == lists.size()) {
+      result.add(new ArrayList<>(current));
+      return;
+    }
+    for (int i = 0; i < lists.get(depth).size(); i++) {
+      current.add(lists.get(depth).get(i));
+      generateCombinationsHelper(lists, result, current);
+      current.remove(depth);
+    }
+  }
+
+  /**
+   * Generates all combinations of the lists recursively.
+   *
+   * @param lists A list of lists to generate combinations for.
+   */
+  public static List<List<String>> generateCombinations(List<List<String>> lists) {
+    List<List<String>> combinations = new ArrayList<>();
+    generateCombinationsHelper(lists, combinations, new ArrayList<>());
+    return combinations;
   }
 }

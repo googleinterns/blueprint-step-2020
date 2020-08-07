@@ -49,12 +49,13 @@ import javax.servlet.http.HttpServletResponse;
 
 /** GET function responds JSON string containing potential events to read mail. */
 @WebServlet("/plan-mail")
-public class FreeTimeServlet extends AuthenticatedHttpServlet {
+public class PlanMailServlet extends AuthenticatedHttpServlet {
   private final CalendarClientFactory calendarClientFactory;
   private final GmailClientFactory gmailClientFactory;
+  private static final int averageReadingSpeed = 50;
 
   /** Create servlet with default CalendarClient and Authentication Verifier implementations */
-  public FreeTimeServlet() {
+  public PlanMailServlet() {
     calendarClientFactory = new CalendarClientImpl.Factory();
     gmailClientFactory = new GmailClientImpl.Factory();
   }
@@ -65,7 +66,7 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
    * @param authenticationVerifier implementation of AuthenticationVerifier
    * @param calendarClientFactory implementation of CalendarClientFactory
    */
-  public FreeTimeServlet(
+  public PlanMailServlet(
       AuthenticationVerifier authenticationVerifier,
       CalendarClientFactory calendarClientFactory,
       GmailClientFactory gmailClientFactory) {
@@ -79,7 +80,7 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
    * created
    *
    * @param request Http request from the client. Should contain idToken and accessToken
-   * @param response 403 if user is not authenticated, or Json string with the user's events
+   * @param response Json string with the user's events
    * @throws IOException if an issue arises while processing the request
    */
   @Override
@@ -94,7 +95,9 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
     Date timeMin = calendarClient.getCurrentTime();
     Date timeMax = Date.from(timeMin.toInstant().plus(Duration.ofDays(5)));
     List<Event> calendarEvents = getEvents(calendarClient, timeMin, timeMax);
-
+    // Initialize the freeTime utility. Keep track of the free time in the next 5 days, with
+    // work hours as defined between 10am and 6 pm. The rest of the time between 7 am and 11 pm
+    // should be considered personal time.
     int personalBeginHour = 7;
     int workBeginHour = 10;
     int workEndHour = 18;
@@ -126,7 +129,6 @@ public class FreeTimeServlet extends AuthenticatedHttpServlet {
     }
 
     int wordCount = getWordCount(googleCredential);
-    int averageReadingSpeed = 50;
     int minutesToRead = (int) Math.ceil((double) wordCount / averageReadingSpeed);
     long timeNeeded = minutesToRead * TimeUnit.MINUTES.toMillis(1);
     timeNeeded = Math.max(0, timeNeeded - preAssignedTime);
