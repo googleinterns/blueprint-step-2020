@@ -4,6 +4,8 @@
 Blueprint is a centralized dashboard which introduces cross-features between our favorite Google products: Gmail, Tasks,
 and Calendar. These features are designed to enhance power users’ ability to plan and work effectively.
 
+![Blueprint Design](blueprint.png)
+
 ### Key Goals and Non-goals
 Blueprint synthesizes information from Gmail, Tasks, and Calendar to present useful/actionable highlights
 and encourage actions between them, such as automatically creating tasks or calendar events out of emails,
