@@ -212,7 +212,7 @@ public class GoServlet extends AuthenticatedHttpServlet {
    *
    * @param placeTypeWaypoints A list of place types to call search for. (e.g. restaurant,
    *     supermarket, police station)
-   * @param streetAddressWaypoints A list of coordinates to look for the place types around.
+   * @param streetAddressWaypoints A list of coordinates to look for place type matches around.
    * @return A list of lists of place IDs where each list represents the search nearby result for
    *     every known coordinate.
    * @throws PlacesException An exception thrown when an error occurs with the Places API.
@@ -221,12 +221,12 @@ public class GoServlet extends AuthenticatedHttpServlet {
       List<PlaceType> placeTypeWaypoints, List<LatLng> streetAddressWaypoints)
       throws PlacesException {
     List<List<String>> allSearchNearbyResults = new ArrayList<>();
-    for (PlaceType nonStreetAddressWaypoint : placeTypeWaypoints) {
+    for (PlaceType placeTypeWaypoint : placeTypeWaypoints) {
       List<String> searchNearbyResults = new ArrayList<>();
-      for (LatLng coordinate : streetAddressWaypoints) {
+      for (LatLng streetAddressWaypoint : streetAddressWaypoints) {
         PlacesClient placesClient = placesClientFactory.getPlacesClient(apiKey);
         String nearestMatch =
-            placesClient.searchNearby(coordinate, nonStreetAddressWaypoint, RankBy.DISTANCE);
+            placesClient.searchNearby(streetAddressWaypoint, placeTypeWaypoint, RankBy.DISTANCE);
         if (nearestMatch != null) {
           searchNearbyResults.add("place_id:" + nearestMatch);
         }

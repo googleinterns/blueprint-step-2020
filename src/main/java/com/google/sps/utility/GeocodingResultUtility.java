@@ -29,7 +29,7 @@ public class GeocodingResultUtility {
    * Geocoding API. If no street address type results are found, the coordinates of the first result
    * is returned.
    *
-   * @param result A GeocodingResult returned from the Geocoding API.
+   * @param results A List of GeocodingResult returned from the Geocoding API.
    * @return A LatLng representing coordinates.
    */
   public static Optional<LatLng> getCoordinates(List<GeocodingResult> results) {
